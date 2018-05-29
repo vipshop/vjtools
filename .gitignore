@@ -1,0 +1,12 @@
+.project
+.settings/
+.classpath
+*.log
+target/
+vjkit/bin
+vjkit/docs
+vjkit/CHANGELOG.md
+vjmap/bin
+vjtop/bin
+standard/docs/ali1.3.1.pdf
+vip-book.md

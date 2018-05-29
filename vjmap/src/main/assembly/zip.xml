@@ -1,0 +1,37 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+
+	<id>zip</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<baseDirectory>${project.artifactId}</baseDirectory>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>com.vip.vjtools:vjmap:*</include>
+			</includes>
+			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+		</dependencySet>
+	</dependencySets>
+	<files>
+		<file>
+			<source>src/main/assembly/vjmap.sh</source>
+			<outputDirectory>/</outputDirectory>
+			<destName>vjmap.sh</destName>
+			<fileMode>0755</fileMode>
+			<filtered>true</filtered>
+			<lineEnding>unix</lineEnding>
+		</file>
+		<file>
+			<source>README.md</source>
+			<outputDirectory>/</outputDirectory>
+			<destName>README.md</destName>
+			<lineEnding>unix</lineEnding>
+		</file>
+		
+	</files>
+</assembly>

@@ -1,0 +1,33 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+	<id>distribution</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<baseDirectory>${project.artifactId}</baseDirectory>
+	<files>
+		<file>
+			<source>src/main/assembly/vjtop.bat</source>
+			<outputDirectory>/</outputDirectory>
+			<lineEnding>windows</lineEnding>
+		</file>
+		<file>
+			<source>src/main/assembly/vjtop.sh</source>
+			<outputDirectory>/</outputDirectory>
+			<fileMode>0755</fileMode>
+			<lineEnding>unix</lineEnding>
+		</file>
+		<file>
+			<source>README.md</source>
+			<outputDirectory>/</outputDirectory>
+			<destName>README.md</destName>
+			<lineEnding>unix</lineEnding>
+		</file>
+		<file>
+			<source>${project.build.directory}/vjtop.jar</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+	</files>
+</assembly>
