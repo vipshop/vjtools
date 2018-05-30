@@ -7,14 +7,14 @@ VJDump是线上JVM数据紧急收集脚本。
 收集数据包括：
 * JVM启动参数及命令行参数: `jinfo -flags $PID`
 * thread dump数据：`jstack -l $PID`
-* vjtop JVM概况及繁忙线程：`vjtop.sh -n 1 -d 3 $PID`
+* vjtop JVM概况及繁忙线程：`vjtop.sh -n 1 -d 3 $PID` (需要将vjtop.sh 加入用户的PATH变量中)
 * jmap histo 堆对象统计数据：`jmap -histo $PID` & `jmap -histo:live $PID`
 * GC日志(如果JVM有设定GC日志输出)
-* heap dump数据（需指定--liveheap开启）：`jmap -dump:live,format=b,file=${JMAP_DUMP_FILE} $PID`
+* heap dump数据（需指定--liveheap开启）：`jmap -dump:live,format=b,file=${DUMP_FILE} $PID`
 
 # 2. 下载
 
-[vjdump.sh](https://github.com/vipshop/vjtools/blob/master/vjdump/vjdump.sh)
+[vjdump.sh](https://raw.githubusercontent.com/vipshop/vjtools/master/vjdump/vjdump.sh)
 
 # 3. 快速入门
 
