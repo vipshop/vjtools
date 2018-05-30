@@ -1,6 +1,6 @@
-# VJTools
+# VJTools # VJTools [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) [![Build Status](https://travis-ci.org/vipshop/vjtools.svg?branch=master)](https://travis-ci.org/vipshop/vjtools)
 
-主力于Java的唯品会，关于Java的一些小家底。 [![Build Status](https://travis-ci.org/vipshop/vjtools.svg?branch=master)](https://travis-ci.org/vipshop/vjtools)
+主力于Java的唯品会，关于Java的一些小家底。
 
 
 # Java开发手册

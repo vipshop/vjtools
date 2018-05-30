@@ -41,7 +41,6 @@ Maven:
 * 反射
 * 其他
 
-性能优化部分，见[类库中的高性能优化](http://wiki.corp.vipshop.com/pages/viewpage.action?pageId=174875086)。
 
 VJKit将Guava与Common Lang中有用的API作了提炼，避免茫茫的API。但有些著名工具类如Guava Cache，StringUtils，则建议直接使用，见[著名三方工具类](docs/famous3rd.md)
 
