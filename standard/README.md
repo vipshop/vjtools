@@ -4,8 +4,9 @@
 
 [《阿里巴巴Java开发手册》](https://github.com/alibaba/p3c)，是首个对外公布的企业级Java开发手册，对整个业界都有重要的意义。
 
-<br/>
-《唯品会Java开发手册》在其基础上，根据其他重磅的参考资料以及唯品会的实践，增补了一些我们认为价值较大的条目，同时删减了一些相对没那么重要，或不通用的规则，让规范更精炼更易记。
+《唯品会Java开发手册》在其基础上，结合唯品会的内部经验，参考《Clean Code》、《Effective Java》等重磅资料，增补了一些我们认为价值较大的条目，同时删减了一些相对没那么重要，或不通用的规则，让规范更精炼易记。
+
+感谢阿里的授权修改。
 
 
 ## 2. 规范正文
@@ -35,4 +36,4 @@
 * [《Clean Code》](https://book.douban.com/subject/4199741/)
 * [《Effective Java 2nd》](https://book.douban.com/subject/3360807/)
 * [《SEI CERT Oracle Coding Standard for Java》(在线版)](https://www.securecoding.cert.org/confluence/display/java/SEI+CERT+Oracle+Coding+Standard+for+Java)
-* Sonar代码检查规则
+* [Sonar代码检查规则](https://rules.sonarsource.com/java/)

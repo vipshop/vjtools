@@ -72,8 +72,8 @@ logger.warn("Processing trade with id: " + id + " symbol: " + symbol);
 
 例外: 应用启动和关闭时，担心日志框架还未初始化或已关闭。
 
-* [Sonar-106: Standard outputs should not be used directly to log anything](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-106)
-* [Sonar-1148: Throwable.printStackTrace(...) should not be called](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1148)
+* [Sonar-106: Standard outputs should not be used directly to log anything](https://rules.sonarsource.com/java/RSPEC-106)
+* [Sonar-1148: Throwable.printStackTrace(...) should not be called](https://rules.sonarsource.com/java/RSPEC-1148)
 
 ----  
 

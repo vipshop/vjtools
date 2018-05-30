@@ -82,7 +82,7 @@ public void put(Elephant elephant, Fridge fridge);
     
 如果无用，则直接删除（版本管理工具保存了历史代码）。
 
-* [Sonar: Sections of code should not be "commented out"](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-125)
+* [Sonar: Sections of code should not be "commented out"](https://rules.sonarsource.com/java/RSPEC-125)
 
 ----
 

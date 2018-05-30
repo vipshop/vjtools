@@ -55,7 +55,7 @@ while (it.hasNext()) {
 
 keySet遍历的方式，增加了N次用key获取value的查询。
 
-* [Sonar-2864:"entrySet()" should be iterated when both the key and value are needed](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2864)
+* [Sonar-2864:"entrySet()" should be iterated when both the key and value are needed](https://rules.sonarsource.com/java/RSPEC-2864)
 
 ----  
 
@@ -69,7 +69,7 @@ keySet遍历的方式，增加了N次用key获取value的查询。
 
 另外，对象放入集合后，会影响hashCode()，equals()结果的属性，将不允许修改。
 
-* [Sonar-2141:Classes that don't define "hashCode()" should not be used in hashes](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2141)
+* [Sonar-2141:Classes that don't define "hashCode()" should not be used in hashes](https://rules.sonarsource.com/java/RSPEC-2141)
 
 ----  
 
@@ -193,7 +193,7 @@ public enum COLOR {
 EnumMap<COLOR, String> moodMap = new EnumMap<COLOR, String> (COLOR.class);
 ```
 
-* [Sonar-1640: Maps with keys that are enum values should be replaced with EnumMap](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1640)
+* [Sonar-1640: Maps with keys that are enum values should be replaced with EnumMap](https://rules.sonarsource.com/java/RSPEC-1640)
 
 ----  
 

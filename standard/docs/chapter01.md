@@ -29,8 +29,8 @@
 
 反例： com.vip.java_tool, com.vip.javaTool
 ```
-
-* [Sonar-120:Package names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-120)
+                                                                   
+* [Sonar-120:Package names should comply with a naming convention](https://rules.sonarsource.com/java/RSPEC-120)
 
 ----  
 

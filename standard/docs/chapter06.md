@@ -16,7 +16,7 @@ if (a == b) {
 
 例外：一般由IDE生成的equals()函数
 
-* [Sonar-121: Control structures should use curly braces](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-121) Sonar-VJ版豁免了equals()函数
+* [Sonar-121: Control structures should use curly braces](https://rules.sonarsource.com/java/RSPEC-121) Sonar-VJ版豁免了equals()函数
 
 ----
 
@@ -58,7 +58,7 @@ public void applyDriverLicense() {
 }
 ```
 
-* [Sonar-134: Control flow statements "if", "for", "while", "switch" and "try" should not be nested too deeply](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-134)，增大为4
+* [Sonar-134: Control flow statements "if", "for", "while", "switch" and "try" should not be nested too deeply](https://rules.sonarsource.com/java/RSPEC-134)，增大为4
 
 ----
 
@@ -78,7 +78,7 @@ if (existed || (...)) {
 }
 ```
 
-* [Sonar-1067: Expressions should not be too complex](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1067)，增大为4
+* [Sonar-1067: Expressions should not be too complex](https://rules.sonarsource.com/java/RSPEC-1067)，增大为4
 
 ----
 
@@ -102,7 +102,7 @@ if (!(x >= 268) { ... }
 if (x < 268) { ... }
 ```
 
-* [Sonar-1940: Boolean checks should not be inverted](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1940)
+* [Sonar-1940: Boolean checks should not be inverted](https://rules.sonarsource.com/java/RSPEC-1940)
 
 ----
 
@@ -141,7 +141,7 @@ default:
 }
 ```
 
-* [Sonar: "switch" statements should end with "default" clauses](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-131)
+* [Sonar: "switch" statements should end with "default" clauses](https://rules.sonarsource.com/java/RSPEC-131)
 
 ----
 

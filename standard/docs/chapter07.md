@@ -49,7 +49,7 @@ Integer i = Integer.valueOf(str);
 int i = Integer.parseInt(str);
 ```
 
-* [Sonar-2153: Boxing and unboxing should not be immediately reversed](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2153)
+* [Sonar-2153: Boxing and unboxing should not be immediately reversed](https://rules.sonarsource.com/java/RSPEC-2153)
 
 
 **2.2 【推荐】自动拆箱有可能产生NPE，要注意处理**
@@ -84,7 +84,7 @@ int i = intObject;
 if (counter1.get() == counter2.get()){...}
 ```
 
-* [Sonar-2204: ".equals()" should not be used to test the values of "Atomic" classes](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2204)
+* [Sonar-2204: ".equals()" should not be used to test the values of "Atomic" classes](https://rules.sonarsource.com/java/RSPEC-2204)
 
 
 **3.4【强制】 double及float的比较，要特殊处理**
@@ -104,7 +104,7 @@ static final float EPSILON = 0.00001f;
 if (Math.abs(f1-f2)<EPSILON) {...}
 ```
 
-* [Sonar-1244: Floating point numbers should not be tested for equality](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1244)
+* [Sonar-1244: Floating point numbers should not be tested for equality](https://rules.sonarsource.com/java/RSPEC-1244)
 
 ----  
 
@@ -132,7 +132,7 @@ long l = Integer.MAX_VALUE * 2L; //结果是正确的4294967294
 
 另外，int的最大值约21亿，留意可能溢出的情况。
 
-* [Sonar-2184: Math operands should be cast before assignment](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2184)
+* [Sonar-2184: Math operands should be cast before assignment](https://rules.sonarsource.com/java/RSPEC-2184)
 
 
 **4.2【强制】数字取模的结果不一定是正数，负数取模的结果仍然负数**
@@ -168,7 +168,7 @@ double d2 = 1.03d - 0.42d; //结果是0.6100000000000001
 选项2， 在预知小数精度的情况下，将浮点运算放大为整数计数，比如货币以"分"而不是以"元"计算。
 
 
-* [Sonar-2164: Math should not be performed on floats](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2164)
+* [Sonar-2164: Math should not be performed on floats](https://rules.sonarsource.com/java/RSPEC-2164)
 
 ----  
 
@@ -214,7 +214,7 @@ for (int i = 0; i < 100; i++) {
 反编译出的字节码文件显示，其实每条用`+`进行字符拼接的语句，都会new出一个StringBuilder对象，然后进行append操作，最后通过toString方法返回String对象。所以上面两个错误例子，会重复构造StringBuilder，重复toString()造成资源浪费。
 
 
-* [Sonar-1643: Strings should not be concatenated using '+' in a loop](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1643)
+* [Sonar-1643: Strings should not be concatenated using '+' in a loop](https://rules.sonarsource.com/java/RSPEC-1643)
 
 
 **6.2 【强制】 字符串拼接对象时，不要显式调用对象的toString()**
@@ -234,7 +234,7 @@ str = "result:" + myObject;  // myObject为Null时，输出 result:null
 
 因为内联不成功，逃逸分析并不能抹除StringBuffer上的同步修饰符
 
-* [Sonar-1149: Synchronized classes Vector, Hashtable, Stack and StringBuffer should not be used](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1149)
+* [Sonar-1149: Synchronized classes Vector, Hashtable, Stack and StringBuffer should not be used](https://rules.sonarsource.com/java/RSPEC-1149)
 
 
 **6.4 【推荐】当拼接后字符串的长度远大于16时，指定StringBuilder的大概长度，避免容量不足时的成倍扩展**
@@ -260,7 +260,7 @@ str.replace('m','z');
 
 其他包括split等方法，在JDK String中未提供针对字符参数的方法，可考虑使用Apache Commons StringUtils 或Guava的Splitter。
 
-* [Sonar-3027: String function use should be optimized for single characters](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-3027)
+* [Sonar-3027: String function use should be optimized for single characters](https://rules.sonarsource.com/java/RSPEC-3027)
 
 ----  
 

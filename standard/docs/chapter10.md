@@ -22,7 +22,7 @@ if (obj == null) {
 }     
 ```
 
-* [Sonar-1696: "NullPointerException" should not be caught](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1696)
+* [Sonar-1696: "NullPointerException" should not be caught](https://rules.sonarsource.com/java/RSPEC-1696)
 
 ----
 
@@ -126,7 +126,7 @@ try {
 }
 ```
 
-* [Sonar-2147: Catches should be combined](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2147)
+* [Sonar-2147: Catches should be combined](https://rules.sonarsource.com/java/RSPEC-2147)
 
 ----
 
@@ -164,7 +164,7 @@ throw new MyException("message");
 throw new MyException("message", ex); 
 ```  
 
-* [Sonar-1166: Exception handlers should preserve the original exceptions](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1166)，其中默认包含了InterruptedException, NumberFormatException，NoSuchMethodException等若干例外
+* [Sonar-1166: Exception handlers should preserve the original exceptions](https://rules.sonarsource.com/java/RSPEC-1166)，其中默认包含了InterruptedException, NumberFormatException，NoSuchMethodException等若干例外
 
 
 **7.3 【强制】如果不想处理异常，可以不进行捕获。但最外层的业务使用者，必须处理异常，将其转化为用户可以理解的内容**
@@ -206,7 +206,7 @@ try {
 }
 ```
 
-* [Sonar-1163: Exceptions should not be thrown in finally blocks](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1163)
+* [Sonar-1163: Exceptions should not be thrown in finally blocks](https://rules.sonarsource.com/java/RSPEC-1163)
 
 
 **8.3 【强制】不能在finally块中使用return，finally块中的return将代替try块中的return及throw Exception**
@@ -228,7 +228,7 @@ try {
 }
 ```
 
-* [Sonar-1143: Jump statements should not occur in "finally" blocks](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1143)
+* [Sonar-1143: Jump statements should not occur in "finally" blocks](https://rules.sonarsource.com/java/RSPEC-1143)
 
 ----
 

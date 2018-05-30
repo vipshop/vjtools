@@ -9,7 +9,7 @@
 ```
 例外：-1,0,1,2,3 不认为是魔法数
 
-* [Sonar-109: Magic numbers should not be used](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-109) 但现实中所谓魔法数还是太多，该规则不能被真正执行。
+* [Sonar-109: Magic numbers should not be used](https://rules.sonarsource.com/java/RSPEC-109) 但现实中所谓魔法数还是太多，该规则不能被真正执行。
 
 ----
 
@@ -53,7 +53,7 @@ argv++; argc--;
 int level, size;
 ```
 
-* [Sonar-1659: Multiple variables should not be declared on the same line](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1659)
+* [Sonar-1659: Multiple variables should not be declared on the same line](https://rules.sonarsource.com/java/RSPEC-1659)
 
 ----  
 

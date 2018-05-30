@@ -76,7 +76,7 @@ foo.init();
     
 最后，建议在IDE的Save Action中配置自动添加`@Override`注解，如果无意间错误同名覆写了父类方法也能被发现。
 
-* [Sonar-1161: "@Override" should be used on overriding and implementing methods](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1161)
+* [Sonar-1161: "@Override" should be used on overriding and implementing methods](https://rules.sonarsource.com/java/RSPEC-1161)
 
 ----
 
@@ -105,8 +105,8 @@ int i = objectA.staticMethod(); // WRONG
 int i = ClassA.staticMethod(); // RIGHT
 ```
 
-* [Sonar-2209: "static" members should be accessed statically](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2209)
-* [Sonar-2440: Classes with only "static" methods should not be instantiated](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2440)
+* [Sonar-2209: "static" members should be accessed statically](https://rules.sonarsource.com/java/RSPEC-2209)
+* [Sonar-2440: Classes with only "static" methods should not be instantiated](https://rules.sonarsource.com/java/RSPEC-2440)
 
 
 **9.2 【推荐】除测试用例，不要static import 静态方法**
@@ -115,7 +115,7 @@ int i = ClassA.staticMethod(); // RIGHT
 
 例外：测试环境中的assert语句，大家都太熟悉了。
 
-* [Sonar-3030: Classes should not have too many "static" imports](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-3030) 但IDEA经常自动转换static import，所以暂不作为规则。
+* [Sonar-3030: Classes should not have too many "static" imports](https://rules.sonarsource.com/java/RSPEC-3030) 但IDEA经常自动转换static import，所以暂不作为规则。
 
 
 **9.3【推荐】尽量避免在非静态方法中修改静态成员变量的值**
@@ -127,8 +127,8 @@ public void foo() {
 }
 ```
 
-* [Sonar-2696: Instance methods should not write to "static" fields](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2696)
-* [Sonar-3010: Static fields should not be updated in constructors](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-3010)
+* [Sonar-2696: Instance methods should not write to "static" fields](https://rules.sonarsource.com/java/RSPEC-2696)
+* [Sonar-3010: Static fields should not be updated in constructors](https://rules.sonarsource.com/java/RSPEC-3010)
 
 
 ----  
@@ -151,8 +151,8 @@ public void foo() {
 1. 非静态内部类持有外部类的引用，能访问外类的实例方法与属性。构造时多传入一个引用对性能没有太大影响，更关键的是向阅读者传递自己的意图，内部类会否访问外部类。
 2. 非静态内部类里不能定义static的属性与方法。
  
-* [Sonar-2694: Inner classes which do not reference their owning classes should be "static"](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2694)
-* [Sonar-1604: Anonymous inner classes containing only one method should become lambdas](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1604)
+* [Sonar-2694: Inner classes which do not reference their owning classes should be "static"](https://rules.sonarsource.com/java/RSPEC-2694)
+* [Sonar-1604: Anonymous inner classes containing only one method should become lambdas](https://rules.sonarsource.com/java/RSPEC-1604)
 
 ----  
 
@@ -200,7 +200,7 @@ public void foo() {
 **13.4【强制】类的属性增加时，及时重新生成toString，hashCode和equals方法。**
 
 
-* [Sonar-1206: "equals(Object obj)" and "hashCode()" should be overridden in pairs](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1206)
+* [Sonar-1206: "equals(Object obj)" and "hashCode()" should be overridden in pairs](https://rules.sonarsource.com/java/RSPEC-1206)
 
 ----  
 
@@ -222,7 +222,7 @@ public void foo() {
 Objects.equals(object, "test"); //RIGHT
 ```
 
-* [Sonar-1132: Strings literals should be placed on the left side when checking for equality](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1132)
+* [Sonar-1132: Strings literals should be placed on the left side when checking for equality](https://rules.sonarsource.com/java/RSPEC-1132)
 
 ----  
 
@@ -230,11 +230,11 @@ Objects.equals(object, "test"); //RIGHT
 
 特别是private的属性、方法、内部类，private方法上的参数，一旦无用立刻移除。信任代码版本管理系统。
 
-* [Sonar-3985: Unused "private" classes should be removed](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-3985)
-* [Sonar-1068: Unused "private" fields should be removed](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1068)
-* [Sonar: Unused "private" methods should be removed](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1144)
-* [Sonar-1481: Unused local variables should be removed](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1481)
-* [Sonar-1172: Unused method parameters should be removed](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1172) Sonar-VJ版只对private方法的无用参数告警。
+* [Sonar-3985: Unused "private" classes should be removed](https://rules.sonarsource.com/java/RSPEC-3985)
+* [Sonar-1068: Unused "private" fields should be removed](https://rules.sonarsource.com/java/RSPEC-1068)
+* [Sonar: Unused "private" methods should be removed](https://rules.sonarsource.com/java/RSPEC-1144)
+* [Sonar-1481: Unused local variables should be removed](https://rules.sonarsource.com/java/RSPEC-1481)
+* [Sonar-1172: Unused method parameters should be removed](https://rules.sonarsource.com/java/RSPEC-1172) Sonar-VJ版只对private方法的无用参数告警。
 
 
 ----  

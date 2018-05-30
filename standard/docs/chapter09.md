@@ -113,7 +113,7 @@ public void myMethod() {
 }
 ```
 
-* [Sonar-2142: "InterruptedException" should not be ignored](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2142)
+* [Sonar-2142: "InterruptedException" should not be ignored](https://rules.sonarsource.com/java/RSPEC-2142)
 
 
 
@@ -186,7 +186,7 @@ public void digest(byte[] input) {
 }
 ```
 
-* [Sonar-2885: Non-thread-safe fields should not be static](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2885)
+* [Sonar-2885: Non-thread-safe fields should not be static](https://rules.sonarsource.com/java/RSPEC-2885)
 * Facebook-Contrib: Correctness - Field is an instance based ThreadLocal variable
 
 ----
@@ -298,7 +298,7 @@ public void myMethod() {
 }
 ```
 
-* [Sonar-2168: Double-checked locking should not be used](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2168)
+* [Sonar-2168: Double-checked locking should not be used](https://rules.sonarsource.com/java/RSPEC-2168)
 
 ----
 

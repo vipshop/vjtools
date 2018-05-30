@@ -7,7 +7,7 @@
 另外，方法长度超过8000个字节码时，将不会被JIT编译成二进制码。
 
 
-* [Sonar-107: Methods should not have too many lines](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-107)，默认值改为100
+* [Sonar-107: Methods should not have too many lines](https://rules.sonarsource.com/java/RSPEC-107)，默认值改为100
 * Facebook-Contrib:Performance - This method is too long to be compiled by the JIT
 
 ----
@@ -56,7 +56,7 @@ try {
 
 3）将函数拆分成多个函数，让每个函数所需的参数减少。
    
-* [Sonar-107: Methods should not have too many parameters](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-107)
+* [Sonar-107: Methods should not have too many parameters](https://rules.sonarsource.com/java/RSPEC-107)
 
 ----  
 
@@ -157,7 +157,7 @@ a.hello(arrayList);
     
 `com.sun.*`，`sun.*`包下的类，或者底层类库中名称为internal的包下的类，都是不对外暴露的，可随时被改变的不稳定类。
 
-* [Sonar-1191: Classes from "sun.*" packages should not be used](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1191)
+* [Sonar-1191: Classes from "sun.*" packages should not be used](https://rules.sonarsource.com/java/RSPEC-1191)
 
 ----
 
