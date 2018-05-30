@@ -8,7 +8,7 @@ vjmap 原始思路来源于[tbjmap](https://github.com/alibaba/TBJMap) 进行了
 
 # 2.vjmap使用
 
-[下载](http://mvn1.tools.vipshop.com/nexus/index.html#nexus-search;quick~vjmap), 点击zip文件的`Artifact Information` Tab，下载并解压。
+maven编译后得到zip包，解压后运行。
 
 注意：vjmap在执行过程中，会完全停止应用，必须摘流量执行！！！
 

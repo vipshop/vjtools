@@ -48,12 +48,12 @@ try {
 
 例外: 你不希望依赖整个对象，传播了类之间的依赖性。 
 
-<br/>
+
 2）将多个参数合并为一个新创建的逻辑对象。
 
 例外: 多个参数之间毫无逻辑关联。    
 
-<br/>
+
 3）将函数拆分成多个函数，让每个函数所需的参数减少。
    
 * [Sonar-107: Methods should not have too many parameters](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-107)
@@ -85,12 +85,12 @@ Validate.isTrue(length > 2, "length is %d, less than 2", length);
 
 1） 极有可能被循环调用的方法。    
 
-<br/>
+
 2） 底层调用频度比较高的方法。毕竟是像纯净水过滤的最后一道，参数错误不太可能到底层才会暴露问题。
 
 比如，一般DAO层与Service层都在同一个应用中，所以DAO层的参数校验，可以省略。
 
-<br/>
+
 3） 被声明成private，或其他只会被自己代码所调用的方法，如果能够确定在调用方已经做过检查，或者肯定不会有问题则可省略。    
     
 即使忽略检查，也尽量在方法说明里注明参数的要求，比如vjkit中的@NotNull，@Nullable标识。

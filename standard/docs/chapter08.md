@@ -6,10 +6,10 @@
 
 数组有大小限制，当超过容量时，需要进行复制式扩容，新申请一个是原来容量150% or 200%的数组，将原来的内容复制过去，同时浪费了内存与性能。HashMap/HashSet的扩容，还需要所有键值对重新落位，消耗更大。
 
-<br/>
+
 默认构造函数使用默认的数组大小，比如ArrayList默认大小为10，HashMap为16。因此建议使用ArrayList(int initialCapacity)等构造函数，明确初始化大小。
     
-<br/>
+
 HashMap/HashSet的初始值还要考虑加载因子:
 
 为了降低哈希冲突的概率(Key的哈希值按数组大小取模后，如果落在同一个数组下标上，将组成一条需要遍历的Entry链)，默认当HashMap中的键值对达到数组大小的75%时，即会触发扩容。因此，如果预估容量是100，即需要设定`100/0.75＝134`的数组大小。vjkit的MapUtil的Map创建函数封装了该计算。
@@ -107,10 +107,10 @@ keySet遍历的方式，增加了N次用key获取value的查询。
    
 推荐使用`java.util.concurrent(JUC)`工具包中的并发版集合，如ConcurrentHashMap等，优于使用Collections.synchronizedXXX()系列函数进行同步化封装(等价于在每个方法都加上synchronized关键字)。
 
-<br>
+
 例外：ArrayList所对应的CopyOnWriteArrayList，每次更新时都会复制整个数组，只适合于读多写很少的场景。如果频繁写入，可能退化为使用Collections.synchronizedList(list)。
 
-<br>
+
 2) 即使线程安全类仍然要注意函数的正确使用。
 
 例如：即使用了ConcurrentHashMap，但直接是用get/put方法，仍然可能会多线程间互相覆盖。
@@ -156,7 +156,7 @@ Iterable<Integer> integers = ...;
 stack.pushAll(integers);
 ```
 
-<br/>
+
 2) 如果集合要被写入，定义成`<? super T>`
 
 ```java

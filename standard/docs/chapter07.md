@@ -4,13 +4,13 @@
 
 **1.1 【推荐】需要序列化的POJO类属性使用包装数据类型** 
 
-<br/>
+
 **1.2 【推荐】RPC方法的返回值和参数使用包装数据类型** 
 
-<br/>
+
 **1.3 【推荐】局部变量尽量使用基本数据类型**
 
-<br>    
+    
 包装类型的坏处:  
 
 1）Integer 24字节，而原子类型 int 4字节。
@@ -19,7 +19,7 @@
 
 3）包装类型还有==比较的陷阱（见规则3）
 
-<br>
+
 包装类型的好处:
 
 1）包装类型能表达Null的语义。 
@@ -51,7 +51,7 @@ int i = Integer.parseInt(str);
 
 * [Sonar-2153: Boxing and unboxing should not be immediately reversed](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2153)
 
-<br/>
+
 **2.2 【推荐】自动拆箱有可能产生NPE，要注意处理**
 
 ```java
@@ -67,14 +67,14 @@ int i = intObject;
       
 \==判断对象是否同一个。Integer var = ?在缓存区间的赋值（见规则1），会复用已有对象，因此这个区间内的Integer使用 \==进行判断可通过，但是区间之外的所有数据，则会在堆上新产生，不会通过。因此如果用\== 来比较数值，很可能在小的测试数据中通过，而到了生产环境才出问题。
 
-<br/>
+
 **3.2【强制】 BigDecimal需要使用compareTo()**
 
 因为BigDecimal的equals()还会比对精度，2.0与2.00不一致。
 
 * Facebook-Contrib: Correctness - Method calls BigDecimal.equals()
 
-<br/>
+
 **3.3【强制】 Atomic* 系列，不能使用equals方法**
 
 因为 Atomic* 系列没有覆写equals方法。
@@ -86,7 +86,7 @@ if (counter1.get() == counter2.get()){...}
 
 * [Sonar-2204: ".equals()" should not be used to test the values of "Atomic" classes](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2204)
 
-<br/>
+
 **3.4【强制】 double及float的比较，要特殊处理**
 
 因为精度问题，浮点数间的equals非常不可靠，在vjkit的NumberUtil中有对应的封装函数。
@@ -134,7 +134,7 @@ long l = Integer.MAX_VALUE * 2L; //结果是正确的4294967294
 
 * [Sonar-2184: Math operands should be cast before assignment](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2184)
 
-<br/>
+
 **4.2【强制】数字取模的结果不一定是正数，负数取模的结果仍然负数**
 
 取模做数组下标时，如果不处理负数的情况，很容易ArrayIndexOutOfBoundException。
@@ -148,7 +148,7 @@ Math.abs(Integer.MIN_VALUE) = -2147483648;
 
 * Findbugs: Style - Remainder of hashCode could be negative
 
-<br/>
+
 **4.3【推荐】 double 或 float 计算时有不可避免的精度问题**
 
 ```java
@@ -216,7 +216,7 @@ for (int i = 0; i < 100; i++) {
 
 * [Sonar-1643: Strings should not be concatenated using '+' in a loop](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1643)
 
-<br/>
+
 **6.2 【强制】 字符串拼接对象时，不要显式调用对象的toString()**
 
 如上，`+`实际是StringBuilder，本身会调用对象的toString()，且能很好的处理null的情况。
@@ -229,17 +229,17 @@ str = "result:" + myObject.toString();  // myObject为Null时，抛NPE
 str = "result:" + myObject;  // myObject为Null时，输出 result:null
 ```
 
-<br/>
+
 **6.3【强制】使用StringBuilder，而不是有所有方法都有同步修饰符的StringBuffer**
 
 因为内联不成功，逃逸分析并不能抹除StringBuffer上的同步修饰符
 
 * [Sonar-1149: Synchronized classes Vector, Hashtable, Stack and StringBuffer should not be used](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1149)
 
-<br/>
+
 **6.4 【推荐】当拼接后字符串的长度远大于16时，指定StringBuilder的大概长度，避免容量不足时的成倍扩展**
 
-<br/>
+
 **6.5 【推荐】如果字符串长度很大且频繁拼接，可考虑ThreadLocal重用StringBuilder对象**
 
 参考BigDecimal的toString()实现，及vjkit中的StringBuilderHolder。

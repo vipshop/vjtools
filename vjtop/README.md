@@ -12,7 +12,7 @@
 
 ## 2.1 概述
 
-[下载包](http://mvn1.tools.vipshop.com/nexus/index.html#nexus-search;quick~vjtop), 点击zip文件的`Artifact Information` Tab，下载并解压。
+maven编译后得到zip包，解压后运行。
 
 需要设置JAVA_HOME 环境变量，需要与所探测的JVM同一个用户，或Root用户运行
 

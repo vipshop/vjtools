@@ -28,8 +28,5 @@ cat chapter12.md >> vip-java-standard.md
 echo '\n' >> vip-java-standard.md
 cat ali.md >> vip-java-standard.md
 
-sed  -e "s|<br/>||g" -i bak vip-java-standard.md
-sed  -e "s|<br>||g" -i bak vip-java-standard.md
-
 
 echo 'upload vip-java-standard.md to http://www.mdtr2pdf.com'

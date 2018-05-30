@@ -17,10 +17,10 @@
 
 1）获取当前毫秒数System.currentTimeMillis() 而不是new Date().getTime()，后者的消耗要大得多。
 
-<br/>
+
 2）如果要获得更精确的，且不受NTP时间调整影响的流逝时间，使用System.nanoTime()获得机器从启动到现在流逝的纳秒数。
 
-<br/>
+
 3）如果希望在测试用例中控制当前时间的值，则使用vjkit的Clock类封装，在测试和生产环境中使用不同的实现。
 
 ----  

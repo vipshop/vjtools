@@ -4,8 +4,8 @@
 
 将下列profile下载并导入IDE即可，导入后Profile名称为`vipshop2.0`：
 
-* [Eclipse Code Formatter Profile](http://gitlab.tools.vipshop.com/venus-framework/vjtools/raw/master/standard/formatter/vipshop-code-conventions.xml)
-* [Intellij Code Formatter Profile](http://gitlab.tools.vipshop.com/venus-framework/vjtools/raw/master/standard/formatter/vipshop-code-conventions-idea.xml)
+* [Eclipse Code Formatter Profile](https://raw.githubusercontent.com/vipshop/vjtools/master/standard/formatter/vipshop-code-conventions.xml)
+* [Intellij Code Formatter Profile](https://raw.githubusercontent.com/vipshop/vjtools/master/standard/formatter/vipshop-code-conventions-idea.xml)
 
 因为Intellij导入Eclipse Profile存在问题，因此同时提供了两者的Profile。
 
@@ -27,7 +27,6 @@
 
 ## 3. 与IDEA默认模板的区别
 
-详见 [idea和eclipse默认模板的区别](http://wiki.corp.vipshop.com/pages/viewpage.action?pageId=424282717)
 
 本模板参考了Intellij IDEA默认模板中如下部分： 
 

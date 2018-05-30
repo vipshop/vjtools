@@ -27,7 +27,7 @@ logger.debug("Processing trade with id: " + id + " symbol: " + symbol);
 logger.debug("Processing trade with id: {} symbol : {} ", id, symbol);
 ```
 
-<br/>
+
 但如果symbol.getMessage()本身是个消耗较大的动作，占位符在此时并没有帮助，须要改为条件判断方式来完全避免它的执行。
 
 ```java

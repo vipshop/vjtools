@@ -44,12 +44,12 @@ Executors返回的线程池对象的弊端 ：
 
 允许的请求队列长度为 Integer.MAX_VALUE，可能会堆积大量的请求，从而导致 OOM。 
 
-<br/>
+
 2）CachedThreadPool 和 ScheduledThreadPool:
 
 允许的创建线程数量为 Integer.MAX_VALUE，可能会创建大量的线程，从而导致 OOM。
 
-<br/>
+
 应通过 new ThreadPoolExecutor(xxx,xxx,xxx,xxx)这样的方式，更加明确线程池的运行规则，合理设置Queue及线程池的core size和max size，建议使用vjkit封装的ThreadPoolBuilder。
 
 ----
@@ -95,7 +95,7 @@ public void run() {
 }
 ```
 
-<br/>
+
 **5.1 正确处理InterruptException**
 
 因为InterruptException异常是个必须处理的Checked Exception，所以run()所调用的子函数很容易吃掉异常并简单的处理成打印日志，但这等于停止了中断的传递，外层函数将收不到中断请求，继续原有循环或进入下一个堵塞。
@@ -115,7 +115,7 @@ public void myMethod() {
 
 * [Sonar-2142: "InterruptedException" should not be ignored](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2142)
 
-<br/>
+
 
 **5.2 主循环及进入阻塞状态前要判断线程状态**
 
@@ -146,7 +146,7 @@ public void run() {
 
 3) 如果没有在ThreadFactory设置自定义的UncaughtExceptionHanlder，则异常最终只打印在System.err，而不会打印在项目的日志中。
 
-<br/>
+
 因此建议自写的Runnable都要保证捕获异常; 如果是第三方的Runnable，可以将其再包裹一层vjkit中的SafeRunnable。
 
 ```java
@@ -233,7 +233,7 @@ synchronized(A.class) {
 
 2） Array Base的queue一般是全局一把锁，而Linked Base的queue一般是队头队尾两把锁。
 
-<br/>
+
 
 * 分散锁（又称分段锁）：
 
@@ -241,7 +241,7 @@ synchronized(A.class) {
 
 2）对于经常写，少量读的计数器，推荐使用JDK8或vjkit封装的LongAdder对象性能更好（内部分散成多个counter，减少乐观锁的使用，取值时再相加所有counter）
 
-<br/>
+
 
 * 无锁的数据结构： 
 

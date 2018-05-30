@@ -89,16 +89,16 @@ private static Logger logger = Logger.getLogger(MyClass.class);
 
 1）如果上下文很清晰，局部变量可以使用 `list` 这种简略命名， 否则应该使用 `userList` 这种更清晰的命名。
 
-<br/>
+
 2）禁止 `a1, a2, a3` 这种带编号的没诚意的命名方式。
 
-<br/>
+
 3）方法的参数名叫 `bookList` ，方法里的局部变量名叫 `theBookList` 也是很没诚意。
 
-<br/>
+
 4）如果一个应用里同时存在 `Account、AccountInfo、AccountData` 类，或者一个类里同时有 `getAccountInfo()、getAccountData()`, `save()、 store()` 的函数，阅读者将非常困惑。
 
-<br/>
+
 5） `callerId` 与 `calleeId`， `mydearfriendswithA` 与 `mydearfriendswithB` 这种拼写极度接近，考验阅读者眼力的。 
 
 ----  

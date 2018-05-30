@@ -45,7 +45,7 @@ MyClass.class, "mymethod");
 throw TIMEOUT_EXCEPTION;
 ```
 
-<br>
+
 2） 如果异常的message会变化，则对静态的异常实例进行clone()再修改message。
 
 Exception默认不是Cloneable的，`CloneableException`见vjkit。
@@ -59,7 +59,7 @@ private static CloneableException TIMEOUT_EXCEPTION = new CloneableException("Ti
 throw TIMEOUT_EXCEPTION.clone("Timeout for 40ms");
 ```
 
-<br>
+
 3）自定义异常，也可以考虑重载fillStackTrace()为空函数，但相对没那么灵活，比如无法按场景指定一层的StackTrace。
 
 ----
@@ -100,7 +100,7 @@ logger.error("user[" + userId + "] expired:" + e.getMessage(), e);
 
 尽量使用JDK标准的Runtime异常如`IllegalArgumentException`，`IllegalStateException`，`UnsupportedOperationException`，项目定义的Exception如`ServiceException`。
 
-<br>
+
 **5.2 【推荐】根据调用者的需要来定义异常类，直接使用`RuntimeException`是允许的**
 
 是否定义独立的异常类，关键是调用者会如何处理这个异常，如果没有需要特别的处理，直接抛出RuntimeException也是允许的。
@@ -115,7 +115,7 @@ logger.error("user[" + userId + "] expired:" + e.getMessage(), e);
 
 捕获Throwable是为了捕获Error类异常，包括其实无法处理的`OOM` `StackOverflow` `ThreadDeath`，以及类加载，反射时可能抛出的`NoSuchMethodError` `NoClassDefFoundError`等。
 
-<br>
+
 **6.2【推荐】多个异常的处理逻辑一致时，使用JDK7的语法避免重复代码**
 
 ```java
@@ -149,7 +149,7 @@ try {
 }
 ```
 
-<br/>  
+  
 **7.2 【强制】异常处理不能吞掉原异常，要么在日志打印，要么在重新抛出的异常里包含原异常**
 
 ```java
@@ -166,7 +166,7 @@ throw new MyException("message", ex);
 
 * [Sonar-1166: Exception handlers should preserve the original exceptions](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1166)，其中默认包含了InterruptedException, NumberFormatException，NoSuchMethodException等若干例外
 
-<br/>
+
 **7.3 【强制】如果不想处理异常，可以不进行捕获。但最外层的业务使用者，必须处理异常，将其转化为用户可以理解的内容**
 
 ----
@@ -185,7 +185,7 @@ try (Writer writer = ...) {
 }
 ```
 
-<br/>
+
 **8.2 【强制】如果处理过程中有抛出异常的可能，也要做try-catch，否则finally块中抛出的异常，将代替try块中抛出的异常**
 
 ```java
@@ -208,7 +208,7 @@ try {
 
 * [Sonar-1163: Exceptions should not be thrown in finally blocks](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1163)
 
-<br/>
+
 **8.3 【强制】不能在finally块中使用return，finally块中的return将代替try块中的return及throw Exception**
 
 ```java

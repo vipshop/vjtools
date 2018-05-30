@@ -108,7 +108,7 @@ int i = ClassA.staticMethod(); // RIGHT
 * [Sonar-2209: "static" members should be accessed statically](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2209)
 * [Sonar-2440: Classes with only "static" methods should not be instantiated](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-2440)
 
-<br>
+
 **9.2 【推荐】除测试用例，不要static import 静态方法**
 
 静态导入后忽略掉的类名，给阅读者造成障碍。
@@ -117,7 +117,7 @@ int i = ClassA.staticMethod(); // RIGHT
 
 * [Sonar-3030: Classes should not have too many "static" imports](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-3030) 但IDEA经常自动转换static import，所以暂不作为规则。
 
-<br>
+
 **9.3【推荐】尽量避免在非静态方法中修改静态成员变量的值**
 
 ```java
@@ -145,7 +145,7 @@ public void foo() {
 
 在性能上没有区别；当内部类会被多个地方调用，或匿名内部类的长度太长，已影响对调用它的方法的阅读时，定义有名字的内部类。
 
-<br>
+
 2) 静态内部类 与 内部类，优先使用静态内部类：
 
 1. 非静态内部类持有外部类的引用，能访问外类的实例方法与属性。构造时多传入一个引用对性能没有太大影响，更关键的是向阅读者传递自己的意图，内部类会否访问外部类。
@@ -172,7 +172,7 @@ public void foo() {
     
 但getter/seter中不应有复杂的业务处理，建议另外封装函数，并且不要以getXX/setXX命名。
 
-<br>
+
 如果是内部类，以及无逻辑的POJO/VO类，使用getter/setter除了让一些纯OO论者感觉舒服，没有任何的好处，建议直接使用public成员变量。
 
 例外：有些序列化框架只能从getter/setter反射，不能直接反射public成员变量。
@@ -187,19 +187,19 @@ public void foo() {
 
 **Rule 13. hashCode和equals方法的处理，遵循如下规则:**
 
-<br>
+
 **13.1【强制】只要重写equals，就必须重写hashCode。 而且选取相同的属性进行运算。**
 
-<br>
+
 **13.2【推荐】只选取真正能决定对象是否一致的属性，而不是所有属性，可以改善性能。**
 
-<br>
+
 **13.3【推荐】对不可变对象，可以缓存hashCode值改善性能（比如String就是例子）。**
 
-<br>
+
 **13.4【强制】类的属性增加时，及时重新生成toString，hashCode和equals方法。**
 
-<br>
+
 * [Sonar-1206: "equals(Object obj)" and "hashCode()" should be overridden in pairs](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1206)
 
 ----  
