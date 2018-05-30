@@ -25,6 +25,7 @@
 | -------- | -------- |
 | [vjmap](/vjmap)  | 打印堆内各分代中对象的统计信息 |
 | [vjtop](/vjtop)  | 打印JVM概况及繁忙的java线程 |
+| [vjdump](/vjdump)  | 线上JVM数据紧急收集脚本 |
 
 
-其他推荐的三方问题排查及性能调优工具包括：btrace，greys，async-profiler
+其他常用问题排查及性能调优工具：[btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)

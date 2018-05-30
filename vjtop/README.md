@@ -1,8 +1,8 @@
 # 1. 概述
 
-与top显示“操作系统概况与繁忙进程细节”相对应，vjtop显示“JVM进程概况与繁忙线程细节”。
+若你习惯以Top观察“OS指标及繁忙的进程”，也推荐以VJTop观看 “JVM指标及CPU/内存繁忙的线程”。
 
-在[jvmtop](https://github.com/patric-r/jvmtop) 的基础上二次开发，结合 [SJK](https://github.com/aragozin/jvm-tools)的优点，以及一些更好的想法。
+在[jvmtop](https://github.com/patric-r/jvmtop) 的基础上二次开发，结合 [SJK](https://github.com/aragozin/jvm-tools)的优点，从/proc ， PerfData，JMX等处，以更高的性能，获取更多的信息。
 
 运行时不造成应用停顿，可在线上安全使用。
 
@@ -14,14 +14,11 @@
 
 maven编译后得到zip包，解压后运行。
 
-需要设置JAVA_HOME 环境变量，需要与所探测的JVM同一个用户，或Root用户运行
+需要设置JAVA_HOME 环境变量，必须与目标JVM使用相同用户运行，如果执行时仍然有权限错误，改用root用户执行。
 
 ```
-// CPU最多的线程
+// 占用CPU最多的线程
 ./vjtop.sh <PID>
-
-// 内存分配最频繁的线程
-./vjtop.sh --memory <PID>
 ```
 
 ## 2.2 原理：
@@ -29,12 +26,10 @@ maven编译后得到zip包，解压后运行。
 ### 2.21 进程区数据来源
 
 * 从/proc/PID/* 文件中获取进程数据
-* 从JDK的PerfData文件中获取JVM数据
-* 使用目标JVM的JMX中获取JVM数据
+* 从JDK的PerfData文件中获取JVM数据(JDK每秒写入/tmp/herfxxxx文件的统计数据)
+* 使用目标JVM的JMX中获取JVM数据（如果目标JVM还没启动JMX，通过attach方式动态加载）
 
-如果目标JVM还没启动JMX，通过attach方式动态加载。
-
-如果数据同时在PerfData(JDK每秒写入/tmp/herfxxxx文件的统计数据)和JMX存在， 优先使用PerfData，如果PerfData被屏蔽，则使用JMX。 
+如果数据同时在PerfData和JMX存在，优先使用PerfData，如果PerfData被屏蔽，则使用JMX。 
 
 
 ### 2.2.2 线程区数据来源 
@@ -52,13 +47,13 @@ maven编译后得到zip包，解压后运行。
 ### 2.3.1 命令参数
 
 ```
-// 按CPU排序，默认显示前10的线程，默认每10秒打印一次
+// 按线程的CPU排序，默认显示前10的线程，默认每10秒打印一次
 ./vjtop.sh <PID>
 
 // 按线程的总CPU而不是打印间隔内的CPU来排序
 ./vjtop.sh --totalcpu <PID>
 
-// 按SYS CPU排序
+// 按线程的SYS CPU排序
 ./vjtop.sh --syscpu <PID>
 
 // 按线程的总SYS CPU排序
