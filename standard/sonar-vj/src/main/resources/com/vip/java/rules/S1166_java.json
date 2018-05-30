@@ -1,0 +1,21 @@
+{
+  "title": "VJ：Exception handlers should preserve the original exceptions",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "error-handling",
+    "owasp-a10",
+    "cert",
+    "suspicious"
+  ],
+  "standards": [
+    "CERT"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-1166",
+  "sqKey": "S1166"
+}

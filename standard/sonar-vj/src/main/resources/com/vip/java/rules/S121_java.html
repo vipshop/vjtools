@@ -1,0 +1,28 @@
+<h2>VJ update: IDE自动生成的方法如equals忽略</h2>
+<p>While not technically incorrect, the omission of curly braces can be misleading, and may lead to the introduction of errors during maintenance.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+if (condition)  // Noncompliant
+  executeSomething();
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+if (condition) {
+  executeSomething();
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> MISRA C:2004, 14.8 - The statement forming the body of a switch, while, do ... while or for statement shall be a compound statement </li>
+  <li> MISRA C:2004, 14.9 - An if (expression) construct shall be followed by a compound statement. The else keyword shall be followed by either a
+  compound statement, or another if statement </li>
+  <li> MISRA C++:2008, 6-3-1 - The statement forming the body of a switch, while, do ... while or for statement shall be a compound statement </li>
+  <li> MISRA C++:2008, 6-4-1 - An if (condition) construct shall be followed by a compound statement. The else keyword shall be followed by either a
+  compound statement, or another if statement </li>
+  <li> MISRA C:2012, 15.6 - The body of an iteration-statement or a selection-statement shall be a compound-statement </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/1QGMAg">CERT, EXP19-C.</a> - Use braces for the body of an if, for, or while statement
+  </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/3wHEAw">CERT, EXP52-J.</a> - Use braces for the body of an if, for, or while statement
+  </li>
+</ul>
+

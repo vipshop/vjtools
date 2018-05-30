@@ -1,0 +1,90 @@
+<h2>VJ update: 三目运算符中的简单表达式可以不要括号</h2>
+<p>The rules of operator precedence are complicated and can lead to errors. For this reason, parentheses should be used for clarification in complex
+statements. However, this does not mean that parentheses should be gratuitously added around every operation. </p>
+<p>This rule raises issues when <code>&amp;&amp;</code> and <code>||</code> are used in combination, when assignment and equality or relational
+operators are used in together in a condition, and for other operator combinations according to the following table:</p>
+<table>
+  <tbody>
+    <tr>
+      <td> </td>
+      <td><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code></td>
+      <td><code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>&gt;&gt;&gt;</code></td>
+      <td><code>&amp;</code></td>
+      <td><code>^</code></td>
+      <td> <code>|</code> </td>
+    </tr>
+    <tr>
+      <td><code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code></td>
+      <td> </td>
+      <td>x</td>
+      <td>x</td>
+      <td>x</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <td><code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>&gt;&gt;&gt;</code></td>
+      <td>x</td>
+      <td> </td>
+      <td>x</td>
+      <td>x</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <td><code>&amp;</code></td>
+      <td>x</td>
+      <td>x</td>
+      <td> </td>
+      <td>x</td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <td><code>^</code></td>
+      <td>x</td>
+      <td>x</td>
+      <td>x</td>
+      <td> </td>
+      <td>x</td>
+    </tr>
+    <tr>
+      <td> <code>|</code> </td>
+      <td>x</td>
+      <td>x</td>
+      <td>x</td>
+      <td>x</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+<h2>Noncompliant Code Example</h2>
+<pre>
+x = a + b - c;
+x = a + 1 &lt;&lt; b;  // Noncompliant
+
+if ( a &gt; b || c &lt; d || a == d) {...}
+if ( a &gt; b &amp;&amp; c &lt; d || a == b) {...}  // Noncompliant
+if (a = f(b,c) == 1) { ... } // Noncompliant; == evaluated first
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+x = a + b - c;
+x = (a + 1) &lt;&lt; b;
+
+if ( a &gt; b || c &lt; d || a == d) {...}
+if ( (a &gt; b &amp;&amp; c &lt; d) || a == b) {...}
+if ( (a = f(b,c)) == 1) { ... }
+</pre>
+<h2>See</h2>
+<ul>
+  <li> MISRA C:2004, 12.1 - Limited dependence should be placed on C's operator precedence rules in expressions </li>
+  <li> MISRA C:2004, 12.2 - The value of an expression shall be the same under any order of evaluation that the standard permits. </li>
+  <li> MISRA C:2004, 12.5 - The operands of a logical &amp;&amp; or || shall be primary-expressions. </li>
+  <li> MISRA C++:2008, 5-0-1 - The value of an expression shall be the same under any order of evaluation that the standard permits. </li>
+  <li> MISRA C++:2008, 5-0-2 - Limited dependence should be placed on C++ operator precedence rules in expressions </li>
+  <li> MISRA C++:2008, 5-2-1 - Each operand of a logical &amp;&amp; or || shall be a postfix-expression. </li>
+  <li> MISRA C:2012, 12.1 - The precedence of operators within expressions should be made explicit </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/_wI">CERT, EXP00-C.</a> - Use parentheses for precedence of operation </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/VoAyAQ">CERT, EXP00-CPP.</a> - Use parentheses for precedence of operation </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/9wHEAw">CERT, EXP53-J.</a> - Use parentheses for precedence of operation </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/783.html">MITRE, CWE-783</a> - Operator Precedence Logic Error </li>
+</ul>
+

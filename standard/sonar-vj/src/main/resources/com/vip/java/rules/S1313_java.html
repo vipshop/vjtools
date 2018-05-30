@@ -1,0 +1,22 @@
+<h2>VJ update: 忽略"127.0.0.1"</h2>
+<p>Hardcoding an IP address into source code is a bad idea for several reasons:</p>
+<ul>
+  <li> a recompile is required if the address changes </li>
+  <li> it forces the same address to be used in every environment (dev, sys, qa, prod) </li>
+  <li> it places the responsibility of setting the value to use in production on the shoulders of the developer </li>
+  <li> it allows attackers to decompile the code and thereby discover a potentially sensitive address </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<pre>
+String ip = "200.112.44.55";
+Socket socket = new Socket(ip, 6667);
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+String ip = System.getProperty("myapplication.ip");
+Socket socket = new Socket(ip, 6667);
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/qQCHAQ">CERT, MSC03-J.</a> - Never hard code sensitive information </li>
+</ul>

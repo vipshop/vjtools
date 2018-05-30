@@ -1,0 +1,18 @@
+{
+  "title": "VJ: IP addresses should not be hardcoded",
+  "type": "VULNERABILITY",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "cert"
+  ],
+  "standards": [
+    "CERT"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1313",
+  "sqKey": "S1313"
+}

@@ -1,0 +1,28 @@
+<h2>VJ update：只判断private函数</h2>
+
+<p>Unused parameters for private method misleading. Whatever the values passed to such parameters, the behavior will be the same.</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+private void doSomething(int a, int b) {     // "b" is unused
+  compute(a);
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+private void doSomething(int a) {
+  compute(a);
+}
+</pre>
+
+<h2>Exceptions</h2>
+<p>The rule will not raise issues for protected or public methods </p>
+
+<h2>See</h2>
+<ul>
+  <li> MISRA C++:2008, 0-1-11 - There shall be no unused parameters (named or unnamed) in nonvirtual functions. </li>
+  <li> MISRA C:2012, 2.7 - There should be no unused parameters in functions </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never
+  executed </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP.</a> - Detect and remove code that has no effect </li>
+</ul>

@@ -1,0 +1,66 @@
+<h2>VJ update: catch异常的变量名包含ignore，忽略检查</h2>
+<p>When handling a caught exception, the original exception's message and stack trace should be logged or passed forward.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+try {
+  /* ... */
+} catch (Exception e) {   // Noncompliant - exception is lost
+  LOGGER.info("context");
+}
+
+try {
+  /* ... */
+} catch (Exception e) {  // Noncompliant - exception is lost (only message is preserved)
+  LOGGER.info(e.getMessage());
+}
+
+try {
+  /* ... */
+} catch (Exception e) {  // Noncompliant - original exception is lost
+  throw new RuntimeException("context");
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+try {
+  /* ... */
+} catch (Exception e) {
+  LOGGER.info(e);  // exception is logged
+}
+
+try {
+  /* ... */
+} catch (Exception e) {
+  throw new RuntimeException(e);   // exception stack trace is propagated
+}
+
+try {
+  /* ... */
+} catch (RuntimeException e) {
+  doSomething();
+  throw e;  // original exception passed forward
+} catch (Exception e) {
+  throw new RuntimeException(e);  // Conversion into unchecked exception is also allowed
+}
+</pre>
+<h2>Exceptions</h2>
+<p><code>InterruptedException</code>, <code>NumberFormatException</code>, <code>DateTimeParseException</code>, <code>ParseException</code> and
+<code>MalformedURLException</code> exceptions are arguably used to indicate nonexceptional outcomes. Similarly, handling
+<code>NoSuchMethodException</code> is often required when dealing with the Java reflection API.</p>
+<p>Because they are part of Java, developers have no choice but to deal with them. This rule does not verify that those particular exceptions are
+correctly handled.</p>
+<pre>
+int myInteger;
+try {
+  myInteger = Integer.parseInt(myString);
+} catch (NumberFormatException e) {
+  // It is perfectly acceptable to not handle "e" here
+  myInteger = 0;
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/6gEqAQ">CERT, ERR00-J.</a> - Do not suppress or ignore checked exceptions </li>
+  <li> OWASP Top 10 2017 Category A10 - Insufficient Logging &amp; Monitoring </li>
+</ul>
+

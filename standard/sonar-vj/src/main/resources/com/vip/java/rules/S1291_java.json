@@ -1,0 +1,15 @@
+{
+  "title": "VJ: Track uses of \"NOSONAR\" comments",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "bad-practice"
+  ],
+  "defaultSeverity": "Info",
+  "ruleSpecification": "RSPEC-1291",
+  "sqKey": "S1291"
+}

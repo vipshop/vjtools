@@ -1,0 +1,36 @@
+<h2>VJ update: 使用lobmok的类不告警</h2>
+<p>If a <code>private</code> field is declared but not used in the program, it can be considered dead code and should therefore be removed. This will
+improve maintainability because developers will not wonder what the variable is used for.</p>
+<p>Note that this rule does not take reflection into account, which means that issues will be raised on <code>private</code> fields that are only
+accessed using the reflection API.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+public class MyClass {
+  private int foo = 42;
+
+  public int compute(int a) {
+    return a * 42;
+  }
+
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+public class MyClass {
+  public int compute(int a) {
+    return a * 42;
+  }
+}
+</pre>
+<h2>Exceptions</h2>
+<p>The Java serialization runtime associates with each serializable class a version number, called <code>serialVersionUID</code>, which is used during
+deserialization to verify that the sender and receiver of a serialized object have loaded classes for that object that are compatible with respect to
+serialization.</p>
+<p>A serializable class can declare its own <code>serialVersionUID</code> explicitly by declaring a field named <code>serialVersionUID</code> that
+must be static, final, and of type long. By definition those <code>serialVersionUID</code> fields should not be reported by this rule:</p>
+<pre>
+public class MyClass implements java.io.Serializable {
+  private static final long serialVersionUID = 42L;
+}
+</pre>
+<p>Moreover, this rule doesn't raise any issue on annotated fields.</p>

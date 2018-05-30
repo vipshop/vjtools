@@ -8,8 +8,8 @@
 | 项目 | 描述 |
 | -------- | -------- |
 | [standard](/standard) | 唯品会Java开发手册|
-| [code formatter](/standard/formatter) | 格式化模板 |
-
+| [code formatter](/standard/formatter) | IDE格式化模板 |
+| [sonar](/standard/sonar-vj) | Sonar规则定制示例 |
 
 # 核心类库
 

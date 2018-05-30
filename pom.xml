@@ -35,28 +35,7 @@
 		</repository>
 	</distributionManagement>
 
-	<repositories>
-		<repository>
-			<id>sonatype</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</repository>
-	</repositories>
-
 	<url>https://github.com/vipshop/vjtools</url>
-	<developers>
-		<developer>
-			<id>dylanxue</id>
-			<name>Xueke</name>
-			<email>dylan_xueke@hotmail.com.com</email>
-			<timezone>8</timezone>
-		</developer>
-	</developers>
 
 	<licenses>
 		<license>
@@ -68,7 +47,7 @@
 
 	<scm>
 		<connection>scm:git:https://github.com/vipshop/vjtools.git</connection>
-		<developerConnection>scm:git:git@github.com:dylanxue/vipshop/vjtools.git</developerConnection>
+		<developerConnection>scm:git:https://github.com/vipshop/vjtools.git</developerConnection>
 		<url>https://github.com/vipshop/vjtools</url>
 	</scm>
 

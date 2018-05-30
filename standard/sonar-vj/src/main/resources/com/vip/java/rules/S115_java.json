@@ -1,0 +1,13 @@
+{
+  "title": "VJ: Constant names should comply with a naming convention",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "convention"
+  ],
+  "defaultSeverity": "Minor"
+}

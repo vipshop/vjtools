@@ -10,8 +10,10 @@
 	<properties>
 		<!-- change it to point to your tools.jar from your JDK -->
 		<toolsjar>${java.home}/../lib/tools.jar</toolsjar>
-		<jdk.version>1.7</jdk.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.7</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 	</properties>
 
@@ -24,7 +26,7 @@
 		<dependency>
 			<groupId>com.sun</groupId>
 			<artifactId>tools</artifactId>
-			<version>${jdk.version}</version>
+			<version>${java.version}</version>
 			<scope>system</scope>
 			<systemPath>${toolsjar}</systemPath>
 		</dependency>
@@ -66,28 +68,6 @@
 								</descriptor>
 							</descriptors>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
-				<configuration>
-					<source>${jdk.version}</source>
-					<target>${jdk.version}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>

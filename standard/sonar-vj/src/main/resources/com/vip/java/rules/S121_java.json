@@ -1,0 +1,20 @@
+{
+  "title": "VJ: Control structures should use curly braces",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "misra",
+    "cert",
+    "pitfall"
+  ],
+  "standards": [
+    "CERT"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-121",
+  "sqKey": "S121"
+}

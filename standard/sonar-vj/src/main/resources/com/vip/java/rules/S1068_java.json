@@ -1,0 +1,16 @@
+{
+  "title": "VJ: Unused \"private\" fields should be removed",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cert",
+    "unused"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-1068",
+  "sqKey": "S1068"
+}

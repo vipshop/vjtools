@@ -1,0 +1,17 @@
+{
+  "title": "VJ: Unused private method parameters should be removed",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "misra",
+    "cert",
+    "unused"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-1172",
+  "sqKey": "S1172"
+}

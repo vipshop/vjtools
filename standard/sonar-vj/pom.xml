@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.vip</groupId>
+	<artifactId>sonar-vj</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>sonar-plugin</packaging>
+
+	<properties>
+		<sonar.version>6.7.1</sonar.version>
+		<java.plugin.version>5.0.1.12818</java.plugin.version>
+		<sslr.version>1.21</sslr.version>
+		<gson.version>2.6.2</gson.version>
+	</properties>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.sonarsource.sonarqube</groupId>
+			<artifactId>sonar-plugin-api</artifactId>
+			<version>${sonar.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sonarsource.java</groupId>
+			<artifactId>sonar-java-plugin</artifactId>
+			<type>sonar-plugin</type>
+			<version>${java.plugin.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sonarsource.java</groupId>
+			<artifactId>java-frontend</artifactId>
+			<version>${java.plugin.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sonarsource.sslr-squid-bridge</groupId>
+			<artifactId>sslr-squid-bridge</artifactId>
+			<version>2.6.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.codehaus.sonar.sslr</groupId>
+					<artifactId>sslr-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.sonar</groupId>
+					<artifactId>sonar-plugin-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.sonar.sslr</groupId>
+					<artifactId>sslr-xpath</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>jcl-over-slf4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sonarsource.sslr</groupId>
+			<artifactId>sslr-testing-harness</artifactId>
+			<version>${sslr.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>3.6.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>0.9.30</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+				<artifactId>sonar-packaging-maven-plugin</artifactId>
+				<version>1.17</version>
+				<extensions>true</extensions>
+				<configuration>
+					<pluginKey>vj-rules</pluginKey>
+					<pluginName>VJ Rules</pluginName>
+					<pluginClass>com.vip.vjkit.sonarvj.SonarPlugin</pluginClass>
+					<pluginDescription>vip sonar java plugin</pluginDescription>
+					<sonarLintSupported>true</sonarLintSupported>
+					<sonarQubeMinVersion>6.7</sonarQubeMinVersion>
+				</configuration>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
