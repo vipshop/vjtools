@@ -108,7 +108,33 @@ START()
      
     sleep ${SLEEP_TIME}
   fi
+  
+  # jinfo -flags $PID
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jinfo -flags."
+  JINFO_FLAGS_LOG=${LOGDIR}/jinfo-flags-${PID}-${DATE}.log
+  jinfo -flags $PID 1>${JINFO_FLAGS_LOG} 2>&1
+  if [[ $? != 0 ]]; then
+    echo -e "\033[31mprocess jinfo -flags error, now exit.\033[0m"
+    exit -1
+  fi
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jinfo -flags."
 
+  # gc log
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process gc log."
+  GCLOG=$(strings /proc/${PID}/cmdline |grep '\-Xloggc' |cut -d : -f 2)
+  if [[ x"$GCLOG" == x ]]; then
+    echo -e "No GC log existing."
+  else
+    # "\cp" means unalias cp, it can cover files without prompting
+    \cp -rf $GCLOG ${LOGDIR}/
+    if [[ $? != 0 ]]; then
+      echo -e "copy gc log error, now exit."
+      exit -1
+    fi
+  fi
+  echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process gc log."
+
+  # packaging
   if [[ $CLOSE_COMPRESS == 1 ]]; then
     echo -e "The zip option is closed, no zip package will be generated."
   else
