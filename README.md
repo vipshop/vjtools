@@ -5,7 +5,7 @@
 各位看官看着是好的，请点颗星。
 
 
-# Java开发手册
+# Java Standard
 
 | 项目 | 描述 |
 | -------- | -------- |
@@ -13,27 +13,24 @@
 | [code formatter](/standard/formatter) | IDE格式化模板 |
 | [sonar rule](/standard/sonar-vj) | Sonar规则定制示例 |
 
-# 核心类库
-
-| 项目 | 描述 |
-| -------- | -------- |
-| [vjkit](/vjkit)  | 关于文本，集合，并发，反射等基础功能的核心类库 |
-
-
-# Java工具集
-
+# Java Tools
 
 | 项目 | 描述 |
 | -------- | -------- |
 | [vjmap](/vjmap)  | JMAP的分代打印版 |
-| [vjtop](/vjtop)  | 打印JVM概况及繁忙线程 |
+| [vjtop](/vjtop)  | 打印JVM概况及繁忙线程［English Manual](/vjtop/README_EN.md) |
 | [vjdump](/vjdump)  | 线上紧急收集JVM数据脚本 |
 
+其他常用问题排查及性能调优工具: [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
 
-其他常用问题排查及性能调优工具：[btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
+# Java Core Library
+
+| 项目 | 描述 |
+| -------- | -------- |
+| [vjkit](/vjkit) | 关于文本，集合，并发等基础功能的核心类库 |
 
 
-# 开发团队
+# Developers
 
 唯品会团队: [江南白衣](http://calvin1978.blogcn.com), [郑德惠](https://github.com/zhengdehui), [林铭恺](https://github.com/acxlam), [李炫彬](https://github.com/lixuanbin), 黄云斌, 梁耀曾, 张晓玲
 
