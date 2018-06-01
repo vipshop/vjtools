@@ -6,6 +6,8 @@
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjtop</artifactId>
 	<version>1.0.0</version>
+	<name>vjtop</name>
+	<description>Monitoring JVM info and busy threads in linux top style</description>
 
 	<properties>
 		<!-- change it to point to your tools.jar from your JDK -->
@@ -79,6 +81,20 @@
 			<id>release</id>
 			<build>
 				<plugins>
+					<!-- javadoc attach plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.10.4</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 					<!-- source attach plugin -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>

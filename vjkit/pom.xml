@@ -7,6 +7,7 @@
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>vjkit</name>
+	<description>VIP's core java libraries</description>
 
 	<properties>
 		<guava.version>20.0</guava.version>

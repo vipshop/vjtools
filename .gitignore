@@ -5,3 +5,4 @@
 target/
 standard/docs/ali1.3.1.pdf
 standard/docs/vip-java-standard.md
+release.sh

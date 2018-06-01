@@ -5,6 +5,7 @@
 	<artifactId>vjmap</artifactId>
 	<version>1.0.0</version>
 	<name>vjmap</name>
+	<description>jmap with generational object stats</description>
 
 	<properties>
 		<!-- change it to point to your sa-jdi.jar from your JDK -->
@@ -56,6 +57,20 @@
 			<id>release</id>
 			<build>
 				<plugins>
+					<!-- javadoc attach plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.10.4</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 					<!-- source attach plugin -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>

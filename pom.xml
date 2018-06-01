@@ -13,6 +13,8 @@
 	<name>${project.artifactId}</name>
 	<packaging>pom</packaging>
 
+	<description>VJTools - core libraries and tools</description>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.locale>zh_CN</project.build.locale>
