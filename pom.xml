@@ -9,7 +9,7 @@
 
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjtools</artifactId>
-	<version>master-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>${project.artifactId}</name>
 	<packaging>pom</packaging>
 

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjkit</artifactId>
-	<version>master-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>vjkit</name>
 
