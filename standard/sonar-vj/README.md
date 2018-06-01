@@ -5,7 +5,9 @@
 
 根据[Writing Custom Java Rules 101](https://docs.sonarqube.org/display/PLUG/Writing+Custom+Java+Rules+101)，从[Sample Project](https://github.com/SonarSource/sonar-custom-rules-examples/tree/master/java-custom-rules)复制创建，对[Sonar Java](https://github.com/SonarSource/sonar-java/tree/master/java-checks/src/main/java/org/sonar/java/checks)规则进行修改。
 
-官方的Sonar Java Plugin在不断更新，以下修改未必对应其最新版，仅作为修改示例供大家参考(修改部分在代码中以//VJ 标注)
+官方的Sonar Java Plugin在不断更新，以下修改未必对应其最新版，仅作为修改示例供大家参考(修改部分在代码中以//VJ 标注)。 
+
+如果需要直接使用，编译后扔进sonar的lib目录，重启sonar后选用取消原规则，改为使用这些标题带VJ字样的规则即可。
 
 
 | 编号 | 等级 | 规则描述 | 修改 |
