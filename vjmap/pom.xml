@@ -5,7 +5,7 @@
 	<artifactId>vjmap</artifactId>
 	<version>1.0.0</version>
 	<name>vjmap</name>
-	<description>jmap with generational object stats</description>
+	<description>jmap with per generation object stats</description>
 
 	<properties>
 		<!-- change it to point to your sa-jdi.jar from your JDK -->

@@ -13,11 +13,12 @@
 	<name>${project.artifactId}</name>
 	<packaging>pom</packaging>
 
-	<description>VJTools - core libraries and tools</description>
+	<description>VJTools - VIP's core libraries and tools</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.locale>zh_CN</project.build.locale>
+		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 	</properties>
 
 	<modules>
@@ -46,6 +47,32 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<!-- javadoc attach plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>${maven-gpg-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<scm>
 		<connection>scm:git:https://github.com/vipshop/vjtools.git</connection>
