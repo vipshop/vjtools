@@ -53,4 +53,25 @@
 		<url>https://github.com/vipshop/vjtools</url>
 	</scm>
 
+	<developers>
+		<developer>
+			<id>calvin</id>
+			<name>Calvin Xiao</name>
+			<email>calvin.xiao at vipshop.com</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>+8</timezone>
+		</developer>
+		<developer>
+			<id>dehuizheng</id>
+			<name>Dehui Zheng</name>
+			<email>dehui.zheng at vipshop.com</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>+8</timezone>
+		</developer>
+	</developers>
+
 </project>
