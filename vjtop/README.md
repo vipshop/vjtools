@@ -91,10 +91,10 @@ maven编译后得到zip包，解压后运行。
 ```
 进程区数据解释:
 
-* `rss`: `Resident Set Size`, 该进程在内存中的页的数量。该数据从/proc/<pid>/status中获取, 含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
-* `swap`: 被交换出去的虚存大小。该数据从/proc/<pid>/status中获取, 含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
-* `rchar/wchar`: 通过系统调用的读/写的字节数。该数据从/proc/<pid>/io中获取，含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
-* `read_bytes/write_bytes`: 真正达到存储层的读/写的字节数。该数据从/proc/<pid>/io中获取，含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
+* `rss`: `Resident Set Size`, 该进程在内存中的页的数量。该数据从/proc/\<pid\>/status中获取, 含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
+* `swap`: 被交换出去的虚存大小。该数据从/proc/\<pid\>/status中获取, 含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
+* `rchar/wchar`: 通过系统调用的读/写的字节数。该数据从/proc/\<pid\>/io中获取，含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
+* `read_bytes/write_bytes`: 真正达到存储层的读/写的字节数。该数据从/proc/\<pid\>/io中获取，含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
 * `codeCache`: JIT编译的二进制代码的存放区，满后将不能编译新的代码。
 * `direct`: 堆外内存，但注意新版Netty不经过JDK API所分配的堆外内存未能纪录。
 * `SAFE-POINT`: PerfData开启时可用，JVM真正的停顿次数及停顿时间

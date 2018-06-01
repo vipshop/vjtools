@@ -1,6 +1,5 @@
 # VJtop 
  
-VJtop is a collection of  Linux top-like JVM info and busy threads monitoring tools.
 VJtop serves as a Linux top-like JVM info and busy thread monitoring tool.
 
 # 1. Introduction
@@ -98,10 +97,10 @@ With ThreadMxBean:
 ```
 Process Region Explained:
 
-* `rss`: `Resident Set Size`, size of all the pages, fetched from /proc/<pid>/status, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
-* `swap`: Size of pages that are swapped out, fetched from /proc/<pid>/status, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
-* `rchar/wchar`: Number of bytes read/written with system calls, fetched from /proc/<pid>/io，for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
-* `read_bytes/write_bytes`: Bytes read from/written to the actual storage layer, fetched from/proc/<pid>/io，for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
+* `rss`: `Resident Set Size`, size of all the pages, fetched from /proc/\<pid\>/status, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
+* `swap`: Size of pages that are swapped out, fetched from /proc/\<pid\>/status, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
+* `rchar/wchar`: Number of bytes read/written with system calls, fetched from /proc/\<pid\>/io, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
+* `read_bytes/write_bytes`: Bytes read from/written to the actual storage layer, fetched from/proc/\<pid\>/io, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
 * `codeCache`: Cache size holding binaries as result of JIT compilation. JIT Compilation will cease when code cache is fully occupied.
 * `direct`: Off-heap memory usage. Note that off-heap usage will not be recorded for recent Netty versions, which bypass the JDK API for memory allocation.
 * `SAFE-POINT`: JVM real stop counts and stop time, collected only when PerfData is available. 
