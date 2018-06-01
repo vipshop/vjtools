@@ -1,43 +1,43 @@
 # VJtop 
  
 VJtop is a collection of  Linux top-like JVM info and busy threads monitoring tools.
+VJtop serves as a Linux top-like JVM info and busy thread monitoring tool.
 
 # 1. Introduction
 
-We believe you are good with linux top command. That's why we present VJtop for JVM monitoring for 
-CPU/Memory intensive threads. Develop on top of the [jvmtop](https://github.com/patric-r/jvmtop) project, 
-we also incorporate advantages of [SJK](https://github.com/aragozin/jvm-tools) project so that
- a variety of information is collected from /proc, PerfData and JMX in a performant way. 
+We believe readers are familiar with the linux "top" command. And we recommend VJtop to you for monitoring CPU/Memory intensive threads within JVM. Forked from the [jvmtop](https://github.com/patric-r/jvmtop) project, 
+VJtop comes with additional features of its own as well as incorporating some nice facilities from the [SJK](https://github.com/aragozin/jvm-tools) project.
+Rich information is collected from /proc, PerfData and JMX in a performant way.
 
-VJtop is built as NON-stop-the-world and is considered production-safe.
+VJtop is built as NON stop-the-world and is considered ready for production diagnostics.
 
 
 # 2. Getting Started
 
 ## 2.1 How to build
 
-Run Maven install task and unzip the resulted zip package in target folder. JAVA_HOME environment variable is needed.
+Run Maven install task and unzip the resulted zip package in the target folder. Set JAVA_HOME environment variable to your JDK directory.
 
-Run the following command under **the same user who started the process to be monitored**. If privileges error are met, 
-try with root user.
+Run the following command under **the same user who started the target process**. If access errors are met, 
+try again with root user.
 
 ```
-// showing threads consuming the most cpu time
+// showing threads consuming the most cpu
 ./vjtop.sh <PID>
 ```
 
-## 2.2 How it works：
+## 2.2 How it works
 
 ### 2.21 Sources of Process Stats
 
-Process data are retrieved from the following sources:
+Process data are retrieved
 
 *   from /proc/PID/*
-*   from/tmp/perfxxxx, where stats are written by JDK every other second
-*   through JMX of the targeted VM. (If JMX were not started in the target process, 
-VJtop would attach to the process to start it.)
+*   from /tmp/perfxxxx, where stats are written by JDK every other second
+*   from JMX of the targeted VM. (If JMX isn't started at the time
+VJtop will try to attach to the process to start JMX).
 
-[Note]: If the same item appear in both PerfData and JMX, that in PerfData is perferred. Data in JMX is used when 
+[Note] If the same items appear in both PerfData and JMX, the one from PerfData is perferred. Item in JMX is used instead when 
 PerfData is unavailable.
 
 
@@ -46,18 +46,18 @@ PerfData is unavailable.
 With ThreadMxBean:
 
 1. getAllThreadIds() is called to collect Thread Ids
-2. getThreadCpuTime(tids) is called to get all thread cpu time as well as SYS CPU time and mem allocation.
-3. getThreadInfo(tids) is called, showing the top 10 threads. StackTrace is not fetched and the application will not stop. 
+2. getThreadCpuTime(tids) is called to get all thread cpu time as well as sys cpu time and memory allocation.
+3. getThreadInfo(tids) is called, top 10 threads are shown. StackTrace is not fetched thus the application will not halt.
 
-## 2.3 Spot the Busiest Threads.
+## 2.3 Spot the Busiest Threads
 
-### 2.3.1 Commands:
+### 2.3.1 Commands
 
 ```
 // rank threads by their cpu time, by default, the top 10 are shown and refreshed in every 10 secs
 ./vjtop.sh <PID>
 
-// rank threads by total cpu time since startup, differentiated from cpu time within the output interval
+// rank threads by total cpu time since startup, differentiated from cpu time within the interval
 ./vjtop.sh --totalcpu <PID>
 
 // rank threads by sys cpu
@@ -67,7 +67,7 @@ With ThreadMxBean:
 ./vjtop.sh --totalsyscpu <PID>
 ```
 
-### 2.3.2 Outputs：
+### 2.3.2 Outputs
 
 ```
  VJTop 1.0.0 - 11:38:02, UPTIME: 3d01h
@@ -98,35 +98,35 @@ With ThreadMxBean:
 ```
 Process Region Explained:
 
-* `rss`: `Resident Set Size`, size of all the pages, fetched from /proc/<pid>/status, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)。
-* `swap`: Size of pages that are swapped out。fetched from /proc/<pid>/status, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)。
-* `rchar/wchar`: Number of bytes read or written with system calls。fetched from /proc/<pid>/io，for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)。
-* `read_bytes/write_bytes`: Bytes read from or written to the actual storage layer 。fetched from/proc/<pid>/io，for definition see[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)。
-* `codeCache`: Cache size holding binaries as result of JIT compiling. Compiling cannot continue when it is full.
-* `direct`: Off-heap memory usage. Note that off-heap usage could not be recorded for recent Netty versions, which bypass the JDK API for memory allocation。
-* `SAFE-POINT`: JVM real stop counts and stop time, Collected only when PerfData is available. 
+* `rss`: `Resident Set Size`, size of all the pages, fetched from /proc/<pid>/status, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
+* `swap`: Size of pages that are swapped out, fetched from /proc/<pid>/status, for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
+* `rchar/wchar`: Number of bytes read/written with system calls, fetched from /proc/<pid>/io，for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
+* `read_bytes/write_bytes`: Bytes read from/written to the actual storage layer, fetched from/proc/<pid>/io，for definition see [proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
+* `codeCache`: Cache size holding binaries as result of JIT compilation. JIT Compilation will cease when code cache is fully occupied.
+* `direct`: Off-heap memory usage. Note that off-heap usage will not be recorded for recent Netty versions, which bypass the JDK API for memory allocation.
+* `SAFE-POINT`: JVM real stop counts and stop time, collected only when PerfData is available. 
 
 Thread Region Explained: 
 
 * `CPU`: cpu time by percentage within the output interval (100% per core).
 * `SYSCPU`: sys cpu time by percentage within the output interval (100% per core).
-* `TOTAL`:  thread/process total cpu time by percentage since start up.  
-* `TOLSYS`: total sys cpu time by percentage.
+* `TOTAL`:  thread/process total cpu time by percentage since startup.  
+* `TOLSYS`: total sys cpu time by percentage since startup.
 
 Bottom Region Explained :
 
-* `Cost time`: For this run, time cost for data gathering & output 
-* `CPU time`: For this run, cpu time cost for data gathering & ouput
+* `Cost time`:  time cost for data gathering & outputting for this watch.
+* `CPU time`:  cpu time cost for data gathering & outputting for this watch.
 
-## 2.4 Spot Threads with the most Frequent Mem Allocation
+## 2.4 Spot Threads Allocating the Most Memory
 
 ### 2.4.1 Commands
 
 ```
-// Order threads by memory allocation rates, by default, the top 10 are shown and refreshed in every 10 secs
+// rank threads by memory allocation rates, by default, the top 10 are shown and refreshed in every 10 secs
 ./vjtop.sh --memory <PID>
 
-// Order Threads by total memory allcoation rates since startup instead of by interval
+// rank Threads by total memory allcoation rates since startup (instead of by output interval)
 ./vjtop.sh --totalmemory <PID>
 ```
 
@@ -149,13 +149,13 @@ Bottom Region Explained :
   46551 Worker-500                                      TIMED_WAIT    60/s( 0.19%)   757m( 0.17%)
 ```
 Process Region Explained:
-* `allocation rate`: Total Memory Allocation speed by all threads.
+* `allocation rate`: Summed memory allocation speed of all threads.
 
 Bottom Region Explained:
 
-* `STATE`: current thread state
-* `MEMORY`: Instant memory allocation rate by size per second (Instant memory allocation by this thread per second, divided by total allocation at the same time)
-* `TOTAL-ALLOCATED`: Accumulated memory allocation since startup, including that recycled (Accumulated memory by this thread, divide by total memory allocation, in percent)
+* `STATE`: Current thread state
+* `MEMORY`: Instant memory allocation rate by the second (Instant memory allocation by this thread per second, divided by total allocation)
+* `TOTAL-ALLOCATED`: Accumulated memory allocations since startup, including those recycled (Accumulated memory allocation by this thread, divided by total memory allocation)
 
 ## 2.5 Common Args
 
@@ -169,29 +169,29 @@ Bottom Region Explained:
 // refresh in every 5 secs (default is 10 secs)
 ./vjtop.sh -d 5 <PID>
 
-// show the top 20 threads（default is top 10）
+// show the top 20 threads (default is top 10)
 ./vjtop.sh -l 20 <PID>
 
-// print by width of 120 characters（default is 100）
+// print by width of 120 characters(default is 100)
 ./vjtop.sh -w 120 <PID> > /tmp/vjtop.log
 
-// quit after 20 printings
+// quit after 20 output interations
 ./vjtop.sh -n 20 <PID>
 ```
 
-# 3. Improvements over The Original jvmtop
+# 3. Enhancements over jvmtop
 
-### 3.1 Hot Thread Pages：
+### 3.1 Hot Thread Pages
 
-* Added Feature: thread memory allocation rankings (from SJK).
-* Added Feature: thread sys cpu time rankings, total cpu time since startup rankings (from SJK).
-* Added Feature: Thread physical memory, swapness, IO stats .
-* Added Feature: **per heap generation memory and GC information display**, CodeCache and off-heap memory display. 
-* Added Config Arg: Printing interval, number of thread to display.
-* Performance optimization: **Reduce time cost by up to 80%**, fetch thread cpu time in batch (inspired by SJK).   
+* Added Display: thread memory allocation rankings (from SJK).
+* Added Display: thread sys cpu time rankings, total cpu time since startup rankings (from SJK).
+* Added Display: thread physical memory, swapness, IO stats.
+* Added Display: **per generation memory and GC information display**, CodeCache and off-heap memory display. 
+* Added Config Arg: printing interval, the number of threads to display.
+* Performance boost: **massively reduced time cost** by means of fetching thread cpu time in batches (inspired by SJK).   
 
-### 3.2 Optimization for Production
-* Remove profile page that cause STW from jvmtop.
-* Eliminate the steps to fetch all java threads in JVM TOP. Overview page, in which results are uncertain, is also removed. 
+### 3.2 Optimizations for Production
+* Remove profile page that causes STW from jvmtop.
+* Eliminate the steps to fetch all java threads in jvmtop. Remove Overview page, in which results are sometimes underterministic.
 * Default output interval set to 10 secs.
-* Print **cost of the monitoring tool itself**.
+* Print **cost incurred by the monitoring tool itself**.
