@@ -1,6 +1,6 @@
 # 公司通用代码格式化模板
 
-定制原因详见[唯品会Java开发手册 第二章:格式规约](https://vipshop.github.io/vjtools/#/standard/chapter02)，同时参考了一些Intellij IDEA默认模板的部分设置。
+定制原因详见[《唯品会Java开发手册》 第二章:格式规约](https://vipshop.github.io/vjtools/#/standard/chapter02)，同时参考了一些Intellij IDEA默认模板的部分设置。
 
 将下列profile下载并导入IDE即可，导入后Profile名称为`vipshop2.0`：
 
