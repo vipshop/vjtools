@@ -32,7 +32,7 @@
 其他常用问题排查及性能调优工具: [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
 
 
-# How to contribute
+# Contributing
 
 VJTools官方微信讨论群，请搜索微信号viptech128(唯技术)，添加好友后加入。
 
