@@ -32,6 +32,17 @@
 其他常用问题排查及性能调优工具: [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
 
 
+# Support and contribute
+
+VJTools官方微信讨论群，请搜索微信号viptech128(唯技术)，添加好友后加入。
+
+所有建议与问题，请在[Issues](https://github.com/vipshop/vjtools/issues)发起。
+
+所有代码提交，请走[Pull Request](https://github.com/vipshop/vjtools/pulls)流程。
+
+对于优秀的代码提交和建议，唯品会将不吝发挥电商本色，给予vip.com 购物卡的奖励 ！！！
+
+
 # Developers
 
 唯品会团队: [江南白衣](http://calvin1978.blogcn.com), [郑德惠](https://github.com/zhengdehui), [林铭恺](https://github.com/acxlam), [李炫彬](https://github.com/lixuanbin), 黄云斌, 梁耀曾, 张晓玲
