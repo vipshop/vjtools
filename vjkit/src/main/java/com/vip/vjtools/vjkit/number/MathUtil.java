@@ -19,7 +19,7 @@ public class MathUtil {
 	/**
 	 * 往上找出最接近的2的倍数，比如15返回16， 17返回32.
 	 * 
-	 * @param value必须为正数，否则抛出异常.
+	 * @param value 必须为正数，否则抛出异常.
 	 */
 	public static int nextPowerOfTwo(int value) {
 		return IntMath.ceilingPowerOfTwo(value);
@@ -28,7 +28,7 @@ public class MathUtil {
 	/**
 	 * 往上找出最接近的2的倍数，比如15返回16， 17返回32.
 	 * 
-	 * @param value必须为正数，否则抛出异常.
+	 * @param value 必须为正数，否则抛出异常.
 	 */
 	public static long nextPowerOfTwo(long value) {
 		return LongMath.ceilingPowerOfTwo(value);
@@ -37,7 +37,7 @@ public class MathUtil {
 	/**
 	 * 往下找出最接近2的倍数，比如15返回8， 17返回16.
 	 * 
-	 * @param value必须为正数，否则抛出异常.
+	 * @param value 必须为正数，否则抛出异常.
 	 */
 	public static int previousPowerOfTwo(int value) {
 		return IntMath.floorPowerOfTwo(value);
@@ -46,7 +46,7 @@ public class MathUtil {
 	/**
 	 * 往下找出最接近2的倍数，比如15返回8， 17返回16.
 	 * 
-	 * @param value必须为正数，否则抛出异常.
+	 * @param value 必须为正数，否则抛出异常.
 	 */
 	public static long previousPowerOfTwo(long value) {
 		return LongMath.floorPowerOfTwo(value);
@@ -55,7 +55,7 @@ public class MathUtil {
 	/**
 	 * 是否2的倍数
 	 * 
-	 * @param value不是正数时总是返回false
+	 * @param value 不是正数时总是返回false
 	 */
 	public static boolean isPowerOfTwo(int value) {
 		return IntMath.isPowerOfTwo(value);
