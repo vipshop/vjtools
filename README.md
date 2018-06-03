@@ -2,7 +2,7 @@
 
 主力于Java的唯品会，关于Java的一些小家底。 
 
-各位看官看着是好的，请点颗星。
+各位看官看着是好的，请“Star”。
 
 
 # Java Standard
@@ -13,6 +13,14 @@
 | [code formatter](/standard/formatter) | IDE格式化模板 |
 | [sonar rule](/standard/sonar-vj) | Sonar规则定制示例 |
 
+
+# Java Core Library
+
+| Project | Description |
+| -------- | -------- |
+| [vjkit](/vjkit) | 关于文本，集合，并发等基础功能的核心类库 |
+
+
 # Java Tools
 
 | Project | Description | Manual |
@@ -22,12 +30,6 @@
 | [vjdump](/vjdump)  | 线上紧急收集JVM数据脚本 | [Chinese](/vjdump/README.md)|
 
 其他常用问题排查及性能调优工具: [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
-
-# Java Core Library
-
-| Project | Description |
-| -------- | -------- |
-| [vjkit](/vjkit) | 关于文本，集合，并发等基础功能的核心类库 |
 
 
 # Developers

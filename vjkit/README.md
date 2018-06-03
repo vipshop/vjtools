@@ -24,6 +24,8 @@ Maven:
 </dependency>
 ```
 
+[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjkit/1.0.0/)
+
 ## 3. Dependency
 
 要求JDK 7.0及以上版本。

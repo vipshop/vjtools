@@ -12,7 +12,7 @@
 
 ## 2.1 概述
 
-maven编译后得到zip包，解压后运行。
+[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.0/vjtop-1.0.0.zip) - 108k
 
 需要设置JAVA_HOME 环境变量，必须与目标JVM使用相同用户运行，如果执行时仍然有权限错误，改用root用户执行。
 
@@ -47,16 +47,16 @@ maven编译后得到zip包，解压后运行。
 ### 2.3.1 命令参数
 
 ```
-// 按线程的CPU排序，默认显示前10的线程，默认每10秒打印一次
+// 按时间区间内，线程占用的CPU排序，默认显示前10的线程，默认每10秒打印一次
 ./vjtop.sh <PID>
 
-// 按线程的总CPU而不是打印间隔内的CPU来排序
+// 按线程从启动以来的总占用CPU来排序
 ./vjtop.sh --totalcpu <PID>
 
-// 按线程的SYS CPU排序
+// 按时间区间内，线程占用的SYS CPU排序
 ./vjtop.sh --syscpu <PID>
 
-// 按线程的总SYS CPU排序
+// 按线程从启动以来的总SYS CPU排序
 ./vjtop.sh --totalsyscpu <PID>
 ```
 

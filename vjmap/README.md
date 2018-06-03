@@ -8,13 +8,13 @@ vjmap 原始思路来源于R大的[tbjmap](https://github.com/alibaba/TBJMap) �
 
 # 2.使用说明
 
-maven编译后得到zip包，解压后运行。
+[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.0/vjmap-1.0.0.zip) - 27k
 
-注意：vjmap在执行过程中，会完全停止应用，必须摘流量执行！！！！
+注意：vjmap在执行过程中，会完全停止应用一段时间，必须摘流量执行！！！！
 
 必须与目标JVM使用相同用户运行，如果执行时仍然有权限错误，改用root用户执行。
 
-如果使用了kill -9 vjmap的进程来强行终止vjmap， 目标java进程会被卡住不再工作（用正常的kill vjmap则没有问题），必须执行两次 kill -18 目标进程PID来重新唤醒目标java进程。
+vjmap的运行需要一段时间，如果中途需要停止执行，请使用kill vjmap的进程号，让vjmap从目标进程退出。如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID来重新唤醒目标java进程。
 
     
 ## 2.1 常用指令
