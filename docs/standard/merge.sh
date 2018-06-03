@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cat ../README.md > vip-java-standard.md
+cat README.md > vip-java-standard.md
 cat chapter01.md >> vip-java-standard.md
 cat chapter02.md >> vip-java-standard.md
 cat chapter03.md >> vip-java-standard.md

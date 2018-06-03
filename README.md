@@ -2,7 +2,7 @@
 
 主力于Java的唯品会，关于Java的一些小家底。 
 
-各位看官看着是好的，请“Star”。
+各位看官看着是好的，烦请“Star”。
 
 
 # Java Standard
