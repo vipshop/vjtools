@@ -1,15 +1,23 @@
 # Sonar VJ 规则
 
+## 概述
+
 我们使用[Sonar](https://www.sonarqube.org/)代码检查工具来辅助[《唯品会Java开发手册》](https://vipshop.github.io/vjtools/#/standard/)的落地。选择的原因是它同时提供了服务端的公共报表，及IDE端的Sonar Lint插件，而且对比PMD与FindBugs，规则也相对容易定制。
 
-针对Sonar有些规则存在误报的情况，我们在力所能及的范围内对规则的实现进行了修改，以符合我们的规范。
+因为Sonar有些规则存在误报的情况，我们在力所能及的范围内对规则的实现进行了修改，以符合我们的规范。
+
+## 实现方式
 
 根据[Writing Custom Java Rules 101](https://docs.sonarqube.org/display/PLUG/Writing+Custom+Java+Rules+101)，从[Sample Project](https://github.com/SonarSource/sonar-custom-rules-examples/tree/master/java-custom-rules)复制创建，对[Sonar Java](https://github.com/SonarSource/sonar-java/tree/master/java-checks/src/main/java/org/sonar/java/checks)规则进行修改。
 
+
+## 使用方式
+
 官方的Sonar Java Plugin在不断更新，以下修改未必对应其最新版，仅作为修改示例供大家参考(修改部分在代码中以//VJ 标注)。 
 
-如果需要直接使用，编译后扔进sonar的lib目录，重启sonar后选用取消原规则，改为使用这些标题带VJ字样的规则即可。
+如果需要直接使用，编译后扔进sonar的lib目录，重启sonar后取消对原规则的检查，改为使用这些编号一样，带标题带VJ字样的规则即可。
 
+## 修改规则列表
 
 | 编号 | 等级 | 规则描述 | 修改 |
 | -------- | -------- |-------- | -------- |
