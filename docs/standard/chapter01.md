@@ -168,4 +168,3 @@ public class B extends A {
 
 ----
 
-* [下一章：格式规约](chapter02.md)

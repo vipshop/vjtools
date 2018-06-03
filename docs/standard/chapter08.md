@@ -217,6 +217,5 @@ Arrays.asList(array)，如果array是原始类型数组如int[]，会把整个ar
 
 ----
 
-* [上一章：基本类型](chapter07.md)
-* [下一章：并发处理](chapter09.md)
+
 

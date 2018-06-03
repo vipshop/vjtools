@@ -161,5 +161,3 @@ a.hello(arrayList);
 
 ----
 
-* [上一章：注释规约](chapter03.md)
-* [下一章：类设计](chapter05.md)

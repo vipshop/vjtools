@@ -86,5 +86,3 @@ public void put(Elephant elephant, Fridge fridge);
 
 ----
 
-* [上一章：命名规约](chapter02.md)
-* [下一章：方法设计](chapter04.md)

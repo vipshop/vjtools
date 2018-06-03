@@ -302,6 +302,4 @@ public void myMethod() {
 
 ----
 
-* [上一章：集合处理](chapter08.md)
-* [下一章：异常处理](chapter10.md)
 

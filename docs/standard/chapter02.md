@@ -94,5 +94,3 @@ String name;
 ```
 ----
 
-* [上一章：命名规约](chapter01.md)
-* [下一章：注释规约](chapter03.md)

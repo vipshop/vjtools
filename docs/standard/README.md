@@ -11,25 +11,28 @@
 
 ## 2. 规范正文
 
-1. [命名规约](chapter01.md)
-2. [格式规约](chapter02.md)
-3. [注释规约](chapter03.md)
-4. [方法设计](chapter04.md)
-5. [类设计](chapter05.md)
-6. [控制语句](chapter06.md)
-7. [基本类型](chapter07.md)
-8. [集合处理](chapter08.md)
-9. [并发处理](chapter09.md)
-10. [异常处理](chapter10.md)
-11. [日志规约](chapter11.md)
-12. [其他设计](chapter12.md)
+1. [命名规约](standard/chapter01.md)
+2. [格式规约](standard/chapter02.md)
+3. [注释规约](standard/chapter03.md)
+4. [方法设计](standard/chapter04.md)
+5. [类设计](standard/chapter05.md)
+6. [控制语句](standard/chapter06.md)
+7. [基本类型](standard/chapter07.md)
+8. [集合处理](standard/chapter08.md)
+9. [并发处理](standard/chapter09.md)
+10. [异常处理](standard/chapter10.md)
+11. [日志规约](standard/chapter11.md)
+12. [其他设计](standard/chapter12.md)
+13. [阿里手册的增补与删减记录](standard/ali.md)
 
 如需全文pdf版，请运行merge.sh生成。
 
-## 3. 附录
+## 3. 规范落地
+
+规则主要依靠代码格式化模版与Sonar规则
 
 * [Eclipse/Intellij 格式模板](https://github.com/vipshop/vjtools/tree/master/standard/formatter)
-* [阿里手册的增补与删减记录](ali.md)
+* [Sonar 规则修改示例](https://github.com/vipshop/vjtools/tree/master/standard/sonar-vj)
 
 ## 4. 参考资料
 

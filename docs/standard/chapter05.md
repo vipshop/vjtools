@@ -259,5 +259,4 @@ obj.getA().getB().getC().hello();
 
 ----
 
-* [上一章：方法设计](chapter04.md)
-* [下一章：控制语句](chapter06.md)
+

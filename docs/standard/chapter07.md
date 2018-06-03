@@ -287,5 +287,4 @@ result = pattern.matcher("abc").matches();
 
 ----
 
-* [上一章：控制语句](chapter06.md)
-* [下一章：集合处理](chapter08.md)
+
