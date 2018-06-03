@@ -1,6 +1,6 @@
 # Sonar VJ 规则
 
-我们使用[Sonar]代码检查工具(https://www.sonarqube.org/)来辅助[《唯品会Java开发手册》](https://vipshop.github.io/vjtools/#/standard/)的落地。选择的原因是它同时提供了服务端的公共报表，及IDE端的Sonar Lint插件，而且对比PMD与FindBugs，规则也相对容易定制。
+我们使用[Sonar](https://www.sonarqube.org/)代码检查工具来辅助[《唯品会Java开发手册》](https://vipshop.github.io/vjtools/#/standard/)的落地。选择的原因是它同时提供了服务端的公共报表，及IDE端的Sonar Lint插件，而且对比PMD与FindBugs，规则也相对容易定制。
 
 针对Sonar有些规则存在误报的情况，我们在力所能及的范围内对规则的实现进行了修改，以符合我们的规范。
 
