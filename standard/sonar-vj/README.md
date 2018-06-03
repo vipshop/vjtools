@@ -1,7 +1,8 @@
-
 # Sonar VJ 规则
 
-因为Sonar有些规则存在误报的情况，我们在力所能及的范围内对规则的实现进行了修改以符合我们的规范。
+我们使用[Sonar代码规则检查工具](https://www.sonarqube.org/)来辅助[唯品会Java开发手册](https://vipshop.github.io/vjtools/#/standard/)的落地。选择的原因是它同时提供了服务端的公共报表，及IDE端的Sonar Lint插件，而且对比PMD与FindBugs，规则也相对容易定制。
+
+针对Sonar有些规则存在误报的情况，我们在力所能及的范围内对规则的实现进行了修改，以符合我们的规范。
 
 根据[Writing Custom Java Rules 101](https://docs.sonarqube.org/display/PLUG/Writing+Custom+Java+Rules+101)，从[Sample Project](https://github.com/SonarSource/sonar-custom-rules-examples/tree/master/java-custom-rules)复制创建，对[Sonar Java](https://github.com/SonarSource/sonar-java/tree/master/java-checks/src/main/java/org/sonar/java/checks)规则进行修改。
 

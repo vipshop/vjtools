@@ -31,7 +31,7 @@
 
 规则落地主要依靠代码格式化模版与[Sonar代码规则检查](https://www.sonarqube.org/)。
 
-其中Sonar规则不尽如人意的地方，我们进行了定制。相对于PMD与FindBugs，Sonar规则非常易于修改。
+其中Sonar规则不尽如人意的地方，我们进行了定制。
 
 * [Eclipse/Intellij 格式模板](https://github.com/vipshop/vjtools/tree/master/standard/formatter)
 * [Sonar 规则修改示例](https://github.com/vipshop/vjtools/tree/master/standard/sonar-vj)
