@@ -5,7 +5,7 @@
 
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjtop</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>vjtop</name>
 	<description>Linux top-like JVM info and busy threads monitoring tools</description>
 

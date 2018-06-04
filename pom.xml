@@ -9,8 +9,8 @@
 
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjtools</artifactId>
-	<version>1.0.0</version>
-	<name>${project.artifactId}</name>
+	<version>1.0.1-SNAPSHOT</version>
+	<name>vjtools</name>
 	<packaging>pom</packaging>
 
 	<description>VJTools - VIP's core libraries and tools</description>
