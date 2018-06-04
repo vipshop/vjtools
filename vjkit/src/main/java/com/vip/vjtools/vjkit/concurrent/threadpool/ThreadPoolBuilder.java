@@ -43,7 +43,7 @@ public class ThreadPoolBuilder {
 	}
 
 	/**
-	 * @see CacheedThreadPoolBuilder
+	 * @see CachedThreadPoolBuilder
 	 */
 	public static CachedThreadPoolBuilder cachedPool() {
 		return new CachedThreadPoolBuilder();
