@@ -53,16 +53,16 @@ With ThreadMxBean:
 ### 2.3.1 Commands
 
 ```
-// rank threads by their cpu time, by default, the top 10 are shown and refreshed in every 10 secs
+// ranks threads by their cpu time, by default, the top 10 are shown and refreshed in every 10 secs
 ./vjtop.sh <PID>
 
-// rank threads by total cpu time since startup, differentiated from cpu time within the interval
+// ranks threads by total cpu time since startup, differentiated from cpu time within the interval
 ./vjtop.sh --totalcpu <PID>
 
-// rank threads by sys cpu
+// ranks threads by sys cpu
 ./vjtop.sh --syscpu <PID>
 
-// rank threads by total sys cpu
+// ranks threads by total sys cpu
 ./vjtop.sh --totalsyscpu <PID>
 ```
 
@@ -122,10 +122,10 @@ Bottom Region Explained :
 ### 2.4.1 Commands
 
 ```
-// rank threads by memory allocation rates, by default, the top 10 are shown and refreshed in every 10 secs
+// ranks threads by memory allocation rates, by default, the top 10 are shown and refreshed in every 10 secs
 ./vjtop.sh --memory <PID>
 
-// rank Threads by total memory allcoation rates since startup (instead of by output interval)
+// ranks Threads by total memory allcoation rates since startup (instead of by output interval)
 ./vjtop.sh --totalmemory <PID>
 ```
 
@@ -159,22 +159,22 @@ Bottom Region Explained:
 ## 2.5 Common Args
 
 ```
-// print other options
+// prints other options
 ./vjtop.sh -h
 
-// output to file
+// outputs to file
 ./vjtop.sh <PID> > /tmp/vjtop.log
 
-// refresh in every 5 secs (default is 10 secs)
+// refreshes in every 5 secs (default is 10 secs)
 ./vjtop.sh -d 5 <PID>
 
-// show the top 20 threads (default is top 10)
+// shows the top 20 threads (default is top 10)
 ./vjtop.sh -l 20 <PID>
 
-// print by width of 120 characters(default is 100)
+// prints by width of 120 characters(default is 100)
 ./vjtop.sh -w 120 <PID> > /tmp/vjtop.log
 
-// quit after 20 output interations
+// quits after 20 output interations
 ./vjtop.sh -n 20 <PID>
 ```
 
