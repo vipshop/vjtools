@@ -2,23 +2,29 @@ package com.vip.vjtools.vjmap.utils;
 
 public class FormatUtils {
 
+	private static final long BYTE_UNIT_KILO = 1L << 10;
+	private static final long BYTE_UNIT_MEGA = 1L << 20;
+	private static final long BYTE_UNIT_GIGA = 1L << 30;
+	private static final long BYTE_UNIT_TERA = 1L << 40;
+
+
 	public static String toFloatUnit(long size) {
-		if (size < 1024) {
+		if (size < BYTE_UNIT_KILO) {
 			return String.format("%5d", size);
 		}
 
-		if (size / 1024 < 1024) {
-			return String.format("%5.1fk", size / 1024d);
+		if (size < BYTE_UNIT_MEGA) {
+			return String.format("%5.1fk", size / (1d * BYTE_UNIT_KILO));
 		}
 
-		if (size / (1024 * 1024) < 1024) {
-			return String.format("%5.1fm", size / (1024d * 1024));
+		if (size < BYTE_UNIT_GIGA) {
+			return String.format("%5.1fm", size / (1d * BYTE_UNIT_MEGA));
 		}
 
-		if (size / (1024 * 1024 * 1024) < 1024) {
-			return String.format("%5.1fg", size / (1024d * 1024 * 1024));
+		if (size < BYTE_UNIT_TERA) {
+			return String.format("%5.1fg", size / (1d * BYTE_UNIT_GIGA));
 		}
 
-		return String.format("%5.1ft", size / (1024d * 1024 * 1024 * 1024));
+		return String.format("%5.1ft", size / (1d * BYTE_UNIT_TERA));
 	}
 }
