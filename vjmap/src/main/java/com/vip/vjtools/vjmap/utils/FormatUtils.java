@@ -2,10 +2,10 @@ package com.vip.vjtools.vjmap.utils;
 
 public class FormatUtils {
 
-	private static final long BYTE_UNIT_KILO = 1L << 10;
-	private static final long BYTE_UNIT_MEGA = 1L << 20;
-	private static final long BYTE_UNIT_GIGA = 1L << 30;
-	private static final long BYTE_UNIT_TERA = 1L << 40;
+	private static final long BYTE_UNIT_KILO = 1024;
+	private static final long BYTE_UNIT_MEGA = BYTE_UNIT_KILO * 1024;
+	private static final long BYTE_UNIT_GIGA = BYTE_UNIT_MEGA * 1024;
+	private static final long BYTE_UNIT_TERA = BYTE_UNIT_GIGA * 1024;
 
 
 	public static String toFloatUnit(long size) {
