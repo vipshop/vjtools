@@ -1,6 +1,6 @@
 # 1. 概述
 
-若你习惯以Top观察“OS指标及繁忙的进程”，也推荐以VJTop观看 “JVM指标及CPU/内存繁忙的线程”。
+若你习惯以Top观察“OS指标及繁忙的进程”，也推荐以VJTop观看 “JVM指标及CPU最繁忙，内存占用最多的线程”。
 
 在[jvmtop](https://github.com/patric-r/jvmtop) 的基础上二次开发，结合 [SJK](https://github.com/aragozin/jvm-tools)的优点，从/proc ， PerfData，JMX等处，以更高的性能，获取更多的信息。
 

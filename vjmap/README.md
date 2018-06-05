@@ -1,10 +1,15 @@
 # 1. 概述
 
-分代版的jmap（新生代，存活区，老生代），是排查内存缓慢泄露，老生代增长过快原因的利器。因为`jmap -histo PID` 打印的是整个Heap的对象信息，而很多时候，我们需要专门查看OldGen对象，以及survivor区Age较大的对象。
+分代版的jmap（新生代，存活区，老生代），是排查内存缓慢泄露，老生代增长过快原因的利器。因为`jmap -histo PID`  打印的是整个Heap的对象统计信息，而为了定位上面的问题，我们需要专门查看OldGen对象，和Survivor区老龄剩男的工具。
 
-vjmap 原始思路来源于R大的[tbjmap](https://github.com/alibaba/TBJMap) ，翻新后兼容JDK8，支持对存活区老龄剩余对象的查询，能更直接发现问题。
+vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) ，翻新后支持JDK8，支持Survivor区老龄对象过滤，以及大天秤对输出结果不要看歪脖子的执着。
 
-注意：因为vjmap的原理，只支持CMS和ParallelGC，不支持G1.
+
+这里有一篇实战：[【唯实践】JVM老生代增长过快问题排查](https://mp.weixin.qq.com/s?__biz=MjM5NjM5MzQ1MQ==&mid=2651039738&idx=1&sn=7730d63445fd426a00c4d83882059570)，最后定位到Jedis的锅。
+
+
+注意：因为vjmap的原理，只支持CMS和ParallelGC，不支持G1。
+
 
 # 2.使用说明
 
@@ -15,6 +20,8 @@ vjmap 原始思路来源于R大的[tbjmap](https://github.com/alibaba/TBJMap) �
 必须与目标JVM使用相同用户运行，如果执行时仍然有权限错误，改用root用户执行。
 
 vjmap的运行需要一段时间，如果中途需要停止执行，请使用kill vjmap的进程号，让vjmap从目标进程退出。如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID来重新唤醒目标java进程。
+
+
 
     
 ## 2.1 常用指令
