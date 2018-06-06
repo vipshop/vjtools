@@ -2,8 +2,8 @@
 # VIP Java Things
 
 - Standard
-- Core Librires
+- Core Libraries
 - Tools
 
 [GitHub](https://github.com/vipshop/vjtools)
-[Standard](standard/)
+[唯品会Java开发手册](standard/)
