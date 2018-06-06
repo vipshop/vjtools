@@ -1,14 +1,17 @@
 # (一) 命名规约
 
-**Rule 1. 【强制】禁止拼音缩写，禁止拼音/拼音缩写与英文的混合，尽量不用拼音**
+**Rule 1. 【强制】禁止拼音缩写，避免阅读者费劲猜测；尽量不用拼音, 尽量不要拼音与英文的混合。**
 
 ```text 
-反例： DZ[打折] / DaZhePromotion [打折] / getPFByName() [评分]
+禁止： DZ[打折] / getPFByName() [评分]
+
+尽量避免：Dazhe / DaZhePrice
+
 ```
 
 ----  
 
-**Rule 2. 【强制】禁止使用非标准的缩写**
+**Rule 2. 【强制】禁止使用非标准的英文缩写**
 
 ```text 
 反例： AbstractClass 缩写成 AbsClass；condition 缩写成 condi。
