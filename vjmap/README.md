@@ -1,6 +1,6 @@
 # 1. 概述
 
-分代版的jmap（新生代，存活区，老生代），是排查内存缓慢泄露，老生代增长过快原因的利器。因为`jmap -histo PID`  打印的是整个Heap的对象统计信息，而为了定位上面的问题，我们需要专门查看OldGen对象，和Survivor区老龄剩男的工具。
+分代版的jmap（新生代，存活区，老生代），是排查内存缓慢泄露，老生代增长过快原因的利器。因为`jmap -histo PID`  打印的是整个Heap的对象统计信息，而为了定位上面的问题，我们需要专门查看OldGen对象，和Survivor区老龄对象的工具。
 
 vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) ，翻新后支持JDK8，支持Survivor区老龄对象过滤，以及大天秤对输出结果不要看歪脖子的执着。
 

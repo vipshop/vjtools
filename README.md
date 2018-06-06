@@ -45,4 +45,4 @@ VJTools官方微信讨论群，请搜索微信号viptech128(唯技术)，添加�
 
 唯品会团队: [江南白衣](http://calvin1978.blogcn.com), [郑德惠](https://github.com/zhengdehui), [黄云斌](https://github.com/huangyunbin), [梁耀曾](https://github.com/AJ-Liang), [林铭恺](https://github.com/acxlam), [李炫彬](https://github.com/lixuanbin) , [张晓玲](https://github.com/hjzhangxiaoling)
 
-曾经一起战斗: 杨镌颖@阿里, 陈维治@阿里
+曾经一起战斗: [杨镌颖@阿里](https://github.com/yangjuanying), 陈维治@阿里
