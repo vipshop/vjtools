@@ -14,7 +14,7 @@
 4）设定项目组统一的缩进方式(Tab或二空格，四空格均可)，基于IDE自动转换。
 
 
-* [VIP标准代码格式化模板](/standard/formatter)
+* [VIP代码格式化模板](https://github.com/vipshop/vjtools/tree/master/standard/formatter)
     
 ----
 

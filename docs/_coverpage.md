@@ -6,4 +6,4 @@
 - Tools
 
 [GitHub](https://github.com/vipshop/vjtools)
-[唯品会Java开发手册](standard/)
+[Java开发手册](standard/)
