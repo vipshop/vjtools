@@ -11,10 +11,8 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 SA_JDI_PATH=$JAVA_HOME/lib/sa-jdi.jar
-JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 
 echo -e "\033[31mWARNING!! STW(Stop-The-World) will be performed on your Java process, if this is NOT wanted, type 'Ctrl+C' to exit. \033[0m"
-echo "using JDK $JAVA_VERSION"
 
 PRGDIR=`dirname "$0"`
 BASEDIR=`cd "$PRGDIR/" >/dev/null; pwd`

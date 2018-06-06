@@ -21,10 +21,13 @@
 		<file>
 			<source>src/main/assembly/vjmap.sh</source>
 			<outputDirectory>/</outputDirectory>
-			<destName>vjmap.sh</destName>
 			<fileMode>0755</fileMode>
-			<filtered>true</filtered>
 			<lineEnding>unix</lineEnding>
+		</file>
+		<file>
+			<source>src/main/assembly/vjmap.bat</source>
+			<outputDirectory>/</outputDirectory>
+			<lineEnding>windows</lineEnding>
 		</file>
 		<file>
 			<source>README.md</source>
@@ -32,6 +35,5 @@
 			<destName>README.md</destName>
 			<lineEnding>unix</lineEnding>
 		</file>
-		
 	</files>
 </assembly>

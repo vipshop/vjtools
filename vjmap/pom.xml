@@ -35,7 +35,7 @@
 				<version>2.6</version>
 				<configuration>
 					<descriptors>
-						<descriptor>src/main/assembly/zip.xml</descriptor>
+						<descriptor>src/main/assembly/distribution.xml</descriptor>
 					</descriptors>
 					<appendAssemblyId>false</appendAssemblyId>
 				</configuration>
