@@ -103,7 +103,7 @@ public class VJTop {
 			if (optionSet.hasArgument("delay")) {
 				delay = (Double) (optionSet.valueOf("delay"));
 				if (delay < 1d) {
-					throw new IllegalArgumentException("Delay cannot be set below 0.1");
+					throw new IllegalArgumentException("Delay cannot be set below 1.0");
 				}
 			}
 			view.setDelay(delay);
