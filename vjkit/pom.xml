@@ -17,7 +17,7 @@
 		<dozer.version>5.5.1</dozer.version>
 		<junit.version>4.12</junit.version>
 		<assertj.version>2.6.0</assertj.version>
-		<mockito.version>1.10.19</mockito.version>
+		<mockito.version>2.18.3</mockito.version>
 
 		<!-- Plugin的属性 -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
