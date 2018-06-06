@@ -2,6 +2,8 @@
 
 若你习惯以Top观察“OS指标及繁忙的进程”，也推荐以VJTop观看 “JVM指标及CPU最繁忙，内存占用最多的线程”。
 
+另一用途是，监控系统发现指标超阈值时，钩子脚本调VJTop纪录事发地状况。
+
 在[jvmtop](https://github.com/patric-r/jvmtop) 的基础上二次开发，结合 [SJK](https://github.com/aragozin/jvm-tools)的优点，从/proc ， PerfData，JMX等处，以更高的性能，获取更多的信息。
 
 运行时不造成应用停顿，可在线上安全使用。
