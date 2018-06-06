@@ -11,21 +11,21 @@
 
 ## 2. 规范正文
 
-1. [命名规约](standard/chapter01.md)
-2. [格式规约](standard/chapter02.md)
-3. [注释规约](standard/chapter03.md)
-4. [方法设计](standard/chapter04.md)
-5. [类设计](standard/chapter05.md)
-6. [控制语句](standard/chapter06.md)
-7. [基本类型](standard/chapter07.md)
-8. [集合处理](standard/chapter08.md)
-9. [并发处理](standard/chapter09.md)
-10. [异常处理](standard/chapter10.md)
-11. [日志规约](standard/chapter11.md)
-12. [其他设计](standard/chapter12.md)
-13. [阿里手册的增补与删减记录](standard/ali.md)
+1. [命名规约](https://vipshop.github.io/vjtools/#/standard/chapter01)
+2. [格式规约](https://vipshop.github.io/vjtools/#/standard/chapter02)
+3. [注释规约](https://vipshop.github.io/vjtools/#/standard/chapter03)
+4. [方法设计](https://vipshop.github.io/vjtools/#/standard/chapter04)
+5. [类设计](https://vipshop.github.io/vjtools/#/standard/chapter05)
+6. [控制语句](https://vipshop.github.io/vjtools/#/standard/chapter06)
+7. [基本类型](https://vipshop.github.io/vjtools/#/standard/chapter07)
+8. [集合处理](https://vipshop.github.io/vjtools/#/standard/chapter08)
+9. [并发处理](https://vipshop.github.io/vjtools/#/standard/chapter09)
+10. [异常处理](https://vipshop.github.io/vjtools/#/standard/chapter10)
+11. [日志规约](https://vipshop.github.io/vjtools/#/standard/chapter11)
+12. [其他设计](https://vipshop.github.io/vjtools/#/standard/chapter12)
+13. [阿里手册的比较](https://vipshop.github.io/vjtools/#/standard/ali)
 
-注意： 规范请从[https://vipshop.github.io/vjtools/#/standard/](https://vipshop.github.io/vjtools/#/standard/)阅读，勿从github源码阅读。如需全文pdf版，请运行merge.sh生成。
+注意： 如需全文pdf版，请运行merge.sh生成，阅读时的章节跳转使用pdf阅读器的左侧书签。
 
 ## 3. 规范落地
 
