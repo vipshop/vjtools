@@ -25,7 +25,7 @@
 12. [其他设计](standard/chapter12.md)
 13. [阿里手册的增补与删减记录](standard/ali.md)
 
-如需全文pdf版，请运行merge.sh生成。
+注意： 规范请从[https://vipshop.github.io/vjtools/#/standard/](https://vipshop.github.io/vjtools/#/standard/)阅读，勿从github源码阅读。如需全文pdf版，请运行merge.sh生成。
 
 ## 3. 规范落地
 
