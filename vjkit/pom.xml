@@ -138,6 +138,38 @@
 				</plugins>
 			</build>
 		</profile>
+
+		<profile>
+			<id>sonar</id>
+			<properties>
+				<sonar.exclusions>**/primitive/**/*.java,**/jsr166e/**/*.java,**/SortedArrayList.java,**/WildcardMatcher.java,**/CsvUtil.java</sonar.exclusions>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>0.7.2.201409121644</version>
+						<configuration>
+							<append>true</append>
+						</configuration>
+						<executions>
+							<execution>
+								<id>agent-for-ut</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
+						<version>3.4.0.905</version>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 	<distributionManagement>
