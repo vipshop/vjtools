@@ -9,11 +9,14 @@ import org.apache.commons.lang3.StringUtils;
  *
  */
 public class ValueValidator {
-	
+
 	/**
 	 * 对目标值进行校验，并根据校验结果取值
-	 * <br>使用示例(校验目标值是否大于0, 如果小于 0 则取值为 1)
-	 * <br>ValueValidator.checkAndGet(-1, 1, Validator.INTEGER_GT_ZERO_VALIDATOR)</br>
+	 * 
+	 * 使用示例(校验目标值是否大于0, 如果小于 0 则取值为 1)
+	 * 
+	 * ValueValidator.checkAndGet(-1, 1, Validator.INTEGER_GT_ZERO_VALIDATOR)
+	 * 
 	 * @param value 校验值
 	 * @param defaultValue 校验失败默认值
 	 * @param v 校验器
@@ -31,7 +34,11 @@ public class ValueValidator {
 	 * 对Properties值进行规则匹配的验证器
 	 */
 	public interface Validator<T> {
-		
+		/**
+		 * 校验值是否匹配
+		 */
+		boolean validate(T value);
+
 		/**
 		 * 校验器: 数值配置不为null, 且大于0较验
 		 */
@@ -61,11 +68,5 @@ public class ValueValidator {
 				return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
 			}
 		};
-		
-		/**
-		 * 值规则匹配方法实现
-		 */
-		boolean validate(T value);
-
 	}
 }

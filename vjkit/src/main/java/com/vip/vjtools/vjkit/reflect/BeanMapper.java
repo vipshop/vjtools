@@ -11,11 +11,17 @@ import com.vip.vjtools.vjkit.collection.ArrayUtil;
 /**
  * 实现深度的BeanOfClasssA<->BeanOfClassB复制
  * 
- * 不要是用Apache Common BeanUtils进行类复制，每次就行反射查询对象的属性列表, 非常缓慢.
+ * 不要使用Apache Common BeanUtils进行类复制，每次就行反射查询对象的属性列表, 非常缓慢.
  * 
- * orika性能更好，也不需要Getter函数与无参构造函数，但有潜在bug还没在社区版修复
+ * orika性能比Dozer快近十倍，也不需要Getter函数与无参构造函数
  * 
- * Dozer有6.0版，但only for JDK8
+ * 但我们内部修复了的bug，社区版没有修复: https://github.com/orika-mapper/orika/issues/252 
+ * 
+ * 如果应用启动时有并发流量进入，可能导致两个不同类型的同名属性间(如Order的User user属性，与OrderVO的UserVO user)的复制失败，只有重启才能解决。
+ * 
+ * 因此安全起见，在vjkit的开源版本中仍然使用Dozer。
+ * 
+ * Dozer最新是6.x版，但only for JDK8，为兼容JDK7这里仍使用5.x版本。
  * 
  * 注意: 需要参考POM文件，显式引用Dozer.
  */
