@@ -142,6 +142,7 @@
 		<profile>
 			<id>sonar</id>
 			<properties>
+				<sonar.java.source>1.7</sonar.java.source>
 				<sonar.exclusions>**/primitive/**/*.java,**/jsr166e/**/*.java,**/SortedArrayList.java,**/WildcardMatcher.java,**/CsvUtil.java</sonar.exclusions>
 			</properties>
 			<build>

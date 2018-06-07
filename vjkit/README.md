@@ -38,7 +38,7 @@ Maven:
 |[Guava](https://github.com/google/guava) | 20.0 ||
 |[Apache Common Lang](https://github.com/apache/commons-lang) | 3.7 ||
 |[Slf4j](https://www.slf4j.org) | 1.7.25 ||
-|[Dozer](http://dozermapper.github.io/) | 5.5.1 |Optional for BeanMapper，[选型](https://github.com/vipshop/vjtools/blob/master/vjkit/src/main/java/com/vip/vjtools/vjkit/reflect/BeanMapper.java) |
+|[Dozer](http://dozermapper.github.io/) | 5.5.1 |Optional for BeanMapper，[选型](https://github.com/vipshop/vjtools/blob/master/vjkit/src/main/java/com/vip/vjtools/vjkit/reflect/BeanMapper.java#L11) |
 
 如果使用Optional的依赖，请参考pom文件在业务项目自行引入
 
