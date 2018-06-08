@@ -17,8 +17,7 @@
 
 ## 2. Usage
 
-Maven:
-
+Maven : 
 ```
 <dependency>
 	<groupId>com.vip.vjtools</groupId>
@@ -27,7 +26,8 @@ Maven:
 </dependency>
 ```
 
-[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjkit/1.0.0/)
+Download: [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.vip.vjtools/vjkit/badge.svg)](http://search.maven.org/#search|gav|1|g:"com.vip.vjtools"%20AND%20a:"vjkit")
+
 
 ## 3. Dependency
 

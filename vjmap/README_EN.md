@@ -16,7 +16,7 @@ survivor objects.
 
 # 2. Getting Started
 
-[donload from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.0/vjmap-1.0.0.zip) - 27k
+[download from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.0/vjmap-1.0.0.zip) - 27k
 
 **[Important]**: VJMap DOES cause stop-of-the-world of the target app. Make sure the target app is isolated from user 
 access before you start using VJMap in production.
@@ -89,7 +89,40 @@ Total: 39/    1k over age 2
 Heap traversal took 1.3 seconds.
 ```
 
-# 4. Enhancements over TBJMap
+
+
+# 4. Eclipse MAT
+
+如果只依靠对象统计信息，不足以定位问题，需要使用完整HeapDump，计算对象关联关系来进一步分析时，可以在MAT中使用OQL过滤出老生代的对象。
+
+假设，OldGen地址范围是"0xfbd4c000" ～ "0xfce94050"
+
+```
+SELECT * FROM INSTANCEOF java.lang.Object t WHERE (toHex(t.@objectAddress) >= "0xfbd4c000" AND toHex(t.@objectAddress) <= "0xfce94050")
+```
+
+用如下方式可获得老生代地址：
+
+第一种方式是在启动参数增加 -XX:+PrintHeapAtGC
+
+第二种方式是使用vjmap的命令，在-old, -sur, -address 中，都会打印出区间的地址。 
+
+```
+./vjmap.sh -address PID
+
+``` 
+
+输出如下：
+```
+  eden [0x0000000119000000,0x0000000119c4a258,0x0000000121880000) space capacity = 143130624, 9.003395387977907 used
+  from [0x0000000121880000,0x0000000121880000,0x0000000122990000) space capacity = 17891328, 0.0 used
+  to   [0x0000000122990000,0x0000000122990000,0x0000000123aa0000) space capacity = 17891328, 0.0 used
+concurrent mark-sweep generation
+free-list-space[ 0x0000000123aa0000 , 0x0000000139000000 ) space capacity = 357957632 used(4%)= 17024696 free= 340932936
+```
+
+
+# 5. Enhancements over TBJMap
 * Added JDK8 Support.
 * Added Display: survivor objects over the specified age.
 * Performance Boost: by accessing Survivor and OldGen directly instead of by accessing the whole heap with Heap Visitor callbacks.
