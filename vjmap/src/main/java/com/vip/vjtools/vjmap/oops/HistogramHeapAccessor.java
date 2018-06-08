@@ -1,5 +1,6 @@
 package com.vip.vjtools.vjmap.oops;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,13 +39,18 @@ public class HistogramHeapAccessor {
 	private HashMap<Klass, ClassStats> classStatsMap;
 	private CollectedHeap heap;
 	private ObjectHeap objectHeap;
+	private PrintStream tty;
 
 	public HistogramHeapAccessor() {
 		this.classStatsMap = new HashMap<Klass, ClassStats>(2048, 0.2f);
 		heap = VM.getVM().getUniverse().heap();
 		objectHeap = VM.getVM().getObjectHeap();
+		tty = System.err;
 	}
 
+	/**
+	 * 统计Survivor区对象统计信息
+	 */
 	public List<ClassStats> dumpSurvivor(int minAge) {
 		// 获取Survivor区边界
 		Address fromBottom = null;
@@ -53,20 +59,22 @@ public class HistogramHeapAccessor {
 			//CMS GC
 			DefNewGeneration youngGen = (DefNewGeneration) ((GenCollectedHeap) heap).getGen(0);
 			ContiguousSpace from = youngGen.from();
-			from.printOn(System.err);
-			System.err.println("");
 			fromBottom = from.bottom();
 			fromTop = from.top();
+			
+			from.printOn(tty);
+			tty.println("");
 		} else if (heap instanceof ParallelScavengeHeap) {
 			//Parallel GC
 			PSYoungGen psYoung = ((ParallelScavengeHeap) heap).youngGen();
 			MutableSpace from = psYoung.fromSpace();
-			from.printOn(System.err);
-			System.err.println("");
 			fromBottom = from.bottom();
 			fromTop = from.top();
+			
+			from.printOn(tty);
+			tty.println("");
 		} else {
-			throw new RuntimeException("Unsupport heap:" + heap.getClass().getName());
+			throw new IllegalArgumentException("Unsupport heap:" + heap.getClass().getName());
 		}
 
 		OopHandle handle = fromBottom.addOffsetToAsOopHandle(0);
@@ -83,12 +91,12 @@ public class HistogramHeapAccessor {
 			if (obj == null) {
 				throw new UnknownOopException();
 			}
+			
 			long objectSize = obj.getObjectSize();
-
+			handle = handle.addOffsetToAsOopHandle(objectSize);
+			
 			Klass klass = obj.getKlass();
-
 			if (klass == null || obj.getMark().age() < minAge) {
-				handle = handle.addOffsetToAsOopHandle(objectSize);
 				continue;
 			}
 
@@ -97,32 +105,34 @@ public class HistogramHeapAccessor {
 			stats.survivorSize += objectSize;
 
 			if ((processingObject++) == PROCERSSING_DOT_SIZE) {
-				System.err.print('.');
+				tty.print('.');
 				processingObject = 0;
 			}
-			handle = handle.addOffsetToAsOopHandle(objectSize);
 		}
 
 		return getClassStatsList();
 	}
 
+	/**
+	 * 统计CMS OldGen的对象信息
+	 */
 	public List<ClassStats> dumpCms() {
 		if (!(heap instanceof GenCollectedHeap)) {
-			throw new RuntimeException("Unsupport heap:" + heap.getClass().getName());
+			throw new IllegalArgumentException("Unsupport heap:" + heap.getClass().getName());
 		}
 
 		ConcurrentMarkSweepGeneration cmsGen = (ConcurrentMarkSweepGeneration) ((GenCollectedHeap) heap).getGen(1);
-		cmsGen.printOn(System.err);
-		System.err.println("");
 		CompactibleFreeListSpace cmsSpace = cmsGen.cmsSpace();
 		CMSCollector cmsCollector = cmsSpace.collector();
 		
-		System.err.println("Getting live regions.");
+		cmsGen.printOn(tty);
+		tty.println("");
+		
+		tty.println("Getting live regions.");
 		long start = System.currentTimeMillis();
 		List liveRegions = cmsSpace.getLiveRegions();
 		int liveRegionsSize = liveRegions.size();
-
-		System.err.printf("OldGen has %d live regions, took %.1fs. %n", liveRegionsSize,
+		tty.printf("OldGen has %d live regions, took %.1fs. %n", liveRegionsSize,
 				(System.currentTimeMillis() - start) / 1000d);
 
 		int processingObject = 0;
@@ -168,7 +178,7 @@ public class HistogramHeapAccessor {
 					stats.oldSize += objectSize;
 
 					if ((processingObject++) == PROCERSSING_DOT_SIZE) {
-						System.err.print(".");
+						tty.print(".");
 						processingObject = 0;
 					}
 
@@ -187,19 +197,19 @@ public class HistogramHeapAccessor {
 		if (heap instanceof GenCollectedHeap) {
 			// CMS GC
 			DefNewGeneration youngGen = (DefNewGeneration) ((GenCollectedHeap) heap).getGen(0);
-			youngGen.printOn(System.err);
-			System.err.println("");
+			youngGen.printOn(tty);
+			tty.println("");
 			ConcurrentMarkSweepGeneration cmsGen = (ConcurrentMarkSweepGeneration) ((GenCollectedHeap) heap).getGen(1);
-			cmsGen.printOn(System.err);
+			cmsGen.printOn(tty);
 		} else if (heap instanceof ParallelScavengeHeap) {
 			// Parallel GC
 			PSYoungGen psYoung = ((ParallelScavengeHeap) heap).youngGen();
-			psYoung.printOn(System.err);
-			System.err.println("");
+			psYoung.printOn(tty);
+			tty.println("");
 			PSOldGen oldgen = ((ParallelScavengeHeap) heap).oldGen();
-			oldgen.printOn(System.err);
+			oldgen.printOn(tty);
 		} else {
-			throw new RuntimeException("Unsupport heap:" + heap.getClass().getName());
+			throw new IllegalArgumentException("Unsupport heap:" + heap.getClass().getName());
 		}
 	}
 
