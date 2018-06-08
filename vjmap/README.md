@@ -85,12 +85,43 @@ Total: 39/    1k over age 2
 Heap traversal took 1.3 seconds.
 ```
 
+# 4. 使用Eclipse MAT进一步分析
 
-# 4.修改记录
+如果只依靠对象统计信息，不足以定位问题，需要使用完整HeapDump，计算对象关联关系来进一步分析时，可以在MAT中使用OQL过滤出老生代的对象。
+
+假设，OldGen地址范围是"0xfbd4c000" ～ "0xfce94050"
+
+```
+SELECT * FROM INSTANCEOF java.lang.Object t WHERE (toHex(t.@objectAddress) >= "0xfbd4c000" AND toHex(t.@objectAddress) <= "0xfce94050")
+```
+
+用如下方式可获得老生代地址：
+
+第一种方式是在启动参数增加 -XX:+PrintHeapAtGC
+
+第二种方式是使用vjmap的命令，在-old, -sur, -address 中，都会打印出区间的地址。 
+
+```
+./vjmap.sh -address PID
+
+``` 
+
+输出如下：
+```
+  eden [0x0000000119000000,0x0000000119c4a258,0x0000000121880000) space capacity = 143130624, 9.003395387977907 used
+  from [0x0000000121880000,0x0000000121880000,0x0000000122990000) space capacity = 17891328, 0.0 used
+  to   [0x0000000122990000,0x0000000122990000,0x0000000123aa0000) space capacity = 17891328, 0.0 used
+concurrent mark-sweep generation
+free-list-space[ 0x0000000123aa0000 , 0x0000000139000000 ) space capacity = 357957632 used(4%)= 17024696 free= 340932936
+```
+
+
+# 5. 与TBJMap的对比
 
 * 兼容JDK8
 * 新功能：Survivor区 age大于N的对象统计
-* 性能提升：直接访问Survivor或OldGen区，而不是用Heap Visitor回调的方式访问整个Heap
+* 新功能：打印各分代的地址区间，用于MAT进一步分析
+* 性能提升：直接访问Survivor或OldGen区，而不是以Heap Visitor回调的方式访问整个Heap
 * 新配置项：按对象的大小进行过滤，不显示过小的对象
 * 新配置项：按对象的名称进行排序，用于生成定时比较的报表
 * 输出改进：报表数字的单位化(k,m,g)与对齐，OldGen报表默认按对象在OldGen的大小排序
