@@ -13,20 +13,22 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 /**
- * 兼容url为无前缀，file://与classpath:// 三种情况的工具集
- * <p>
+ * 兼容文件url为无前缀, classpath:, file:// 三种方式的Resource读取工具集
+ * 
+ * e.g: classpath:com/myapp/config.xml, file:///data/config.xml, /data/config.xml
+ * 
  * 参考Spring ResourceUtils
  */
 public class URLResourceUtil {
 
-	private static final String CLASSPATH_PREFIX = "classpath://";
+	private static final String CLASSPATH_PREFIX = "classpath:";
 
 	private static final String URL_PROTOCOL_FILE = "file";
 
 	/**
-	 * 兼容无前缀, classpath://, file:// 的情况获取文件
+	 * 兼容无前缀, classpath:, file:// 的情况获取文件
 	 * 
-	 * 如果以classpath:// 定义的文件不存在会抛出IllegalArgumentException异常，以file://定义的则不会
+	 * 如果以classpath: 定义的文件不存在会抛出IllegalArgumentException异常，以file://定义的则不会
 	 */
 	public static File asFile(String generalPath) throws IOException {
 		if (StringUtils.startsWith(generalPath, CLASSPATH_PREFIX)) {
@@ -43,7 +45,7 @@ public class URLResourceUtil {
 	}
 
 	/**
-	 * 兼容file://与classpath://的情况的打开文件成Stream
+	 * 兼容无前缀, classpath:, file:// 的情况打开文件成Stream
 	 */
 	public static InputStream asStream(String generalPath) throws IOException {
 		if (StringUtils.startsWith(generalPath, CLASSPATH_PREFIX)) {
