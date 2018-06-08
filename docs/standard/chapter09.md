@@ -66,7 +66,7 @@ Thread.stop()不推荐使用，强行的退出太不安全，会导致逻辑不�
 
 * ExecutorService.shutdownNow(): 通过Thread.interrupt()试图停止所有正在执行的线程，并不再处理还在队列中等待的任务。
 
-最优雅的退出方式是先执行shutdown()，再执行shutdownNow()，vjkit的`ThreadUtil`进行了封装。
+最优雅的退出方式是先执行shutdown()，再执行shutdownNow()，vjkit的`ThreadPoolUtil`进行了封装。
 
 注意，Thread.interrupt()并不保证能中断正在运行的线程，需编写可中断退出的Runnable，见规则5。
 
