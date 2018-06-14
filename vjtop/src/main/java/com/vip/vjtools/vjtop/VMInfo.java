@@ -12,10 +12,10 @@ import java.util.logging.Logger;
 import com.sun.management.ThreadMXBean;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.vip.vjtools.vjtop.data.PerfData;
-import com.vip.vjtools.vjtop.data.ProcFileData;
 import com.vip.vjtools.vjtop.data.PerfData.Counter;
 import com.vip.vjtools.vjtop.data.PerfData.LongCounter;
 import com.vip.vjtools.vjtop.data.PerfData.TickCounter;
+import com.vip.vjtools.vjtop.data.ProcFileData;
 import com.vip.vjtools.vjtop.data.jmx.JmxClient;
 
 /**

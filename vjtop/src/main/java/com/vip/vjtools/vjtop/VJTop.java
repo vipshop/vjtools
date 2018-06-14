@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -38,6 +39,8 @@ public class VJTop {
 	private Double delay_ = -1d;
 
 	private int maxIterations_ = -1;
+
+	private AtomicBoolean needFurtherInput = new AtomicBoolean(false);
 
 	private static OptionParser createOptionParser() {
 		OptionParser parser = new OptionParser();
@@ -123,7 +126,7 @@ public class VJTop {
 			}
 
 			// 5. start thread to get user input
-			Thread interactiveThread = new Thread(new InteractiveTask(view, Thread.currentThread()));
+			Thread interactiveThread = new Thread(new InteractiveTask(view, vjtop, Thread.currentThread()));
 			interactiveThread.setDaemon(true);
 			interactiveThread.start();
 
@@ -210,6 +213,7 @@ public class VJTop {
 			while (!view.shouldExit()) {
 
 				if (maxIterations_ > 1 || maxIterations_ == -1) {
+					waitForInput();
 					clearTerminal();
 				}
 
@@ -222,7 +226,7 @@ public class VJTop {
 				}
 
 				++iterations;
-				view.sleep((long) (delay_ * 1000));
+				Utils.sleep((long) (delay_ * 1000));
 			}
 		} catch (NoClassDefFoundError e) {
 			e.printStackTrace(System.err);
@@ -243,6 +247,16 @@ public class VJTop {
 		} else {
 			System.out.print(CLEAR_TERMINAL_ANSI_CMD);
 		}
+	}
+
+	public void waitForInput() {
+		while (needFurtherInput.get()) {
+			Utils.sleep(1000);
+		}
+	}
+
+	public void setNeedForFurtherInput(boolean value) {
+		needFurtherInput.set(value);
 	}
 
 	public void setDelay(Double delay) {

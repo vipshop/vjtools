@@ -2,8 +2,6 @@ package com.vip.vjtools.vjtop;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -135,14 +133,14 @@ public class Utils {
 		Collections.sort(list, new Comparator() {
 			@Override
 			public int compare(Object o1, Object o2) {
-					return ((Comparable) ((Map.Entry) (o2)).getValue()).compareTo(((Map.Entry) (o1)).getValue());
+				return ((Comparable) ((Map.Entry) (o2)).getValue()).compareTo(((Map.Entry) (o1)).getValue());
 			}
 		});
-		
+
 		long[] topTidArray = new long[max];
 		int i = 0;
 		for (Map.Entry entry : list) {
-			topTidArray[i] = (Long)entry.getKey();
+			topTidArray[i] = (Long) entry.getKey();
 			if (++i >= max) {
 				break;
 			}
@@ -190,6 +188,13 @@ public class Utils {
 			return value * fromScale;
 		} catch (Throwable ex) {
 			return -1;
+		}
+	}
+
+	public static void sleep(long mills) {
+		try {
+			Thread.sleep(mills);
+		} catch (InterruptedException e) {
 		}
 	}
 }

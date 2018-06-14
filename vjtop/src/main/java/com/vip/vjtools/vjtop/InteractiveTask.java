@@ -7,10 +7,12 @@ import com.vip.vjtools.vjtop.VMDetailView.DetailMode;
 
 final class InteractiveTask implements Runnable {
 	private VMDetailView view;
+	private VJTop vjtop;
 	private Thread mainThread;
 
-	public InteractiveTask(VMDetailView view, Thread mainThread) {
+	public InteractiveTask(VMDetailView view, VJTop vjtop, Thread mainThread) {
 		this.view = view;
+		this.vjtop = vjtop;
 		this.mainThread = mainThread;
 	}
 
@@ -19,6 +21,7 @@ final class InteractiveTask implements Runnable {
 			try {
 				String command = new BufferedReader(new InputStreamReader(System.in)).readLine().trim();
 				if (command.equals("t")) {
+					vjtop.setNeedForFurtherInput(true);
 					System.err.print(" Input TID for stack:");
 					String pidStr = new BufferedReader(new InputStreamReader(System.in)).readLine();
 					try {
@@ -27,7 +30,11 @@ final class InteractiveTask implements Runnable {
 					} catch (NumberFormatException e) {
 						System.err.println(" Wrong number format");
 					}
+					//block the flush to let user see the result
+					Utils.sleep(10000);
+					vjtop.setNeedForFurtherInput(false);
 				} else if (command.equals("d")) {
+					vjtop.setNeedForFurtherInput(true);
 					System.err.print(
 							" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): ");
 					String mode = new BufferedReader(new InputStreamReader(System.in)).readLine();
@@ -55,6 +62,7 @@ final class InteractiveTask implements Runnable {
 							break;
 					}
 					System.err.println(" Display mode changed to " + view.getMode() + " for next flush");
+					vjtop.setNeedForFurtherInput(false);
 				} else if (command.equals("q")) {
 					view.exit();
 					mainThread.interrupt();

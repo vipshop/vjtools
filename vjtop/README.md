@@ -28,10 +28,10 @@
 ### 2.21 进程区数据来源
 
 * 从/proc/PID/* 文件中获取进程数据
-* 从JDK的PerfData文件中获取JVM数据(JDK每秒写入/tmp/herfxxxx文件的统计数据)
+* 从JDK的PerfData文件中获取JVM数据(JDK每秒写入/tmp/hsperfxxxx文件的统计数据)
 * 使用目标JVM的JMX中获取JVM数据（如果目标JVM还没启动JMX，通过attach方式动态加载）
 
-如果数据同时在PerfData和JMX存在，优先使用PerfData，如果PerfData被屏蔽，则使用JMX。 
+如果数据同时在PerfData和JMX存在，优先使用PerfData，除非PerfData被屏蔽。 
 
 
 ### 2.2.2 线程区数据来源 
@@ -154,7 +154,32 @@
 * `MEMORY`: 该线程分配内存的瞬时值，即该线程在打印间隔内每秒分配的内存空间(该线程每秒分配的内存占所有线程在该秒分配的总内存的百分比)
 * `TOTAL-ALLOCATED`: 该线程分配内存的历史累计值，即从进程启动到现在，该线程分配的总内存大小，该总内存大小包括已回收的对象的内存(该线程分配的总内存大小占所有线程分配的总内存大小的百分比)。
 
-## 2.5 公共参数
+
+## 2.5 实时交互
+
+### 2.5.1 打印线程Stack Trace
+
+在页面输入中输入t，再选择线程号，可打印线程的Stack Trace，看繁忙的线程在忙什么。
+
+```
+ Cost time:  55ms, CPU time:  68ms
+ Input command (h for help):t
+ Input TID for stack:4161
+	at java.lang.Object.wait(Native Method)
+	at org.eclipse.core.internal.jobs.WorkerPool.sleep(WorkerPool.java:188)
+	at org.eclipse.core.internal.jobs.WorkerPool.startJob(WorkerPool.java:220)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:52)
+```
+
+### 2.5.2 实时切换显示模式和排序
+
+```
+ Input command (h for help):d
+ Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): 5
+ Display mode changed to memory for next flush
+```
+
+## 2.6 公共参数
 
 ```
 // 打印其他选项
@@ -187,8 +212,12 @@
 * 新配置项：打印间隔，展示线程数
 * 性能优化：减少了几倍的耗时，通过批量获取线程CPU时间(from SJK)等方法
 
+### 3.2 实时交互(since 1.0.1)
 
-### 3.2 为在生产环境运行优化：
+* 新功能： 选择打印某条线程的stack trace
+* 新功能： 实时切换显示模式和排序
+
+### 3.3 为在生产环境运行优化：
 
 * 删除jvmtop会造成应用停顿的Profile页面
 * 删除jvmtop获取所有Java进程信息，有着不确定性的Overview页面

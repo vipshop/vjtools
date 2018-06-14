@@ -32,7 +32,7 @@ try again with root user.
 Process data are retrieved
 
 *   from /proc/PID/*
-*   from /tmp/perfxxxx, where stats are written by JDK every other second
+*   from /tmp/hsperfxxxx, where stats are written by JDK every other second
 *   from JMX of the targeted VM. (If JMX isn't started at the time
 VJtop will try to attach to the process to start JMX).
 

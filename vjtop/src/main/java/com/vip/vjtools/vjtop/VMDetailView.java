@@ -82,8 +82,6 @@ public class VMDetailView {
 		}
 	}
 	
-
-	
 	private boolean checkState() {
 		if (vmInfo.state == VMInfoState.ATTACHED_UPDATE_ERROR) {
 			System.out.println("ERROR: Could not fetch telemetries - Process terminated?");
@@ -369,14 +367,6 @@ public class VMDetailView {
 			return 0;
 		}
 		return (threadBytes * 100d) / totalBytes;// 这里因为最后单位是百分比%，所以bytes除以totalBytes以后要乘以100，才可以再加上单位%
-	}
-
-	public void sleep(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			
-		}
 	}
 
 	public boolean shouldExit() {
