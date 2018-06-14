@@ -371,8 +371,12 @@ public class VMDetailView {
 		return (threadBytes * 100d) / totalBytes;// 这里因为最后单位是百分比%，所以bytes除以totalBytes以后要乘以100，才可以再加上单位%
 	}
 
-	public void sleep(long millis) throws Exception {
-		Thread.sleep(millis);
+	public void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			
+		}
 	}
 
 	public boolean shouldExit() {
@@ -384,6 +388,14 @@ public class VMDetailView {
 	 */
 	public void exit() {
 		shouldExit = true;
+	}
+
+	public void setMode(DetailMode mode) {
+		this.mode = mode;
+	}
+	
+	public DetailMode getMode() {
+		return mode;
 	}
 
 	public void setThreadLimit(int threadLimit) {

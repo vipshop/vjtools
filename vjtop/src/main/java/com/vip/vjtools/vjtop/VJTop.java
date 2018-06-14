@@ -123,8 +123,10 @@ public class VJTop {
 			}
 
 			// 5. start thread to get user input
-			new Thread(new InteractiveTask(view)).start();
-			
+			Thread interactiveThread = new Thread(new InteractiveTask(view, Thread.currentThread()));
+			interactiveThread.setDaemon(true);
+			interactiveThread.start();
+
 			// 6. run views
 			vjtop.run(view);
 
