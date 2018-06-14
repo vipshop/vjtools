@@ -74,7 +74,7 @@ public class HistogramHeapAccessor {
 			from.printOn(tty);
 			tty.println("");
 		} else {
-			throw new IllegalArgumentException("Unsupport heap:" + heap.getClass().getName());
+			throw new IllegalArgumentException("Only Support CMS and Parallel GC. Unsupport heap:" + heap.getClass().getName());
 		}
 
 		OopHandle handle = fromBottom.addOffsetToAsOopHandle(0);
@@ -118,7 +118,7 @@ public class HistogramHeapAccessor {
 	 */
 	public List<ClassStats> dumpCms() {
 		if (!(heap instanceof GenCollectedHeap)) {
-			throw new IllegalArgumentException("Unsupport heap:" + heap.getClass().getName());
+			throw new IllegalArgumentException("Only Support CMS GC. Unsupport heap:" + heap.getClass().getName());
 		}
 
 		ConcurrentMarkSweepGeneration cmsGen = (ConcurrentMarkSweepGeneration) ((GenCollectedHeap) heap).getGen(1);

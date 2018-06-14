@@ -57,7 +57,7 @@ public class HistogramHeapVisitor implements HeapVisitor {
 			psOld = ((ParallelScavengeHeap) heap).oldGen();
 			isCms = false;
 		} else {
-			throw new RuntimeException("Unsupport Heap:" + heap.getClass().getName());
+			throw new RuntimeException("Only Support CMS and Parallel GC. Unsupport Heap:" + heap.getClass().getName());
 		}
 	}
 
