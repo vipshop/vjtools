@@ -3,9 +3,10 @@ language: java
 jdk:
   - oraclejdk8
   - openjdk7
+  - oraclejdk9
 
 branches:
   only:
     - master
 
-script: mvn clean install
+script: mvn clean package
