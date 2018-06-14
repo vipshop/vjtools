@@ -21,11 +21,7 @@
 		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 	</properties>
 
-	<modules>
-		<module>vjmap</module>
-		<module>vjtop</module>
-		<module>vjkit</module>
-	</modules>
+
 
 	<distributionManagement>
 		<snapshotRepository>
@@ -48,8 +44,41 @@
 		</license>
 	</licenses>
 
-
 	<profiles>
+		<profile>
+			<id>jdk7</id>
+			<activation>
+				<jdk>1.7</jdk>
+			</activation>
+			<modules>
+				<module>vjmap</module>
+				<module>vjtop</module>
+				<module>vjkit</module>
+			</modules>
+		</profile>
+
+		<profile>
+			<id>jdk8</id>
+			<activation>
+				<jdk>1.8</jdk>
+			</activation>
+			<modules>
+				<module>vjmap</module>
+				<module>vjtop</module>
+				<module>vjkit</module>
+			</modules>
+		</profile>
+
+		<profile>
+			<id>jdk9</id>
+			<activation>
+				<jdk>1.9</jdk>
+			</activation>
+			<modules>
+				<module>vjkit</module>
+			</modules>
+		</profile>
+
 		<profile>
 			<id>release</id>
 			<build>
