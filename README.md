@@ -31,6 +31,7 @@
 | [vjmap](/vjmap)  | JMAP的分代打印版 |[Chinese](/vjmap/README.md), [English](/vjmap/README_EN.md)|
 | [vjtop](/vjtop)  | 打印JVM概况及繁忙线程 | [Chinese](/vjtop/README.md), [English](/vjtop/README_EN.md)|
 | [vjdump](/vjdump)  | 线上紧急收集JVM数据脚本 | [Chinese](/vjdump/README.md), [English](/vjdump/README_EN.md)|
+| [vjmxcli](/vjmxcli)  | JMX 查看工具 | [Chinese](/vjmxcli/README.md)|
 
 其他常用问题排查及性能调优工具: [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
 
