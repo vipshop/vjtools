@@ -1,5 +1,6 @@
 package com.vip.vjtools.vjtop;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.util.Date;
@@ -26,7 +27,6 @@ public class VMDetailView {
 	private OperatingSystemMXBean operatingSystemMXBean;
 
 	private int width;
-
 	private double delay;
 	private int threadLimit = 10;
 
@@ -47,7 +47,6 @@ public class VMDetailView {
 	}
 
 	public void printView() throws Exception {
-
 		long iterationStartTime = System.currentTimeMillis();
 		long preCpuTime = operatingSystemMXBean.getProcessCpuTime();
 
@@ -68,8 +67,23 @@ public class VMDetailView {
 		long deltaTime = System.currentTimeMillis() - iterationStartTime;
 		long deltaCpuTime = (operatingSystemMXBean.getProcessCpuTime() - preCpuTime) / (Utils.NANOS_TO_MILLS);
 		System.out.printf(" Cost time: %3dms, CPU time: %3dms%n", deltaTime, deltaCpuTime);
+		System.out.print(" Input command (h for help):");
 	}
 
+	public void waitForCommand(){
+		System.err.print(" Input command (h for help):");
+	}
+	
+	public void printStack(long pid) throws NumberFormatException, IOException {
+		ThreadInfo info = vmInfo.getThreadMXBean().getThreadInfo(pid, 20);
+		StackTraceElement[] trace = info.getStackTrace();
+		for (StackTraceElement traceElement : trace){
+			System.err.println("\tat " + traceElement);
+		}
+	}
+	
+
+	
 	private boolean checkState() {
 		if (vmInfo.state == VMInfoState.ATTACHED_UPDATE_ERROR) {
 			System.out.println("ERROR: Could not fetch telemetries - Process terminated?");
@@ -243,7 +257,7 @@ public class VMDetailView {
 		}
 
 		if (threadCpuTotalTimes.size() > threadLimit) {
-			System.out.printf("%n Note: Only top %d threads (according %s load) are shown!%n", threadLimit, mode);
+			System.out.printf("%n Only top %d threads (according %s load) are shown!%n", threadLimit, mode);
 		}
 
 		lastThreadCpuTotalTimes = threadCpuTotalTimes;
@@ -324,7 +338,7 @@ public class VMDetailView {
 		}
 
 		if (threadMemoryTotalBytesMap.size() > threadLimit) {
-			System.out.printf("%n Note: Only top %d threads (according %s allocated) are shown!%n", threadLimit,
+			System.out.printf("%n Only top %d threads (according %s allocated) are shown!%n", threadLimit,
 					mode.toString());
 		}
 
@@ -343,7 +357,8 @@ public class VMDetailView {
 		if (totalTime == 0) {
 			return 0;
 		}
-		return deltaThreadCpuTime * 100d / factor / totalTime;// 这里因为最后单位是百分比%，所以cpu time除以total cpu time以后要乘以100，才可以再加上单位%
+		return deltaThreadCpuTime * 100d / factor / totalTime;// 这里因为最后单位是百分比%，所以cpu time除以total cpu
+															  // time以后要乘以100，才可以再加上单位%
 	}
 
 	private static double getThreadMemoryUtilization(Long threadBytes, long totalBytes) {
@@ -367,7 +382,7 @@ public class VMDetailView {
 	/**
 	 * Requests the disposal of this view - it should be called again.
 	 */
-	protected void exit() {
+	public void exit() {
 		shouldExit = true;
 	}
 

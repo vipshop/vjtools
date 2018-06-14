@@ -86,7 +86,7 @@ public class VJMap {
 		}
 
 		Integer pid = Integer.valueOf(args[1]);
-	
+
 		HotSpotAgent agent = new HotSpotAgent();
 
 		try {
@@ -100,6 +100,9 @@ public class VJMap {
 				runCms(orderByName, minSize);
 			} else if (modeFlag.startsWith("-address")) {
 				printHeapAddress();
+			} else if (modeFlag.startsWith("-version")) {
+				System.out.println("jmap version:1.0.1");
+				return;
 			} else {
 				printHelp();
 				return;
@@ -116,6 +119,7 @@ public class VJMap {
 	private static void printHelp() {
 		int leftLength = "-all:minsize=1024,byname".length();
 		String format = " %-" + leftLength + "s  %s%n";
+
 		System.out.println("vjmap.sh <options> <PID>");
 		System.out.printf(format, "-all", "print all gens histogram, order by total size");
 		System.out.printf(format, "-all:minsize=1024", "print all gens histogram, total size>=1024");

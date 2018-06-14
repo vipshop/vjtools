@@ -24,12 +24,14 @@ import joptsimple.OptionSet;
  *
  */
 public class VJTop {
+
+
 	public static final String VERSION = "1.0.0";
 
 	public static final double DEFAULT_DELAY = 10.0;
 
 	private final static String CLEAR_TERMINAL_ANSI_CMD = new String(
-			new byte[] { (byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48 });
+			new byte[]{(byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48});
 
 	private static Logger logger;
 
@@ -40,16 +42,16 @@ public class VJTop {
 	private static OptionParser createOptionParser() {
 		OptionParser parser = new OptionParser();
 		// commmon
-		parser.acceptsAll(Arrays.asList(new String[] { "help", "?", "h" }), "shows this help").forHelp();
-		parser.acceptsAll(Arrays.asList(new String[] { "n", "iteration" }),
+		parser.acceptsAll(Arrays.asList(new String[]{"help", "?", "h"}), "shows this help").forHelp();
+		parser.acceptsAll(Arrays.asList(new String[]{"n", "iteration"}),
 				"vjtop will exit after n output iterations  (defaults to unlimit)").withRequiredArg()
 				.ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "d", "delay" }),
+		parser.acceptsAll(Arrays.asList(new String[]{"d", "delay"}),
 				"delay between each output iteration (defaults to 10s)").withRequiredArg().ofType(Double.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "v", "verbose" }), "verbose mode");
-		parser.acceptsAll(Arrays.asList(new String[] { "w", "width" }),
+		parser.acceptsAll(Arrays.asList(new String[]{"v", "verbose"}), "verbose mode");
+		parser.acceptsAll(Arrays.asList(new String[]{"w", "width"}),
 				"Number of columns for the console display (defaults to 100)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "l", "limit" }),
+		parser.acceptsAll(Arrays.asList(new String[]{"l", "limit"}),
 				"Number of rows for the console display ( default to 10 threads)").withRequiredArg()
 				.ofType(Integer.class);
 
@@ -120,8 +122,12 @@ public class VJTop {
 				logger.fine("Verbosity mode.");
 			}
 
-			// 5. run
+			// 5. start thread to get user input
+			new Thread(new InteractiveTask(view)).start();
+			
+			// 6. run views
 			vjtop.run(view);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
