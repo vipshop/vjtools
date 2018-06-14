@@ -1,7 +1,5 @@
 # 1. 启用JMX
 
-OSP已默认加入如下配置，留意如果要远程接入， `-Djava.rmi.server.hostname`属性，安全原因默认是127.0.0.1，需改为真实IP.
-
 ```
 -Dcom.sun.management.jmxremote.port=7001 -Dcom.sun.management.jmxremote 
 -Dcom.sun.management.jmxremote.authenticate=false 
