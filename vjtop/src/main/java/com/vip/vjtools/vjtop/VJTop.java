@@ -26,22 +26,25 @@ import joptsimple.OptionSet;
  */
 public class VJTop {
 
-
 	public static final String VERSION = "1.0.0";
 
 	public static final double DEFAULT_DELAY = 10.0;
 
-	private final static String CLEAR_TERMINAL_ANSI_CMD = new String(
+	private  static final String CLEAR_TERMINAL_ANSI_CMD = new String(
 			new byte[]{(byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48});
 
 	private static Logger logger;
 
-	private Double delay_ = -1d;
+	public VMDetailView view ;
+	
+	public volatile Double delay_ = -1d;
 
-	private int maxIterations_ = -1;
+	public volatile boolean needMoreInput = false;
 
-	private AtomicBoolean needFurtherInput = new AtomicBoolean(false);
-
+	private Thread mainThread;
+	
+	private int maxIterations = -1;
+	
 	private static OptionParser createOptionParser() {
 		OptionParser parser = new OptionParser();
 		// commmon
@@ -103,7 +106,10 @@ public class VJTop {
 			}
 
 			// 4. create main application
-			VJTop vjtop = new VJTop();
+			VJTop app = new VJTop();
+			app.mainThread = Thread.currentThread();
+			app.view = view;
+
 			double delay = DEFAULT_DELAY;
 			if (optionSet.hasArgument("delay")) {
 				delay = (Double) (optionSet.valueOf("delay"));
@@ -112,11 +118,11 @@ public class VJTop {
 				}
 			}
 			view.setDelay(delay);
-			vjtop.setDelay(delay);
+			app.delay_ = delay;
 
 			if (optionSet.hasArgument("n")) {
 				Integer iterations = (Integer) optionSet.valueOf("n");
-				vjtop.setMaxIterations(iterations);
+				app.maxIterations = iterations;
 			}
 
 			if (optionSet.has("verbose")) {
@@ -126,12 +132,12 @@ public class VJTop {
 			}
 
 			// 5. start thread to get user input
-			Thread interactiveThread = new Thread(new InteractiveTask(view, vjtop, Thread.currentThread()));
+			Thread interactiveThread = new Thread(new InteractiveTask(app));
 			interactiveThread.setDaemon(true);
 			interactiveThread.start();
 
 			// 6. run views
-			vjtop.run(view);
+			app.run(view);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -212,7 +218,7 @@ public class VJTop {
 			int iterations = 0;
 			while (!view.shouldExit()) {
 
-				if (maxIterations_ > 1 || maxIterations_ == -1) {
+				if (maxIterations > 1 || maxIterations == -1) {
 					waitForInput();
 					clearTerminal();
 				}
@@ -221,7 +227,7 @@ public class VJTop {
 
 				System.out.flush();
 
-				if (maxIterations_ > 0 && iterations >= maxIterations_) {
+				if (maxIterations > 0 && iterations >= maxIterations) {
 					break;
 				}
 
@@ -250,20 +256,14 @@ public class VJTop {
 	}
 
 	public void waitForInput() {
-		while (needFurtherInput.get()) {
+		while (needMoreInput) {
 			Utils.sleep(1000);
 		}
 	}
-
-	public void setNeedForFurtherInput(boolean value) {
-		needFurtherInput.set(value);
-	}
-
-	public void setDelay(Double delay) {
-		delay_ = delay;
-	}
-
-	public void setMaxIterations(int iterations) {
-		maxIterations_ = iterations;
+	
+	public void exit(){
+		view.exit();
+		mainThread.interrupt();
+		System.err.println(" Quit.");
 	}
 }

@@ -1,87 +1,102 @@
 package com.vip.vjtools.vjtop;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 
 import com.vip.vjtools.vjtop.VMDetailView.DetailMode;
 
-final class InteractiveTask implements Runnable {
-	private VMDetailView view;
-	private VJTop vjtop;
-	private Thread mainThread;
+/**
+ * 与用户交互动态的控制器
+ */
+public class InteractiveTask implements Runnable {
+	private VJTop app;
+	private BufferedReader reader;
+	private PrintStream tty;
 
-	public InteractiveTask(VMDetailView view, VJTop vjtop, Thread mainThread) {
-		this.view = view;
-		this.vjtop = vjtop;
-		this.mainThread = mainThread;
+	public InteractiveTask(VJTop app) {
+		this.app = app;
+		reader = new BufferedReader(new InputStreamReader(System.in));
+		tty = System.err;
 	}
 
 	public void run() {
 		while (true) {
 			try {
-				String command = new BufferedReader(new InputStreamReader(System.in)).readLine().trim();
+				String command = reader.readLine().trim().toLowerCase();
 				if (command.equals("t")) {
-					vjtop.setNeedForFurtherInput(true);
-					System.err.print(" Input TID for stack:");
-					String pidStr = new BufferedReader(new InputStreamReader(System.in)).readLine();
-					try {
-						long pid = Long.parseLong(pidStr);
-						view.printStack(pid);
-					} catch (NumberFormatException e) {
-						System.err.println(" Wrong number format");
-					}
-					//block the flush to let user see the result
-					Utils.sleep(10000);
-					vjtop.setNeedForFurtherInput(false);
+					printStacktrace();
 				} else if (command.equals("d")) {
-					vjtop.setNeedForFurtherInput(true);
-					System.err.print(
-							" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): ");
-					String mode = new BufferedReader(new InputStreamReader(System.in)).readLine();
-					switch (mode) {
-						case "1":
-							view.setMode(DetailMode.cpu);
-							break;
-						case "2":
-							view.setMode(DetailMode.syscpu);
-							break;
-						case "3":
-							view.setMode(DetailMode.totalcpu);
-							break;
-						case "4":
-							view.setMode(DetailMode.totalsyscpu);
-							break;
-						case "5":
-							view.setMode(DetailMode.memory);
-							break;
-						case "6":
-							view.setMode(DetailMode.totalmemory);
-							break;
-						default:
-							System.err.println(" Wrong option for display mode");
-							break;
-					}
-					System.err.println(" Display mode changed to " + view.getMode() + " for next flush");
-					vjtop.setNeedForFurtherInput(false);
+					changeDisplayMode();
 				} else if (command.equals("q")) {
-					view.exit();
-					mainThread.interrupt();
-					System.err.println(" Quit.");
+					app.exit();
 					return;
-				} else if (command.equals("h")) {
-					System.err.println(" t : print stack trace for the thread you choose");
-					System.err.println(" d : change threads display mode and ordering");
-					System.err.println(" q : quit");
-					System.err.println(" h : print help");
+				} else if (command.equalsIgnoreCase("h") || command.equalsIgnoreCase("help")) {
+					printHelp();
 				} else if (command.equals("")) {
 				} else {
-					System.err.println("Unkown command: " + command);
+					tty.println("Unkown command: " + command);
+					printHelp();
 				}
 
-				view.waitForCommand();
+				tty.print(" Input command (h for help):");
 			} catch (Exception e) {
-
+				e.printStackTrace(tty);
 			}
 		}
+	}
+
+	private void printStacktrace() throws IOException {
+		app.needMoreInput = true;
+		tty.print(" Input TID for stack:");
+		String pidStr = reader.readLine();
+		try {
+			long pid = Long.parseLong(pidStr);
+			app.view.printStack(pid);
+		} catch (NumberFormatException e) {
+			tty.println(" Wrong number format for pid");
+		} finally {
+			app.needMoreInput = false;
+		}
+	}
+
+	private void changeDisplayMode() throws IOException {
+		app.needMoreInput = true;
+		tty.print(
+				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): ");
+		String mode = reader.readLine().trim().toLowerCase();
+		switch (mode) {
+			case "1":
+				app.view.mode = DetailMode.cpu;
+				break;
+			case "2":
+				app.view.mode = DetailMode.syscpu;
+				break;
+			case "3":
+				app.view.mode = DetailMode.totalcpu;
+				break;
+			case "4":
+				app.view.mode = DetailMode.totalsyscpu;
+				break;
+			case "5":
+				app.view.mode = DetailMode.memory;
+				break;
+			case "6":
+				app.view.mode = DetailMode.totalmemory;
+				break;
+			default:
+				System.err.println(" Wrong option for display mode(1-6)");
+				break;
+		}
+		tty.println(" Display mode changed to " + app.view.mode + " for next flush");
+		app.needMoreInput = false;
+	}
+
+	private void printHelp() {
+		tty.println(" t : print stack trace for the thread you choose");
+		tty.println(" d : change threads display mode and ordering");
+		tty.println(" q : quit");
+		tty.println(" h : print help");
 	}
 }

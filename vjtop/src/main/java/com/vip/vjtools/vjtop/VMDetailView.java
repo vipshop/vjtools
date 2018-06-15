@@ -23,17 +23,17 @@ public class VMDetailView {
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
+
+	// 按线程CPU or 分配内存模式
+	volatile public DetailMode mode;
+	volatile public int threadLimit = 10;
+	volatile public double delay;
+
 	private VMInfo vmInfo;
 	private OperatingSystemMXBean operatingSystemMXBean;
 
 	private int width;
-	private double delay;
-	private int threadLimit = 10;
-
 	private boolean shouldExit;
-
-	// 按线程CPU or 分配内存模式
-	private DetailMode mode;
 
 	private Map<Long, Long> lastThreadCpuTotalTimes = new HashMap<Long, Long>();
 	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
@@ -70,18 +70,23 @@ public class VMDetailView {
 		System.out.print(" Input command (h for help):");
 	}
 
-	public void waitForCommand(){
-		System.err.print(" Input command (h for help):");
-	}
-	
-	public void printStack(long pid) throws NumberFormatException, IOException {
-		ThreadInfo info = vmInfo.getThreadMXBean().getThreadInfo(pid, 20);
+	/**
+	 * 打印单条线程的stack strace
+	 */
+	public void printStack(long tid) throws NumberFormatException, IOException {
+		ThreadInfo info = vmInfo.getThreadMXBean().getThreadInfo(tid, 20);
+		if (info == null) {
+			System.err.println(" TID not exist:" + tid);
+			return;
+		}
 		StackTraceElement[] trace = info.getStackTrace();
-		for (StackTraceElement traceElement : trace){
+		System.err.println(" " + info.getThreadId() + ":" + info.getThreadName());
+		for (StackTraceElement traceElement : trace) {
 			System.err.println("\tat " + traceElement);
 		}
+		Utils.sleep(3000);
 	}
-	
+
 	private boolean checkState() {
 		if (vmInfo.state == VMInfoState.ATTACHED_UPDATE_ERROR) {
 			System.out.println("ERROR: Could not fetch telemetries - Process terminated?");
@@ -378,14 +383,6 @@ public class VMDetailView {
 	 */
 	public void exit() {
 		shouldExit = true;
-	}
-
-	public void setMode(DetailMode mode) {
-		this.mode = mode;
-	}
-	
-	public DetailMode getMode() {
-		return mode;
 	}
 
 	public void setThreadLimit(int threadLimit) {
