@@ -1,18 +1,15 @@
 # VJMap
 
-VJMap is jmap with **per GC generation (Eden, Survivor, OldGen)** object stats printing. It is built with advanced
- techniques to disclose situations like memory leaks and fast-growing tenured objects.
+VJMap prints per GC generation (Eden, Survivor, OldGen) object details of a given process , it is an advanced way to find the reasons of memory leak and fast-growing OldGen.
 
 # 1. Introduction
 
-You may print stats about objects with the stock jmap via `jmap -histo PID` but only by viewing the heap as a whole. 
-However, additional information like OldGen object counting and survivor object age counting can play a vital 
-role in troubleshooting. VJMap is built to make such information available.
+Jmap can display whole shared object memory maps or whole heap memory details ,but sometimes you may prefer to know the OldGen object counting and survivor object age counting，VJMap will list such information for you.
 
 Initially inspired by [tbjmap](https://github.com/alibaba/TBJMap), JDK8 compatibility was added as well as query on aged 
 survivor objects.
 
-**[Note]**: Does not work with G1. Use it with CMS and ParallelGC only. 
+**[Note]**: G1 is unsupported.  Use it with CMS and ParallelGC only.
 
 # 2. Getting Started
 
