@@ -71,6 +71,27 @@ START()
       exit -1
     fi
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process vjtop."
+  else
+    # no vjtop, use other replacement
+    # jinfo -flags $PID
+    echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jinfo -flags."
+    JINFO_FLAGS_LOG=${LOGDIR}/jinfo-flags-${PID}-${DATE}.log
+    jinfo -flags $PID 1>${JINFO_FLAGS_LOG} 2>&1
+    if [[ $? != 0 ]]; then
+      echo -e "\033[31mprocess jinfo -flags error, now exit.\033[0m"
+      exit -1
+    fi
+    echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jinfo -flags."
+  
+    #jmap -heap
+    echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jmap -heap."
+    JMAP_HEAP_LOG=${LOGDIR}/jmap_heap-${PID}-${DATE}.log
+    jmap -heap $PID > ${JMAP_HEAP_LOG}
+    if [[ $? != 0 ]]; then
+      echo -e "\033[31mprocess jmap -heap error, now exit.\033[0m"
+      exit -1
+    fi
+    echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jmap -heap."
   fi
   
   # jmap -histo
@@ -109,15 +130,6 @@ START()
     sleep ${SLEEP_TIME}
   fi
   
-  # jinfo -flags $PID
-  echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jinfo -flags."
-  JINFO_FLAGS_LOG=${LOGDIR}/jinfo-flags-${PID}-${DATE}.log
-  jinfo -flags $PID 1>${JINFO_FLAGS_LOG} 2>&1
-  if [[ $? != 0 ]]; then
-    echo -e "\033[31mprocess jinfo -flags error, now exit.\033[0m"
-    exit -1
-  fi
-  echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jinfo -flags."
 
   # gc log
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process gc log."

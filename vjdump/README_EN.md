@@ -13,7 +13,6 @@ jstack, jmap, gc logs into the form of a single zip file under `/tmp/vjtools/vjd
 is isolated from user access before you run this full check in production.
 
 Items to be collected by VJDump are:
-* JVM start flags and command line args `jinfo -flags $PID`
 * thread dump via `jstack -l $PID`
 * vjtop JVM overview and busy threads snapshot via  `vjtop.sh -n 1 -d 3 $PID` (enabled when you have our vjtop installed and 
 have the folder of vjtop.sh appended to the PATH environment variable)
