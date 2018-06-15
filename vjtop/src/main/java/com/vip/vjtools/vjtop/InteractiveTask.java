@@ -24,23 +24,28 @@ public class InteractiveTask implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				String command = reader.readLine().trim().toLowerCase();
-				if (command.equals("t")) {
-					printStacktrace();
+				String command = reader.readLine();
+				if (command == null) {
+					return;
+				}
+				command = command.trim().toLowerCase();
+
+				if (command.equals("t") || (command.startsWith("t "))) {
+					printStacktrace(command);
 				} else if (command.equals("m")) {
 					changeDisplayMode();
 				} else if (command.equals("i")) {
 					changeInterval();
 				} else if (command.equals("l")) {
 					changeThreadLimit();
-				} else if (command.equals("q")) {
+				} else if (command.equals("q") || command.equals("quit")) {
 					app.exit();
 					return;
-				} else if (command.equalsIgnoreCase("h") || command.equalsIgnoreCase("help")) {
+				} else if (command.equals("h") || command.equals("help")) {
 					printHelp();
 				} else if (command.equals("")) {
 				} else {
-					tty.println("Unkown command: " + command);
+					tty.println(" Unkown command: " + command+", available options:");
 					printHelp();
 				}
 
@@ -51,15 +56,21 @@ public class InteractiveTask implements Runnable {
 		}
 	}
 
-	private void printStacktrace() throws IOException {
+	private void printStacktrace(String command) throws IOException {
 		if (app.view.collectingData) {
 			tty.println(" Please wait for top threads displayed");
 			return;
 		}
-		
+
 		app.needMoreInput = true;
-		tty.print(" Input TID for stack:");
-		String pidStr = reader.readLine().trim();
+		String pidStr;
+		if (command.length() == 1) {
+			tty.print(" Input TID:");
+			pidStr = reader.readLine().trim();
+		} else {
+			pidStr = command.substring(2);
+		}
+
 		try {
 			long pid = Long.parseLong(pidStr);
 			app.view.printStack(pid);
@@ -135,16 +146,16 @@ public class InteractiveTask implements Runnable {
 	}
 
 	private void printHelp() {
-		tty.println(" t : print stack trace for the thread you choose");
+		tty.println(" t [tid]: print stack trace for the thread you choose");
 		tty.println(" m : change threads display mode and ordering");
-		tty.println(" i : change flush interval");
+		tty.println(" i : change flush interval seconds");
 		tty.println(" l : change number of display threads");
 		tty.println(" q : quit");
 		tty.println(" h : print help");
 		waitForEnter();
 	}
 
-	private void waitForEnter()  {
+	private void waitForEnter() {
 		tty.println(" Please hit ENTER to continue...");
 		try {
 			reader.readLine();
