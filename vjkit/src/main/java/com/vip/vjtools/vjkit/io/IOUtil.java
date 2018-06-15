@@ -26,11 +26,13 @@ import com.vip.vjtools.vjkit.text.Charsets;
  * <p>
  * 1. 安静关闭Closeable对象
  * <p>
- * 2. 读出InputStream/Reader内容到String 或 List<String>
+ * 2. 读出InputStream/Reader全部内容到String 或 List<String>
  * <p>
- * 3. 将String写到OutputStream/Writer
+ * 3. 读出InputStream一行内容到String
  * <p>
- * 4. InputStream/Reader与OutputStream/Writer之间复制的copy
+ * 4. 将String写到OutputStream/Writer
+ * <p>
+ * 5. InputStream/Reader与OutputStream/Writer之间复制的copy
  * 
  */
 public class IOUtil {
@@ -75,7 +77,7 @@ public class IOUtil {
 	 * 简单读取Reader的每行内容到List<String>
 	 */
 	public static List<String> toLines(final InputStream input) throws IOException {
-		return toLines(new InputStreamReader(input, Charsets.UTF_8));
+		return CharStreams.readLines(new BufferedReader(new InputStreamReader(input, Charsets.UTF_8)));
 	}
 
 	/**
@@ -85,6 +87,20 @@ public class IOUtil {
 	 */
 	public static List<String> toLines(final Reader input) throws IOException {
 		return CharStreams.readLines(toBufferedReader(input));
+	}
+
+	/**
+	 * 读取一行数据，比如System.in的用户输入
+	 */
+	public static String readLine(final InputStream input) throws IOException {
+		return new BufferedReader(new InputStreamReader(input, Charsets.UTF_8)).readLine();
+	}
+
+	/**
+	 * 读取一行数据
+	 */
+	public static String readLine(final Reader reader) throws IOException {
+		return toBufferedReader(reader).readLine();
 	}
 
 	/**
