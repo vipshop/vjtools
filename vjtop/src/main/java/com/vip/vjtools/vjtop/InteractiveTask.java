@@ -38,14 +38,14 @@ public class InteractiveTask implements Runnable {
 					changeInterval();
 				} else if (command.equals("l")) {
 					changeThreadLimit();
-				} else if (command.equals("q") || command.equals("quit")) {
+				} else if (command.equals("q") || command.equals("quit") || command.equals("exit")) {
 					app.exit();
 					return;
 				} else if (command.equals("h") || command.equals("help")) {
 					printHelp();
 				} else if (command.equals("")) {
 				} else {
-					tty.println(" Unkown command: " + command+", available options:");
+					tty.println(" Unkown command: " + command + ", available options:");
 					printHelp();
 				}
 
@@ -152,7 +152,9 @@ public class InteractiveTask implements Runnable {
 		tty.println(" l : change number of display threads");
 		tty.println(" q : quit");
 		tty.println(" h : print help");
+		app.needMoreInput = true;
 		waitForEnter();
+		app.needMoreInput = false;
 	}
 
 	private void waitForEnter() {
