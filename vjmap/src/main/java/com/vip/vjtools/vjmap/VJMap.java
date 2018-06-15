@@ -1,13 +1,15 @@
 package com.vip.vjtools.vjmap;
 
-import com.vip.vjtools.vjmap.oops.HistogramHeapAccessor;
-import com.vip.vjtools.vjmap.oops.HistogramHeapVisitor;
-import sun.jvm.hotspot.HotSpotAgent;
-import sun.jvm.hotspot.oops.ObjectHeap;
-import sun.jvm.hotspot.runtime.VM;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.vip.vjtools.vjmap.oops.HistogramHeapAccessor;
+import com.vip.vjtools.vjmap.oops.HistogramHeapVisitor;
+
+import sun.jvm.hotspot.HotSpotAgent;
+import sun.jvm.hotspot.debugger.DebuggerException;
+import sun.jvm.hotspot.oops.ObjectHeap;
+import sun.jvm.hotspot.runtime.VM;
 
 public class VJMap {
 
@@ -111,10 +113,18 @@ public class VJMap {
 			double secs = (endTime - startTime) / 1000.0d;
 			System.out.printf("%n Heap traversal took %.1f seconds.%n", secs);
 			System.out.flush();
+		} catch (DebuggerException e) {
+			System.out.println(e.getMessage());
+			if (e.getMessage().contains("privileges")) {
+				System.out.println("Please use the same user of the target JVM to run vjmap");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			agent.detach();
 		}
 	}
+
 
 	private static void printHelp() {
 		int leftLength = "-all:minsize=1024,byname".length();

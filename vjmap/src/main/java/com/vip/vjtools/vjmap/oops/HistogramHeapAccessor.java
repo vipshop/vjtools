@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.vip.vjtools.vjmap.ClassStats;
+import com.vip.vjtools.vjmap.utils.FormatUtils;
 
 import sun.jvm.hotspot.debugger.Address;
 import sun.jvm.hotspot.debugger.AddressException;
@@ -56,27 +57,31 @@ public class HistogramHeapAccessor {
 		Address fromBottom = null;
 		Address fromTop = null;
 		if (heap instanceof GenCollectedHeap) {
-			//CMS GC
+			// CMS GC
 			DefNewGeneration youngGen = (DefNewGeneration) ((GenCollectedHeap) heap).getGen(0);
 			ContiguousSpace from = youngGen.from();
 			fromBottom = from.bottom();
 			fromTop = from.top();
-			
+
 			from.printOn(tty);
 			tty.println("");
 		} else if (heap instanceof ParallelScavengeHeap) {
-			//Parallel GC
+			// Parallel GC
 			PSYoungGen psYoung = ((ParallelScavengeHeap) heap).youngGen();
 			MutableSpace from = psYoung.fromSpace();
 			fromBottom = from.bottom();
 			fromTop = from.top();
-			
+
 			from.printOn(tty);
 			tty.println("");
 		} else {
-			throw new IllegalArgumentException("Only Support CMS and Parallel GC. Unsupport heap:" + heap.getClass().getName());
+			throw new IllegalArgumentException(
+					"Only Support CMS and Parallel GC. Unsupport heap:" + heap.getClass().getName());
 		}
 
+		long[] ageSize = new long[50];
+		int[] ageCount = new int[50];
+		int maxAge = minAge;
 		OopHandle handle = fromBottom.addOffsetToAsOopHandle(0);
 		int processingObject = 0;
 
@@ -91,13 +96,21 @@ public class HistogramHeapAccessor {
 			if (obj == null) {
 				throw new UnknownOopException();
 			}
-			
+
 			long objectSize = obj.getObjectSize();
 			handle = handle.addOffsetToAsOopHandle(objectSize);
-			
+
 			Klass klass = obj.getKlass();
-			if (klass == null || obj.getMark().age() < minAge) {
+			int age = obj.getMark().age();
+			
+			if (klass == null || age < minAge) {
 				continue;
+			}
+
+			ageCount[age - 1]++;
+			ageSize[age - 1] += objectSize;
+			if (age > maxAge) {
+				maxAge = age;
 			}
 
 			ClassStats stats = getClassStats(klass);
@@ -110,6 +123,11 @@ public class HistogramHeapAccessor {
 			}
 		}
 
+		tty.println("\n#age #count   #bytes");
+
+		for (int i = 1; i < maxAge; i++) {
+			tty.println(i + ":   " + ageCount[i - 1] + " " + FormatUtils.toFloatUnit(ageSize[i - 1]));
+		}
 		return getClassStatsList();
 	}
 
@@ -124,10 +142,10 @@ public class HistogramHeapAccessor {
 		ConcurrentMarkSweepGeneration cmsGen = (ConcurrentMarkSweepGeneration) ((GenCollectedHeap) heap).getGen(1);
 		CompactibleFreeListSpace cmsSpace = cmsGen.cmsSpace();
 		CMSCollector cmsCollector = cmsSpace.collector();
-		
+
 		cmsGen.printOn(tty);
 		tty.println("");
-		
+
 		tty.println("Getting live regions.");
 		long start = System.currentTimeMillis();
 		List liveRegions = cmsSpace.getLiveRegions();

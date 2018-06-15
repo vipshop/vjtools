@@ -17,8 +17,7 @@ VJtop is built as NON stop-the-world and is considered ready for production diag
 
 Run Maven install task and unzip the resulted zip package in the target folder. Set JAVA_HOME environment variable to your JDK directory.
 
-Run the following command under **the same user who started the target process**. If access errors are met, 
-try again with root user.
+Run the following command under **the same user who started the target process**.
 
 ```
 // showing threads consuming the most cpu

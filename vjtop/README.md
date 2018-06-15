@@ -16,7 +16,7 @@
 
 [Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.0/vjtop-1.0.0.zip) - 108k
 
-需要设置JAVA_HOME 环境变量，必须与目标JVM使用相同用户运行，如果执行时仍然有权限错误，改用root用户执行。
+需要设置JAVA_HOME 环境变量，必须与目标JVM使用相同用户来运行。
 
 ```
 // 占用CPU最多的线程
