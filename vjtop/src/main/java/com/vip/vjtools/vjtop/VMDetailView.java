@@ -27,7 +27,7 @@ public class VMDetailView {
 	// 按线程CPU or 分配内存模式
 	volatile public DetailMode mode;
 	volatile public int threadLimit = 10;
-	volatile public double delay;
+	volatile public double interval;
 
 	private VMInfo vmInfo;
 	private OperatingSystemMXBean operatingSystemMXBean;
@@ -349,7 +349,7 @@ public class VMDetailView {
 	}
 
 	private void printWelcome() {
-		System.out.printf("%n Collecting data, please wait %d seconds......%n%n", (int) delay);
+		System.out.printf("%n Collecting data, please wait %d seconds......%n%n", (int) interval);
 		System.out.printf(" VMARGS: %s%n%n", vmInfo.vmArgs);
 	}
 
@@ -383,14 +383,6 @@ public class VMDetailView {
 	 */
 	public void exit() {
 		shouldExit = true;
-	}
-
-	public void setThreadLimit(int threadLimit) {
-		this.threadLimit = threadLimit;
-	}
-
-	public void setDelay(double delay) {
-		this.delay = delay;
 	}
 
 	private void setWidth(Integer width) {

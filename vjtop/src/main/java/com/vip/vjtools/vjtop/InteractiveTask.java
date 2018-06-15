@@ -27,8 +27,12 @@ public class InteractiveTask implements Runnable {
 				String command = reader.readLine().trim().toLowerCase();
 				if (command.equals("t")) {
 					printStacktrace();
-				} else if (command.equals("d")) {
+				} else if (command.equals("m")) {
 					changeDisplayMode();
+				} else if (command.equals("i")) {
+					changeInterval();
+				} else if (command.equals("l")) {
+					changeThreadLimit();
 				} else if (command.equals("q")) {
 					app.exit();
 					return;
@@ -50,7 +54,7 @@ public class InteractiveTask implements Runnable {
 	private void printStacktrace() throws IOException {
 		app.needMoreInput = true;
 		tty.print(" Input TID for stack:");
-		String pidStr = reader.readLine();
+		String pidStr = reader.readLine().trim();
 		try {
 			long pid = Long.parseLong(pidStr);
 			app.view.printStack(pid);
@@ -93,9 +97,42 @@ public class InteractiveTask implements Runnable {
 		app.needMoreInput = false;
 	}
 
+	private void changeInterval() throws IOException {
+		app.needMoreInput = true;
+		tty.print(" Input flush interval seconds:");
+		String intervalStr = reader.readLine().trim();
+		try {
+			int interval = Integer.parseInt(intervalStr);
+			app.view.interval = interval;
+			app.interval = interval;
+			tty.println(" Flush interval changed to " + interval + " seconds for next next flush");
+		} catch (NumberFormatException e) {
+			tty.println(" Wrong number format for interval");
+		} finally {
+			app.needMoreInput = false;
+		}
+	}
+
+	private void changeThreadLimit() throws IOException {
+		app.needMoreInput = true;
+		tty.print(" Input number of threads to display :");
+		String threadLimitStr = reader.readLine().trim();
+		try {
+			int threadLimit = Integer.parseInt(threadLimitStr);
+			app.view.threadLimit = threadLimit;
+			tty.println(" Number of threads to display changed to " + threadLimit + " for next flush");
+		} catch (NumberFormatException e) {
+			tty.println(" Wrong number format for number of threads");
+		} finally {
+			app.needMoreInput = false;
+		}
+	}
+
 	private void printHelp() {
 		tty.println(" t : print stack trace for the thread you choose");
-		tty.println(" d : change threads display mode and ordering");
+		tty.println(" m : change threads display mode and ordering");
+		tty.println(" i : change flush interval");
+		tty.println(" l : change number of display threads");
 		tty.println(" q : quit");
 		tty.println(" h : print help");
 	}
