@@ -252,7 +252,7 @@ public class VMDetailView {
 		for (ThreadInfo info : threadInfos) {
 			Long tid = info.getThreadId();
 			if (info != null) {
-				String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 12);
+				String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 20);
 
 				System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
 						getThreadCPUUtilization(threadCpuDeltaTimes.get(tid), vmInfo.deltaUptimeMills,

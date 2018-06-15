@@ -159,7 +159,7 @@
 
 ### 2.5.1 打印线程Stack Trace
 
-在页面输入中输入t，再选择线程号，可打印线程的Stack Trace，看繁忙的线程在忙什么。
+在页面中输入t，再选择线程号，可打印线程的Stack Trace，看繁忙的线程在忙什么。
 
 ```
  Cost time:  55ms, CPU time:  68ms
@@ -171,12 +171,21 @@
 	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:52)
 ```
 
-### 2.5.2 实时切换显示模式和排序
+### 2.5.2 实时切换显示模式
 
+在页面中输入m，可选择模式显示和排序模式。 
 ```
- Input command (h for help):d
+ Input command (h for help):m
  Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): 5
  Display mode changed to memory for next flush
+```
+
+其他选项包括l：显示的线程数，i：刷新的频率
+
+```
+ Input command (h for help):l
+ Input number of threads to display :20
+ Number of threads to display changed to 20 for next flush
 ```
 
 ## 2.6 公共参数
@@ -215,7 +224,7 @@
 ### 3.2 实时交互(since 1.0.1)
 
 * 新功能： 选择打印某条线程的stack trace
-* 新功能： 实时切换显示模式和排序
+* 新功能： 实时切换显示模式和排序，刷新频率和显示线程数
 
 ### 3.3 为在生产环境运行优化：
 
