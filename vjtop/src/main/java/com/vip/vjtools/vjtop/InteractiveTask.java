@@ -63,6 +63,7 @@ public class InteractiveTask implements Runnable {
 		try {
 			long pid = Long.parseLong(pidStr);
 			app.view.printStack(pid);
+			waitForEnter();
 		} catch (NumberFormatException e) {
 			tty.println(" Wrong number format for pid");
 		} finally {
@@ -140,5 +141,14 @@ public class InteractiveTask implements Runnable {
 		tty.println(" l : change number of display threads");
 		tty.println(" q : quit");
 		tty.println(" h : print help");
+		waitForEnter();
+	}
+
+	private void waitForEnter()  {
+		tty.println(" Please hit ENTER to continue...");
+		try {
+			reader.readLine();
+		} catch (IOException e) {
+		}
 	}
 }

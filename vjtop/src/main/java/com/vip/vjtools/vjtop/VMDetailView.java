@@ -87,7 +87,6 @@ public class VMDetailView {
 		for (StackTraceElement traceElement : trace) {
 			System.err.println("\tat " + traceElement);
 		}
-		Utils.sleep(3000);
 	}
 
 	private boolean checkState() {
