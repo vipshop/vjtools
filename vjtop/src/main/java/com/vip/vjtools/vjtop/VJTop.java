@@ -24,19 +24,19 @@ public class VJTop {
 
 	public static final int DEFAULT_INTERVAL = 10;
 
-	private  static final String CLEAR_TERMINAL_ANSI_CMD = new String(
+	private static final String CLEAR_TERMINAL_ANSI_CMD = new String(
 			new byte[]{(byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48});
 
-	public VMDetailView view ;
-	
+	public VMDetailView view;
+
 	public volatile Integer interval = DEFAULT_INTERVAL;
 
-	public volatile boolean needMoreInput = false;
+	private volatile boolean needMoreInput = false;
 
 	private Thread mainThread;
-	
+
 	private int maxIterations = -1;
-	
+
 	private static OptionParser createOptionParser() {
 		OptionParser parser = new OptionParser();
 		// commmon
@@ -44,13 +44,12 @@ public class VJTop {
 		parser.acceptsAll(Arrays.asList(new String[]{"n", "iteration"}),
 				"vjtop will exit after n output iterations  (defaults to unlimit)").withRequiredArg()
 				.ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"i", "interval"}),
+		parser.acceptsAll(Arrays.asList(new String[]{"d", "interval"}),
 				"interval between each output iteration (defaults to 10s)").withRequiredArg().ofType(Integer.class);
 		parser.acceptsAll(Arrays.asList(new String[]{"w", "width"}),
 				"Number of columns for the console display (defaults to 100)").withRequiredArg().ofType(Integer.class);
 		parser.acceptsAll(Arrays.asList(new String[]{"l", "limit"}),
-				"Number of threads to display ( default to 10 threads)").withRequiredArg()
-				.ofType(Integer.class);
+				"Number of threads to display ( default to 10 threads)").withRequiredArg().ofType(Integer.class);
 
 		// detail mode
 		parser.accepts("cpu",
@@ -66,7 +65,7 @@ public class VJTop {
 
 	public static void main(String[] args) {
 		try {
-			
+
 			// 1. create option parser
 			OptionParser parser = createOptionParser();
 			OptionSet optionSet = parser.parse(args);
@@ -101,11 +100,10 @@ public class VJTop {
 			Integer interval = DEFAULT_INTERVAL;
 			if (optionSet.hasArgument("interval")) {
 				interval = (Integer) (optionSet.valueOf("interval"));
-				if (interval < 1d) {
+				if (interval < 1) {
 					throw new IllegalArgumentException("Interval cannot be set below 1.0");
 				}
 			}
-			view.interval= interval;
 			app.interval = interval;
 
 			if (optionSet.hasArgument("n")) {
@@ -168,7 +166,7 @@ public class VJTop {
 
 		}
 	}
-	
+
 	private static void clearTerminal() {
 		if (System.getProperty("os.name").contains("Windows")) {
 			// hack
@@ -199,8 +197,16 @@ public class VJTop {
 					break;
 				}
 
+				int sleepTime = interval;
+
+				// 第一次只等待1秒
+				if (iterations == 0) {
+					sleepTime = 1;
+				}
+
 				++iterations;
-				Utils.sleep((long) (interval * 1000));
+
+				Utils.sleep((long) (sleepTime * 1000));
 			}
 		} catch (NoClassDefFoundError e) {
 			e.printStackTrace(System.err);
@@ -212,14 +218,20 @@ public class VJTop {
 		}
 	}
 
-	
-	public void exit(){
+
+	public void exit() {
 		view.exit();
 		mainThread.interrupt();
 		System.err.println(" Quit.");
 	}
-	
-	
+
+	public void preventFlush() {
+		needMoreInput = true;
+	}
+
+	public void continueFlush() {
+		needMoreInput = false;
+	}
 
 	private void waitForInput() {
 		while (needMoreInput) {

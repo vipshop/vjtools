@@ -61,7 +61,7 @@ START()
   VJTOP_SCRIPT=vjtop.sh
   which $VJTOP_SCRIPT 2>/dev/null
   if [[ $? == 0 ]]; then
-    VJTOP_DURATION=3
+    VJTOP_DURATION=2
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process vjtop."
     echo -e "It will take ${VJTOP_DURATION} seconds, please wait."
     VJTOP_LOG=${LOGDIR}/vjtop-${PID}-${DATE}.log

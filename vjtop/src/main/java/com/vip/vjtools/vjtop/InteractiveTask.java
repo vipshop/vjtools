@@ -32,9 +32,11 @@ public class InteractiveTask implements Runnable {
 
 				if (command.equals("t") || (command.startsWith("t "))) {
 					printStacktrace(command);
+				} else if (command.equals("a")) {
+					displayAllThreads();
 				} else if (command.equals("m")) {
 					changeDisplayMode();
-				} else if (command.equals("i")) {
+				} else if (command.equals("d")) {
 					changeInterval();
 				} else if (command.equals("l")) {
 					changeThreadLimit();
@@ -62,7 +64,7 @@ public class InteractiveTask implements Runnable {
 			return;
 		}
 
-		app.needMoreInput = true;
+		app.preventFlush();
 		String pidStr;
 		if (command.length() == 1) {
 			tty.print(" Input TID:");
@@ -78,12 +80,23 @@ public class InteractiveTask implements Runnable {
 		} catch (NumberFormatException e) {
 			tty.println(" Wrong number format for pid");
 		} finally {
-			app.needMoreInput = false;
+			app.continueFlush();
 		}
 	}
 
+	private void displayAllThreads() throws Exception{
+		try {
+			app.preventFlush();
+			app.view.printAllThreads();
+			waitForEnter();
+		} finally {
+			app.continueFlush();
+		}
+
+	}
+
 	private void changeDisplayMode() throws IOException {
-		app.needMoreInput = true;
+		app.preventFlush();
 		tty.print(
 				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): ");
 		String mode = reader.readLine().trim().toLowerCase();
@@ -111,27 +124,26 @@ public class InteractiveTask implements Runnable {
 				break;
 		}
 		tty.println(" Display mode changed to " + app.view.mode + " for next flush");
-		app.needMoreInput = false;
+		app.continueFlush();
 	}
 
 	private void changeInterval() throws IOException {
-		app.needMoreInput = true;
+		app.preventFlush();
 		tty.print(" Input flush interval seconds:");
 		String intervalStr = reader.readLine().trim();
 		try {
 			int interval = Integer.parseInt(intervalStr);
-			app.view.interval = interval;
 			app.interval = interval;
 			tty.println(" Flush interval changed to " + interval + " seconds for next next flush");
 		} catch (NumberFormatException e) {
 			tty.println(" Wrong number format for interval");
 		} finally {
-			app.needMoreInput = false;
+			app.continueFlush();
 		}
 	}
 
 	private void changeThreadLimit() throws IOException {
-		app.needMoreInput = true;
+		app.preventFlush();
 		tty.print(" Input number of threads to display :");
 		String threadLimitStr = reader.readLine().trim();
 		try {
@@ -141,24 +153,25 @@ public class InteractiveTask implements Runnable {
 		} catch (NumberFormatException e) {
 			tty.println(" Wrong number format for number of threads");
 		} finally {
-			app.needMoreInput = false;
+			app.continueFlush();
 		}
 	}
 
 	private void printHelp() {
 		tty.println(" t [tid]: print stack trace for the thread you choose");
+		tty.println(" a : list all thread's id and name");
 		tty.println(" m : change threads display mode and ordering");
-		tty.println(" i : change flush interval seconds");
+		tty.println(" d : change flush interval seconds");
 		tty.println(" l : change number of display threads");
 		tty.println(" q : quit");
 		tty.println(" h : print help");
-		app.needMoreInput = true;
+		app.preventFlush();
 		waitForEnter();
-		app.needMoreInput = false;
+		app.continueFlush();
 	}
 
 	private void waitForEnter() {
-		tty.println(" Please hit ENTER to continue...");
+		tty.println(" Please hit <ENTER> to continue...");
 		try {
 			reader.readLine();
 		} catch (IOException e) {
