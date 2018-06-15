@@ -52,6 +52,11 @@ public class InteractiveTask implements Runnable {
 	}
 
 	private void printStacktrace() throws IOException {
+		if (app.view.collectingData) {
+			tty.println(" Please wait for top threads displayed");
+			return;
+		}
+		
 		app.needMoreInput = true;
 		tty.print(" Input TID for stack:");
 		String pidStr = reader.readLine().trim();

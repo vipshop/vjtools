@@ -23,11 +23,12 @@ public class VMDetailView {
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
-
 	// 按线程CPU or 分配内存模式
 	volatile public DetailMode mode;
 	volatile public int threadLimit = 10;
 	volatile public double interval;
+	volatile public boolean collectingData = true;
+
 
 	private VMInfo vmInfo;
 	private OperatingSystemMXBean operatingSystemMXBean;
@@ -35,6 +36,8 @@ public class VMDetailView {
 	private int width;
 	private boolean shouldExit;
 
+	private boolean firstTime = true;
+	
 	private Map<Long, Long> lastThreadCpuTotalTimes = new HashMap<Long, Long>();
 	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
 	private Map<Long, Long> lastThreadMemoryTotalBytes = new HashMap<Long, Long>();
@@ -212,6 +215,8 @@ public class VMDetailView {
 			return;
 		}
 
+		collectingData = false;
+		
 		// 打印线程汇总
 		double deltaAllThreadCpuLoad = Utils.calcLoad(vmInfo.deltaUptimeMills,
 				(deltaAllThreadCpu * 100) / (Utils.NANOS_TO_MILLS * 1D), 1);
@@ -308,6 +313,8 @@ public class VMDetailView {
 			printWelcome();
 			return;
 		}
+		
+		collectingData = false;
 
 		// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
 		System.out.printf(" THREADS-MEMORY: %5s/s allocation rate%n%n",
@@ -349,8 +356,12 @@ public class VMDetailView {
 	}
 
 	private void printWelcome() {
+		if (firstTime) {
+			System.out.printf(" VMARGS: %s%n%n", vmInfo.vmArgs);
+			firstTime = false;
+		}
 		System.out.printf("%n Collecting data, please wait %d seconds......%n%n", (int) interval);
-		System.out.printf(" VMARGS: %s%n%n", vmInfo.vmArgs);
+		collectingData = true;
 	}
 
 	private static double getThreadCPUUtilization(Long deltaThreadCpuTime, long totalTime, double factor) {
