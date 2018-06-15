@@ -9,7 +9,7 @@
 因为每调度一次`java -jar vjmxclient.jar`，其实是创建了一个新的JVM，因此在vjmxcli.sh 加上了一系列JVM参数减少消耗。
 
 
-## 2. 获取MBean属性值
+# 2. 获取MBean属性值
 
 ```
 // 以host:port接入
@@ -27,9 +27,9 @@
 * `HeapMemoryUsage`:Attribute名
 
 
-#3. 模拟jstat gcutil
+# 3. 模拟jstat gcutil
 
-jstat有时候会不可使用，比如目标JVM使用-Djava.tmp.dir 设置了临时目录，或者使用了-XX:+PerfDisableSharedMem禁止了perfdata，此时，可以用vjmxcli代替。
+jstat有时候会不可使用，比如目标JVM使用-Djava.tmp.dir 重定义了临时目录，或者使用了-XX:+PerfDisableSharedMem禁止了perfdata。此时，可以用vjmxcli代替jstat。
 
 ```
 //一次性输出
@@ -55,9 +55,9 @@ S	      S	      E	     O	      M	   CCS	YGC	YGCT	FGC	FGCT	GCT
 
 # 4. 附录 
 
-## 4.1 常用JMX项
+## 4.1 常用JMX条目
 
-| 项目 | Object Name | Attribute Name|
+| 条目 | Object Name | Attribute Name|
 | -------- | -------- | -------- |
 | 堆内存    |  java.lang:type=Memory | HeapMemoryUsage     |
 | 非堆内存(不包含堆外内存)    |  java.lang:type=Memory | NonHeapMemoryUsage     |
@@ -75,3 +75,5 @@ S	      S	      E	     O	      M	   CCS	YGC	YGCT	FGC	FGCT	GCT
 -Dcom.sun.management.jmxremote.ssl=false
 -Djava.rmi.server.hostname=127.0.0.1
 ```
+
+以pid连入时不需要预先定义上述参数

@@ -22,6 +22,8 @@
 | Project | Description |
 | -------- | -------- |
 | [vjkit](/vjkit) | 关于文本，集合，并发等基础功能的核心类库 |
+| [vjstar](/vjstar) | 关于服务化应用的性能、可用性最佳实践的类库封装 |
+| [vjlab](/vjlab) | 实验性质的类库 |
 
 
 ## Java Tools
