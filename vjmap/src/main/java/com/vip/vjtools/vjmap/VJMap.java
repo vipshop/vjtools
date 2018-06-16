@@ -3,11 +3,12 @@ package com.vip.vjtools.vjmap;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vip.vjtools.vjmap.oops.HistogramHeapAccessor;
-import com.vip.vjtools.vjmap.oops.HistogramHeapVisitor;
+import com.vip.vjtools.vjmap.oops.GenAddressAccessor;
+import com.vip.vjtools.vjmap.oops.HeapHistogramVisitor;
+import com.vip.vjtools.vjmap.oops.OldgenAccessor;
+import com.vip.vjtools.vjmap.oops.SurvivorAccessor;
 
 import sun.jvm.hotspot.HotSpotAgent;
-import sun.jvm.hotspot.debugger.DebuggerException;
 import sun.jvm.hotspot.oops.ObjectHeap;
 import sun.jvm.hotspot.runtime.VM;
 
@@ -15,39 +16,38 @@ public class VJMap {
 
 	public static void runHeapVisitor(int pid, boolean orderByName, long minSize) {
 		ObjectHeap heap = VM.getVM().getObjectHeap();
-		HistogramHeapVisitor visitor = new HistogramHeapVisitor();
+		HeapHistogramVisitor visitor = new HeapHistogramVisitor();
 
 		System.err.println("Start to dump all areas. This may take a while...");
 		heap.iterate(visitor);
 
-		List<ClassStats> list = new ArrayList<ClassStats>();
-		list.addAll(visitor.getClassStatsMap().values());
+		List<ClassStats> list = visitor.getClassStatsList();
 		ResultPrinter resultPrinter = new ResultPrinter();
 		resultPrinter.printAllGens(System.out, list, orderByName, minSize);
 	}
 
 	public static void runSurvior(int minAge, boolean orderByName, long minSize) {
-		HistogramHeapAccessor accessor = new HistogramHeapAccessor();
+		SurvivorAccessor accessor = new SurvivorAccessor();
 
 		System.err.println("Start to dump survivor area. This may take a while...");
-		List<ClassStats> list = accessor.dumpSurvivor(minAge);
+		List<ClassStats> list = accessor.dump(minAge);
 
 		ResultPrinter resultPrinter = new ResultPrinter();
 		resultPrinter.printSurvivor(System.out, list, orderByName, minSize, minAge);
 	}
 
 	public static void runCms(boolean orderByName, long minSize) {
-		HistogramHeapAccessor accessor = new HistogramHeapAccessor();
+		OldgenAccessor accessor = new OldgenAccessor();
 
 		System.err.println("Start to dump oldgen area. This may take a while...");
-		List<ClassStats> list = accessor.dumpCms();
+		List<ClassStats> list = accessor.dump();
 
 		ResultPrinter resultPrinter = new ResultPrinter();
 		resultPrinter.printOldGen(System.out, list, orderByName, minSize);
 	}
 
 	public static void printHeapAddress() {
-		HistogramHeapAccessor accessor = new HistogramHeapAccessor();
+		GenAddressAccessor accessor = new GenAddressAccessor();
 		accessor.printHeapAddress();
 	}
 
@@ -113,13 +113,12 @@ public class VJMap {
 			double secs = (endTime - startTime) / 1000.0d;
 			System.out.printf("%n Heap traversal took %.1f seconds.%n", secs);
 			System.out.flush();
-		} catch (DebuggerException e) {
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			if (e.getMessage().contains("privileges")) {
-				System.out.println("Please use the same user of the target JVM to run vjmap");
+				System.out.println(
+						"Please use the same user of the target JVM to run vjmap or sudo -E vjmap.sh ... on Mac");
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		} finally {
 			agent.detach();
 		}
