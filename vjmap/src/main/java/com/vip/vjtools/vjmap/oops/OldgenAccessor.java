@@ -50,6 +50,7 @@ public class OldgenAccessor {
 		tty.printf("%d live regions. %n", liveRegionsSize);
 
 		for (int i = 0; i < liveRegionsSize; i++) {
+			tty.print(".");
 			MemRegion region = (MemRegion) liveRegions.get(i);
 			Address bottom = region.start();
 			Address top = region.end();
@@ -57,10 +58,7 @@ public class OldgenAccessor {
 			try {
 				OopHandle handle = bottom.addOffsetToAsOopHandle(0L);
 				while (handle.lessThan(top)) {
-					HeapUtils.printDot();
-
 					Oop obj = null;
-
 					try {
 						obj = objectHeap.newOop(handle);
 					} catch (UnknownOopException ignored) {

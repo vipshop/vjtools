@@ -70,13 +70,5 @@ public class HeapUtils {
 		return stats;
 	}
 
-	/**
-	 * 打印进度
-	 */
-	public static void printDot() {
-		if ((processingObject++) == PROCERSSING_DOT_SIZE) {
-			System.err.print(".");
-			processingObject = 0;
-		}
-	}
+
 }

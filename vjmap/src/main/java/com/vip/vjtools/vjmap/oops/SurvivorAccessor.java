@@ -66,8 +66,6 @@ public class SurvivorAccessor {
 		OopHandle handle = fromBottom.addOffsetToAsOopHandle(0);
 
 		while (handle.lessThan(fromTop)) {
-			HeapUtils.printDot();
-
 			Oop obj = null;
 			try {
 				obj = objectHeap.newOop(handle);

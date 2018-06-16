@@ -23,6 +23,9 @@ import sun.jvm.hotspot.oops.Oop;
  */
 public class HeapHistogramVisitor implements HeapVisitor {
 
+	private static final int PROCERSSING_DOT_SIZE = 50000;
+	private int processingObject;
+
 	private CollectedHeap heap;
 
 	private EdenSpace cmsEden;
@@ -68,7 +71,10 @@ public class HeapHistogramVisitor implements HeapVisitor {
 
 		updateWith(classStats, obj, place);
 
-		HeapUtils.printDot();
+		if ((processingObject++) == PROCERSSING_DOT_SIZE) {
+			System.err.print(".");
+			processingObject = 0;
+		}
 
 		return false;
 	}
