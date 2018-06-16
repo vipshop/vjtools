@@ -1,6 +1,5 @@
 package com.vip.vjtools.vjmap;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.vip.vjtools.vjmap.oops.GenAddressAccessor;
@@ -18,7 +17,7 @@ public class VJMap {
 		ObjectHeap heap = VM.getVM().getObjectHeap();
 		HeapHistogramVisitor visitor = new HeapHistogramVisitor();
 
-		System.err.println("Start to dump all areas. This may take a while...");
+		System.out.println("Start to dump all areas. This may take a while...");
 		heap.iterate(visitor);
 
 		List<ClassStats> list = visitor.getClassStatsList();
@@ -26,27 +25,27 @@ public class VJMap {
 		resultPrinter.printAllGens(System.out, list, orderByName, minSize);
 	}
 
-	public static void runSurvior(int minAge, boolean orderByName, long minSize) {
+	public static void runSurviorAccessor(int minAge, boolean orderByName, long minSize) {
 		SurvivorAccessor accessor = new SurvivorAccessor();
 
-		System.err.println("Start to dump survivor area. This may take a while...");
+		System.out.println("Start to dump survivor area. This may take a while...");
 		List<ClassStats> list = accessor.dump(minAge);
 
 		ResultPrinter resultPrinter = new ResultPrinter();
 		resultPrinter.printSurvivor(System.out, list, orderByName, minSize, minAge);
 	}
 
-	public static void runCms(boolean orderByName, long minSize) {
+	public static void runOldGenAccessor(boolean orderByName, long minSize) {
 		OldgenAccessor accessor = new OldgenAccessor();
 
-		System.err.println("Start to dump oldgen area. This may take a while...");
+		System.out.println("Start to dump oldgen area. This may take a while...");
 		List<ClassStats> list = accessor.dump();
 
 		ResultPrinter resultPrinter = new ResultPrinter();
 		resultPrinter.printOldGen(System.out, list, orderByName, minSize);
 	}
 
-	public static void printHeapAddress() {
+	public static void printGenAddress() {
 		GenAddressAccessor accessor = new GenAddressAccessor();
 		accessor.printHeapAddress();
 	}
@@ -97,13 +96,13 @@ public class VJMap {
 			if (modeFlag.startsWith("-all")) {
 				runHeapVisitor(pid, orderByName, minSize);
 			} else if (modeFlag.startsWith("-sur")) {
-				runSurvior(minAge, orderByName, minSize);
+				runSurviorAccessor(minAge, orderByName, minSize);
 			} else if (modeFlag.startsWith("-old")) {
-				runCms(orderByName, minSize);
+				runOldGenAccessor(orderByName, minSize);
 			} else if (modeFlag.startsWith("-address")) {
-				printHeapAddress();
+				printGenAddress();
 			} else if (modeFlag.startsWith("-version")) {
-				System.out.println("jmap version:1.0.1");
+				System.out.println("vjmap version:1.0.1");
 				return;
 			} else {
 				printHelp();
@@ -115,9 +114,9 @@ public class VJMap {
 			System.out.flush();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
-			if (e.getMessage().contains("privileges")) {
+			if (e.getMessage().contains("Can't attach to the process")) {
 				System.out.println(
-						"Please use the same user of the target JVM to run vjmap or sudo -E vjmap.sh ... on Mac");
+						"Please use the same user of the target JVM to run vjmap or use root to run it (sudo -E vjmap.sh ...)");
 			}
 		} finally {
 			agent.detach();

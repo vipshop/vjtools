@@ -58,32 +58,31 @@ public class ResultPrinter {
 			Collections.sort(list, ClassStats.SUR_SIZE_COMPARATOR);
 		}
 
-		tty.println("\nSurvivor Object Histogram:");
-		tty.println("");
+		tty.println("\nSurvivor Object Histogram:\n");
 		tty.printf("%6s %7s %7s  %s%n", "#num", "#count", "#bytes", "#Class description");
 		tty.println("-----------------------------------------------------------------------------------");
 
 		Iterator<ClassStats> iterator = list.listIterator();
 		int num = 0;
-		int totalSurCount = 0;
-		int totalSurSize = 0;
+		long totalSurCount = 0;
+		long totalSurSize = 0;
 		while (iterator.hasNext()) {
 			ClassStats classStats = iterator.next();
 			if (classStats.getSurvivorSize() > minSize) {
-				totalSurCount = (int) (totalSurCount + classStats.getSurvivorCount());
-				totalSurSize = (int) (totalSurSize + classStats.getSurvivorSize());
+				totalSurCount = totalSurCount + classStats.getSurvivorCount();
+				totalSurSize = totalSurSize + classStats.getSurvivorSize();
 				num++;
 				tty.printf("%5d: %7d %7s  %s%n", num, classStats.getSurvivorCount(),
 						FormatUtils.toFloatUnit(classStats.getSurvivorSize()), classStats.getDescription());
 			}
 		}
 
-		tty.printf(" Total: %7d/%7s ,min age=%d, min size=%d%n", totalSurCount, FormatUtils.toFloatUnit(totalSurSize),
+		tty.printf(" Total: %7d %7s, min age=%d, min size=%d%n", totalSurCount, FormatUtils.toFloatUnit(totalSurSize),
 				minAge, minSize);
 	}
 
 	/**
-	 * 打印只包含存活区的结果
+	 * 打印只包含老生代的结果
 	 */
 	public void printOldGen(PrintStream tty, List<ClassStats> list, boolean orderByName, long minSize) {
 		if (orderByName) {
@@ -92,27 +91,26 @@ public class ResultPrinter {
 			Collections.sort(list, ClassStats.OLD_SIZE_COMPARATOR);
 		}
 
-		tty.println("\nOldGen Object Histogram:");
-		tty.println("");
+		tty.println("\nOldGen Object Histogram:\n");
 		tty.printf("%6s %7s %7s  %s%n", "#num", "#count", "#bytes", "#class description");
 		tty.println("-----------------------------------------------------------------------------------");
 
 		Iterator<ClassStats> iterator = list.listIterator();
 		int num = 0;
-		int totalOldCount = 0;
-		int totalOldSize = 0;
+		long totalOldCount = 0;
+		long totalOldSize = 0;
 		while (iterator.hasNext()) {
 			ClassStats classStats = iterator.next();
 			if (classStats.getOldSize() > minSize) {
-				totalOldCount = (int) (totalOldCount + classStats.getOldCount());
-				totalOldSize = (int) (totalOldSize + classStats.getOldSize());
+				totalOldCount = totalOldCount + classStats.getOldCount();
+				totalOldSize = totalOldSize + classStats.getOldSize();
 				num++;
 				tty.printf("%5d: %7s %7s  %s%n", num, classStats.getOldCount(),
 						FormatUtils.toFloatUnit(classStats.getOldSize()), classStats.getDescription());
 			}
 		}
 
-		tty.printf(" Total: %7d/%7s , min size=%d%n", totalOldCount, FormatUtils.toFloatUnit(totalOldSize), minSize);
+		tty.printf(" Total: %7d %7s, min size=%d%n", totalOldCount, FormatUtils.toFloatUnit(totalOldSize), minSize);
 	}
 
 }

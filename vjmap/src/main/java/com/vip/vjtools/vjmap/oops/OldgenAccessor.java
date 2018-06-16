@@ -44,10 +44,10 @@ public class OldgenAccessor {
 		cmsGen.printOn(tty);
 		tty.println("");
 
-		tty.println("Getting live regions.");
+		tty.print("Getting live regions...");
 		List liveRegions = cmsSpace.getLiveRegions();
 		int liveRegionsSize = liveRegions.size();
-		tty.printf("OldGen has %d live regions. %n", liveRegionsSize);
+		tty.printf("%d live regions. %n", liveRegionsSize);
 
 		for (int i = 0; i < liveRegionsSize; i++) {
 			MemRegion region = (MemRegion) liveRegions.get(i);

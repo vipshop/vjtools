@@ -7,6 +7,9 @@ public class FormatUtils {
 	private static final long BYTE_UNIT_GIGA = BYTE_UNIT_MEGA * 1024;
 	private static final long BYTE_UNIT_TERA = BYTE_UNIT_GIGA * 1024;
 
+	/**
+	 * 转换成带单位的字符串，转换时保留一位小数
+	 */
 	public static String toFloatUnit(long size) {
 		if (size < BYTE_UNIT_KILO) {
 			return String.format("%5d", size);
