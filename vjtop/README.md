@@ -14,7 +14,7 @@
 
 ## 2.1 概述
 
-[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.0/vjtop-1.0.0.zip) - 108k
+[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.0/vjtop-1.0.0.zip)
 
 需要设置JAVA_HOME 环境变量，必须与目标JVM使用相同用户来运行。
 

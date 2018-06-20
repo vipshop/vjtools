@@ -13,6 +13,8 @@ import sun.jvm.hotspot.runtime.VM;
 
 public class VJMap {
 
+	public static final String VERSION = "1.0.2";
+
 	public static void runHeapVisitor(int pid, boolean orderByName, long minSize) {
 		ObjectHeap heap = VM.getVM().getObjectHeap();
 		HeapHistogramVisitor visitor = new HeapHistogramVisitor();
@@ -102,7 +104,7 @@ public class VJMap {
 			} else if (modeFlag.startsWith("-address")) {
 				printGenAddress();
 			} else if (modeFlag.startsWith("-version")) {
-				System.out.println("vjmap version:1.0.1");
+				System.out.println("vjmap version:"＋VERSION);
 				return;
 			} else {
 				printHelp();

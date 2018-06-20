@@ -17,7 +17,9 @@ VJtop is built as NON stop-the-world and is considered ready for production diag
 
 ## 2.1 How to build
 
-Run Maven install task and unzip the resulted zip package in the target folder. Set JAVA_HOME environment variable to your JDK directory.
+[download from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.0/vjtop-1.0.0.zip)
+
+Set JAVA_HOME environment variable to your JDK directory.
 
 Run the following command under **the same user who started the target process**.
 
