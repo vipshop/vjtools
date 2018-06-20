@@ -31,15 +31,18 @@
 		</repository>
 	</distributionManagement>
 
-	<url>https://github.com/vipshop/vjtools</url>
-
-	<licenses>
-		<license>
-			<name>Apache License 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<tagNameFormat>v.@{project.version}</tagNameFormat>
+				 </configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<profiles>
 		<profile>
@@ -97,14 +100,6 @@
 							</execution>
 						</executions>
 					</plugin>
-					<plugin>
-				        <groupId>org.apache.maven.plugins</groupId>
-				        <artifactId>maven-release-plugin</artifactId>
-				        <version>2.5.3</version>
-				        <configuration>
-				          <tagNameFormat>v.@{project.version}</tagNameFormat>
-				        </configuration>
-			      	</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -115,6 +110,16 @@
 		<developerConnection>scm:git:https://github.com/vipshop/vjtools.git</developerConnection>
 		<url>https://github.com/vipshop/vjtools</url>
 	</scm>
+
+		<url>https://github.com/vipshop/vjtools</url>
+
+	<licenses>
+		<license>
+			<name>Apache License 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<developers>
 		<!--not noly me, write a name here just for sonatype requirement -->
