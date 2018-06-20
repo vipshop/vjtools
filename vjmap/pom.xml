@@ -139,8 +139,7 @@
 		<connection>scm:git:https://github.com/vipshop/vjtools.git</connection>
 		<developerConnection>scm:git:https://github.com/vipshop/vjtools.git</developerConnection>
 		<url>https://github.com/vipshop/vjtools</url>
-	  <tag>v.1.0.1</tag>
-  </scm>
+	</scm>
 
 	<developers>
 		<!--not noly me, write a name here just for sonatype requirement -->
