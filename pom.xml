@@ -17,10 +17,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.locale>zh_CN</project.build.locale>
-		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 	</properties>
-
 
 
 	<distributionManagement>
@@ -51,9 +48,10 @@
 				<jdk>1.7</jdk>
 			</activation>
 			<modules>
+				<module>vjkit</module>
 				<module>vjmap</module>
 				<module>vjtop</module>
-				<module>vjkit</module>
+				<module>vjmxcli</module>
 			</modules>
 		</profile>
 
@@ -63,9 +61,10 @@
 				<jdk>1.8</jdk>
 			</activation>
 			<modules>
+				<module>vjkit</module>
 				<module>vjmap</module>
 				<module>vjtop</module>
-				<module>vjkit</module>
+				<module>vjmxcli</module>
 			</modules>
 		</profile>
 
@@ -87,7 +86,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>${maven-gpg-plugin.version}</version>
+						<version>1.6</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -98,6 +97,14 @@
 							</execution>
 						</executions>
 					</plugin>
+					<plugin>
+				        <groupId>org.apache.maven.plugins</groupId>
+				        <artifactId>maven-release-plugin</artifactId>
+				        <version>2.5.3</version>
+				        <configuration>
+				          <tagNameFormat>v.@{project.version}</tagNameFormat>
+				        </configuration>
+			      	</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -110,6 +117,7 @@
 	</scm>
 
 	<developers>
+		<!--not noly me, write a name here just for sonatype requirement -->
 		<developer>
 			<id>calvin</id>
 			<name>Calvin Xiao</name>
@@ -119,15 +127,5 @@
 			</roles>
 			<timezone>+8</timezone>
 		</developer>
-		<developer>
-			<id>dehuizheng</id>
-			<name>Dehui Zheng</name>
-			<email>dehui.zheng at vipshop.com</email>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>+8</timezone>
-		</developer>
 	</developers>
-
 </project>

@@ -112,7 +112,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>${maven-gpg-plugin.version}</version>
+						<version>1.6</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -123,6 +123,14 @@
 							</execution>
 						</executions>
 					</plugin>
+					<plugin>
+				        <groupId>org.apache.maven.plugins</groupId>
+				        <artifactId>maven-release-plugin</artifactId>
+				        <version>2.5.3</version>
+				        <configuration>
+				          <tagNameFormat>v.@{project.version}</tagNameFormat>
+				        </configuration>
+			      	</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -156,19 +164,11 @@
 	</scm>
 
 	<developers>
+		<!--not noly me, write a name here just for sonatype requirement -->
 		<developer>
 			<id>calvin</id>
 			<name>Calvin Xiao</name>
 			<email>calvin.xiao at vipshop.com</email>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>+8</timezone>
-		</developer>
-		<developer>
-			<id>dehuizheng</id>
-			<name>Dehui Zheng</name>
-			<email>dehui.zheng at vipshop.com</email>
 			<roles>
 				<role>developer</role>
 			</roles>
