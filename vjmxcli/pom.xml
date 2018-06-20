@@ -6,7 +6,8 @@
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjmxcli</artifactId>
 	<name>vjmxcli</name>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.1</version>
+	<description>jmx command line client</description>
 
 	<properties>
 		<toolsjar>${java.home}/../lib/tools.jar</toolsjar>
@@ -141,7 +142,7 @@
 	
 	<url>https://github.com/vipshop/vjtools</url>
 	
-		<licenses>
+	<licenses>
 		<license>
 			<name>Apache License 2.0</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>

@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjmap</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<name>vjmap</name>
 	<description>jmap with per generation object stats</description>
 
