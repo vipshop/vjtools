@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vip.vjtools.vjkit.text.MemoryUnit;
+import com.vip.vjtools.vjkit.text.SizeUnit;
 
 /**
  * Detect old gen usage of current jvm periodically and trigger a cms gc if necessary.<br/>
@@ -45,8 +45,8 @@ public class ProactiveGcTask implements Runnable {
 			long maxOldBytes = getMemoryPoolMaxOrCommitted(oldMemoryPool);
 			long oldUsedBytes = oldMemoryPool.getUsage().getUsed();
 			log.info(String.format("max old gen: %.2f MB, used old gen: %.2f MB, available old gen: %.2f MB.",
-					MemoryUnit.BYTES.toMegaBytes(maxOldBytes), MemoryUnit.BYTES.toMegaBytes(oldUsedBytes),
-					MemoryUnit.BYTES.toMegaBytes(maxOldBytes - oldUsedBytes)));
+					SizeUnit.BYTES.toMegaBytes(maxOldBytes), SizeUnit.BYTES.toMegaBytes(oldUsedBytes),
+					SizeUnit.BYTES.toMegaBytes(maxOldBytes - oldUsedBytes)));
 			if (needTriggerGc(maxOldBytes, oldUsedBytes, oldGenOccupancyFraction)) {
 				preGc();
 				doGc();
@@ -123,8 +123,8 @@ public class ProactiveGcTask implements Runnable {
 		long maxOldBytes = getMemoryPoolMaxOrCommitted(oldMemoryPool);
 		long oldUsedBytes = oldMemoryPool.getUsage().getUsed();
 		log.info(String.format("max old gen: %.2f MB, used old gen: %.2f MB, available old gen: %.2f MB, after gc.",
-				MemoryUnit.BYTES.toMegaBytes(maxOldBytes), MemoryUnit.BYTES.toMegaBytes(oldUsedBytes),
-				MemoryUnit.BYTES.toMegaBytes(maxOldBytes - oldUsedBytes))); // NOSONAR
+				SizeUnit.BYTES.toMegaBytes(maxOldBytes), SizeUnit.BYTES.toMegaBytes(oldUsedBytes),
+				SizeUnit.BYTES.toMegaBytes(maxOldBytes - oldUsedBytes))); // NOSONAR
 		oldMemoryPool = null;
 	}
 	

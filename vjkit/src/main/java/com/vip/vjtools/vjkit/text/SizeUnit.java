@@ -3,10 +3,10 @@ package com.vip.vjtools.vjkit.text;
 /**
  * Representation of basic memory units.<br/>
  * Usage example:<br/>
- * assertTrue(MemoryUnit.BYTES.toMegaBytes(1024 * 1024) == 1.0);<br/>
- * assertTrue(MemoryUnit.GIGABYTES.toBytes(1) == 1024.0 * 1024.0 * 1024.0);
+ * assertTrue(SizeUnit.BYTES.toMegaBytes(1024 * 1024) == 1.0);<br/>
+ * assertTrue(SizeUnit.GIGABYTES.toBytes(1) == 1024.0 * 1024.0 * 1024.0);
  */
-public enum MemoryUnit {
+public enum SizeUnit {
 	/** Smallest memory unit. */
 	BYTES,
 	/** "One thousand" (1024) bytes. */
