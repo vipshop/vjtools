@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Detect old gen usage of current jvm periodically and trigger a cms gc if necessary.<br/>
@@ -17,17 +18,21 @@ import org.slf4j.Logger;
  * You can alter this class to work on a remote jvm using jmx.
  */
 public class ProactiveGcTask implements Runnable {
-	protected Logger log;
+	protected Logger log = LoggerFactory.getLogger(ProactiveGcTask.class);
 	private static final String OLD = "old";
 	private static final String TENURED = "tenured";
 	private ScheduledExecutorService scheduler;
 	private int oldGenOccupancyFraction;
 	private MemoryPoolMXBean oldMemoryPool;
+	private long rescheduleDelay;
+	private TimeUnit rescheduleTimeUnit;
 
-	public ProactiveGcTask(ScheduledExecutorService scheduler, Logger log, int oldGenOccupancyFraction) {
+	public ProactiveGcTask(ScheduledExecutorService scheduler, int oldGenOccupancyFraction,
+			long rescheduleDelay, TimeUnit rescheduleTimeUnit) {
 		this.scheduler = scheduler;
-		this.log = log;
 		this.oldGenOccupancyFraction = oldGenOccupancyFraction;
+		this.rescheduleDelay = rescheduleDelay;
+		this.rescheduleTimeUnit = rescheduleTimeUnit;
 	}
 
 	public void run() {
@@ -48,9 +53,9 @@ public class ProactiveGcTask implements Runnable {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		} finally {
-			if (!scheduler.isShutdown()) { // schedule for every day at this time
+			if (!scheduler.isShutdown()) { // reschedule this task
 				try {
-					scheduler.schedule(this, 24, TimeUnit.HOURS);
+					scheduler.schedule(this, rescheduleDelay, rescheduleTimeUnit);
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
 				}
@@ -102,7 +107,7 @@ public class ProactiveGcTask implements Runnable {
 	}
 
 	/**
-	 * Stuff before gc.
+	 * Stuff before gc. You can override this method to do your own stuff, for example, cache clean up, deregister from register center.
 	 */
 	public void preGc() {
 		log.warn("old gen is occupied larger than occupancy fraction[{}], trying to trigger gc...",
@@ -110,7 +115,7 @@ public class ProactiveGcTask implements Runnable {
 	}
 
 	/**
-	 * Stuff after gc.
+	 * Stuff after gc. You can override this method to do your own stuff, for example, cache warmup, reregister to register center.
 	 */
 	public void postGc() {
 		long maxOldBytes = getMemoryPoolMaxOrCommitted(oldMemoryPool);
@@ -120,4 +125,5 @@ public class ProactiveGcTask implements Runnable {
 				MemoryUnit.BYTES.toMegaBytes(maxOldBytes - oldUsedBytes))); // NOSONAR
 		oldMemoryPool = null;
 	}
+	
 }
