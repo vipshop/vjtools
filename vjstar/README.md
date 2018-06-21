@@ -8,6 +8,8 @@
 
 参数兼顾性能及排查问题的便捷性， 其中一些参数需要根据JDK版本适配。
 
+详见 [jvm-options.sh](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/jvm-options.sh) 和稍后出炉的文章。
+
 
 ## 2.2 闲时GC
 
@@ -17,6 +19,7 @@ CMS GC 始终对流量有一定的影响。
 
 简单的定时器让应用固定在可设定的闲时（如半夜）进行清理动作。 为了避免服务的所有实例同时清理造成服务不可用，加入了随机值。
 
+详见[gc](https://github.com/vipshop/vjtools/tree/master/vjstar/src/main/java/com/vip/vjstar/gc)
 
 ## 2.3 类的预加载
 
@@ -32,5 +35,4 @@ CMS GC 始终对流量有一定的影响。
 我们希望一个业务方法缓慢时，不会把整个线程池塞爆导致所有方法都不能响应。
 
 但是为每个方法配置独立线程池又存在配置困难和浪费问题，因此我们希望简单实现一个线程池，在平时使用公共池，当某个方法出现问题时对其进行隔离，当问题消失时又自动恢复到公共池。
-
 
