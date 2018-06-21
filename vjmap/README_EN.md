@@ -13,7 +13,7 @@ survivor objects.
 
 # 2. Getting Started
 
-[download from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.0/vjmap-1.0.0.zip)
+[download from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.1/vjmap-1.0.1.zip)
 
 **[Important]**: VJMap DOES cause stop-of-the-world of the target app. Make sure the target app is isolated from user 
 access before you start using VJMap in production.

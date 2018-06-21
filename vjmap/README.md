@@ -13,7 +13,7 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 # 2.使用说明
 
-[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.0/vjmap-1.0.0.zip)
+[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.1/vjmap-1.0.1.zip)
 
 注意：vjmap在执行过程中，会完全停止应用一段时间，必须摘流量执行！！！！
 
