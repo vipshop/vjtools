@@ -33,8 +33,7 @@ public class DateTimeUtil {
 	}
 
 	/**
-	 * Get schedule delay for proactive gc task，eg.<br/>
-	 * 3-5，some time between 3am-5am；<br/>
+	 * Get scheduled delay for proactive gc task，cross-day setting is supported.<br/>
 	 * 01:30-02:40，some time between 01:30-02:40；<br/>
 	 * 180000，180 seconds later.
 	 * 

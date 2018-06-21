@@ -11,7 +11,10 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 
 /**
- * Detect old gen usage of current jvm periodically and trigger a cms gc if necessary.
+ * Detect old gen usage of current jvm periodically and trigger a cms gc if necessary.<br/>
+ * In order to enable this feature, add these options to your target jvm:<br/>
+ * -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+ExplicitGCInvokesConcurrent<br/>
+ * You can alter this class to work on a remote jvm using jmx.
  */
 public class ProactiveGcTask implements Runnable {
 	protected Logger log;
