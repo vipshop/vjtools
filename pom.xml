@@ -8,7 +8,7 @@
 
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjtools</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNHAPSHOT</version>
 	<name>vjtools</name>
 	<packaging>pom</packaging>
 
@@ -38,6 +38,7 @@
 			</activation>
 			<modules>
 				<module>vjkit</module>
+				<module>vjstar</module>
 				<module>vjmap</module>
 				<module>vjtop</module>
 				<module>vjmxcli</module>
@@ -51,9 +52,11 @@
 			</activation>
 			<modules>
 				<module>vjkit</module>
+				<module>vjstar</module>
 				<module>vjmap</module>
 				<module>vjtop</module>
 				<module>vjmxcli</module>
+				<module>standard/sonar-vj</module>
 			</modules>
 		</profile>
 
@@ -64,11 +67,18 @@
 			</activation>
 			<modules>
 				<module>vjkit</module>
+				<module>vjstar</module>
 			</modules>
 		</profile>
 
 		<profile>
 			<id>release</id>
+			<modules>
+				<module>vjkit</module>
+				<module>vjmap</module>
+				<module>vjtop</module>
+				<module>vjmxcli</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>
