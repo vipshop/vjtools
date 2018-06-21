@@ -1,4 +1,4 @@
-package com.vip.vjstar.gc;
+package com.vip.vjtools.vjkit.text;
 
 /**
  * Representation of basic memory units.<br/>

@@ -11,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vip.vjtools.vjkit.text.MemoryUnit;
+
 /**
  * Detect old gen usage of current jvm periodically and trigger a cms gc if necessary.<br/>
  * In order to enable this feature, add these options to your target jvm:<br/>

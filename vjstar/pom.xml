@@ -195,5 +195,14 @@
 			</roles>
 			<timezone>+8</timezone>
 		</developer>
+		<developer>
+			<id>lixuanbin</id>
+			<name>Xuanbin.Li</name>
+			<email>ben04.li at vipshop.com</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>+8</timezone>
+		</developer>
 	</developers>
 </project>
