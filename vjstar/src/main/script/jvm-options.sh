@@ -1,18 +1,20 @@
 
 #!/bin/bash
 
-
-LOGDIR="./"
+# change it here
+LOGDIR="./logs"
 
 JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 
 
-#enable coredump
+# Enable coredump
 ulimit -c unlimited
 
-## Memory
+## Memory Options##
 
-MEM_OPTS="-Xms4g -Xmx4g -XX:NewRatio=1 -XX:+AlwaysPreTouch"
+MEM_OPTS="-Xms4g -Xmx4g -XX:NewRatio=1"
+
+MEM_OPTS="$MEM_OPTS -XX:+AlwaysPreTouch"
 
 
 if [[ "$JAVA_VERSION" < "1.8" ]]; then
@@ -27,21 +29,21 @@ fi
 #MEM_OPTS_="$MEM_OPTS -XX:ReservedCodeCacheSize=240M"
 
 
-## GC 
+## GC Options ##
 
 GC_OPTS="-XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:MaxTenuringThreshold=4 -XX:+UseCMSInitiatingOccupancyOnly"
-GC_OPTS="$GC_OTPS -XX:+ExplicitGCInvokesConcurrent -XX:+ParallelRefProcEnabled -XX:+CMSParallelInitialMarkEnabled"
-GC_OPTS="$GC_OTPS -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=1024"
+GC_OPTS="$GC_OPTS -XX:+ExplicitGCInvokesConcurrent -XX:+ParallelRefProcEnabled -XX:+CMSParallelInitialMarkEnabled"
+GC_OPTS="$GC_OPTS -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=1024"
 
 
-#GC_OPTS="$GC_OTPS -XX:ParallelGCThreads=16 -XX:ConcGCThreads=8"
+#GC_OPTS="$GC_OPTS -XX:ParallelGCThreads=16 -XX:ConcGCThreads=8"
 
-if [[ "$JAVA_VERSION" > "1.8" ]]; then     
-  #GC_OPTS="$GC_OPTS -XX:-CMSClassUnloadingEnabled"
-fi
+#if [[ "$JAVA_VERSION" > "1.8" ]]; then     
+#  GC_OPTS="$GC_OPTS -XX:-CMSClassUnloadingEnabled"
+#fi
 
 
-## GC LOG
+## GC log Options ##
 
 if [ -d /dev/shm/ ]; then
     GC_LOG_FILE=/dev/shm/gc-myapp.log
@@ -63,7 +65,7 @@ if [[ "$JAVA_VERSION" < "1.8" ]]; then
 fi
 
 
-# Performance 
+## Performance Options##
 
 PERFORMANCE_OPTS=" -XX:-UseBiasedLocking -XX:AutoBoxCacheMax=20000 -Djava.security.egd=file:/dev/./urandom"
 
@@ -71,28 +73,30 @@ PERFORMANCE_OPTS=" -XX:-UseBiasedLocking -XX:AutoBoxCacheMax=20000 -Djava.securi
 
 #PERFORMANCE_OPTS="$PERFORMANCE_OPTS -XX:+PerfDisableSharedMem"
 
-if [[ "$JAVA_VERSION" > "1.8" ]]; then     
-  #PERFORMANCE_OPTS="$PERFORMANCE_OPTS -XX:-TieredCompilation"
-fi
+#if [[ "$JAVA_VERSION" > "1.8" ]]; then     
+#  PERFORMANCE_OPTS="$PERFORMANCE_OPTS -XX:-TieredCompilation"
+#fi
 
 
-# Error Detecting
+## Trouble shotting ##
 
-ERROR_OPTS="-XX:+PrintCommandLineFlags -XX:-OmitStackTraceInFastThrow -XX:ErrorFile=${LOGDIR}/hs_err_%p.log"
+SHOTTING_OPTS="-XX:+PrintCommandLineFlags -XX:-OmitStackTraceInFastThrow -XX:ErrorFile=${LOGDIR}/hs_err_%p.log"
 
-#ERROR_OPTS="$ERROR_OPTS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${LOGDIR}/"
+#SHOTTING_OPTS="$SHOTTING_OPTS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${LOGDIR}/"
 
 
-# JMX
+## JMX ##
 
 JMX_OPTS="-Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.port=7001 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
 
-# Other
+## Other ##
 
 OTHER_OPTS="-Djava.net.preferIPv4Stack=true"
 
 
+## All together ##
 
-#ALL
-JAVA_OTPS="$MEM_OPTS $GC_OPTS $GC_LOG_OPTS $PERFORMANCE_OPTS $ERROR_OPTS $JMX_OPTS $OTHER_OPTS"
+JAVA_OTPS="$MEM_OPTS $GC_OPTS $GC_LOG_OPTS $PERFORMANCE_OPTS $SHOTTING_OPTS $JMX_OPTS $OTHER_OPTS"
+
+echo $JAVA_OTPS
