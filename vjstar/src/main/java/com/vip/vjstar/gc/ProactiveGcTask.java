@@ -11,7 +11,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vip.vjtools.vjkit.text.SizeUnit;
+import com.vip.vjtools.vjkit.number.SizeUnit;
+import com.vip.vjtools.vjkit.number.UnitConverter;
 
 /**
  * Detect old gen usage of current jvm periodically and trigger a cms gc if necessary.<br/>
@@ -20,21 +21,17 @@ import com.vip.vjtools.vjkit.text.SizeUnit;
  * You can alter this class to work on a remote jvm using jmx.
  */
 public class ProactiveGcTask implements Runnable {
-	protected Logger log = LoggerFactory.getLogger(ProactiveGcTask.class);
 	private static final String OLD = "old";
 	private static final String TENURED = "tenured";
-	private ScheduledExecutorService scheduler;
+	private static Logger log = LoggerFactory.getLogger(ProactiveGcTask.class);
+
+	private CleanUpScheduler scheduler;
 	private int oldGenOccupancyFraction;
 	private MemoryPoolMXBean oldMemoryPool;
-	private long rescheduleDelay;
-	private TimeUnit rescheduleTimeUnit;
 
-	public ProactiveGcTask(ScheduledExecutorService scheduler, int oldGenOccupancyFraction,
-			long rescheduleDelay, TimeUnit rescheduleTimeUnit) {
+	public ProactiveGcTask(CleanUpScheduler scheduler, int oldGenOccupancyFraction) {
 		this.scheduler = scheduler;
 		this.oldGenOccupancyFraction = oldGenOccupancyFraction;
-		this.rescheduleDelay = rescheduleDelay;
-		this.rescheduleTimeUnit = rescheduleTimeUnit;
 	}
 
 	public void run() {
@@ -57,7 +54,7 @@ public class ProactiveGcTask implements Runnable {
 		} finally {
 			if (!scheduler.isShutdown()) { // reschedule this task
 				try {
-					scheduler.schedule(this, rescheduleDelay, rescheduleTimeUnit);
+					scheduler.reschedule(this);
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
 				}
@@ -122,10 +119,10 @@ public class ProactiveGcTask implements Runnable {
 	public void postGc() {
 		long maxOldBytes = getMemoryPoolMaxOrCommitted(oldMemoryPool);
 		long oldUsedBytes = oldMemoryPool.getUsage().getUsed();
-		log.info(String.format("max old gen: %.2f MB, used old gen: %.2f MB, available old gen: %.2f MB, after gc.",
-				SizeUnit.BYTES.toMegaBytes(maxOldBytes), SizeUnit.BYTES.toMegaBytes(oldUsedBytes),
-				SizeUnit.BYTES.toMegaBytes(maxOldBytes - oldUsedBytes))); // NOSONAR
+		log.info(String.format("max old gen: %sf, used old gen: %s, available old gen: %.2f MB, after gc.",
+				UnitConverter.toSizeUnit(maxOldBytes, 1), UnitConverter.toSizeUnit(oldUsedBytes, 1),
+				UnitConverter.toSizeUnit((maxOldBytes - oldUsedBytes), 1))); // NOSONAR
 		oldMemoryPool = null;
 	}
-	
+
 }

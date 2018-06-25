@@ -1,10 +1,13 @@
 package com.vip.vjstar.gc;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -12,22 +15,41 @@ import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.vip.vjtools.vjkit.number.RandomUtil;
 
-public class DateTimeUtil {
+public class CleanUpScheduler {
+
+	protected ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+		public Thread newThread(Runnable runnable) {
+			Thread thread = Executors.defaultThreadFactory().newThread(runnable);
+			thread.setDaemon(true);
+			return thread;
+		}
+	});
+
+	public void schedule(String schedulePlan, Runnable task) {
+		List<Long> times = getDelayMillsList(schedulePlan);
+		for (long time : times) {
+			scheduler.schedule(task, time, TimeUnit.MILLISECONDS);
+		}
+	}
+
+	public void reschedule(Runnable task) {
+		scheduler.schedule(task, 24, TimeUnit.HOURS);
+	}
+
+	public boolean isShutdown() {
+		return scheduler.isShutdown();
+	}
+
 
 	/**
-	 * Generate delay millis list by given time string, separated by comma.<br/>
+	 * Generate delay millis list by given plans string, separated by comma.<br/>
 	 * eg, 03:00-05:00,13:00-14:00
-	 * 
-	 * @see #getDelayMillis4ProactiveGcTask(String)
-	 * @param time
-	 * @return
-	 * @throws Exception
 	 */
-	public static List<Long> getDelayMillisList4ProactiveGcTask(String time) {
+	public static List<Long> getDelayMillsList(String schedulePlans) {
 		List<Long> result = new ArrayList<>();
-		String[] arr = StringUtils.split(time, ",");
-		for (String t : arr) {
-			result.add(getDelayMillis4ProactiveGcTask(t));
+		String[] plans = StringUtils.split(schedulePlans, ',');
+		for (String plan : plans) {
+			result.add(getDelayMillis(plan));
 		}
 		return result;
 	}
@@ -36,11 +58,8 @@ public class DateTimeUtil {
 	 * Get scheduled delay for proactive gc task，cross-day setting is supported.<br/>
 	 * 01:30-02:40，some time between 01:30-02:40；<br/>
 	 * 180000，180 seconds later.
-	 * 
-	 * @return
-	 * @throws Exception
 	 */
-	public static long getDelayMillis4ProactiveGcTask(String time) {
+	public static long getDelayMillis(String time) {
 		String pattern = "HH:mm";
 		Date now = new Date();
 		if (StringUtils.contains(time, "-")) {
@@ -60,16 +79,14 @@ public class DateTimeUtil {
 		} else if (StringUtils.isNumeric(time)) {
 			return Long.parseLong(time);
 		}
-		return getDelayMillis4ProactiveGcTask("03:00-05:00");
+		
+		return getDelayMillis("03:00-05:00");
 	}
 
 	/**
 	 * return current date time by specified hour:minute
 	 * 
-	 * @param time,
-	 *            format: hh:mm
-	 * @return
-	 * @throws ParseException
+	 * @param time format: hh:mm
 	 */
 	public static Date getCurrentDateByTime(String time, String pattern) {
 		try {

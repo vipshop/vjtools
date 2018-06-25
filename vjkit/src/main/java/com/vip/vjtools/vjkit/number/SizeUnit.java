@@ -1,7 +1,7 @@
-package com.vip.vjtools.vjkit.text;
+package com.vip.vjtools.vjkit.number;
 
 /**
- * Representation of basic memory units.<br/>
+ * Representation of basic size units，just like TimeUnit.<br/>
  * Usage example:<br/>
  * assertTrue(SizeUnit.BYTES.toMegaBytes(1024 * 1024) == 1.0);<br/>
  * assertTrue(SizeUnit.GIGABYTES.toBytes(1) == 1024.0 * 1024.0 * 1024.0);
