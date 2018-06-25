@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.vip.vjtools.vjmap.oops.GenAddressAccessor;
 import com.vip.vjtools.vjmap.oops.HeapHistogramVisitor;
+import com.vip.vjtools.vjmap.oops.LoadedClassAccessor;
 import com.vip.vjtools.vjmap.oops.OldgenAccessor;
 import com.vip.vjtools.vjmap.oops.SurvivorAccessor;
 
@@ -13,7 +14,7 @@ import sun.jvm.hotspot.runtime.VM;
 
 public class VJMap {
 
-	public static final String VERSION = "1.0.1";
+	public static final String VERSION = "1.0.2";
 
 	public static void runHeapVisitor(int pid, boolean orderByName, long minSize) {
 		ObjectHeap heap = VM.getVM().getObjectHeap();
@@ -50,6 +51,11 @@ public class VJMap {
 	public static void printGenAddress() {
 		GenAddressAccessor accessor = new GenAddressAccessor();
 		accessor.printHeapAddress();
+	}
+
+	public static void printLoadedClass() {
+		LoadedClassAccessor accessor = new LoadedClassAccessor();
+		accessor.pringLoadedClass();
 	}
 
 	public static void main(String[] args) {
@@ -103,6 +109,8 @@ public class VJMap {
 				runOldGenAccessor(orderByName, minSize);
 			} else if (modeFlag.startsWith("-address")) {
 				printGenAddress();
+			} else if (modeFlag.startsWith("-class")) {
+				printLoadedClass();
 			} else if (modeFlag.startsWith("-version")) {
 				System.out.println("vjmap version:" + VERSION);
 				return;
@@ -146,5 +154,6 @@ public class VJMap {
 		System.out.printf(format, "-sur:minsize=1024,byname",
 				"print survivor histogram, age>=3, survivor size>=1024, order by class name");
 		System.out.printf(format, "-address", "print address for all gens");
+		System.out.printf(format, "-class", "print all loaded classes");
 	}
 }
