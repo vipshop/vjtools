@@ -81,8 +81,8 @@ public class TimeSlidingWindowTest {
     public void mutiThreadOverWindowTest() {
         int threadNum = 100;
         final int num = 1000;
-        final int circle = 4;
-        final int size = 3;
+        final int circle = 3;
+        final int size = 2;
         final TimeSlidingWindow slidingWindow = new TimeSlidingWindow(size);
         final CyclicBarrier barrier = new CyclicBarrier(threadNum);
         final CountDownLatch countDownLatch = new CountDownLatch(threadNum);
@@ -99,7 +99,9 @@ public class TimeSlidingWindowTest {
                                 slidingWindow.add();
                             }
                             
-                            TimeUnit.MILLISECONDS.sleep(1100);
+                            if (i != circle - 1) {
+                                TimeUnit.MILLISECONDS.sleep(1000);
+                            }
                         }
                         
                         countDownLatch.countDown();
