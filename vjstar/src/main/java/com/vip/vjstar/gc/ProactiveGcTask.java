@@ -3,15 +3,11 @@ package com.vip.vjstar.gc;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vip.vjtools.vjkit.number.SizeUnit;
 import com.vip.vjtools.vjkit.number.UnitConverter;
 
 /**
@@ -23,76 +19,68 @@ import com.vip.vjtools.vjkit.number.UnitConverter;
 public class ProactiveGcTask implements Runnable {
 	private static final String OLD = "old";
 	private static final String TENURED = "tenured";
-	private static Logger log = LoggerFactory.getLogger(ProactiveGcTask.class);
+	private static Logger logger = LoggerFactory.getLogger(ProactiveGcTask.class);
 
 	private CleanUpScheduler scheduler;
 	private int oldGenOccupancyFraction;
+
 	private MemoryPoolMXBean oldMemoryPool;
+	private long maxOldBytes;
 
 	public ProactiveGcTask(CleanUpScheduler scheduler, int oldGenOccupancyFraction) {
 		this.scheduler = scheduler;
 		this.oldGenOccupancyFraction = oldGenOccupancyFraction;
+		this.oldMemoryPool = getOldGenMemoryPool();
+		this.maxOldBytes = getMemoryPoolMaxOrCommitted(oldMemoryPool);
 	}
 
 	public void run() {
-		log.info("ProactiveGcTask starting, oldGenOccupancyFraction:" + oldGenOccupancyFraction + ", datetime: "
-				+ new Date());
+		logger.info("ProactiveGcTask starting, oldGenOccupancyFraction:" + oldGenOccupancyFraction);
 		try {
-			oldMemoryPool = getOldMemoryPool();
-			long maxOldBytes = getMemoryPoolMaxOrCommitted(oldMemoryPool);
-			long oldUsedBytes = oldMemoryPool.getUsage().getUsed();
-			log.info(String.format("max old gen: %.2f MB, used old gen: %.2f MB, available old gen: %.2f MB.",
-					SizeUnit.BYTES.toMegaBytes(maxOldBytes), SizeUnit.BYTES.toMegaBytes(oldUsedBytes),
-					SizeUnit.BYTES.toMegaBytes(maxOldBytes - oldUsedBytes)));
-			if (needTriggerGc(maxOldBytes, oldUsedBytes, oldGenOccupancyFraction)) {
+			long usedOldBytes = logOldGenStatus();
+
+			if (needTriggerGc(maxOldBytes, usedOldBytes, oldGenOccupancyFraction)) {
 				preGc();
 				doGc();
 				postGc();
 			}
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 		} finally {
-			if (!scheduler.isShutdown()) { // reschedule this task
-				try {
-					scheduler.reschedule(this);
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-				}
-			}
+			scheduler.reschedule(this);
 		}
 	}
 
-	private MemoryPoolMXBean getOldMemoryPool() {
-		MemoryPoolMXBean oldMemoryPool = null;
+	public long logOldGenStatus() {
+		long usedOldBytes = oldMemoryPool.getUsage().getUsed();
+		logger.info(String.format("max old gen: %s, used old gen: %s, available old gen: %s.",
+				UnitConverter.toSizeUnit(maxOldBytes, 2), UnitConverter.toSizeUnit(usedOldBytes, 2),
+				UnitConverter.toSizeUnit(maxOldBytes - usedOldBytes, 2)));
+		return usedOldBytes;
+	}
+
+	private MemoryPoolMXBean getOldGenMemoryPool() {
+		MemoryPoolMXBean oldGenMemoryPool = null;
 		List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getPlatformMXBeans(MemoryPoolMXBean.class);
 		for (MemoryPoolMXBean memoryPool : memoryPoolMXBeans) {
-			String name = memoryPool.getName().trim();
-			String lowerCaseName = name.toLowerCase();
-			if (lowerCaseName.contains(OLD) || lowerCaseName.contains(TENURED)) {
-				oldMemoryPool = memoryPool;
+			String name = memoryPool.getName().trim().toLowerCase();
+			if (name.contains(OLD) || name.contains(TENURED)) {
+				oldGenMemoryPool = memoryPool;
 				break;
 			}
 		}
-		return oldMemoryPool;
+
+		return oldGenMemoryPool;
 	}
 
 	private long getMemoryPoolMaxOrCommitted(MemoryPoolMXBean memoryPool) {
 		MemoryUsage usage = memoryPool.getUsage();
 		long max = usage.getMax();
-		max = max < 0 ? usage.getCommitted() : max;
-		return max;
+		return max < 0 ? usage.getCommitted() : max;
 	}
 
 	/**
 	 * Determine whether or not to trigger gc.
-	 * 
-	 * @param capacityBytes
-	 *            old gen capacity
-	 * @param usedBytes
-	 *            used old gen
-	 * @param occupancyFraction
-	 *            old gen used fraction
-	 * @return
 	 */
 	private boolean needTriggerGc(long capacityBytes, long usedBytes, int occupancyFraction) {
 		return (occupancyFraction / 100.0 * capacityBytes) < usedBytes;
@@ -109,7 +97,7 @@ public class ProactiveGcTask implements Runnable {
 	 * Stuff before gc. You can override this method to do your own stuff, for example, cache clean up, deregister from register center.
 	 */
 	public void preGc() {
-		log.warn("old gen is occupied larger than occupancy fraction[{}], trying to trigger gc...",
+		logger.warn("old gen is occupied larger than occupancy fraction[{}], trying to trigger gc...",
 				oldGenOccupancyFraction);
 	}
 
@@ -117,12 +105,10 @@ public class ProactiveGcTask implements Runnable {
 	 * Stuff after gc. You can override this method to do your own stuff, for example, cache warmup, reregister to register center.
 	 */
 	public void postGc() {
-		long maxOldBytes = getMemoryPoolMaxOrCommitted(oldMemoryPool);
-		long oldUsedBytes = oldMemoryPool.getUsage().getUsed();
-		log.info(String.format("max old gen: %sf, used old gen: %s, available old gen: %.2f MB, after gc.",
-				UnitConverter.toSizeUnit(maxOldBytes, 1), UnitConverter.toSizeUnit(oldUsedBytes, 1),
-				UnitConverter.toSizeUnit((maxOldBytes - oldUsedBytes), 1))); // NOSONAR
-		oldMemoryPool = null;
+		long usedOldBytes = oldMemoryPool.getUsage().getUsed();
+		logger.info(String.format("max old gen: %s, used old gen: %s, available old gen: %s, after gc.",
+				UnitConverter.toSizeUnit(maxOldBytes, 2), UnitConverter.toSizeUnit(usedOldBytes, 2),
+				UnitConverter.toSizeUnit((maxOldBytes - usedOldBytes), 2))); // NOSONAR
 	}
 
 }

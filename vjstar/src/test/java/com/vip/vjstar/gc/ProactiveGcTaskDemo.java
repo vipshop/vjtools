@@ -1,8 +1,6 @@
 package com.vip.vjstar.gc;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class ProactiveGcTaskDemo {
 	public static void main(String[] args) throws IOException {
