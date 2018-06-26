@@ -41,6 +41,10 @@ public class CleanUpScheduler {
 			}
 		}
 	}
+	
+	public void shutdown(){
+		scheduler.shutdown();
+	}
 
 	/**
 	 * Generate delay millis list by given plans string, separated by comma.<br/>

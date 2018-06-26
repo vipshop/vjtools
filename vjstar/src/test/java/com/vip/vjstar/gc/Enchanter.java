@@ -15,6 +15,7 @@ public class Enchanter {
 	private List<String> garbage = new ArrayList<>();
 
 	public void makeGarbage(String val) {
+		log.info("trying to occupy oldGen");
 		int size = Integer.parseInt(val);
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < size; i++) {
@@ -23,7 +24,7 @@ public class Enchanter {
 		}
 		// 大对象直接进old gen，用list hold住不释放
 		garbage.add(sb.toString());
-		log.info(String.format("Enchanter is littering around, garbage size: %d", sb.length()));
+		log.info("Enchanter is littering around, garbage size: {}", sb.length());
 	}
 
 	public void clearGarbage() {
