@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.management.OperatingSystemMXBean;
+import com.vip.vjtools.vjtop.VMDetailView.DetailMode;
 import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
 
 /**
@@ -416,6 +417,26 @@ public class VMDetailView {
 	}
 
 	public enum DetailMode {
-		cpu, totalcpu, syscpu, totalsyscpu, memory, totalmemory
+		cpu, totalcpu, syscpu, totalsyscpu, memory, totalmemory;
+		
+		public static DetailMode parse(String mode){
+			switch (mode) {
+				case "1":
+					return cpu;
+				case "2":
+					return syscpu;
+				case "3":
+					return totalcpu;
+				case "4":
+					return totalsyscpu;
+				case "5":
+					return memory;
+				case "6":
+					return totalmemory;
+				default:
+					System.err.println(" Wrong option for display mode(1-6)");
+					return null;
+			}
+		}
 	}
 }

@@ -24,37 +24,36 @@ public class InteractiveTask implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				String command = reader.readLine();
-				if (command == null) {
-					return;
-				}
-				command = command.trim().toLowerCase();
-
-				if (command.equals("t") || (command.startsWith("t "))) {
-					printStacktrace(command);
-				} else if (command.equals("a")) {
-					displayAllThreads();
-				} else if (command.equals("m")) {
-					changeDisplayMode();
-				} else if (command.equals("d")) {
-					changeInterval();
-				} else if (command.equals("l")) {
-					changeThreadLimit();
-				} else if (command.equals("q") || command.equals("quit") || command.equals("exit")) {
-					app.exit();
-					return;
-				} else if (command.equals("h") || command.equals("help")) {
-					printHelp();
-				} else if (command.equals("")) {
-				} else {
-					tty.println(" Unkown command: " + command + ", available options:");
-					printHelp();
-				}
-
+				String command = readLine();
+				handleCommand(command);
 				tty.print(" Input command (h for help):");
 			} catch (Exception e) {
 				e.printStackTrace(tty);
 			}
+		}
+	}
+
+	public void handleCommand(String command) throws Exception {
+
+		if (command.equals("t") || (command.startsWith("t "))) {
+			printStacktrace(command);
+		} else if (command.equals("a")) {
+			displayAllThreads();
+		} else if (command.equals("m")) {
+			changeDisplayMode();
+		} else if (command.equals("d")) {
+			changeInterval();
+		} else if (command.equals("l")) {
+			changeThreadLimit();
+		} else if (command.equals("q") || command.equals("quit") || command.equals("exit")) {
+			app.exit();
+			return;
+		} else if (command.equals("h") || command.equals("help")) {
+			printHelp();
+		} else if (command.equals("")) {
+		} else {
+			tty.println(" Unkown command: " + command + ", available options:");
+			printHelp();
 		}
 	}
 
@@ -68,7 +67,7 @@ public class InteractiveTask implements Runnable {
 		String pidStr;
 		if (command.length() == 1) {
 			tty.print(" Input TID:");
-			pidStr = reader.readLine().trim();
+			pidStr = readLine();
 		} else {
 			pidStr = command.substring(2);
 		}
@@ -84,7 +83,7 @@ public class InteractiveTask implements Runnable {
 		}
 	}
 
-	private void displayAllThreads() throws Exception{
+	private void displayAllThreads() throws Exception {
 		try {
 			app.preventFlush();
 			app.view.printAllThreads();
@@ -92,49 +91,34 @@ public class InteractiveTask implements Runnable {
 		} finally {
 			app.continueFlush();
 		}
-
 	}
 
-	private void changeDisplayMode() throws IOException {
+	private void changeDisplayMode() {
 		app.preventFlush();
 		tty.print(
 				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): ");
-		String mode = reader.readLine().trim().toLowerCase();
-		switch (mode) {
-			case "1":
-				app.view.mode = DetailMode.cpu;
-				break;
-			case "2":
-				app.view.mode = DetailMode.syscpu;
-				break;
-			case "3":
-				app.view.mode = DetailMode.totalcpu;
-				break;
-			case "4":
-				app.view.mode = DetailMode.totalsyscpu;
-				break;
-			case "5":
-				app.view.mode = DetailMode.memory;
-				break;
-			case "6":
-				app.view.mode = DetailMode.totalmemory;
-				break;
-			default:
-				System.err.println(" Wrong option for display mode(1-6)");
-				break;
+		String mode = readLine();
+		DetailMode detailMode = DetailMode.parse(mode);
+		if (detailMode != null && detailMode != app.view.mode) {
+			tty.println(" Display mode changed to " + app.view.mode + " for next flush");
+		} else {
+			tty.println(" Nothing be changed");
 		}
-		tty.println(" Display mode changed to " + app.view.mode + " for next flush");
 		app.continueFlush();
 	}
 
-	private void changeInterval() throws IOException {
+	private void changeInterval() {
 		app.preventFlush();
 		tty.print(" Input flush interval seconds:");
-		String intervalStr = reader.readLine().trim();
+		String intervalStr = readLine();
 		try {
 			int interval = Integer.parseInt(intervalStr);
-			app.interval = interval;
-			tty.println(" Flush interval changed to " + interval + " seconds for next next flush");
+			if (interval != app.interval) {
+				app.interval = interval;
+				tty.println(" Flush interval changed to " + interval + " seconds for next next flush");
+			} else {
+				tty.println(" Nothing be changed");
+			}
 		} catch (NumberFormatException e) {
 			tty.println(" Wrong number format for interval");
 		} finally {
@@ -142,14 +126,19 @@ public class InteractiveTask implements Runnable {
 		}
 	}
 
-	private void changeThreadLimit() throws IOException {
+
+	private void changeThreadLimit() {
 		app.preventFlush();
 		tty.print(" Input number of threads to display :");
-		String threadLimitStr = reader.readLine().trim();
+		String threadLimitStr = readLine();
 		try {
 			int threadLimit = Integer.parseInt(threadLimitStr);
-			app.view.threadLimit = threadLimit;
-			tty.println(" Number of threads to display changed to " + threadLimit + " for next flush");
+			if (threadLimit != app.view.threadLimit) {
+				app.view.threadLimit = threadLimit;
+				tty.println(" Number of threads to display changed to " + threadLimit + " for next flush");
+			}else {
+				tty.println(" Nothing be changed");
+			}
 		} catch (NumberFormatException e) {
 			tty.println(" Wrong number format for number of threads");
 		} finally {
@@ -157,7 +146,7 @@ public class InteractiveTask implements Runnable {
 		}
 	}
 
-	private void printHelp() {
+	private void printHelp() throws Exception {
 		tty.println(" t [tid]: print stack trace for the thread you choose");
 		tty.println(" a : list all thread's id and name");
 		tty.println(" m : change threads display mode and ordering");
@@ -166,15 +155,29 @@ public class InteractiveTask implements Runnable {
 		tty.println(" q : quit");
 		tty.println(" h : print help");
 		app.preventFlush();
-		waitForEnter();
+		String command = waitForEnter();
 		app.continueFlush();
+		if (command.length() > 0) {
+			handleCommand(command);
+		}
 	}
 
-	private void waitForEnter() {
+	private String waitForEnter() {
 		tty.println(" Please hit <ENTER> to continue...");
+		return readLine();
+	}
+
+	private String readLine() {
+		String result;
 		try {
-			reader.readLine();
+			result = reader.readLine();
 		} catch (IOException e) {
+			return null;
 		}
+
+		if (result != null) {
+			return result.trim().toLowerCase();
+		}
+		return null;
 	}
 }

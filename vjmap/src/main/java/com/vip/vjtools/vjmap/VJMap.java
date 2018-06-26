@@ -123,10 +123,10 @@ public class VJMap {
 			System.out.printf("%n Heap traversal took %.1f seconds.%n", secs);
 			System.out.flush();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			if (e.getMessage().contains("Can't attach to the process")) {
+			System.out.println("Error Happen:" + e.getMessage());
+			if (e.getMessage() != null && e.getMessage().contains("Can't attach to the process")) {
 				System.out.println(
-						"Please use the same user of the target JVM to run vjmap or use root to run it (sudo -E vjmap.sh ...)");
+						"Please use the same user of the target JVM to run vjmap, or use root user to run it (sudo -E vjmap.sh ...)");
 			}
 		} finally {
 			agent.detach();
