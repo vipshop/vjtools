@@ -39,7 +39,7 @@ MEM_OPTS="$MEM_OPTS -XX:+AlwaysPreTouch"
 
 GC_OPTS="-XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly"
 
-# Syste.gc() 使用CMS算法
+# System.gc() 使用CMS算法
 GC_OPTS="$GC_OPTS -XX:+ExplicitGCInvokesConcurrent"
 
 # CMS中的下列阶段并发执行
