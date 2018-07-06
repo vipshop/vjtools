@@ -210,12 +210,17 @@ String[] array = list.toArray(new String[list.size()]); //RIGHT，但list.size()
 //非原始类型数组，且List不能再扩展
 List list = Arrays.asList(array); 
 
-//原始类型数组， 或希望List能再扩展
+//非原始类型数组， 但希望List能再扩展
 List list = new ArrayList(array.length);
 Collections.addAll(list, array);
+
+//原始类型数组，JDK8
+List myList = Arrays.stream(intArray).boxed().collect(Collectors.toList());
+
+//原始类型数组，JDK7则要自己写个循环来加入了
 ```
 Arrays.asList(array)，如果array是原始类型数组如int[]，会把整个array当作List的一个元素，String[] 或 Foo[]则无此问题。
-而Collections.addAll()实际是循环加入元素，性能相对较低。
+Collections.addAll()实际是循环加入元素，性能相对较低，同样会把int[]认作一个元素。
 
 * Facebook-Contrib: Correctness - Impossible downcast of toArray() result
 * Facebook-Contrib: Correctness - Method calls Array.asList on an array of primitive values
