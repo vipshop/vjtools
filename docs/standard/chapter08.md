@@ -207,10 +207,15 @@ String[] array = list.toArray(new String[list.size()]); //RIGHT，但list.size()
 
 
 // array -> list
-List list = Arrays.asList(array); //WRONG
-List list = new ArrayList(array); //RIGHT
+//非原始类型数组，且List不能再扩展
+List list = Arrays.asList(array); 
+
+//原始类型数组， 或希望List能再扩展
+List list = new ArrayList(array.length);
+Collections.addAll(list, array);
 ```
-Arrays.asList(array)，如果array是原始类型数组如int[]，会把整个array当作List的一个元素，String[] 或 Foo[]则无此问题，安全起见统一不使用。
+Arrays.asList(array)，如果array是原始类型数组如int[]，会把整个array当作List的一个元素，String[] 或 Foo[]则无此问题。
+而Collections.addAll()实际是循环加入元素，性能相对较低。
 
 * Facebook-Contrib: Correctness - Impossible downcast of toArray() result
 * Facebook-Contrib: Correctness - Method calls Array.asList on an array of primitive values
