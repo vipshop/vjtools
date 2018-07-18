@@ -1,11 +1,9 @@
-![VJTools](/docs/images/logo.jpg)
+![VJTools](/docs/images/logo.jpg) [![GitHub release](https://img.shields.io/github/release/vipshop/vjtools.svg)](https://github.com/vipshop/vjtools/releases) [![Build Status](https://travis-ci.org/vipshop/vjtools.svg?branch=master)](https://travis-ci.org/vipshop/vjtools) 
 
-[![GitHub release](https://img.shields.io/github/release/vipshop/vjtools.svg)](https://github.com/vipshop/vjtools/releases)
-[![Build Status](https://travis-ci.org/vipshop/vjtools.svg?branch=master)](https://travis-ci.org/vipshop/vjtools) 
 
 主力于Java的唯品会，关于Java的一些小家底。 
 
-各位看官看着是好的，烦请拨冗“Star”。
+各位看官看着是好的，烦请“Star”。
 
 
 ## Java Standard

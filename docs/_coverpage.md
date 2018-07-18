@@ -1,5 +1,5 @@
 
-![VJTools](images/logo2.jpg)
+![VJTools](images/logo2.png)
 
 - Standard
 - Core Libraries
