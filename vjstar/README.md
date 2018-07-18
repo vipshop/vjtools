@@ -13,7 +13,7 @@
 ## 2.2 容器中JVM获取CPU核数的通用补丁
 
 容器中的JVM，获取的仍然是宿主机的CPU核数，从而引起GC线程数，Netty线程数等一系列混乱。据说JDK8的最新版解决了这个问题，但其他版本的JDK则需要使用此补丁。
-基于[https://github.com/obmarg/libsysconfcpus], 稍微改变了其启动方式，见[libsysconfcpus.sh](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/docker-cpus)。
+基于[libsysconfcpus](https://github.com/obmarg/libsysconfcpus), 稍微改变了其启动方式，见[libsysconfcpus.sh](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/docker-cpus)。
 
 ## 2.3 闲时主动GC
 
