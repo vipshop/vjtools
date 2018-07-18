@@ -17,6 +17,7 @@ import com.vip.vjtools.vjtop.data.PerfData.LongCounter;
 import com.vip.vjtools.vjtop.data.PerfData.TickCounter;
 import com.vip.vjtools.vjtop.data.ProcFileData;
 import com.vip.vjtools.vjtop.data.jmx.JmxClient;
+import com.vip.vjtools.vjtop.data.jmx.JmxMemoryPoolManager;
 
 /**
  * VMInfo retrieves or updates the metrics for a specific remote jvm, using
@@ -293,29 +294,33 @@ public class VMInfo {
 	}
 
 	private void updateMemoryPool() throws IOException {
-		MemoryPoolMXBean survivorMemoryPool = jmxClient.getMemoryPoolManager().getSurvivorMemoryPool();
+		JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
+
+		edenUsedBytes = memoryPoolManager.getEdenMemoryPool().getUsage().getUsed();
+		edenMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getEdenMemoryPool());
+
+		MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
 		if (survivorMemoryPool != null) {
 			surUsedBytes = survivorMemoryPool.getUsage().getUsed();
 			surMaxBytes = getMemoryPoolMaxOrCommited(survivorMemoryPool);
 		}
 
-		edenUsedBytes = jmxClient.getMemoryPoolManager().getEdenMemoryPool().getUsage().getUsed();
-		edenMaxBytes = getMemoryPoolMaxOrCommited(jmxClient.getMemoryPoolManager().getEdenMemoryPool());
+		oldUsedBytes = memoryPoolManager.getOldMemoryPool().getUsage().getUsed();
+		oldMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getOldMemoryPool());
 
-		oldUsedBytes = jmxClient.getMemoryPoolManager().getOldMemoryPool().getUsage().getUsed();
-		oldMaxBytes = getMemoryPoolMaxOrCommited(jmxClient.getMemoryPoolManager().getOldMemoryPool());
-
-		permUsedBytes = jmxClient.getMemoryPoolManager().getPermMemoryPool().getUsage().getUsed();
-		permMaxBytes = getMemoryPoolMaxOrCommited(jmxClient.getMemoryPoolManager().getPermMemoryPool());
+		permUsedBytes = memoryPoolManager.getPermMemoryPool().getUsage().getUsed();
+		permMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getPermMemoryPool());
 
 		if (jvmMajorVersion >= 8) {
-			ccsUsedBytes = jmxClient.getMemoryPoolManager().getCompressedClassSpaceMemoryPool().getUsage().getUsed();
-			ccsMaxBytes = getMemoryPoolMaxOrCommited(jmxClient.getMemoryPoolManager()
-					.getCompressedClassSpaceMemoryPool());
+			MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
+			if (compressedClassSpaceMemoryPool != null) {
+				ccsUsedBytes = compressedClassSpaceMemoryPool.getUsage().getUsed();
+				ccsMaxBytes = getMemoryPoolMaxOrCommited(compressedClassSpaceMemoryPool);
+			}
 		}
 
-		codeCacheUsedBytes = jmxClient.getMemoryPoolManager().getCodeCacheMemoryPool().getUsage().getUsed();
-		codeCacheMaxBytes = getMemoryPoolMaxOrCommited(jmxClient.getMemoryPoolManager().getCodeCacheMemoryPool());
+		codeCacheUsedBytes = memoryPoolManager.getCodeCacheMemoryPool().getUsage().getUsed();
+		codeCacheMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getCodeCacheMemoryPool());
 
 		directUsedBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed();
 		directMaxBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity();
