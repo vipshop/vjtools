@@ -44,7 +44,7 @@ public void put(Elephant elephant, Fridge fridge);
 
 ----
 
-**Rule 6. 【强制】类、类成员变量、类方法的注释必须使用Javadoc规范，使用`/**xxx*/`格式，不得使用`//xxx`方式**
+**Rule 6. 【强制】类、类成员变量、类方法的注释必须使用Javadoc规范，使用/\*\* xxx \*/格式，不得使用`//xxx`方式**
 
 正确的JavaDoc格式可以用在很多地方，比如在IDE中，查看调用方法时，不进入方法即可悬浮提示方法、参数、返回值的意义，提高阅读效率。
     
