@@ -1,9 +1,9 @@
 
-# VIP Java Things
+![VJTools](images/logo2.jpg)
 
 - Standard
 - Core Libraries
 - Tools
 
-[GitHub](https://github.com/vipshop/vjtools)
+[GitHub Project](https://github.com/vipshop/vjtools)
 [Java Coding Guidelines](standard/)

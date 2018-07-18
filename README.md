@@ -1,4 +1,4 @@
-# VJTools
+![VJTools](/docs/images/logo.jpg)
 
 [![GitHub release](https://img.shields.io/github/release/vipshop/vjtools.svg)](https://github.com/vipshop/vjtools/releases)
 [![Build Status](https://travis-ci.org/vipshop/vjtools.svg?branch=master)](https://travis-ci.org/vipshop/vjtools) 

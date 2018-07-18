@@ -8,10 +8,14 @@
 
 参数兼顾性能及排查问题的便捷性， 其中一些参数需要根据JDK版本适配。
 
-详见 [jvm-options.sh](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/jvm-options.sh) 和稍后出炉的文章。
+详见 [jvm-options.sh](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/jvm-options)。
 
+## 2.2 容器中JVM获取CPU核数的通用补丁
 
-## 2.2 闲时GC
+容器中的JVM，获取的仍然是宿主机的CPU核数，从而引起GC线程数，Netty线程数等一系列混乱。据说JDK8的最新版解决了这个问题，但其他版本的JDK则需要使用此补丁。
+基于[https://github.com/obmarg/libsysconfcpus], 稍微改变了其启动方式，见[libsysconfcpus.sh](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/docker-cpus)。
+
+## 2.3 闲时主动GC
 
 CMS GC 始终对流量有一定的影响。
 
@@ -19,20 +23,18 @@ CMS GC 始终对流量有一定的影响。
 
 简单的定时器让应用固定在可设定的闲时（如半夜）进行清理动作。 为了避免服务的所有实例同时清理造成服务不可用，加入了随机值。
 
-详见[gc](https://github.com/vipshop/vjtools/tree/master/vjstar/src/main/java/com/vip/vjstar/gc)
+详见[Proactive GC](https://github.com/vipshop/vjtools/tree/master/vjstar/src/main/java/com/vip/vjstar/gc)
 
-## 2.3 类的预加载
+## 2.4 滑动窗口计数器（试验）
 
-应用重启之后的前几个调用很容易超时，其中一个原因是此时需要加载大量的类，如果要进行AOP类修改时尤其明显。
+滑动窗口的计数器（比如任意时刻的最近一分钟请求数）在熔断计算等方面的使用很广泛，但没有比较标准且抽象成通用类库的实现，我们在考察了几家实现后新写的一个方案。
 
-因此我们希望在应用正式接收请求前，先完成需要的类的加载。
+详见[Sliding Window](https://github.com/vipshop/vjtools/tree/master/vjstar/src/main/java/com/vip/vjstar/window)(试验性的新方案，还没替换生产上的旧方案)
 
-类加载器在应用运行过程中记录它加载过的类，下次启动时读取该记录，先把这些类都加载一遍。
-
-
-## 2.4 动态隔离线程池
+## 2.5 动态隔离线程池(TODO)
 
 我们希望一个业务方法缓慢时，不会把整个线程池塞爆导致所有方法都不能响应。
 
 但是为每个方法配置独立线程池又存在配置困难和浪费问题，因此我们希望简单实现一个线程池，在平时使用公共池，当某个方法出现问题时对其进行隔离，当问题消失时又自动恢复到公共池。
+
 
