@@ -6,20 +6,20 @@
 
 ## 2.1 JVM启动参数
 
-参数兼顾性能及排查问题的便捷性， 其中一些参数需要根据JDK版本适配。
+参数兼顾性能及排查问题的便捷性的JVM启动参数推荐， 其中一些参数需要根据JDK版本适配。
 
-详见 [jvm-options.sh](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/jvm-options)。
+详见 [jvm-options](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/jvm-options)。
 
 ## 2.2 容器中JVM获取CPU核数的通用补丁
 
-容器中的JVM，获取的仍然是宿主机的CPU核数，从而引起GC线程数，Netty线程数等一系列混乱。据说JDK8的最新版解决了这个问题，但其他版本的JDK则需要使用此补丁。
-基于[libsysconfcpus](https://github.com/obmarg/libsysconfcpus), 稍微改变了其启动方式，见[libsysconfcpus.sh](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/docker-cpus)。
+容器中的JVM，获取的仍然是宿主机的CPU核数，从而引起GC线程数，Netty线程数等一系列混乱。据说JDK8的最新版解决了这个问题，但其他版本的JDK则建议使用此补丁。
+基于[libsysconfcpus](https://github.com/obmarg/libsysconfcpus)，详见[docker-cpus](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/docker-cpus)。
 
 ## 2.3 闲时主动GC
 
 CMS GC 始终对流量有一定的影响。
 
-因此我们希望在夜半闲时，如果检测到老生代已经达到50%， 则主动进行一次GC，同理可以进行其他清理动作。
+因此我们希望在夜半闲时，如果检测到老生代已经达到50%， 则主动进行一次GC。
 
 简单的定时器让应用固定在可设定的闲时（如半夜）进行清理动作。 为了避免服务的所有实例同时清理造成服务不可用，加入了随机值。
 
@@ -27,7 +27,7 @@ CMS GC 始终对流量有一定的影响。
 
 ## 2.4 滑动窗口计数器（试验）
 
-滑动窗口的计数器（比如任意时刻的最近一分钟请求数）在熔断计算等方面的使用很广泛，但没有比较标准且抽象成通用类库的实现，我们在考察了几家实现后新写的一个方案。
+滑动窗口的计数器（比如任意时刻的最近一分钟请求数）在熔断计算等方面的使用很广泛，但没有比较标准且抽象成通用类库的实现，我们在考察了几家实现的实现。
 
 详见[Sliding Window](https://github.com/vipshop/vjtools/tree/master/vjstar/src/main/java/com/vip/vjstar/window)(试验性的新方案，还没替换生产上的旧方案)
 
