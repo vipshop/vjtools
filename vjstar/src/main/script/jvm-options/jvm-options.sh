@@ -91,7 +91,7 @@ if [[ "$JAVA_VERSION" < "1.8" ]]; then
 fi
 
 # 打印安全点日志，找出GC日志里非GC的停顿的原因
-#GCLOG_OPTS="$GCLOG_OPTS -XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1"
+#GCLOG_OPTS="$GCLOG_OPTS -XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1 -XX:+UnlockDiagnosticVMOptions -XX:-DisplayVMOutput -XX:+LogVMOutput -XX:LogFile=/dev/shm/vm-myapp.log"
 
 
 ## Optimization Options##
@@ -115,8 +115,12 @@ OPTIMIZE_OPTS="-XX:-UseBiasedLocking -XX:AutoBoxCacheMax=20000 -Djava.security.e
 SHOTTING_OPTS="-XX:+PrintCommandLineFlags -XX:-OmitStackTraceInFastThrow -XX:ErrorFile=${LOGDIR}/hs_err_%p.log"
 
 
-#OOM 时进行HeapDump，但此时会产生较高的IO，有可能会影响他的容器
+# OOM 时进行HeapDump，但此时会产生较高的连续IO，如果是容器环境，有可能会影响他的容器
 #SHOTTING_OPTS="$SHOTTING_OPTS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${LOGDIR}/"
+
+
+# 在非生产环境，打开JFR进行性能记录（生产环境要收License的哈）
+#SHOTTING_OPTS="$SHOTTING_OPTS -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints"
 
 
 ## JMX Options##
@@ -127,7 +131,7 @@ JMX_OPTS="-Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.po
 
 ## Other Options##
 
-OTHER_OPTS="-Djava.net.preferIPv4Stack=true -Djava.awt.headless=true"
+OTHER_OPTS="-Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Dfile.encoding=UTF-8"
 
 
 ## All together ##
