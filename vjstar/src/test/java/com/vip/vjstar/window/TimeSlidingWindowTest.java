@@ -37,9 +37,9 @@ public class TimeSlidingWindowTest {
     
     @Test
     public void mutiThreadNotOverWindowTest() {
-        int threadNum = 100;
+        int threadNum = 10;
         final int num = 100;
-        final int circle = 300;
+        final int circle = 30;
         final TimeSlidingWindow slidingWindow = new TimeSlidingWindow(10);
         final CyclicBarrier barrier = new CyclicBarrier(threadNum);
         final CountDownLatch countDownLatch = new CountDownLatch(threadNum);
@@ -79,8 +79,8 @@ public class TimeSlidingWindowTest {
     
     @Test
     public void mutiThreadOverWindowTest() {
-        int threadNum = 100;
-        final int num = 1000;
+        int threadNum = 10;
+        final int num = 100;
         final int circle = 3;
         final int size = 2;
         final TimeSlidingWindow slidingWindow = new TimeSlidingWindow(size);
