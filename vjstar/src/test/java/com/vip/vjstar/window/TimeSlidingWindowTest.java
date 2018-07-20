@@ -79,7 +79,7 @@ public class TimeSlidingWindowTest {
     
     @Test
     public void mutiThreadOverWindowTest() {
-        int threadNum = 10;
+        int threadNum = 2;
         final int num = 100;
         final int circle = 3;
         final int size = 2;
