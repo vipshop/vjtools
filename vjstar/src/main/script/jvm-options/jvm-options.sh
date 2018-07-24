@@ -28,7 +28,7 @@ MEM_OPTS="$MEM_OPTS -XX:+AlwaysPreTouch"
 # 如果线程数较多，函数的递归较少，线程栈内存可以调小节约内存，默认1M。
 #MEM_OPTS="$MEM_OPTS -Xss256k"
 
-# 堆外内存的最大值默认约等于堆大小，可以显式将其设小，获得一个比较清晰的内存总量预估
+# 堆外内存的最大值默认约等于MaxHeapSize * (1 / (2 + SurvivorRatio))，可以显式将其设小，获得一个比较清晰的内存总量预估
 #MEM_OPTS="$MEM_OPTS -XX:MaxDirectMemorySize=2g"
 
 # 根据JMX/VJTop的观察，调整二进制代码区大小避免满了之后不能再JIT，JDK7/8，是否打开多层编译的默认值都不一样
@@ -73,8 +73,11 @@ else
 	GC_LOG_FILE=${LOGDIR}/gc-myapp.log
 fi
 
-
-if [ -f ${GC_LOG_FILE} ]; then
+GCLOG_ROTATION_OPTS=""
+# Oracle Java 1.6_34 (or 1.7_2 in the latest minor version)
+if [[ "$JAVA_VERSION" > "1.6_34" ]]; then
+    GCLOG_ROTATION_OPTS="-XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=3 -XX:GCLogFileSize=100M"
+elif [ -f ${GC_LOG_FILE} ]; then
   # change the file name here
   GC_LOG_BACKUP =  ${LOGDIR}/gc-myapp-$(date +'%Y%m%d_%H%M%S').log
   echo "saving gc log ${GC_LOG_FILE} to ${GC_LOG_BACKUP}"
@@ -82,7 +85,7 @@ if [ -f ${GC_LOG_FILE} ]; then
 fi
 
 #打印GC日志，包括时间戳，晋升老生代失败原因，应用实际停顿时间(含GC及其他原因)
-GCLOG_OPTS="-Xloggc:${GC_LOG_FILE} -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintPromotionFailure -XX:+PrintGCApplicationStoppedTime"
+GCLOG_OPTS="-Xloggc:${GC_LOG_FILE} ${GCLOG_ROTATION_OPTS} -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintPromotionFailure -XX:+PrintGCApplicationStoppedTime"
 
 
 #打印GC原因，JDK8默认打开
