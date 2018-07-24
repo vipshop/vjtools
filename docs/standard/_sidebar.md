@@ -10,4 +10,4 @@
 - [异常处理](standard/chapter10.md)
 - [日志规约](standard/chapter11.md)
 - [其他设计](standard/chapter12.md)
-- [修改记录](standard/ali.md)
+- [定制记录](standard/ali.md)
