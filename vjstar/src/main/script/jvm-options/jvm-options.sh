@@ -110,17 +110,17 @@ OPTIMIZE_OPTS="-XX:-UseBiasedLocking -XX:AutoBoxCacheMax=20000 -Djava.security.e
 # 如果希望无论函数的热度如何，最终JIT所有函数，关闭GC时将函数调用次数减半。
 #OPTIMIZE_OPTS="$OPTIMIZE_OPTS -XX:-UseCounterDecay"
 
-## Trouble shotting Options##
+## Trouble shooting Options##
 
-SHOTTING_OPTS="-XX:+PrintCommandLineFlags -XX:-OmitStackTraceInFastThrow -XX:ErrorFile=${LOGDIR}/hs_err_%p.log"
+SHOOTING_OPTS="-XX:+PrintCommandLineFlags -XX:-OmitStackTraceInFastThrow -XX:ErrorFile=${LOGDIR}/hs_err_%p.log"
 
 
 # OOM 时进行HeapDump，但此时会产生较高的连续IO，如果是容器环境，有可能会影响他的容器
-#SHOTTING_OPTS="$SHOTTING_OPTS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${LOGDIR}/"
+#SHOOTING_OPTS="$SHOOTING_OPTS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${LOGDIR}/"
 
 
 # 在非生产环境，打开JFR进行性能记录（生产环境要收License的哈）
-#SHOTTING_OPTS="$SHOTTING_OPTS -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints"
+#SHOOTING_OPTS="$SHOOTING_OPTS -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints"
 
 
 ## JMX Options##
@@ -136,6 +136,6 @@ OTHER_OPTS="-Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Dfile.enco
 
 ## All together ##
 
-export JAVA_OPTS="$MEM_OPTS $GC_OPTS $GCLOG_OPTS $OPTIMIZE_OPTS $SHOTTING_OPTS $JMX_OPTS $OTHER_OPTS"
+export JAVA_OPTS="$MEM_OPTS $GC_OPTS $GCLOG_OPTS $OPTIMIZE_OPTS SHOOTING_OPTS $JMX_OPTS $OTHER_OPTS"
 
 echo JAVA_OPTS=$JAVA_OPTS
