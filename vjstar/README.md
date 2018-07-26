@@ -8,7 +8,8 @@
 
 参数兼顾性能及排查问题的便捷性的JVM启动参数推荐， 其中一些参数需要根据JDK版本适配。
 
-详见 [jvm-options](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/jvm-options)。
+源码： [jvm-options](https://github.com/vipshop/vjtools/blob/master/vjstar/src/main/script/jvm-options)
+解读：[《关键业务系统的JVM参数推荐》](http://calvin1978.blogcn.com/?p=1602)
 
 ## 2.2 容器中JVM获取CPU核数的通用补丁
 
