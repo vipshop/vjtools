@@ -96,6 +96,8 @@ Tcp, Xml等缩写也遵循驼峰形式，可约定例外如：DTO/ VO等。
 private static final Logger logger = Logger.getLogger(MyClass.class);
 ```
 
+例外：枚举常量推荐全大写，但如果历史原因未遵循也是允许的，所以我们修改了Sonar的规则。
+
 * [Sonar-115:Constant names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-115) 
 * [Sonar-308:Static non-final field names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-308)
 
