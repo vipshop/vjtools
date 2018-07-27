@@ -32,7 +32,11 @@
 | [vjdump](/vjdump)  | 线上紧急收集JVM数据脚本 | [Chinese](/vjdump/README.md), [English](/vjdump/README_EN.md)|
 | [vjmxcli](/vjmxcli)  | JMX 查看工具 | [Chinese](/vjmxcli/README.md)|
 
-其他常用问题排查及性能调优工具: [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
+[《视频：VJTools如何利用佛性技术玩转JVM》](http://kai.vkaijiang.com/product/course?courseID=120897)
+
+其他问题排查工具: [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)
+其他性能调优工具: [JMC](http://www.oracle.com/technetwork/java/javaseproducts/mission-control/index.html)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
+
 
 
 ## Contributing
