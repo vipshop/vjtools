@@ -33,8 +33,8 @@
 | [vjmxcli](/vjmxcli)  | JMX 查看工具 | [Chinese](/vjmxcli/README.md)|
 
 视频：[《VJTools如何利用佛性技术玩转JVM》](http://kai.vkaijiang.com/product/course?courseID=120897)
+其他直接使用的工具，见[常用工具](docs/other/othertools.md)
 
-其他常用工具: 问题排查 - [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，性能调优 - [JMC](http://www.oracle.com/technetwork/java/javaseproducts/mission-control/index.html)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
 
 
 
