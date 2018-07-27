@@ -1,10 +1,18 @@
 
 #!/bin/bash
 
+# 使用指南：
+# 1. 修改本文件中的LOGDIR 和 APPID变量
+# 2. 根据实际情况需求，反注释掉一些参数。
+# 3. 修改应用启动脚本，增加 "source ./jvm-options.sh"，或者将本文件内容复制进应用启动脚本里.
+# 4. 修改应用启动脚本，使用输出的JAVA_OTPS变量，如java -jar xxx的应用启动语句，修改为 java $JAVA_OPTS -jar xxx。
 
 
-# change the dir here
+# change the jvm error log and backup gc log dir here
 LOGDIR="./logs"
+
+# change the appid for gc log name here
+APPID="myapp"
 
 JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 
@@ -58,25 +66,24 @@ GC_OPTS="$GC_OPTS -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=10
 # 如果CMS GC时间很长，并且明显受新生代存活对象数量影响时打开，但会导致每次CMS GC与一次YGC连在一起执行，加大了事实上JVM停顿的时间。
 #GC_OPTS="$GC_OPTS -XX:+CMSScavengeBeforeRemark"
 
-# 如果永久代不会增长，关闭ClassUnloading降低CMS GC时出现缓慢的几率
+# 如果永久代使用不会增长，关闭CMS时ClassUnloading，降低CMS GC时出现缓慢的几率
 #if [[ "$JAVA_VERSION" > "1.8" ]]; then     
 #  GC_OPTS="$GC_OPTS -XX:-CMSClassUnloadingEnabled"
 #fi
 
 
-## GC log Options, only for JDK7/JDK8##
+## GC log Options, only for JDK7/JDK8 ##
 
-# change the file name here，默认使用/dev/shm 内存文件系统避免在高IO场景下写GC日志时被阻塞导致STW时间延长
+# 默认使用/dev/shm 内存文件系统避免在高IO场景下写GC日志时被阻塞导致STW时间延长
 if [ -d /dev/shm/ ]; then
-    GC_LOG_FILE=/dev/shm/gc-myapp.log
+    GC_LOG_FILE=/dev/shm/gc-${APPID}.log
 else
-	GC_LOG_FILE=${LOGDIR}/gc-myapp.log
+	GC_LOG_FILE=${LOGDIR}/gc-${APPID}.log
 fi
 
 
 if [ -f ${GC_LOG_FILE} ]; then
-  # change the file name here
-  GC_LOG_BACKUP =  ${LOGDIR}/gc-myapp-$(date +'%Y%m%d_%H%M%S').log
+  GC_LOG_BACKUP =  ${LOGDIR}/gc-${APPID}-$(date +'%Y%m%d_%H%M%S').log
   echo "saving gc log ${GC_LOG_FILE} to ${GC_LOG_BACKUP}"
   mv ${GC_LOG_FILE} ${GC_LOG_BACKUP}
 fi
@@ -91,7 +98,7 @@ if [[ "$JAVA_VERSION" < "1.8" ]]; then
 fi
 
 # 打印安全点日志，找出GC日志里非GC的停顿的原因
-#GCLOG_OPTS="$GCLOG_OPTS -XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1 -XX:+UnlockDiagnosticVMOptions -XX:-DisplayVMOutput -XX:+LogVMOutput -XX:LogFile=/dev/shm/vm-myapp.log"
+#GCLOG_OPTS="$GCLOG_OPTS -XX:+PrintSafepointStatistics -XX:PrintSafepointStatisticsCount=1 -XX:+UnlockDiagnosticVMOptions -XX:-DisplayVMOutput -XX:+LogVMOutput -XX:LogFile=/dev/shm/vm-${APPID}.log"
 
 
 ## Optimization Options##
@@ -131,11 +138,11 @@ JMX_OPTS="-Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.po
 
 ## Other Options##
 
-OTHER_OPTS="-Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Dfile.encoding=UTF-8"
+OTHER_OPTS="-Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8"
 
 
 ## All together ##
 
-export JAVA_OPTS="$MEM_OPTS $GC_OPTS $GCLOG_OPTS $OPTIMIZE_OPTS SHOOTING_OPTS $JMX_OPTS $OTHER_OPTS"
+export JAVA_OPTS="$MEM_OPTS $GC_OPTS $GCLOG_OPTS $OPTIMIZE_OPTS $SHOOTING_OPTS $JMX_OPTS $OTHER_OPTS"
 
 echo JAVA_OPTS=$JAVA_OPTS
