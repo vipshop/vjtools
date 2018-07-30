@@ -93,7 +93,7 @@ public class ListUtilTest {
 		assertThat(ListUtil.getLast(list3)).isEqualTo("a");
 
 		assertThat(ListUtil.getFirst(list1)).isNull();
-		assertThat(ListUtil.getFirst(null)).isNull();
+		assertThat((List<String>)ListUtil.getFirst(null)).isNull();
 	}
 
 	@Test

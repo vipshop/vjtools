@@ -16,7 +16,7 @@
 
 [Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.1/vjtop-1.0.1.zip)
 
-必须设定JAVA_HOME环境变量，必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行，或root用户执行 (sudo -E vjmap.sh ...，)
+必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行，或root用户执行 (sudo -E vjmap.sh ...，)
 
 ```
 // 占用CPU最多的线程
