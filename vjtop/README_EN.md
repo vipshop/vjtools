@@ -19,8 +19,6 @@ VJtop is built as NON stop-the-world and is considered ready for production diag
 
 [download from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.1/vjtop-1.0.1.zip)
 
-Set JAVA_HOME environment variable to your JDK directory.
-
 Run the following command under **the same user who started the target process**.
 
 ```

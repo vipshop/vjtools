@@ -12,7 +12,7 @@
 [Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjmxcli/1.0.1/vjmxcli-1.0.1.zip)
 
 
-必须设定JAVA_HOME环境变量，必须与目标JVM使用相同的JDK版本运行。
+必须与目标JVM使用相同的JDK版本运行。
 
 # 2. 获取MBean属性值
 
