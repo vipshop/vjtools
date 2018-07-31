@@ -26,29 +26,34 @@ public class ClassStats {
 
 	public ClassStats(Klass k) {
 		this.klass = k;
-		this.description = initDescription();
 	}
 
+	public String getDescription() {
+		if (description == null) {
+			description = initDescription();
+		}
+		return description;
+	}
+
+	/**
+	 * 参考 JDK8 sun.jvm.hotspot.oops.ObjectHistogramElement
+	 * 
+	 * StringBuffer->StringBuilder
+	 */
 	public String initDescription() {
 		Klass k = klass;
-		if (k instanceof InstanceKlass)
+		if (k instanceof InstanceKlass) {
 			return k.getName().asString().replace('/', '.');
-
-		if (k instanceof ArrayKlass) {
+		} else if (k instanceof ArrayKlass) {
 			ArrayKlass ak = (ArrayKlass) k;
 			if (k instanceof TypeArrayKlass) {
 				TypeArrayKlass tak = (TypeArrayKlass) ak;
 				return tak.getElementTypeName() + "[]";
-			}
-
-			if (k instanceof ObjArrayKlass) {
+			} else if (k instanceof ObjArrayKlass) {
 				ObjArrayKlass oak = (ObjArrayKlass) ak;
-				// 兼容JDK8
-				// if (oak.equals(VM.getVM().getUniverse().systemObjArrayKlassObj())) {
-				// return "* System ObjArray";
-				// }
 				Klass bottom = oak.getBottomKlass();
-				StringBuilder buf = new StringBuilder(32);
+				int dim = (int) oak.getDimension();
+				StringBuilder buf = new StringBuilder(64);
 				if (bottom instanceof TypeArrayKlass) {
 					buf.append(((TypeArrayKlass) bottom).getElementTypeName());
 				} else if (bottom instanceof InstanceKlass) {
@@ -56,21 +61,22 @@ public class ClassStats {
 				} else {
 					throw new RuntimeException("should not reach here");
 				}
-
-				int dim = (int) oak.getDimension();
 				for (int i = 0; i < dim; i++) {
 					buf.append("[]");
 				}
 				return buf.toString();
 			}
 		}
-
 		return getInternalName(k);
 	}
 
+	/**
+	 * 参考 sun.jvm.hotspot.oops.ObjectHistogramElement
+	 */
 	private String getInternalName(Klass k) {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		klass.printValueOn(new PrintStream(bos));
+		// '*' is used to denote VM internal klasses.
 		return "* " + bos.toString();
 	}
 
@@ -108,10 +114,6 @@ public class ClassStats {
 
 	public long getEdenSize() {
 		return edenSize;
-	}
-
-	public String getDescription() {
-		return description;
 	}
 
 	public static Comparator<ClassStats> TOTAL_SIZE_COMPARATOR = new Comparator<ClassStats>() {

@@ -9,8 +9,6 @@ import sun.jvm.hotspot.memory.SystemDictionary;
 import sun.jvm.hotspot.oops.InstanceKlass;
 import sun.jvm.hotspot.oops.Klass;
 import sun.jvm.hotspot.oops.Oop;
-import sun.jvm.hotspot.oops.OopField;
-import sun.jvm.hotspot.oops.OopUtilities;
 import sun.jvm.hotspot.runtime.VM;
 
 public class LoadedClassAccessor {

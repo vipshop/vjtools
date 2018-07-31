@@ -75,7 +75,7 @@ public class VJTop {
 				System.exit(0);
 			}
 
-			// 2. create view
+			// 2. create vminfo & view
 			String pid = parsePid(parser, optionSet);
 
 			VMDetailView.DetailMode displayMode = parseDisplayMode(optionSet);
@@ -85,7 +85,8 @@ public class VJTop {
 				width = (Integer) optionSet.valueOf("width");
 			}
 
-			VMDetailView view = new VMDetailView(pid, displayMode, width);
+			VMInfo vminfo = VMInfo.processNewVM(pid);
+			VMDetailView view = new VMDetailView(vminfo, displayMode, width);
 
 			if (optionSet.hasArgument("limit")) {
 				Integer limit = (Integer) optionSet.valueOf("limit");
@@ -120,6 +121,42 @@ public class VJTop {
 			app.run(view);
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
+		}
+	}
+
+	private void run(VMDetailView view) throws Exception {
+		try {
+			System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(FileDescriptor.out)), false));
+			int iterations = 0;
+			while (!view.shouldExit()) {
+
+				if (maxIterations > 1 || maxIterations == -1) {
+					waitForInput();
+					clearTerminal();
+				}
+
+				view.printView();
+
+				System.out.flush();
+
+				if (maxIterations > 0 && iterations >= maxIterations) {
+					break;
+				}
+
+				// 第一次只等待1秒
+				int sleepTime = iterations == 0 ? 1 : interval;
+
+				++iterations;
+
+				Utils.sleep((long) (sleepTime * 1000));
+			}
+		} catch (NoClassDefFoundError e) {
+			e.printStackTrace(System.err);
+
+			System.err.println("");
+			System.err.println("ERROR: Some JDK classes cannot be found.");
+			System.err.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
+			System.err.println("");
 		}
 	}
 
@@ -178,47 +215,6 @@ public class VJTop {
 		}
 	}
 
-	private void run(VMDetailView view) throws Exception {
-		try {
-			System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(FileDescriptor.out)), false));
-			int iterations = 0;
-			while (!view.shouldExit()) {
-
-				if (maxIterations > 1 || maxIterations == -1) {
-					waitForInput();
-					clearTerminal();
-				}
-
-				view.printView();
-
-				System.out.flush();
-
-				if (maxIterations > 0 && iterations >= maxIterations) {
-					break;
-				}
-
-				int sleepTime = interval;
-
-				// 第一次只等待1秒
-				if (iterations == 0) {
-					sleepTime = 1;
-				}
-
-				++iterations;
-
-				Utils.sleep((long) (sleepTime * 1000));
-			}
-		} catch (NoClassDefFoundError e) {
-			e.printStackTrace(System.err);
-
-			System.err.println("");
-			System.err.println("ERROR: Some JDK classes cannot be found.");
-			System.err.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
-			System.err.println("");
-		}
-	}
-
-
 	public void exit() {
 		view.exit();
 		mainThread.interrupt();
@@ -238,5 +234,4 @@ public class VJTop {
 			Utils.sleep(1000);
 		}
 	}
-
 }

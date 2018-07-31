@@ -18,7 +18,6 @@ package com.vip.vjtools.vjtop.data;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.vip.vjtools.vjtop.Utils;
 
+import sun.management.counter.Units;
+import sun.management.counter.Variability;
 import sun.management.counter.perf.PerfInstrumentation;
 import sun.misc.Perf;
 
@@ -36,42 +37,75 @@ import sun.misc.Perf;
  * @author Alexey Ragozin (alexey.ragozin@gmail.com)
  */
 @SuppressWarnings("restriction")
-public abstract class PerfData {
+public class PerfData {
+	private final PerfInstrumentation instr;
+	// PerfData中的时间相关数据以tick表示，每个tick的时长与计算机频率相关
+	private final double nanosPerTick;
 
 	public static PerfData connect(long pid) {
 		try {
-			return new PerfIntr((int) pid);
+			return new PerfData((int) pid);
 		} catch (ThreadDeath e) {
 			throw e;
 		} catch (OutOfMemoryError e) {
 			throw e;
 		} catch (Error e) {
-			throw new RuntimeException("Cannot perf data for process " + pid
-					+ " - " + e.toString());
+			throw new RuntimeException("Cannot perf data for process " + pid + " - " + e.toString());
 		} catch (Exception e) {
-			throw new RuntimeException("Cannot perf data for process " + pid
-					+ " - " + e.toString());
+			throw new RuntimeException("Cannot perf data for process " + pid + " - " + e.toString());
 		}
 	}
 
-	public abstract int getMajorVersion();
-
-	public abstract int getMinorVersion();
-
-	public abstract long getModificationTimeStamp();
-
-	public abstract Map<String, Counter<?>> getAllCounters();
-
-	public abstract List<Counter<?>> findByPattern(String pattern);
-
-	public enum Units {
-
-		INVALID, NONE, BYTES, TICKS, EVENTS, STRING, HERTZ,
+	private PerfData(int pid) throws IOException {
+		ByteBuffer bb = Perf.getPerf().attach(pid, "r");
+		instr = new PerfInstrumentation(bb);
+		long hz = ((sun.management.counter.LongCounter) instr.findByPattern("sun.os.hrt.frequency").get(0)).longValue();
+		nanosPerTick = ((double) TimeUnit.SECONDS.toNanos(1)) / hz;
 	}
 
-	public enum Variability {
+	public long getModificationTimeStamp() {
+		return instr.getModificationTimeStamp();
+	}
 
-		INVALID, CONSTANT, MONOTONIC, VARIABLE,
+	public Map<String, Counter<?>> getAllCounters() {
+		Map<String, Counter<?>> result = new LinkedHashMap<String, PerfData.Counter<?>>();
+
+		for (Object c : instr.getAllCounters()) {
+			Counter<?> cc = convert(c);
+			result.put(cc.getName(), cc);
+		}
+
+		return result;
+	}
+
+	public List<Counter<?>> findByPattern(String pattern) {
+		return convert(instr.findByPattern(pattern));
+	}
+
+	@SuppressWarnings("rawtypes")
+	private List<Counter<?>> convert(List list) {
+		List<Counter<?>> cl = new ArrayList<Counter<?>>(list.size());
+		for (Object c : list) {
+			cl.add(convert(c));
+		}
+		return cl;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Counter<?> convert(Object c) {
+		if (c instanceof sun.management.counter.LongCounter) {
+			sun.management.counter.LongCounter lc = (sun.management.counter.LongCounter) c;
+			if (sun.management.counter.Units.TICKS.equals(lc.getUnits())) {
+				return new TickCounter(nanosPerTick, lc);
+			} else {
+				return new LongCounter(lc);
+			}
+		} else if (c instanceof sun.management.counter.StringCounter) {
+			sun.management.counter.StringCounter lc = (sun.management.counter.StringCounter) c;
+			return new StringCounter(lc);
+		} else {
+			return new CounterWrapper((sun.management.counter.Counter) c);
+		}
 	}
 
 	public interface Counter<T> {
@@ -83,240 +117,90 @@ public abstract class PerfData {
 		public Variability getVariability();
 
 		public T getValue();
-
 	}
 
-	public interface StringCounter extends Counter<String> {
+	public static class CounterWrapper<T> implements Counter<T> {
 
-		public String getString();
+		protected final sun.management.counter.Counter counter;
 
+		public CounterWrapper(sun.management.counter.Counter counter) {
+			this.counter = counter;
+		}
+
+		@Override
+		public String getName() {
+			return counter.getName();
+		}
+
+		@Override
+		public sun.management.counter.Units getUnits() {
+			sun.management.counter.Units u = counter.getUnits();
+			return u == null ? sun.management.counter.Units.INVALID : u;
+		}
+
+		@Override
+		public Variability getVariability() {
+			Variability v = counter.getVariability();
+			return v == null ? Variability.INVALID : v;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public T getValue() {
+			return (T) counter.getValue();
+		}
+
+		@Override
+		public String toString() {
+			return counter.toString().replace((char) 0, ' ');
+		}
 	}
 
-	public interface LongCounter extends Counter<Long> {
-
-		public long getLong();
-
-	}
-
-	public interface TickCounter extends LongCounter {
-
-		public long getTicks();
-
-		double getTick();
-
-		public long getMills();
-
-	}
-
-	private static class PerfIntr extends PerfData {
-
-		private static sun.management.counter.Units U_TICKS = sun.management.counter.Units.TICKS;
-
-		private static Map<Object, Units> UNIT_MAP = new HashMap<Object, Units>();
-		private static Map<Object, Variability> VARIABILITY_MAP = new HashMap<Object, Variability>();
-
-		static {
-			UNIT_MAP.put(sun.management.counter.Units.INVALID, Units.INVALID);
-			UNIT_MAP.put(sun.management.counter.Units.NONE, Units.NONE);
-			UNIT_MAP.put(sun.management.counter.Units.BYTES, Units.BYTES);
-			UNIT_MAP.put(sun.management.counter.Units.TICKS, Units.TICKS);
-			UNIT_MAP.put(sun.management.counter.Units.EVENTS, Units.EVENTS);
-			UNIT_MAP.put(sun.management.counter.Units.STRING, Units.STRING);
-			UNIT_MAP.put(sun.management.counter.Units.HERTZ, Units.HERTZ);
-
-			VARIABILITY_MAP.put(sun.management.counter.Variability.INVALID,
-					Variability.INVALID);
-			VARIABILITY_MAP.put(sun.management.counter.Variability.CONSTANT,
-					Variability.CONSTANT);
-			VARIABILITY_MAP.put(sun.management.counter.Variability.MONOTONIC,
-					Variability.MONOTONIC);
-			VARIABILITY_MAP.put(sun.management.counter.Variability.VARIABLE,
-					Variability.VARIABLE);
+	public static class StringCounter extends CounterWrapper<String> {
+		public StringCounter(sun.management.counter.StringCounter counter) {
+			super(counter);
 		}
 
-		final PerfInstrumentation instr;
-		final double tick;
-
-		public PerfIntr(int pid) throws IllegalArgumentException, IOException {
-			ByteBuffer bb = Perf.getPerf().attach(pid, "r");
-			instr = new PerfInstrumentation(bb);
-			long hz = ((sun.management.counter.LongCounter) instr
-					.findByPattern("sun.os.hrt.frequency").get(0)).longValue();
-			tick = ((double) TimeUnit.SECONDS.toNanos(1)) / hz;
+		public String getString() {
+			return trim(((sun.management.counter.StringCounter) counter).stringValue());
 		}
 
-		@Override
-		public int getMajorVersion() {
-			return instr.getMajorVersion();
-		}
-
-		@Override
-		public int getMinorVersion() {
-			return instr.getMinorVersion();
-		}
-
-		@Override
-		public long getModificationTimeStamp() {
-			return instr.getModificationTimeStamp();
-		}
-
-		@Override
-		public Map<String, Counter<?>> getAllCounters() {
-			Map<String, Counter<?>> result = new LinkedHashMap<String, PerfData.Counter<?>>();
-
-			for (Object c : instr.getAllCounters()) {
-				Counter<?> cc = convert(c);
-				result.put(cc.getName(), cc);
-			}
-
-			return result;
-		}
-
-		@Override
-		public List<Counter<?>> findByPattern(String pattern) {
-			return convert(instr.findByPattern(pattern));
-		}
-
-		@SuppressWarnings("rawtypes")
-		private List<Counter<?>> convert(List list) {
-			List<Counter<?>> cl = new ArrayList<Counter<?>>(list.size());
-			for (Object c : list) {
-				cl.add(convert(c));
-			}
-			return cl;
-		}
-
-		@SuppressWarnings("rawtypes")
-		private Counter<?> convert(Object c) {
-			if (c instanceof sun.management.counter.LongCounter) {
-				sun.management.counter.LongCounter lc = (sun.management.counter.LongCounter) c;
-				if (U_TICKS.equals(lc.getUnits())) {
-					return new TickWrapper(tick, lc);
-				} else {
-					return new LongWrapper(lc);
-				}
-			} else if (c instanceof sun.management.counter.StringCounter) {
-				sun.management.counter.StringCounter lc = (sun.management.counter.StringCounter) c;
-				return new StringWrapper(lc);
-			} else if (c instanceof sun.management.counter.LongArrayCounter) {
-				sun.management.counter.LongArrayCounter lc = (sun.management.counter.LongArrayCounter) c;
-				return new CounterWrapper(lc);
-			} else if (c instanceof sun.management.counter.ByteArrayCounter) {
-				sun.management.counter.ByteArrayCounter lc = (sun.management.counter.ByteArrayCounter) c;
-				return new ByteArrayWrapper(lc);
+		private String trim(String value) {
+			int n = value.indexOf(0);
+			if (n >= 0) {
+				return value.substring(0, n);
 			} else {
-				return new CounterWrapper((sun.management.counter.Counter) c);
+				return value;
 			}
 		}
+	}
 
-		private static class CounterWrapper<T> implements Counter<T> {
+	public static class LongCounter extends CounterWrapper<Long> {
 
-			protected final sun.management.counter.Counter counter;
-
-			public CounterWrapper(sun.management.counter.Counter counter) {
-				this.counter = counter;
-			}
-
-			@Override
-			public String getName() {
-				return counter.getName();
-			}
-
-			@Override
-			public Units getUnits() {
-				Units u = UNIT_MAP.get(counter.getUnits());
-				return u == null ? Units.INVALID : u;
-			}
-
-			@Override
-			public Variability getVariability() {
-				Variability v = VARIABILITY_MAP.get(counter.getVariability());
-				return v == null ? Variability.INVALID : v;
-			}
-
-			@Override
-			@SuppressWarnings("unchecked")
-			public T getValue() {
-				return (T) counter.getValue();
-			}
-
-			@Override
-			public String toString() {
-				return counter.toString().replace((char) 0, ' ');
-			}
+		public LongCounter(sun.management.counter.LongCounter counter) {
+			super(counter);
 		}
 
-		private static class ByteArrayWrapper extends CounterWrapper<byte[]>
-				implements Counter<byte[]> {
+		public long getLong() {
+			return ((sun.management.counter.LongCounter) counter).longValue();
+		}
+	}
 
-			public ByteArrayWrapper(
-					sun.management.counter.ByteArrayCounter counter) {
-				super(counter);
-			}
+	public static class TickCounter extends LongCounter {
+
+		private final double nanosPerTick;
+
+		public TickCounter(double nanosPerTick, sun.management.counter.LongCounter counter) {
+			super(counter);
+			this.nanosPerTick = nanosPerTick;
+		}
+		
+		public long getTicks() {
+			return getLong();
 		}
 
-		private static class StringWrapper extends CounterWrapper<String>
-				implements StringCounter {
-
-			public StringWrapper(sun.management.counter.StringCounter counter) {
-				super(counter);
-			}
-
-			@Override
-			public String getString() {
-				return trim(((sun.management.counter.StringCounter) counter)
-						.stringValue());
-			}
-
-			private String trim(String value) {
-				int n = value.indexOf(0);
-				if (n >= 0) {
-					return value.substring(0, n);
-				} else {
-					return value;
-				}
-			}
-		}
-
-		private static class LongWrapper extends CounterWrapper<Long> implements
-				LongCounter {
-
-			public LongWrapper(sun.management.counter.LongCounter counter) {
-				super(counter);
-			}
-
-			@Override
-			public long getLong() {
-				return ((sun.management.counter.LongCounter) counter)
-						.longValue();
-			}
-		}
-
-		private static class TickWrapper extends LongWrapper implements
-				TickCounter {
-
-			private final double tick;
-
-			public TickWrapper(double tick,
-					sun.management.counter.LongCounter counter) {
-				super(counter);
-				this.tick = tick;
-			}
-
-			@Override
-			public double getTick() {
-				return tick;
-			}
-
-			@Override
-			public long getTicks() {
-				return getLong();
-			}
-
-			@Override
-			public long getMills() {
-				return (long) ((tick * getLong())/Utils.NANOS_TO_MILLS);
-			}
+		public long getMills() {
+			return (long) ((nanosPerTick * getLong()) / Utils.NANOS_TO_MILLS);
 		}
 	}
 }

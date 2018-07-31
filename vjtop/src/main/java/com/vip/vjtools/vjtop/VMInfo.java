@@ -127,6 +127,9 @@ public class VMInfo {
 	private VMInfo() {
 	}
 
+	/**
+	 * 创建JMX连接并构造VMInfo实例
+	 */
 	public static VMInfo processNewVM(String pid) {
 		try {
 			final JmxClient jmxClient = new JmxClient(pid);

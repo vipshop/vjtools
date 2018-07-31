@@ -41,8 +41,8 @@ public class VMDetailView {
 	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
 	private Map<Long, Long> lastThreadMemoryTotalBytes = new HashMap<Long, Long>();
 
-	public VMDetailView(String pid, DetailMode mode, Integer width) throws Exception {
-		this.vmInfo = VMInfo.processNewVM(pid);
+	public VMDetailView(VMInfo vmInfo, DetailMode mode, Integer width) throws Exception {
+		this.vmInfo = vmInfo;
 		this.mode = mode;
 		setWidth(width);
 		operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
