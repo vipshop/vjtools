@@ -10,11 +10,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.sun.management.ThreadMXBean;
+import sun.management.counter.Counter;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.vip.vjtools.vjtop.data.PerfData;
-import com.vip.vjtools.vjtop.data.PerfData.Counter;
-import com.vip.vjtools.vjtop.data.PerfData.LongCounter;
-import com.vip.vjtools.vjtop.data.PerfData.TickCounter;
 import com.vip.vjtools.vjtop.data.ProcFileData;
 import com.vip.vjtools.vjtop.data.jmx.JmxClient;
 import com.vip.vjtools.vjtop.data.jmx.JmxMemoryPoolManager;
@@ -31,7 +29,7 @@ public class VMInfo {
 
 	private JmxClient jmxClient = null;
 	private PerfData perfData = null;
-	private Map<String, Counter<?>> perfCounters;
+	private Map<String, Counter> perfCounters;
 	public boolean perfDataSupport = false;
 
 	public VMInfoState state = VMInfoState.INIT;
@@ -52,10 +50,10 @@ public class VMInfo {
 	public boolean threadMemoryAllocatedSupported;
 
 	// 动态数据//
-	public long lastRchar = -1;
-	public long lastWchar = -1;
-	public long lastReadBytes = -1;
-	public long lastWriteBytes = -1;
+	private long lastRchar = -1;
+	private long lastWchar = -1;
+	private long lastReadBytes = -1;
+	private long lastWriteBytes = -1;
 	public long deltaRchar = -1;
 	public long deltaWchar = -1;
 	public long deltaReadBytes = -1;
@@ -279,10 +277,10 @@ public class VMInfo {
 
 	private void updateThreads() throws IOException {
 		if (perfDataSupport) {
-			threadActive = ((LongCounter) perfCounters.get("java.threads.live")).getLong();
-			threadDaemon = ((LongCounter) perfCounters.get("java.threads.daemon")).getLong();
-			threadPeak = ((LongCounter) perfCounters.get("java.threads.livePeak")).getLong();
-			threadStarted = ((LongCounter) perfCounters.get("java.threads.started")).getLong();
+			threadActive = (Long) perfCounters.get("java.threads.live").getValue();
+			threadDaemon = (Long) perfCounters.get("java.threads.daemon").getValue();
+			threadPeak = (Long) perfCounters.get("java.threads.livePeak").getValue();
+			threadStarted = (Long) perfCounters.get("java.threads.started").getValue();
 		} else {
 			threadActive = jmxClient.getThreadMXBean().getThreadCount();
 			threadDaemon = jmxClient.getThreadMXBean().getDaemonThreadCount();
@@ -339,10 +337,10 @@ public class VMInfo {
 		long fullGcTimeMills = 0;
 
 		if (perfDataSupport) {
-			youngGcCount = ((LongCounter) perfCounters.get("sun.gc.collector.0.invocations")).getLong();
-			youngGcTimeMills = ((TickCounter) perfCounters.get("sun.gc.collector.0.time")).getMills();
-			fullGcCount = ((LongCounter) perfCounters.get("sun.gc.collector.1.invocations")).getLong();
-			fullGcTimeMills = ((TickCounter) perfCounters.get("sun.gc.collector.1.time")).getMills();
+			youngGcCount = (Long) perfCounters.get("sun.gc.collector.0.invocations").getValue();
+			youngGcTimeMills = perfData.tickToMills(perfCounters.get("sun.gc.collector.0.time"));
+			fullGcCount = (Long) perfCounters.get("sun.gc.collector.1.invocations").getValue();
+			fullGcTimeMills = perfData.tickToMills(perfCounters.get("sun.gc.collector.1.time"));
 		} else {
 			youngGcCount = jmxClient.getYoungCollector().getCollectionCount();
 			youngGcTimeMills = jmxClient.getYoungCollector().getCollectionTime();
@@ -371,9 +369,9 @@ public class VMInfo {
 			return;
 		}
 
-		long safepointCount = ((LongCounter) perfCounters.get("sun.rt.safepoints")).getLong();
-		long safepointTimeMills = ((TickCounter) perfCounters.get("sun.rt.safepointTime")).getMills();
-		long safepointSyncTimeMills = ((TickCounter) perfCounters.get("sun.rt.safepointTime")).getMills();
+		long safepointCount = (Long) perfCounters.get("sun.rt.safepoints").getValue();
+		long safepointTimeMills = perfData.tickToMills(perfCounters.get("sun.rt.safepointTime"));
+		long safepointSyncTimeMills = perfData.tickToMills(perfCounters.get("sun.rt.safepointTime"));
 
 		if (lastSafepointCount > 0) {
 			deltaSafepointCount = safepointCount - lastSafepointCount;
