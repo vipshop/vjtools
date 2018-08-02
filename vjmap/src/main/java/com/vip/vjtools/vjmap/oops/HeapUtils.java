@@ -18,7 +18,7 @@ import sun.jvm.hotspot.oops.ObjectHeap;
 import sun.jvm.hotspot.runtime.VM;
 
 public class HeapUtils {
-	
+
 	public static CollectedHeap getHeap() {
 		return VM.getVM().getUniverse().heap();
 	}

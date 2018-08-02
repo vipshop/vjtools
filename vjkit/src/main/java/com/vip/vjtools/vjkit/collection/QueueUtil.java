@@ -84,5 +84,5 @@ public class QueueUtil {
 		return new LinkedBlockingDeque<E>(capacity);
 	}
 
-	
+
 }

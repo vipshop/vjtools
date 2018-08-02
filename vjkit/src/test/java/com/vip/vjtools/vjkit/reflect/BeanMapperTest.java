@@ -64,9 +64,10 @@ public class BeanMapperTest {
 		private Teacher teacher;
 		private List<String> course = ListUtil.newArrayList();
 
-		public Student(){
-			
+		public Student() {
+
 		}
+
 		public Student(String name, int age, Teacher teacher, List<String> course) {
 			this.name = name;
 			this.age = age;
@@ -97,24 +98,25 @@ public class BeanMapperTest {
 		public void setTeacher(Teacher teacher) {
 			this.teacher = teacher;
 		}
+
 		public String getName() {
 			return name;
 		}
+
 		public void setName(String name) {
 			this.name = name;
 		}
-		
-		
+
 
 	}
 
 	public static class Teacher {
 		private String name;
 
-		public Teacher(){
-			
+		public Teacher() {
+
 		}
-		
+
 		public Teacher(String name) {
 			super();
 			this.name = name;
@@ -136,9 +138,10 @@ public class BeanMapperTest {
 		private TeacherVO teacher;
 		private List<String> course = ListUtil.newArrayList();
 
-		public StudentVO(){
-			
+		public StudentVO() {
+
 		}
+
 		public StudentVO(String name, int age, TeacherVO teacher, List<String> course) {
 			this.name = name;
 			this.age = age;
@@ -169,9 +172,11 @@ public class BeanMapperTest {
 		public void setTeacher(TeacherVO teacher) {
 			this.teacher = teacher;
 		}
+
 		public String getName() {
 			return name;
 		}
+
 		public void setName(String name) {
 			this.name = name;
 		}
@@ -180,10 +185,10 @@ public class BeanMapperTest {
 	public static class TeacherVO {
 		private String name;
 
-		public TeacherVO(){
-			
+		public TeacherVO() {
+
 		}
-		
+
 		public TeacherVO(String name) {
 			super();
 			this.name = name;

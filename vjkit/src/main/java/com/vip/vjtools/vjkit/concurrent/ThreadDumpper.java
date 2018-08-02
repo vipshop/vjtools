@@ -18,7 +18,7 @@ public class ThreadDumpper {
 
 	private static final int DEFAULT_MAX_STACK_LEVEL = 8;
 
-	private static final int DEFAULT_MIN_INTERVAL = 1000 * 60 * 1; //1分钟
+	private static final int DEFAULT_MIN_INTERVAL = 1000 * 60 * 1; // 1分钟
 
 	private static Logger logger = LoggerFactory.getLogger(ThreadDumpper.class);
 

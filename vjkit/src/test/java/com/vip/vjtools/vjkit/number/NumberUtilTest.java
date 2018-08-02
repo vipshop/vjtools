@@ -5,15 +5,15 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 
 public class NumberUtilTest {
-	
+
 	@Test
-	public void equalsWithin(){
-		float f  = 0.15f;
-		float f2 = 0.45f/3;
-		float f3 = 0.46f/3;
-		assertThat(NumberUtil.equalsWithin(f,f2)).isTrue();
-		assertThat(NumberUtil.equalsWithin(f,f3)).isFalse();
-		assertThat(NumberUtil.equalsWithin(f,f2,0.0000001)).isTrue();
+	public void equalsWithin() {
+		float f = 0.15f;
+		float f2 = 0.45f / 3;
+		float f3 = 0.46f / 3;
+		assertThat(NumberUtil.equalsWithin(f, f2)).isTrue();
+		assertThat(NumberUtil.equalsWithin(f, f3)).isFalse();
+		assertThat(NumberUtil.equalsWithin(f, f2, 0.0000001)).isTrue();
 	}
 
 	@Test

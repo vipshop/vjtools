@@ -41,12 +41,12 @@ public class Concurrents {
 	public static Semaphore nonFairSemaphore(int permits) {
 		return new Semaphore(permits);
 	}
-	
+
 	/**
 	 * 返回公平的信号量，先请求的线程先拿到信号量
 	 */
 	public static Semaphore fairSemaphore(int permits) {
-		return new Semaphore(permits,true);
+		return new Semaphore(permits, true);
 	}
 
 	/////////// 限流采样 //////

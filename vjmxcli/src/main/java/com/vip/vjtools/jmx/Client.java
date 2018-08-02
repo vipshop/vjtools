@@ -169,10 +169,10 @@ public class Client {
 					"service:jmx:rmi://" + hostportOrPid + "/jndi/rmi://" + hostportOrPid + "/jmxrmi");
 			return JMXConnectorFactory.connect(rmiurl, formatCredentials(login, password));
 		} else {
-		// ./vjmxcli.sh - 112222 gcutil
+			// ./vjmxcli.sh - 112222 gcutil
 			String localAddress = getLocalConnectorAddress(hostportOrPid);
 			JMXServiceURL localRmiurl = new JMXServiceURL(localAddress);
-		return JMXConnectorFactory.connect(localRmiurl);
+			return JMXConnectorFactory.connect(localRmiurl);
 		}
 	}
 
@@ -271,10 +271,10 @@ public class Client {
 			}
 		}
 		String[] loginPassword = parseUserpass(userpass);
-		
-		//模拟GC Util命令的扩展
+
+		// 模拟GC Util命令的扩展
 		if (V_GCUTIL_BEAN_NAME.equalsIgnoreCase(beanname)) {
-			//支持配置interval 固定事件间隔连续输出
+			// 支持配置interval 固定事件间隔连续输出
 			int interval = 0;
 			if (command != null && command.length > 0) {
 				try {
@@ -282,7 +282,7 @@ public class Client {
 				} catch (NumberFormatException e) {// NOSONAR
 				}
 			}
-			
+
 			ExtraCommand extraCommand = new ExtraCommand();
 			extraCommand.execute(hostportOrPid, ((loginPassword == null) ? null : loginPassword[0]),
 					((loginPassword == null) ? null : loginPassword[1]), beanname, interval);

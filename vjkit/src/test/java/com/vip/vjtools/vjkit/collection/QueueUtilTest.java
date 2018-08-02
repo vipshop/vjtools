@@ -39,13 +39,13 @@ public class QueueUtilTest {
 
 		stack.offer("1");
 		stack.offer("2");
-		
+
 		assertThat(stack.poll()).isEqualTo("2");
 		assertThat(stack.poll()).isEqualTo("1");
-		
+
 		stack2.offer("1");
 		stack2.offer("2");
-		
+
 		assertThat(stack2.poll()).isEqualTo("2");
 		assertThat(stack2.poll()).isEqualTo("1");
 	}

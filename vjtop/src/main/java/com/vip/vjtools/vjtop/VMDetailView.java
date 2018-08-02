@@ -418,8 +418,8 @@ public class VMDetailView {
 
 	public enum DetailMode {
 		cpu, totalcpu, syscpu, totalsyscpu, memory, totalmemory;
-		
-		public static DetailMode parse(String mode){
+
+		public static DetailMode parse(String mode) {
 			switch (mode) {
 				case "1":
 					return cpu;

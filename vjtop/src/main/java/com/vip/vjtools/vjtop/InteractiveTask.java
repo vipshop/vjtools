@@ -136,7 +136,7 @@ public class InteractiveTask implements Runnable {
 			if (threadLimit != app.view.threadLimit) {
 				app.view.threadLimit = threadLimit;
 				tty.println(" Number of threads to display changed to " + threadLimit + " for next flush");
-			}else {
+			} else {
 				tty.println(" Nothing be changed");
 			}
 		} catch (NumberFormatException e) {

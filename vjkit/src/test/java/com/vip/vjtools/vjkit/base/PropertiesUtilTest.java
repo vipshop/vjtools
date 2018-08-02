@@ -22,11 +22,11 @@ public class PropertiesUtilTest {
 		assertThat(PropertiesUtil.getLong(p2, "springside.min", 0L)).isEqualTo(1);
 		assertThat(PropertiesUtil.getLong(p2, "springside.max", 0L)).isEqualTo(10);
 		assertThat(PropertiesUtil.getLong(p2, "springside.maxA", 0L)).isEqualTo(0);
-		
+
 		assertThat(PropertiesUtil.getDouble(p2, "springside.min", 0d)).isEqualTo(1);
 		assertThat(PropertiesUtil.getDouble(p2, "springside.max", 0d)).isEqualTo(10);
 		assertThat(PropertiesUtil.getDouble(p2, "springside.maxA", 0d)).isEqualTo(0);
-		
+
 		assertThat(PropertiesUtil.getString(p2, "springside.min", "")).isEqualTo("1");
 		assertThat(PropertiesUtil.getString(p2, "springside.max", "")).isEqualTo("10");
 		assertThat(PropertiesUtil.getString(p2, "springside.maxA", "")).isEqualTo("");

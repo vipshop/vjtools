@@ -28,6 +28,7 @@ import com.vip.vjtools.vjtop.data.jmx.JmxMemoryPoolManager;
 public class VMInfo {
 
 	private JmxClient jmxClient = null;
+
 	private PerfData perfData = null;
 	private Map<String, Counter> perfCounters;
 	public boolean perfDataSupport = false;

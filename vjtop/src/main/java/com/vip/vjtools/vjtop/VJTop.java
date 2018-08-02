@@ -25,7 +25,7 @@ public class VJTop {
 	public static final int DEFAULT_INTERVAL = 10;
 
 	private static final String CLEAR_TERMINAL_ANSI_CMD = new String(
-			new byte[]{(byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48});
+			new byte[] { (byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48 });
 
 	public VMDetailView view;
 
@@ -40,15 +40,15 @@ public class VJTop {
 	private static OptionParser createOptionParser() {
 		OptionParser parser = new OptionParser();
 		// commmon
-		parser.acceptsAll(Arrays.asList(new String[]{"help", "?", "h"}), "shows this help").forHelp();
-		parser.acceptsAll(Arrays.asList(new String[]{"n", "iteration"}),
+		parser.acceptsAll(Arrays.asList(new String[] { "help", "?", "h" }), "shows this help").forHelp();
+		parser.acceptsAll(Arrays.asList(new String[] { "n", "iteration" }),
 				"vjtop will exit after n output iterations  (defaults to unlimit)").withRequiredArg()
 				.ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"d", "interval"}),
+		parser.acceptsAll(Arrays.asList(new String[] { "d", "interval" }),
 				"interval between each output iteration (defaults to 10s)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"w", "width"}),
+		parser.acceptsAll(Arrays.asList(new String[] { "w", "width" }),
 				"Number of columns for the console display (defaults to 100)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"l", "limit"}),
+		parser.acceptsAll(Arrays.asList(new String[] { "l", "limit" }),
 				"Number of threads to display ( default to 10 threads)").withRequiredArg().ofType(Integer.class);
 
 		// detail mode

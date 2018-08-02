@@ -398,8 +398,8 @@ public class JmxClient {
 			return conn.getAttribute(objName, attrName);
 		}
 
-		private AttributeList getAttributes(ObjectName objName, String[] attrNames) throws InstanceNotFoundException,
-				ReflectionException, IOException {
+		private AttributeList getAttributes(ObjectName objName, String[] attrNames)
+				throws InstanceNotFoundException, ReflectionException, IOException {
 			final NameValueMap values = getCachedAttributes(objName, new TreeSet<String>(Arrays.asList(attrNames)));
 			final AttributeList list = new AttributeList();
 			for (String attrName : attrNames) {
