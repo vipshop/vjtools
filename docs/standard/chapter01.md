@@ -135,7 +135,9 @@ private static final Logger logger = Logger.getLogger(MyClass.class);
 
 **Rule 12. 【强制】POJO类中布尔类型的变量名，不要加is前缀，否则部分框架解析会引起序列化错误**
 
+```text
 反例：Boolean isSuccess的成员变量，它的GET方法也是isSuccess()，部分框架在反射解析的时候，“以为”对应的成员变量名称是success，导致出错。
+```
 
 ----
 

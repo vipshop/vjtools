@@ -27,7 +27,7 @@
 if ((a == b) && (c == d))
 ```
 
-* [Sonar-1068:Limited dependence should be placed on operator precedence rules in expressions](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1068)，我们修改了三目运算符 foo!=null:foo:"" 不需要加括号。
+* [Sonar-1068:Limited dependence should be placed on operator precedence rules in expressions](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1068)，我们修改了三目运算符 `foo!=null:foo:""` 不需要加括号。
 
 ----
 
