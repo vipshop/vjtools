@@ -19,6 +19,8 @@ fi
 
 DIR=$( cd $(dirname $0) ; pwd -P )
 
-"$JAVA_HOME"/bin/java -Xms256m -Xmx512m -XX:+UseSerialGC -XX:-TieredCompilation -XX:CICompilerCount=2 -XX:AutoBoxCacheMax=20000 -cp "$DIR/vjtop.jar:$TOOLSJAR" \
+
+JAVA_OPTS="-Xms256m -Xmx256m -XX:NewRatio=1 -Xss256k -XX:ReservedCodeCacheSize=24M -XX:+UseSerialGC -XX:-TieredCompilation -XX:CICompilerCount=2 -Xverify:none -XX:AutoBoxCacheMax=20000"
+"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$DIR/vjtop.jar:$TOOLSJAR" \
 com.vip.vjtools.vjtop.VJTop "$@"
 exit $?

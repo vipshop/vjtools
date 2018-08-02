@@ -15,6 +15,6 @@ fi
 
 DIR=$( cd $(dirname $0) ; pwd -P )
 
-JAVA_OPTS="-Xms96m -Xmx96m -Xmn64m -Xss256k -XX:ReservedCodeCacheSize=2496k -XX:AutoBoxCacheMax=20000 -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none" 
+JAVA_OPTS="-Xms96m -Xmx96m -Xmn64m -Xss256k -XX:ReservedCodeCacheSize=2496k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -XX:AutoBoxCacheMax=20000" 
 
 "$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$DIR/vjmxcli.jar:$TOOLSJAR" com.vip.vjtools.jmx.Client $*

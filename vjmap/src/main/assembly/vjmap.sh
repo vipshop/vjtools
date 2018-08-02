@@ -14,7 +14,9 @@ if [ ! -f "$SAJDI_PATH" ] ; then
 fi
 
 DIR=$( cd $(dirname $0) ; pwd -P )
+JAVA_OPTS="-Xms256m -Xmx256m -XX:NewRatio=1 -Xss256k -XX:ReservedCodeCacheSize=72M -XX:+UseSerialGC -Xverify:none -XX:AutoBoxCacheMax=20000"
 
 echo -e "\033[31mWARNING!! STW(Stop-The-World) will be performed on your Java process, if this is NOT wanted, type 'Ctrl+C' to exit. \033[0m"
 
-java -XX:AutoBoxCacheMax=20000 -classpath $DIR/vjmap.jar:$SAJDI_PATH com.vip.vjtools.vjmap.VJMap $*
+
+java $JAVA_OPTS -classpath $DIR/vjmap.jar:$SAJDI_PATH com.vip.vjtools.vjmap.VJMap $*
