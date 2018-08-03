@@ -4,16 +4,17 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.vip.vjtools.vjmap.ClassStats;
+import com.vip.vjtools.vjmap.utils.FormatUtils;
 
 import sun.jvm.hotspot.debugger.OopHandle;
 import sun.jvm.hotspot.gc_implementation.parallelScavenge.PSOldGen;
 import sun.jvm.hotspot.gc_implementation.parallelScavenge.PSYoungGen;
 import sun.jvm.hotspot.gc_implementation.shared.MutableSpace;
 import sun.jvm.hotspot.gc_interface.CollectedHeap;
+import sun.jvm.hotspot.memory.ConcurrentMarkSweepGeneration;
 import sun.jvm.hotspot.memory.ContiguousSpace;
 import sun.jvm.hotspot.memory.DefNewGeneration;
 import sun.jvm.hotspot.memory.EdenSpace;
-import sun.jvm.hotspot.memory.Generation;
 import sun.jvm.hotspot.oops.HeapVisitor;
 import sun.jvm.hotspot.oops.Klass;
 import sun.jvm.hotspot.oops.Oop;
@@ -23,14 +24,12 @@ import sun.jvm.hotspot.oops.Oop;
  */
 public class HeapHistogramVisitor implements HeapVisitor {
 
-	private static final int PROCERSSING_DOT_SIZE = 50000;
-	private int processingObject;
 
 	private CollectedHeap heap;
 
 	private EdenSpace cmsEden;
 	private ContiguousSpace cmsSur;
-	private Generation cmsOld;
+	private ConcurrentMarkSweepGeneration cmsOld;
 
 	private MutableSpace parEden;
 	private MutableSpace parSur;
@@ -39,6 +38,7 @@ public class HeapHistogramVisitor implements HeapVisitor {
 	private boolean isCms;
 
 	private HashMap<Klass, ClassStats> classStatsMap;
+	private ProgressNodifier progressNodifier;
 
 	public HeapHistogramVisitor() {
 		classStatsMap = new HashMap<Klass, ClassStats>(2048, 0.2f);
@@ -61,7 +61,7 @@ public class HeapHistogramVisitor implements HeapVisitor {
 		}
 	}
 
-
+	@Override
 	public boolean doObj(Oop obj) {
 		Klass klass = obj.getKlass();
 
@@ -71,17 +71,24 @@ public class HeapHistogramVisitor implements HeapVisitor {
 
 		updateWith(classStats, obj, place);
 
-		if ((processingObject++) == PROCERSSING_DOT_SIZE) {
-			System.err.print(".");
-			processingObject = 0;
+		// 每完成1％ 打印一个，每完成10% 打印百分比提示
+		if (progressNodifier.processingSize > progressNodifier.notificationSize) {
+			progressNodifier.printProgress();
 		}
 
 		return false;
 	}
 
+
+	@Override
 	public void prologue(long size) {
+		System.err.println("Total live size to process: " + FormatUtils.toFloatUnit(size));
+
+		progressNodifier = new ProgressNodifier(size);
+		progressNodifier.printHead();
 	}
 
+	@Override
 	public void epilogue() {
 	}
 
@@ -89,6 +96,7 @@ public class HeapHistogramVisitor implements HeapVisitor {
 		long objSize = obj.getObjectSize();
 		classStats.count++;
 		classStats.size += objSize;
+		progressNodifier.processingSize += objSize;
 
 		switch (place) {
 			case InEden:
@@ -114,7 +122,7 @@ public class HeapHistogramVisitor implements HeapVisitor {
 		if (cmsEden.contains(handle)) {
 			return Place.InEden;
 		}
-		if (cmsOld.isIn(handle)) {
+		if (cmsOld.contains(handle)) {
 			return Place.InOld;
 		}
 		if (cmsSur.contains(handle)) {

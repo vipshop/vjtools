@@ -15,7 +15,7 @@ public class GenAddressAccessor {
 
 	public void printHeapAddress() {
 		CollectedHeap heap = HeapUtils.getHeap();
-		PrintStream tty = System.err;
+		PrintStream tty = System.out;
 
 		if (HeapUtils.isCMSGC(heap)) {
 			DefNewGeneration youngGen = HeapUtils.getYoungGenForCMS(heap);

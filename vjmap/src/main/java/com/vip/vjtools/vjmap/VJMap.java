@@ -20,7 +20,7 @@ public class VJMap {
 		ObjectHeap heap = VM.getVM().getObjectHeap();
 		HeapHistogramVisitor visitor = new HeapHistogramVisitor();
 
-		System.out.println("Start to dump all areas. This may take a while...");
+		System.out.println("Iterating over heap. This may take a while...");
 		heap.iterate(visitor);
 
 		List<ClassStats> list = visitor.getClassStatsList();
@@ -31,8 +31,8 @@ public class VJMap {
 	public static void runSurviorAccessor(int minAge, boolean orderByName, long minSize) {
 		SurvivorAccessor accessor = new SurvivorAccessor();
 
-		System.out.println("Start to dump survivor area. This may take a while...");
-		List<ClassStats> list = accessor.dump(minAge);
+		System.out.println("Iterating over survivor area. This may take a while...");
+		List<ClassStats> list = accessor.caculateHistogram(minAge);
 
 		ResultPrinter resultPrinter = new ResultPrinter();
 		resultPrinter.printSurvivor(System.out, list, orderByName, minSize, minAge);
@@ -41,8 +41,8 @@ public class VJMap {
 	public static void runOldGenAccessor(boolean orderByName, long minSize) {
 		OldgenAccessor accessor = new OldgenAccessor();
 
-		System.out.println("Start to dump oldgen area. This may take a while...");
-		List<ClassStats> list = accessor.dump();
+		System.out.println("Iterating over oldgen area. This may take a while...");
+		List<ClassStats> list = accessor.caculateHistogram();
 
 		ResultPrinter resultPrinter = new ResultPrinter();
 		resultPrinter.printOldGen(System.out, list, orderByName, minSize);

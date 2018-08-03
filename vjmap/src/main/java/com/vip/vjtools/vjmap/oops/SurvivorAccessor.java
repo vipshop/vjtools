@@ -26,11 +26,11 @@ import sun.jvm.hotspot.oops.UnknownOopException;
  */
 public class SurvivorAccessor {
 
-	public List<ClassStats> dump(int minAge) {
+	public List<ClassStats> caculateHistogram(int minAge) {
 		HashMap<Klass, ClassStats> classStatsMap = new HashMap<Klass, ClassStats>(2048, 0.2f);
 		CollectedHeap heap = HeapUtils.getHeap();
 		ObjectHeap objectHeap = HeapUtils.getObjectHeap();
-		PrintStream tty = System.err;
+		PrintStream tty = System.out;
 
 		// 获取Survivor区边界
 		Address fromBottom = null;
