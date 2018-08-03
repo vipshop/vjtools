@@ -1,9 +1,3 @@
-#!/bin/sh
-# vjtop - java monitoring for the command-line 
-# launch script
-#
-# author: Markus Kolb
-# 
 if [ -z "$JAVA_HOME" ] ; then
 	    echo "JAVA_HOME env doesn't exist, try to find the location of java"
         JAVA_HOME=`readlink -f \`which java 2>/dev/null\` 2>/dev/null | \
@@ -18,9 +12,8 @@ if [ ! -f "$TOOLSJAR" ] ; then
 fi
 
 DIR=$( cd $(dirname $0) ; pwd -P )
+JAVA_OPTS="-Xms256m -Xmx256m -XX:NewRatio=1 -Xss256k -XX:+UseSerialGC -XX:-TieredCompilation -XX:CICompilerCount=2 -Xverify:none -XX:AutoBoxCacheMax=20000"
 
+"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$DIR/vjtop.jar:$TOOLSJAR" com.vip.vjtools.vjtop.VJTop "$@"
 
-JAVA_OPTS="-Xms256m -Xmx256m -XX:NewRatio=1 -Xss256k -XX:ReservedCodeCacheSize=24M -XX:+UseSerialGC -XX:-TieredCompilation -XX:CICompilerCount=2 -Xverify:none -XX:AutoBoxCacheMax=20000"
-"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$DIR/vjtop.jar:$TOOLSJAR" \
-com.vip.vjtools.vjtop.VJTop "$@"
 exit $?
