@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.vip.vjtools.vjmap.ClassStats;
-import com.vip.vjtools.vjmap.utils.FormatUtils;
 
 import sun.jvm.hotspot.debugger.OopHandle;
 import sun.jvm.hotspot.gc_implementation.parallelScavenge.PSOldGen;
@@ -66,12 +65,13 @@ public class HeapHistogramVisitor implements HeapVisitor {
 		Klass klass = obj.getKlass();
 
 		ClassStats classStats = HeapUtils.getClassStats(klass, classStatsMap);
-
 		Place place = isCms ? getCmsLocation(obj) : getParLocation(obj);
+		long objSize = obj.getObjectSize();
 
-		updateWith(classStats, obj, place);
+		updateWith(classStats, objSize, place);
 
 		// 每完成1％ 打印一个，每完成10% 打印百分比提示
+		progressNodifier.processingSize += objSize;
 		if (progressNodifier.processingSize > progressNodifier.notificationSize) {
 			progressNodifier.printProgress();
 		}
@@ -82,8 +82,6 @@ public class HeapHistogramVisitor implements HeapVisitor {
 
 	@Override
 	public void prologue(long size) {
-		System.err.println("Total live size to process: " + FormatUtils.toFloatUnit(size));
-
 		progressNodifier = new ProgressNodifier(size);
 		progressNodifier.printHead();
 	}
@@ -92,11 +90,9 @@ public class HeapHistogramVisitor implements HeapVisitor {
 	public void epilogue() {
 	}
 
-	private void updateWith(ClassStats classStats, Oop obj, Place place) {
-		long objSize = obj.getObjectSize();
+	private void updateWith(ClassStats classStats, long objSize, Place place) {
 		classStats.count++;
 		classStats.size += objSize;
-		progressNodifier.processingSize += objSize;
 
 		switch (place) {
 			case InEden:

@@ -29,7 +29,13 @@ import sun.jvm.hotspot.runtime.VMObjectFactory;
  */
 public class OldgenAccessor {
 
+	private PrintStream tty = System.out;
 	private ProgressNodifier progressNodifier;
+
+	private Address cur;
+	private Address regionStart;
+	private int liveRegions = 0;
+
 
 	public List<ClassStats> caculateHistogram() {
 
@@ -41,7 +47,8 @@ public class OldgenAccessor {
 
 		CompactibleFreeListSpace cmsSpace = cmsGen.cmsSpace();
 		CMSCollector cmsCollector = cmsSpace.collector();
-		Address cur = cmsSpace.bottom();
+		cur = cmsSpace.bottom();
+		regionStart = cur;
 		Address limit = cmsSpace.end();
 
 		printGenSummary(cmsGen);
@@ -54,7 +61,7 @@ public class OldgenAccessor {
 		for (; cur.lessThan(limit);) {
 			Address k = cur.getAddressAt(addressSize);
 			if (FreeChunk.indicatesFreeChunk(cur)) {
-				cur = skipFreeChunk(cur, addressSize);
+				skipFreeChunk(addressSize);
 			} else if (k != null) {
 				Oop obj = null;
 				try {
@@ -64,7 +71,7 @@ public class OldgenAccessor {
 				}
 
 				if (obj == null) {
-					cur = continueNextAddress(cmsCollector, cur);
+					continueNextAddress(cmsCollector);
 					continue;
 				}
 
@@ -81,10 +88,11 @@ public class OldgenAccessor {
 
 				cur = cur.addOffsetTo(CompactibleFreeListSpace.adjustObjectSizeInBytes(objectSize));
 			} else {
-				cur = continueNextAddress(cmsCollector, cur);
+				continueNextAddress(cmsCollector);
 			}
 		}
 
+		tty.println("\ntotal live regions:" + liveRegions);
 
 		return HeapUtils.getClassStatsList(classStatsMap);
 	}
@@ -99,23 +107,25 @@ public class OldgenAccessor {
 	}
 
 	private void printGenSummary(ConcurrentMarkSweepGeneration cmsGen) {
-		PrintStream tty = System.out;
 		cmsGen.printOn(tty);
 		tty.println("");
 	}
 
-	private Address skipFreeChunk(Address cur, final long addressSize) {
+	private void skipFreeChunk(final long addressSize) {
+		if (!cur.equals(regionStart)) {
+			liveRegions++;
+		}
+
 		FreeChunk fc = (FreeChunk) VMObjectFactory.newObject(FreeChunk.class, cur);
 		long chunkSize = fc.size();
 		cur = cur.addOffsetTo(chunkSize * addressSize);
-		return cur;
 	}
 
-	private Address continueNextAddress(CMSCollector cmsCollector, Address cur) {
+	private void continueNextAddress(CMSCollector cmsCollector) {
 		long size = cmsCollector.blockSizeUsingPrintezisBits(cur);
 		if (size <= 0L) {
 			throw new UnknownOopException();
 		}
-		return cur.addOffsetTo(CompactibleFreeListSpace.adjustObjectSizeInBytes(size));
+		cur = cur.addOffsetTo(CompactibleFreeListSpace.adjustObjectSizeInBytes(size));
 	}
 }

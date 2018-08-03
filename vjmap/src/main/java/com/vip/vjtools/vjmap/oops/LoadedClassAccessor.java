@@ -14,8 +14,9 @@ import sun.jvm.hotspot.runtime.VM;
 
 public class LoadedClassAccessor {
 
+	private PrintStream tty = System.out;
+
 	public void pringLoadedClass() {
-		PrintStream tty = System.out;
 		tty.println("Finding classes in System Dictionary..");
 
 		try {
@@ -41,7 +42,7 @@ public class LoadedClassAccessor {
 			tty.println("#class             #loader");
 			tty.println("-----------------------------------------------");
 			for (InstanceKlass k : klasses) {
-				System.out.printf("%s, %s\n", getClassNameFrom(k), getClassLoaderOopFrom(k));
+				tty.printf("%s, %s\n", getClassNameFrom(k), getClassLoaderOopFrom(k));
 			}
 		} catch (AddressException e) {
 			tty.println("Error accessing address 0x" + Long.toHexString(e.getAddress()));
