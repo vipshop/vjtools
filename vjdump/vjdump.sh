@@ -38,6 +38,25 @@ START()
      echo -e "The pid is ${PID}"
   fi
 
+  # try to find $JAVA_HOME if not set
+  if [[ -z ${JAVA_HOME} || ! -d ${JAVA_HOME} ]]; then
+      JAVA_HOME_CANDIDATES=$(ps aux \
+                                | grep java \
+                                | awk '{print $11}' \
+                                | sed -n 's/\/bin\/java//p')
+      for JAVA_HOME_TEMP in ${JAVA_HOME_CANDIDATES[@]}; do
+          if [ -f ${JAVA_HOME_TEMP}/lib/tools.jar ]; then
+              JAVA_HOME=${JAVA_HOME_TEMP}
+              break
+          fi
+      done
+  fi
+  if [ -z ${JAVA_HOME} ]; then
+      echo -e "\033[31m\$JAVA_HOME not found. please export JAVA_HOME manually.\033[0m"
+      exit -1
+  fi
+
+
   # clean all history logs
   rm -rf ${LOGDIR}/*.log ${LOGDIR}/*jmap_dump_live-*.bin
   mkdir -p ${LOGDIR}
@@ -49,7 +68,7 @@ START()
   # jstack
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jstack."
   JSTACK_LOG=${LOGDIR}/jstack-${PID}-${DATE}.log
-  jstack -l $PID > ${JSTACK_LOG}
+  ${JAVA_HOME}/bin/jstack -l $PID > ${JSTACK_LOG}
   if [[ $? != 0 ]]; then
     echo -e "\033[31mprocess jstack error, now exit.\033[0m"
     exit -1
@@ -76,7 +95,7 @@ START()
     # jinfo -flags $PID
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jinfo -flags."
     JINFO_FLAGS_LOG=${LOGDIR}/jinfo-flags-${PID}-${DATE}.log
-    jinfo -flags $PID 1>${JINFO_FLAGS_LOG} 2>&1
+    ${JAVA_HOME}/bin/jinfo -flags $PID 1>${JINFO_FLAGS_LOG} 2>&1
     if [[ $? != 0 ]]; then
       echo -e "\033[31mprocess jinfo -flags error, now exit.\033[0m"
       exit -1
@@ -86,7 +105,7 @@ START()
     #jmap -heap
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jmap -heap."
     JMAP_HEAP_LOG=${LOGDIR}/jmap_heap-${PID}-${DATE}.log
-    jmap -heap $PID > ${JMAP_HEAP_LOG}
+    ${JAVA_HOME}/bin/jmap -heap $PID > ${JMAP_HEAP_LOG}
     if [[ $? != 0 ]]; then
       echo -e "\033[31mprocess jmap -heap error, now exit.\033[0m"
       exit -1
@@ -97,7 +116,7 @@ START()
   # jmap -histo
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jmap -histo."
   JMAP_HISTO_LOG=${LOGDIR}/jmap_histo-${PID}-${DATE}.log
-  jmap -histo $PID > ${JMAP_HISTO_LOG}
+  ${JAVA_HOME}/bin/jmap -histo $PID > ${JMAP_HISTO_LOG}
   if [[ $? != 0 ]]; then
     echo -e "\033[31mprocess jmap -histo error, now exit.\033[0m"
     exit -1
@@ -108,7 +127,7 @@ START()
   # jmap -histo:live
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jmap -histo:live."
   JMAP_HISTO_LIVE_LOG=${LOGDIR}/jmap_histo_live-${PID}-${DATE}.log
-  jmap -histo:live $PID > ${JMAP_HISTO_LIVE_LOG}
+  ${JAVA_HOME}/bin/jmap -histo:live $PID > ${JMAP_HISTO_LIVE_LOG}
   if [[ $? != 0 ]]; then
     echo -e "\033[31mprocess jmap -histo:live error, now exit.\033[0m"
     exit -1
@@ -120,7 +139,7 @@ START()
   if [[ $NEED_HEAP_DUMP == 1 ]]; then
     JMAP_DUMP_FILE=${LOGDIR}/jmap_dump_live-${PID}-${DATE}.bin
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jmap -dump:live."
-    jmap -dump:live,format=b,file=${JMAP_DUMP_FILE} $PID
+    ${JAVA_HOME}/bin/jmap -dump:live,format=b,file=${JMAP_DUMP_FILE} $PID
     if [[ $? != 0 ]]; then
       echo -e "\033[31mprocess jmap -dump:live error, now exit.\033[0m"
       exit -1
