@@ -43,7 +43,7 @@ START()
       JAVA_HOME_CANDIDATES=$(ps aux \
                                 | grep java \
                                 | awk '{print $11}' \
-                                | sed -n 's/\/bin\/java//p')
+                                | sed -n 's/\/bin\/java$//p')
       for JAVA_HOME_TEMP in ${JAVA_HOME_CANDIDATES[@]}; do
           if [ -f ${JAVA_HOME_TEMP}/lib/tools.jar ]; then
               JAVA_HOME=${JAVA_HOME_TEMP}
