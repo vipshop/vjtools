@@ -257,13 +257,14 @@ public class VMDetailView {
 		double deltaAllThreadSysCpuLoad = Utils.calcLoad(vmInfo.deltaUptimeMills,
 				(deltaAllThreadSysCpu * 100) / (Utils.NANOS_TO_MILLS * 1D), 1);
 
-		System.out.printf("%n total: %5.2f%% (user=%5.2f%%, sys=%5.2f%%)", deltaAllThreadCpuLoad,
+		System.out.printf("%n Total cpu: %5.2f%% (user=%5.2f%%, sys=%5.2f%%)", deltaAllThreadCpuLoad,
 				deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad, deltaAllThreadSysCpuLoad);
 
 		if (threadCpuTotalTimes.size() > threadLimit) {
-			System.out.printf(" ,only top %d threads are shown, order by %s%n", threadLimit, mode);
+			System.out.printf(", top %d threads are shown, order by %s%n", threadLimit, mode.toString().toUpperCase());
 		} else {
-			System.out.printf(" ,all %d threads are shown, order by %s%n", threadCpuTotalTimes.size(), mode);
+			System.out.printf(", all %d threads are shown, order by %s%n", threadCpuTotalTimes.size(),
+					mode.toString().toUpperCase());
 		}
 
 		lastThreadCpuTotalTimes = threadCpuTotalTimes;
@@ -343,14 +344,14 @@ public class VMDetailView {
 
 
 		// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
-		System.out.printf("%n total: %5s/s allocation rate",
+		System.out.printf("%n Total memory allocate rate : %5s/s",
 				Utils.toSizeUnit((totalDeltaBytes * 1000) / vmInfo.deltaUptimeMills));
 
 		if (threadMemoryTotalBytesMap.size() > threadLimit) {
-			System.out.printf(", only top %d threads are shown, order by %s allocated%n", threadLimit, mode.toString());
+			System.out.printf(", top %d threads are shown, order by %s%n", threadLimit, mode.toString().toUpperCase());
 		} else {
-			System.out.printf(", all %d threads are shown, order by %s allocated%n", threadMemoryTotalBytesMap.size(),
-					mode);
+			System.out.printf(", all %d threads are shown, order by %s%n", threadMemoryTotalBytesMap.size(),
+					mode.toString().toUpperCase());
 		}
 
 		lastThreadMemoryTotalBytes = threadMemoryTotalBytesMap;
