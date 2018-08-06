@@ -21,6 +21,7 @@ public class InteractiveTask implements Runnable {
 		tty = System.err;
 	}
 
+	@Override
 	public void run() {
 		while (true) {
 			try {
@@ -100,6 +101,7 @@ public class InteractiveTask implements Runnable {
 		String mode = readLine();
 		DetailMode detailMode = DetailMode.parse(mode);
 		if (detailMode != null && detailMode != app.view.mode) {
+			app.view.mode = detailMode;
 			tty.println(" Display mode changed to " + app.view.mode + " for next flush");
 		} else {
 			tty.println(" Nothing be changed");
