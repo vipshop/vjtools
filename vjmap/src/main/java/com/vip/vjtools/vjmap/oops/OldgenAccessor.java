@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.vip.vjtools.vjmap.ClassStats;
+import com.vip.vjtools.vjmap.utils.ProgressNodifier;
 
 import sun.jvm.hotspot.debugger.Address;
 import sun.jvm.hotspot.gc_interface.CollectedHeap;
@@ -35,7 +36,6 @@ public class OldgenAccessor {
 	private Address cur;
 	private Address regionStart;
 	private int liveRegions = 0;
-
 
 	public List<ClassStats> caculateHistogram() {
 

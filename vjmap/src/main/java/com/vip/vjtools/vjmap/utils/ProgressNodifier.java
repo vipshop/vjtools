@@ -1,8 +1,6 @@
-package com.vip.vjtools.vjmap.oops;
+package com.vip.vjtools.vjmap.utils;
 
 import java.io.PrintStream;
-
-import com.vip.vjtools.vjmap.utils.FormatUtils;
 
 public class ProgressNodifier {
 	public long notificationSize;

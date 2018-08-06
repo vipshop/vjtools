@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.vip.vjtools.vjmap.ClassStats;
+import com.vip.vjtools.vjmap.utils.ProgressNodifier;
 
 import sun.jvm.hotspot.debugger.OopHandle;
 import sun.jvm.hotspot.gc_implementation.parallelScavenge.PSOldGen;
