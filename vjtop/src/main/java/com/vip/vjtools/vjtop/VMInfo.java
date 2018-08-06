@@ -27,7 +27,6 @@ import sun.management.counter.Counter;
  */
 @SuppressWarnings("restriction")
 public class VMInfo {
-
 	private JmxClient jmxClient = null;
 
 	private PerfData perfData = null;

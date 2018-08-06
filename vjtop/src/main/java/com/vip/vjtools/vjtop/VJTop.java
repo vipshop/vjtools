@@ -19,6 +19,9 @@ import joptsimple.OptionSet;
  *
  */
 public class VJTop {
+
+	public static final String VERSION = "1.0.2";
+
 	public static final int DEFAULT_INTERVAL = 10;
 
 	private static final String CLEAR_TERMINAL_ANSI_CMD = new String(
@@ -140,8 +143,8 @@ public class VJTop {
 					break;
 				}
 
-				// 第一次只等待1秒
-				int sleepTime = iterations == 0 ? 1 : interval;
+				// 第一次只等待2秒
+				int sleepTime = iterations == 0 ? 2 : interval;
 
 				++iterations;
 
@@ -192,7 +195,7 @@ public class VJTop {
 
 	private static void printHelper(OptionParser parser) {
 		try {
-			System.out.println("vjtop - java monitoring for the command-line");
+			System.out.println("vjtop " + VERSION + " - java monitoring for the command-line");
 			System.out.println("Usage: vjtop.sh [options...] <PID>");
 			System.out.println("");
 			parser.printHelpOn(System.out);

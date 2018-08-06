@@ -142,8 +142,10 @@ public class VJMap {
 	private static void printHelp() {
 		int leftLength = "-all:minsize=1024,byname".length();
 		String format = " %-" + leftLength + "s  %s%n";
-
-		tty.println("vjmap.sh <options> <PID>");
+		tty.println("vjmap " + VERSION
+				+ " - prints per GC generation (Eden, Survivor, OldGen) object details of a given process.");
+		tty.println("Usage: vjmap.sh <options> <PID>");
+		tty.println("");
 		tty.printf(format, "-all", "print all gens histogram, order by total size");
 		tty.printf(format, "-all:minsize=1024", "print all gens histogram, total size>=1024");
 		tty.printf(format, "-all:minsize=1024,byname",
