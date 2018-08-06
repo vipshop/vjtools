@@ -21,9 +21,9 @@ import sun.management.counter.Counter;
 /**
  * VMInfo retrieves or updates the metrics for a specific remote jvm, using
  * JmxClient.
- * 
+ *
  * @author paru
- * 
+ *
  */
 @SuppressWarnings("restriction")
 public class VMInfo {
@@ -184,15 +184,23 @@ public class VMInfo {
 		try {
 			perfData = PerfData.connect(Integer.parseInt(pid));
 			perfDataSupport = true;
+			perfCounters = perfData.getAllCounters();
 		} catch (Exception e) {
 			System.err.println("PerfData not support");
 		}
 
-		vmArgs = Utils.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
 		Map<String, String> systemProperties_ = jmxClient.getRuntimeMXBean().getSystemProperties();
 		osUser = systemProperties_.get("user.name");
 		jvmVersion = systemProperties_.get("java.version");
 		jvmMajorVersion = getJavaMajorVersion();
+
+		// 优先取 perfData
+		if (perfDataSupport) {
+			vmArgs = (String) perfCounters.get("java.rt.vmArgs").getValue();
+		} else {
+			vmArgs = Utils.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
+		}
+
 		permGenName = jmxClient.getMemoryPoolManager().getPermMemoryPool().getName().toLowerCase();
 
 		threadCpuTimeSupported = jmxClient.getThreadMXBean().isThreadCpuTimeSupported();
@@ -289,33 +297,75 @@ public class VMInfo {
 	}
 
 	private void updateClassLoad() throws IOException {
-		classLoaded = jmxClient.getClassLoadingMXBean().getLoadedClassCount();
-		classUnLoaded = jmxClient.getClassLoadingMXBean().getUnloadedClassCount();
+		// 优先从perfData取值
+		if (perfDataSupport) {
+			classLoaded = (long) perfCounters.get("java.cls.loadedClasses").getValue();
+			classUnLoaded = (long) perfCounters.get("java.cls.unloadedClasses").getValue();
+		} else {
+			classLoaded = jmxClient.getClassLoadingMXBean().getLoadedClassCount();
+			classUnLoaded = jmxClient.getClassLoadingMXBean().getUnloadedClassCount();
+		}
 	}
 
 	private void updateMemoryPool() throws IOException {
 		JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
 
-		edenUsedBytes = memoryPoolManager.getEdenMemoryPool().getUsage().getUsed();
-		edenMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getEdenMemoryPool());
+		// 优先从perfData取值
+		if (perfDataSupport) {
+			// eden
+			edenUsedBytes = (long) perfCounters.get("sun.gc.generation.0.space.0.used").getValue();
+			edenMaxBytes = (long) perfCounters.get("sun.gc.generation.0.space.0.capacity").getValue();
 
-		MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
-		if (survivorMemoryPool != null) {
-			surUsedBytes = survivorMemoryPool.getUsage().getUsed();
-			surMaxBytes = getMemoryPoolMaxOrCommited(survivorMemoryPool);
-		}
+			// old gen
+			oldUsedBytes = (long) perfCounters.get("sun.gc.generation.1.space.0.used").getValue();
+			oldMaxBytes = (long) perfCounters.get("sun.gc.generation.1.space.0.capacity").getValue();
 
-		oldUsedBytes = memoryPoolManager.getOldMemoryPool().getUsage().getUsed();
-		oldMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getOldMemoryPool());
+			// survivor
+			surUsedBytes = (long) perfCounters.get("sun.gc.generation.0.space.1.used").getValue()
+					+ (long) perfCounters.get("sun.gc.generation.0.space.2.used").getValue();
+			surMaxBytes = (long) perfCounters.get("sun.gc.generation.0.space.1.capacity").getValue()
+					+ (long) perfCounters.get("sun.gc.generation.0.space.2.capacity").getValue();
 
-		permUsedBytes = memoryPoolManager.getPermMemoryPool().getUsage().getUsed();
-		permMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getPermMemoryPool());
+			if (jvmMajorVersion >= 8) {
+				// meta space
+				permUsedBytes = (long) perfCounters.get("sun.gc.metaspace.used").getValue();
+				permMaxBytes = (long) perfCounters.get("sun.gc.metaspace.capacity").getValue();
 
-		if (jvmMajorVersion >= 8) {
-			MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
-			if (compressedClassSpaceMemoryPool != null) {
-				ccsUsedBytes = compressedClassSpaceMemoryPool.getUsage().getUsed();
-				ccsMaxBytes = getMemoryPoolMaxOrCommited(compressedClassSpaceMemoryPool);
+				// compressed class space
+				ccsUsedBytes = (long) perfCounters.get("sun.gc.compressedclassspace.used").getValue();
+				ccsMaxBytes = (long) perfCounters.get("sun.gc.compressedclassspace.capacity").getValue();
+			} else {
+				// perm gen
+				permUsedBytes = memoryPoolManager.getPermMemoryPool().getUsage().getUsed();
+				permMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getPermMemoryPool());
+			}
+		} else {
+			// eden
+			edenUsedBytes = memoryPoolManager.getEdenMemoryPool().getUsage().getUsed();
+			edenMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getEdenMemoryPool());
+
+			// old gen
+			oldUsedBytes = memoryPoolManager.getOldMemoryPool().getUsage().getUsed();
+			oldMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getOldMemoryPool());
+
+			// survivor
+			MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
+			if (survivorMemoryPool != null) {
+				surUsedBytes = survivorMemoryPool.getUsage().getUsed();
+				surMaxBytes = getMemoryPoolMaxOrCommited(survivorMemoryPool);
+			}
+
+			// perm gen
+			permUsedBytes = memoryPoolManager.getPermMemoryPool().getUsage().getUsed();
+			permMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getPermMemoryPool());
+
+			// compressed class space
+			if (jvmMajorVersion >= 8) {
+				MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
+				if (compressedClassSpaceMemoryPool != null) {
+					ccsUsedBytes = compressedClassSpaceMemoryPool.getUsage().getUsed();
+					ccsMaxBytes = getMemoryPoolMaxOrCommited(compressedClassSpaceMemoryPool);
+				}
 			}
 		}
 
