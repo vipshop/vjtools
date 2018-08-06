@@ -78,9 +78,9 @@ public class VMDetailView {
 			return;
 		}
 		StackTraceElement[] trace = info.getStackTrace();
-		System.out.println(" " + info.getThreadId() + ":" + info.getThreadName());
+		System.err.println(" " + info.getThreadId() + ":" + info.getThreadName());
 		for (StackTraceElement traceElement : trace) {
-			System.out.println("\tat " + traceElement);
+			System.err.println("\tat " + traceElement);
 		}
 	}
 
@@ -88,19 +88,19 @@ public class VMDetailView {
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(tids);
 		for (ThreadInfo info : threadInfos) {
-			System.out.println(" " + info.getThreadId() + "\t:" + info.getThreadName());
+			System.err.println(" " + info.getThreadId() + "\t:" + info.getThreadName());
 		}
 	}
 
 	private boolean checkState() {
 		if (vmInfo.state == VMInfoState.ATTACHED_UPDATE_ERROR) {
-			System.out.println("ERROR: Could not fetch telemetries - Process terminated?");
+			System.err.println("ERROR: Could not fetch telemetries - Process terminated?");
 			exit();
 			return false;
 		}
 
 		if (vmInfo.state != VMInfoState.ATTACHED) {
-			System.out.println("ERROR: Could not attach to process.");
+			System.err.println("ERROR: Could not attach to process.");
 			exit();
 			return false;
 		}
@@ -374,7 +374,7 @@ public class VMDetailView {
 			return 0;
 		}
 		return deltaThreadCpuTime * 100d / factor / totalTime;// 这里因为最后单位是百分比%，所以cpu time除以total cpu
-															  // time以后要乘以100，才可以再加上单位%
+		// time以后要乘以100，才可以再加上单位%
 	}
 
 	private static double getThreadMemoryUtilization(Long threadBytes, long totalBytes) {
