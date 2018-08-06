@@ -274,7 +274,7 @@ public class VMDetailView {
 	private void printTopMemoryThreads(DetailMode mode) throws Exception {
 
 		if (!vmInfo.threadMemoryAllocatedSupported) {
-			System.out.printf(
+			System.err.printf(
 					"%n -Thread Memory Allocated telemetries are not available on the monitored jvm/platform-%n");
 			return;
 		}
