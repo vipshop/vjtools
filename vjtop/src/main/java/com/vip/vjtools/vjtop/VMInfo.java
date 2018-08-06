@@ -10,12 +10,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.sun.management.ThreadMXBean;
-import sun.management.counter.Counter;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.vip.vjtools.vjtop.data.PerfData;
 import com.vip.vjtools.vjtop.data.ProcFileData;
 import com.vip.vjtools.vjtop.data.jmx.JmxClient;
 import com.vip.vjtools.vjtop.data.jmx.JmxMemoryPoolManager;
+
+import sun.management.counter.Counter;
 
 /**
  * VMInfo retrieves or updates the metrics for a specific remote jvm, using
@@ -112,8 +113,6 @@ public class VMInfo {
 	public long ccsMaxBytes;
 	public long directUsedBytes;
 	public long directMaxBytes;
-	public long mapUsedBytes;
-	public long mapMaxBytes;
 
 	public VMInfo(JmxClient jmxClient, String vmId) throws Exception {
 		this.jmxClient = jmxClient;
@@ -326,9 +325,6 @@ public class VMInfo {
 
 		directUsedBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed();
 		directMaxBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity();
-
-		mapUsedBytes = jmxClient.getBufferPoolManager().getMappedBufferPool().getMemoryUsed();
-		mapMaxBytes = jmxClient.getBufferPoolManager().getMappedBufferPool().getTotalCapacity();
 	}
 
 	private void updateGC() throws IOException {

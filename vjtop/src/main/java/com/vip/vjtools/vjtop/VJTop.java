@@ -19,9 +19,6 @@ import joptsimple.OptionSet;
  *
  */
 public class VJTop {
-
-	public static final String VERSION = "1.0.2";
-
 	public static final int DEFAULT_INTERVAL = 10;
 
 	private static final String CLEAR_TERMINAL_ANSI_CMD = new String(
@@ -113,7 +110,7 @@ public class VJTop {
 			}
 
 			// 4. start thread to get user input
-			Thread interactiveThread = new Thread(new InteractiveTask(app));
+			Thread interactiveThread = new Thread(new InteractiveTask(app), "InteractiveThread");
 			interactiveThread.setDaemon(true);
 			interactiveThread.start();
 
@@ -148,7 +145,7 @@ public class VJTop {
 
 				++iterations;
 
-				Utils.sleep((long) (sleepTime * 1000));
+				Utils.sleep(sleepTime * 1000);
 			}
 		} catch (NoClassDefFoundError e) {
 			e.printStackTrace(System.err);
