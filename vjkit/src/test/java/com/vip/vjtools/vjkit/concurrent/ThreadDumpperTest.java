@@ -51,8 +51,11 @@ public class ThreadDumpperTest {
 		// 设置最少间隔,不输出
 		dumpper.setEnable(true);
 		dumpper.setLeastInterval(1800);
+
+		dumpper.threadDumpIfNeed(); // 重置间隔会重置上一次写日志的时间,因此要调一次把新增的次数用完
+
 		dumpper.threadDumpIfNeed();
-		assertThat(appender.getAllLogs()).hasSize(0);
+		assertThat(appender.getAllLogs()).hasSize(3);
 
 		executor.shutdownNow();
 

@@ -18,22 +18,24 @@ public class ThreadDumpper {
 
 	private static final int DEFAULT_MAX_STACK_LEVEL = 8;
 
-	private static final int DEFAULT_MIN_INTERVAL = 1000 * 60 * 1; // 1分钟
+	private static final int DEFAULT_MIN_INTERVAL = 1000 * 60 * 10; // 10分钟
 
 	private static Logger logger = LoggerFactory.getLogger(ThreadDumpper.class);
 
 	private boolean enable = true; // 快速关闭该功能
-	private long leastIntervalMills = DEFAULT_MIN_INTERVAL; // 每次打印ThreadDump的最小时间间隔，单位为毫秒
-	private int maxStackLevel = DEFAULT_MAX_STACK_LEVEL; // 打印StackTrace的最大深度
 
-	private volatile Long lastThreadDumpTime = 0L;
+	private int maxStackLevel; // 打印StackTrace的最大深度
+
+	private TimeIntervalLimiter timeIntervalLimiter;
 
 	public ThreadDumpper() {
+		this(DEFAULT_MIN_INTERVAL, DEFAULT_MAX_STACK_LEVEL);
 	}
 
 	public ThreadDumpper(long leastIntervalMills, int maxStackLevel) {
-		this.leastIntervalMills = leastIntervalMills;
 		this.maxStackLevel = maxStackLevel;
+
+		timeIntervalLimiter = new TimeIntervalLimiter(leastIntervalMills, TimeUnit.MILLISECONDS);
 	}
 
 	/**
@@ -53,12 +55,8 @@ public class ThreadDumpper {
 			return;
 		}
 
-		synchronized (this) {
-			if (System.currentTimeMillis() - lastThreadDumpTime < leastIntervalMills) {
-				return;
-			} else {
-				lastThreadDumpTime = System.currentTimeMillis();
-			}
+		if (!timeIntervalLimiter.tryAcquire()) {
+			return;
 		}
 
 		logger.info("Thread dump by ThreadDumpper" + (reasonMsg != null ? (" for " + reasonMsg) : ""));
@@ -81,7 +79,7 @@ public class ThreadDumpper {
 	 */
 	private String dumpThreadInfo(Thread thread, StackTraceElement[] stackTrace, StringBuilder sb) {
 		sb.append('\"').append(thread.getName()).append("\" Id=").append(thread.getId()).append(' ')
-				.append(thread.getState());
+		.append(thread.getState());
 		sb.append('\n');
 		int i = 0;
 		for (; i < Math.min(maxStackLevel, stackTrace.length); i++) {
@@ -107,9 +105,7 @@ public class ThreadDumpper {
 	 * 打印ThreadDump的最小时间间隔，单位为秒，默认为0不限制.
 	 */
 	public void setLeastInterval(int leastIntervalSeconds) {
-		synchronized (this) {
-			this.leastIntervalMills = TimeUnit.SECONDS.toMillis(leastIntervalSeconds);
-		}
+		this.timeIntervalLimiter = new TimeIntervalLimiter(leastIntervalSeconds, TimeUnit.MILLISECONDS);
 	}
 
 	/**
