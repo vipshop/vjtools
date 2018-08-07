@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjkit</artifactId>
@@ -14,6 +15,7 @@
 		<slf4j.version>1.7.25</slf4j.version>
 		<logback.version>1.1.8</logback.version>
 		<dozer.version>5.5.1</dozer.version>
+		<jackson.version>2.8.6</jackson.version>
 		<junit.version>4.12</junit.version>
 		<assertj.version>2.6.0</assertj.version>
 		<mockito.version>2.18.3</mockito.version>
@@ -55,6 +57,14 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- optional for JsonMapper -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+			<optional>true</optional>
+		</dependency>
+
 		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -81,6 +91,21 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>${logback.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- only for XMLMapper test -->
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.6</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -127,9 +152,9 @@
 						<version>2.5.3</version>
 						<configuration>
 							<tagNameFormat>v.@{project.version}</tagNameFormat>
-						 </configuration>
+						</configuration>
 					</plugin>
-	
+
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>

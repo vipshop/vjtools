@@ -1,4 +1,4 @@
-package com.vip.vjtools.vjkit.reflect;
+package com.vip.vjtools.vjkit.mapper;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.vip.vjtools.vjkit.collection.ListUtil;
+import com.vip.vjtools.vjkit.mapper.BeanMapper;
 
 public class BeanMapperTest {
 
