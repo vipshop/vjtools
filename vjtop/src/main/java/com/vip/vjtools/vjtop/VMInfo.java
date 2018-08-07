@@ -310,68 +310,39 @@ public class VMInfo {
 	private void updateMemoryPool() throws IOException {
 		JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
 
-		// 优先从perfData取值
-		if (perfDataSupport) {
-			// eden
-			edenUsedBytes = (long) perfCounters.get("sun.gc.generation.0.space.0.used").getValue();
-			edenMaxBytes = (long) perfCounters.get("sun.gc.generation.0.space.0.capacity").getValue();
+		// eden
+		edenUsedBytes = memoryPoolManager.getEdenMemoryPool().getUsage().getUsed();
+		edenMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getEdenMemoryPool());
 
-			// old gen
-			oldUsedBytes = (long) perfCounters.get("sun.gc.generation.1.space.0.used").getValue();
-			oldMaxBytes = (long) perfCounters.get("sun.gc.generation.1.space.0.capacity").getValue();
+		// old gen
+		oldUsedBytes = memoryPoolManager.getOldMemoryPool().getUsage().getUsed();
+		oldMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getOldMemoryPool());
 
-			// survivor
-			surUsedBytes = (long) perfCounters.get("sun.gc.generation.0.space.1.used").getValue()
-					+ (long) perfCounters.get("sun.gc.generation.0.space.2.used").getValue();
-			surMaxBytes = (long) perfCounters.get("sun.gc.generation.0.space.1.capacity").getValue()
-					+ (long) perfCounters.get("sun.gc.generation.0.space.2.capacity").getValue();
+		// survivor
+		MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
+		if (survivorMemoryPool != null) {
+			surUsedBytes = survivorMemoryPool.getUsage().getUsed();
+			surMaxBytes = getMemoryPoolMaxOrCommited(survivorMemoryPool);
+		}
 
-			if (jvmMajorVersion >= 8) {
-				// meta space
-				permUsedBytes = (long) perfCounters.get("sun.gc.metaspace.used").getValue();
-				permMaxBytes = (long) perfCounters.get("sun.gc.metaspace.capacity").getValue();
+		// perm gen
+		permUsedBytes = memoryPoolManager.getPermMemoryPool().getUsage().getUsed();
+		permMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getPermMemoryPool());
 
-				// compressed class space
-				ccsUsedBytes = (long) perfCounters.get("sun.gc.compressedclassspace.used").getValue();
-				ccsMaxBytes = (long) perfCounters.get("sun.gc.compressedclassspace.capacity").getValue();
-			} else {
-				// perm gen
-				permUsedBytes = memoryPoolManager.getPermMemoryPool().getUsage().getUsed();
-				permMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getPermMemoryPool());
-			}
-		} else {
-			// eden
-			edenUsedBytes = memoryPoolManager.getEdenMemoryPool().getUsage().getUsed();
-			edenMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getEdenMemoryPool());
-
-			// old gen
-			oldUsedBytes = memoryPoolManager.getOldMemoryPool().getUsage().getUsed();
-			oldMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getOldMemoryPool());
-
-			// survivor
-			MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
-			if (survivorMemoryPool != null) {
-				surUsedBytes = survivorMemoryPool.getUsage().getUsed();
-				surMaxBytes = getMemoryPoolMaxOrCommited(survivorMemoryPool);
-			}
-
-			// perm gen
-			permUsedBytes = memoryPoolManager.getPermMemoryPool().getUsage().getUsed();
-			permMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getPermMemoryPool());
-
-			// compressed class space
-			if (jvmMajorVersion >= 8) {
-				MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
-				if (compressedClassSpaceMemoryPool != null) {
-					ccsUsedBytes = compressedClassSpaceMemoryPool.getUsage().getUsed();
-					ccsMaxBytes = getMemoryPoolMaxOrCommited(compressedClassSpaceMemoryPool);
-				}
+		// compressed class space
+		if (jvmMajorVersion >= 8) {
+			MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
+			if (compressedClassSpaceMemoryPool != null) {
+				ccsUsedBytes = compressedClassSpaceMemoryPool.getUsage().getUsed();
+				ccsMaxBytes = getMemoryPoolMaxOrCommited(compressedClassSpaceMemoryPool);
 			}
 		}
 
+		// code cache
 		codeCacheUsedBytes = memoryPoolManager.getCodeCacheMemoryPool().getUsage().getUsed();
 		codeCacheMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getCodeCacheMemoryPool());
 
+		// direct
 		directUsedBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed();
 		directMaxBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity();
 	}
