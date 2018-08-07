@@ -8,7 +8,7 @@
 
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjtools</artifactId>
-	<version>1.0.2-SNHAPSHOT</version>
+	<version>1.0.2</version>
 	<name>vjtools</name>
 	<packaging>pom</packaging>
 
@@ -114,7 +114,8 @@
 		<connection>scm:git:https://github.com/vipshop/vjtools.git</connection>
 		<developerConnection>scm:git:https://github.com/vipshop/vjtools.git</developerConnection>
 		<url>https://github.com/vipshop/vjtools</url>
-	</scm>
+	  <tag>v.1.0.2</tag>
+  </scm>
 
 	<url>https://github.com/vipshop/vjtools</url>
 
