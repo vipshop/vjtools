@@ -1,15 +1,20 @@
 #!/bin/sh
 
 if [ -z "$JAVA_HOME" ] ; then
-	    echo "JAVA_HOME env doesn't exist, try to find the location of java"
-        JAVA_HOME=`readlink -f \`which java 2>/dev/null\` 2>/dev/null | \
-        sed 's/\jre\/bin\/java//' | sed 's/\/bin\/java//'`
+	echo "JAVA_HOME env doesn't exist, try to find the location of java"
+    JAVA_HOME=`readlink -f \`which java 2>/dev/null\` 2>/dev/null | \
+    sed 's/\jre\/bin\/java//' | sed 's/\/bin\/java//'`
+fi
+
+if [ ! -d "$JAVA_HOME" ] ; then
+	echo "Please set JAVA_HOME env before run this script"
+	exit 1
 fi
 
 TOOLSJAR="$JAVA_HOME/lib/tools.jar"
 
 if [ ! -f "$TOOLSJAR" ] ; then
-    echo "JAVA_HOME is $JAVA_HOME, $TOOLSJAR doesn't exist" >&2
+    echo "$TOOLSJAR doesn't exist" >&2
     exit 1
 fi
 
