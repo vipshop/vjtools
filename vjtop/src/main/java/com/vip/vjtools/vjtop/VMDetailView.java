@@ -139,7 +139,8 @@ public class VMDetailView {
 			System.out.printf(", %s/%s ccs", Utils.toMB(vmInfo.ccsUsedBytes), Utils.toMB(vmInfo.ccsMaxBytes));
 		}
 
-		System.out.printf(", %s/%s direct%n", Utils.toMB(vmInfo.directUsedBytes), Utils.toMB(vmInfo.directMaxBytes));
+		System.out.printf(", %s/%s direct, %s/%s map%n", Utils.toMB(vmInfo.directUsedBytes),
+				Utils.toMB(vmInfo.directMaxBytes), Utils.toMB(vmInfo.mapUsedBytes), Utils.toMB(vmInfo.mapMaxBytes));
 
 		System.out.printf(" GC: %d/%dms ygc, %d/%dms fgc", vmInfo.deltaYgcCount, vmInfo.deltaYgcTimeMills,
 				vmInfo.deltaFullgcCount, vmInfo.deltaFullgcTimeMills);

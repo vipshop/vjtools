@@ -18,13 +18,6 @@ import com.vip.vjtools.vjtop.data.jmx.JmxMemoryPoolManager;
 
 import sun.management.counter.Counter;
 
-/**
- * VMInfo retrieves or updates the metrics for a specific remote jvm, using
- * JmxClient.
- *
- * @author paru
- *
- */
 @SuppressWarnings("restriction")
 public class VMInfo {
 	private JmxClient jmxClient = null;
@@ -110,8 +103,11 @@ public class VMInfo {
 	public long codeCacheMaxBytes;
 	public long ccsUsedBytes;
 	public long ccsMaxBytes;
+
 	public long directUsedBytes;
 	public long directMaxBytes;
+	public long mapUsedBytes;
+	public long mapMaxBytes;
 
 	public VMInfo(JmxClient jmxClient, String vmId) throws Exception {
 		this.jmxClient = jmxClient;
@@ -184,22 +180,16 @@ public class VMInfo {
 		try {
 			perfData = PerfData.connect(Integer.parseInt(pid));
 			perfDataSupport = true;
-			perfCounters = perfData.getAllCounters();
 		} catch (Exception e) {
 			System.err.println("PerfData not support");
 		}
+
+		vmArgs = Utils.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
 
 		Map<String, String> systemProperties_ = jmxClient.getRuntimeMXBean().getSystemProperties();
 		osUser = systemProperties_.get("user.name");
 		jvmVersion = systemProperties_.get("java.version");
 		jvmMajorVersion = getJavaMajorVersion();
-
-		// 优先取 perfData
-		if (perfDataSupport) {
-			vmArgs = (String) perfCounters.get("java.rt.vmArgs").getValue();
-		} else {
-			vmArgs = Utils.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
-		}
 
 		permGenName = jmxClient.getMemoryPoolManager().getPermMemoryPool().getName().toLowerCase();
 
@@ -219,11 +209,11 @@ public class VMInfo {
 			return;
 		}
 
-		if (perfDataSupport) {
-			perfCounters = perfData.getAllCounters();
-		}
-
 		try {
+			if (perfDataSupport) {
+				perfCounters = perfData.getAllCounters();
+			}
+
 			jmxClient.flush();
 
 			updateIO();
@@ -234,13 +224,7 @@ public class VMInfo {
 			updateGC();
 			updateSafepoint();
 		} catch (Throwable e) {
-			Logger.getLogger("vjtop").log(Level.INFO, "error during update", e);
-			updateErrorCount++;
-			if (updateErrorCount > 10) {
-				state = VMInfoState.DETACHED;
-			} else {
-				state = VMInfoState.ATTACHED_UPDATE_ERROR;
-			}
+			handleFetchDataError(e);
 		}
 	}
 
@@ -345,6 +329,10 @@ public class VMInfo {
 		// direct
 		directUsedBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed();
 		directMaxBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity();
+
+		// map
+		mapUsedBytes = jmxClient.getBufferPoolManager().getMappedBufferPool().getMemoryUsed();
+		mapMaxBytes = jmxClient.getBufferPoolManager().getMappedBufferPool().getTotalCapacity();
 	}
 
 	private void updateGC() throws IOException {
@@ -403,6 +391,16 @@ public class VMInfo {
 
 	public ThreadMXBean getThreadMXBean() throws IOException {
 		return jmxClient.getThreadMXBean();
+	}
+
+	private void handleFetchDataError(Throwable e) {
+		Logger.getLogger("vjtop").log(Level.INFO, "error during update", e);
+		updateErrorCount++;
+		if (updateErrorCount > 10) {
+			state = VMInfoState.DETACHED;
+		} else {
+			state = VMInfoState.ATTACHED_UPDATE_ERROR;
+		}
 	}
 
 	private long getMemoryPoolMaxOrCommited(MemoryPoolMXBean memoryPool) {
