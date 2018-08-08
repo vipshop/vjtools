@@ -17,7 +17,7 @@ VJtop is built as NON stop-the-world and is considered ready for production diag
 
 ## 2.1 How to build
 
-[download from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.1/vjtop-1.0.1.zip)
+[download from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.2/vjtop-1.0.2.zip)
 
 Run the following command under **the same user who started the target process**.
 

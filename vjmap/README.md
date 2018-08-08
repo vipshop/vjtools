@@ -13,15 +13,15 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 # 2.使用说明
 
-[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.1/vjmap-1.0.1.zip)
+[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.2/vjmap-1.0.2.zip)
 
 注意：vjmap在执行过程中，会完全停止应用一段时间，必须摘流量执行！！！！
 
 必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行，或root用户执行 (sudo -E vjmap.sh ...，)
 
-vjmap的运行需要一段时间，如果中途需要停止执行，请使用kill vjmap的进程号，让vjmap从目标进程退出。如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID来重新唤醒目标java进程。
+如果在容器中运行，需要打开ptrace权限
 
-
+vjmap的运行需要一段时间，如果中途需要停止执行，请使用kill vjmap的PID，让vjmap从目标进程退出。如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID，重新唤醒目标java进程。
 
     
 ## 2.1 常用指令
@@ -30,15 +30,11 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用kil
 // 打印整个堆中对象的统计信息，按对象的total size排序:
 ./vjmap.sh -all PID > /tmp/histo.log
 
-// 打印老年代的对象统计信息，按对象的oldgen size排序，暂时只支持CMS:  
+// 推荐，打印老年代的对象统计信息，按对象的oldgen size排序，比-all快很多，暂时只支持CMS:
 ./vjmap.sh -old PID > /tmp/histo-old.log
 
-// 打印Survivor区的对象统计信息，默认age>=3: 
+// 推荐，打印Survivor区的对象统计信息，默认age>=3，可以 -sur:minage=x调整:
 ./vjmap.sh -sur PID > /tmp/histo-sur.log
-
-// 打印Survivor区的对象统计信息，age>=10
-// 先增大晋升阈值-XX:MaxTenuringThreshold=xx, 通过查询age较高的对象，即必定会逃逸到cms区的对象。
-./vjmap.sh -sur:minage=10 PID > /tmp/histo-sur.log
 ```
 
 > 其中PID为目标java进程的进程号。
@@ -62,10 +58,6 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用kil
 
 ```
 ./vjmap.sh -all:minsize=1024,byname PID > /tmp/histo.log
-
-./vjmap.sh -old:minsize=1024,byname PID > /tmp/histo-old.log
-
-./vjmap.sh -sur:minsize=1024,byname PID > /tmp/histo-sur.log
 ```
 
 # 3.输出示例
@@ -115,8 +107,17 @@ concurrent mark-sweep generation
 free-list-space[ 0x0000000123aa0000 , 0x0000000139000000 ) space capacity = 357957632 used(4%)= 17024696 free= 340932936
 ```
 
+# 5. 打印加载的Class列表
 
-# 5. 与TBJMap的对比
+```
+./vjmap.sh -class PID
+``` 
+
+since 1.0.2, 为了兼容JDK8，不再打印Class所在的Jar包
+
+
+
+# 6. 与TBJMap的对比
 
 * 兼容JDK8
 * 新功能：Survivor区 age大于N的对象统计

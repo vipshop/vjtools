@@ -14,7 +14,7 @@
 
 ## 2.1 概述
 
-[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.1/vjtop-1.0.1.zip)
+[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.2/vjtop-1.0.2.zip)
 
 必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行，或root用户执行 (sudo -E vjmap.sh ...，)
 
