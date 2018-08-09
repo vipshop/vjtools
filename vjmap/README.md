@@ -17,9 +17,9 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 注意：vjmap在执行过程中，会完全停止应用一段时间，必须摘流量执行！！！！
 
-必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行，或root用户执行 (sudo -E vjmap.sh ...，)
+必须与目标JVM使用相同的JDK版本运行，需要root权限 (sudo -E vjmap.sh ...，)
 
-如果在容器中运行，需要打开ptrace权限
+如果在容器中运行，需要打开ptrace权限。
 
 vjmap的运行需要一段时间，如果中途需要停止执行，请使用kill vjmap的PID，让vjmap从目标进程退出。如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID，重新唤醒目标java进程。
 
