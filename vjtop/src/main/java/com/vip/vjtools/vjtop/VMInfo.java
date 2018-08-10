@@ -3,14 +3,10 @@ package com.vip.vjtools.vjtop;
 import java.io.IOException;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
-import java.rmi.ConnectException;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.sun.management.ThreadMXBean;
-import com.sun.tools.attach.AttachNotSupportedException;
 import com.vip.vjtools.vjtop.data.PerfData;
 import com.vip.vjtools.vjtop.data.ProcFileData;
 import com.vip.vjtools.vjtop.data.jmx.JmxClient;
@@ -128,11 +124,6 @@ public class VMInfo {
 			final JmxClient jmxClient = new JmxClient(pid);
 			jmxClient.connect();
 
-			if (!jmxClient.isConnected()) {
-				Logger.getLogger("vjtop").log(Level.SEVERE, "connection refused (PID=" + pid + ")");
-				return createDeadVM(pid, VMInfoState.ERROR_DURING_ATTACH);
-			}
-
 			// 注册JMXClient注销的钩子
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 				@Override
@@ -142,21 +133,8 @@ public class VMInfo {
 			}));
 
 			return new VMInfo(jmxClient, pid);
-		} catch (ConnectException rmiE) {
-			if (rmiE.getMessage().contains("refused")) {
-				Logger.getLogger("vjtop").log(Level.SEVERE, "connection refused (PID=" + pid + ")", rmiE);
-				return createDeadVM(pid, VMInfoState.CONNECTION_REFUSED);
-			}
-			rmiE.printStackTrace(System.err);
-		} catch (IOException e) {
-			if ((e.getCause() != null && e.getCause() instanceof AttachNotSupportedException)
-					|| e.getMessage().contains("Permission denied")) {
-				Logger.getLogger("vjtop").log(Level.SEVERE, "could not attach (PID=" + pid + ")", e);
-				return createDeadVM(pid, VMInfoState.CONNECTION_REFUSED);
-			}
-			e.printStackTrace(System.err);
 		} catch (Exception e) {
-			Logger.getLogger("vjtop").log(Level.SEVERE, "could not attach (PID=" + pid + ")", e);
+			e.printStackTrace(System.out);
 		}
 
 		return createDeadVM(pid, VMInfoState.ERROR_DURING_ATTACH);
@@ -204,8 +182,7 @@ public class VMInfo {
 	 * Updates all jvm metrics to the most recent remote values
 	 */
 	public void update() throws Exception {
-		if (state == VMInfoState.ERROR_DURING_ATTACH || state == VMInfoState.DETACHED
-				|| state == VMInfoState.CONNECTION_REFUSED) {
+		if (state == VMInfoState.ERROR_DURING_ATTACH || state == VMInfoState.DETACHED) {
 			return;
 		}
 
@@ -394,9 +371,10 @@ public class VMInfo {
 	}
 
 	private void handleFetchDataError(Throwable e) {
-		Logger.getLogger("vjtop").log(Level.INFO, "error during update", e);
+		e.printStackTrace(System.out);
 		updateErrorCount++;
-		if (updateErrorCount > 10) {
+
+		if (updateErrorCount > 3) {
 			state = VMInfoState.DETACHED;
 		} else {
 			state = VMInfoState.ATTACHED_UPDATE_ERROR;
@@ -423,6 +401,6 @@ public class VMInfo {
 	}
 
 	public enum VMInfoState {
-		INIT, ERROR_DURING_ATTACH, ATTACHED, ATTACHED_UPDATE_ERROR, DETACHED, CONNECTION_REFUSED
+		INIT, ERROR_DURING_ATTACH, ATTACHED, ATTACHED_UPDATE_ERROR, DETACHED
 	}
 }

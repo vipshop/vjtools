@@ -18,12 +18,12 @@ public class JmxBufferPoolManager {
 
 		List<BufferPoolMXBean> bufferPoolMXBeans = ManagementFactory.getPlatformMXBeans(connection,
 				BufferPoolMXBean.class);
+
 		for (BufferPoolMXBean bufferPool : bufferPoolMXBeans) {
-			String name = bufferPool.getName().trim();
-			String lowerCaseName = name.toLowerCase();
-			if (lowerCaseName.contains(DIRECT)) {
+			String name = bufferPool.getName().toLowerCase().trim();
+			if (name.contains(DIRECT)) {
 				directBufferPool = bufferPool;
-			} else if (lowerCaseName.contains(MAPPED)) {
+			} else if (name.contains(MAPPED)) {
 				mappedBufferPool = bufferPool;
 			}
 		}

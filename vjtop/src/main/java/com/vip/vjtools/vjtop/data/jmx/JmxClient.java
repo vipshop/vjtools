@@ -64,7 +64,6 @@ import com.sun.tools.attach.VirtualMachine;
 public class JmxClient {
 	private static final String LOCAL_CONNECTOR_ADDRESS_PROP = "com.sun.management.jmxremote.localConnectorAddress";
 
-	private boolean connected = false;
 	private boolean hasPlatformMXBeans = false;
 
 	private String pid;
@@ -87,32 +86,20 @@ public class JmxClient {
 		this.pid = pid;
 	}
 
-	public boolean isConnected() {
-		return this.connected;
-	}
-
 	public void flush() {
 		if (server != null) {
 			server.flush();
 		}
 	}
 
-	public void connect() throws Exception {
-		try {
-			tryConnect();
-			connected = true;
-		} catch (Exception e) {
-			connected = false;
-			throw e;
-		}
-	}
+	public void connect() throws IOException {
 
-	private void tryConnect() throws IOException {
 		// 如果jmx agent未启动，主动attach进JVM后加载
-		String address = getConnectorAddress();
+		String address = attachToGetConnectorAddress();
 
 		this.jmxUrl = new JMXServiceURL(address);
 		this.jmxc = JMXConnectorFactory.connect(jmxUrl);// NOSONAR
+
 		this.mbsc = jmxc.getMBeanServerConnection();
 		this.server = Snapshot.newSnapshot(mbsc);
 
@@ -244,10 +231,10 @@ public class JmxClient {
 	 * 并向JMXClient提供连接地址地址样例：service:jmx:rmi://127.0
 	 * .0.1/stub/rO0ABXN9AAAAAQAl...
 	 */
-	public String getConnectorAddress() throws IOException {
+	public String attachToGetConnectorAddress() throws IOException {
 		VirtualMachine vm = null;
-		// 1. attach vm
 
+		// 1. attach vm
 		try {
 			vm = VirtualMachine.attach(pid);
 		} catch (AttachNotSupportedException x) {
@@ -257,7 +244,6 @@ public class JmxClient {
 		}
 
 		try {
-
 			// 2. 检查smartAgent是否已启动
 			Properties agentProps = vm.getAgentProperties();
 			String address = (String) agentProps.get(LOCAL_CONNECTOR_ADDRESS_PROP);

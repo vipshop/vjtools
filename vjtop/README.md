@@ -1,8 +1,12 @@
 # 1. 概述
 
-若你习惯以Top观察“OS指标及繁忙的进程”，也推荐以VJTop观看 “JVM指标及CPU最繁忙，内存占用最多的线程”。
+若你习惯以Top观察“OS指标及繁忙的进程”，也推荐以VJTop观看 “JVM进程指标 及 CPU最繁忙，内存占用最多的线程”。
 
-另一用途是，监控系统发现指标超阈值时，钩子脚本调VJTop纪录事发地状况。
+JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有重要指标。
+
+繁忙线程信息， 对比于“先top -H 列出线程，再执行一次jstack拿到全部线程，再手工换算threadId”的繁琐过程，既方便，又可以连续跟踪，更不会因为jstack造成JVM停顿。
+
+因此，VJTop也常用于监控系统发现指标超阈值时，用钩子脚本调VJTop来纪录事发地的状况。
 
 在[jvmtop](https://github.com/patric-r/jvmtop) 的基础上二次开发，结合 [SJK](https://github.com/aragozin/jvm-tools)的优点，从/proc ， PerfData，JMX等处，以更高的性能，获取更多的信息。
 
@@ -16,11 +20,13 @@
 
 [Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.2/vjtop-1.0.2.zip)
 
-必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行，或root用户执行 (sudo -E vjmap.sh ...，)
+必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行，或root权限用户sudo执行 (sudo -E vjtop.sh ...，)
+
+如果仍有问题，请看最后的执行问题章节。
 
 ```
 // 占用CPU最多的线程
-./vjtop.sh <PID>
+./vjtop.sh <PID> 
 ```
 
 ## 2.2 原理：
@@ -65,16 +71,13 @@
 ### 2.3.2 输出示例：
 
 ```
- VJTop 1.0.0 - 11:38:02, UPTIME: 3d01h
- PID: 127197, JVM: 1.7.0_79, USER: even.liang
+ PID: 57789 - 15:37:07, JVM: 1.8.0_144, USER: calvin, UPTIME: 01h07m
  PROCESS:  0.99% cpu ( 0.04% of 24 core), 2491m rss,   0m swap
  IO:   24k rchar,    1k wchar,    0 read_bytes,    0 write_bytes
  THREAD:   97 active,   89 daemon,   99 peak,  461 created, CLASS: 12243 loaded, 0 unloaded
  HEAP: 160m/819m eden, 0m/102m sur, 43m/1024m old
- NON-HEAP: 55m/256m cms perm gen, 8m/96m codeCache
- OFF-HEAP: 0m/0m direct, 0m/0m map
+ NON-HEAP: 55m/256m cms perm gen, 8m/96m codeCache, 0m/0m direct, 0m/0m map
  GC: 0/0ms ygc, 0/0ms fgc, SAFE-POINT: 6 count, 1ms time, 1ms syncTime
- THREADS-CPU:  1.01% (user= 0.31%, sys= 0.70%)
 
     TID NAME                                                      STATE    CPU SYSCPU  TOTAL TOLSYS
      43 metrics-mercury-metric-logger-1-thread-1             TIMED_WAIT  0.38%  0.28% 25.48%  9.13%
@@ -88,7 +91,7 @@
      70 Proxy-Worker-5-5                                       RUNNABLE  0.00%  0.00%  0.78%  0.26%
     102 Proxy-Worker-5-20                                      RUNNABLE  0.00%  0.00%  0.80%  0.27%
 
- Note: Only top 10 threads (according cpu load) are shown!
+ Total cpu:  1.01% (user= 0.31%, sys= 0.70%), top 10 threads are shown, order by CPU
  Cost time:  46ms, CPU time:  60ms
 ```
 进程区数据解释:
@@ -210,9 +213,29 @@
 ./vjtop.sh -n 20 <PID>
 ```
 
-# 3. 改进点
+# 3. 执行问题排查
 
-### 3.1 热点线程页：
+首先，运行vjtop的JDK，与目标JDK的版本必须一致
+
+其次，vjtop 使用JVM attach机制 连入PID 并获得JMX的本地连接地址，如果出现如下出错，可能的原因有
+
+```
+ERROR: Could not attach to process.
+```
+
+
+1. 执行vjtop的用户，对/tmp/.java_pid$PID 文件有读写权限，该文件权限为srw------- 1，所以需要相同用户或root权限用户 sudo执行。
+
+2. /tmp/.java_pid$PID 文件再首次连接时会生成，但如果生成之后被/tmp 目录的清理程序错误删除，JVM将不再能连入，只能重启应用。
+
+3. 目标JVM使用启动参数-Djava.io.tmpdir，重定向了tmp目录路径
+
+4. 目标JVM使用启动参数-XX:+DisableAttachMechanism禁止了attach
+
+
+# 4. 改进点
+
+### 4.1 热点线程页：
 
 * 新功能：线程内存分配速度的展示与排序 (from SJK)
 * 新功能：线程SYS CPU的展示与排序，应用启动以来线程的总CPU间的排序 (from SJK)
@@ -221,12 +244,12 @@
 * 新配置项：打印间隔，展示线程数
 * 性能优化：减少了几倍的耗时，通过批量获取线程CPU时间(from SJK)等方法
 
-### 3.2 实时交互(since 1.0.1)
+### 4.2 实时交互(since 1.0.1)
 
 * 新功能： 选择打印某条线程的stack trace
 * 新功能： 实时切换显示模式和排序，刷新频率和显示线程数
 
-### 3.3 为在生产环境运行优化：
+### 4.3 为在生产环境运行优化：
 
 * 删除jvmtop会造成应用停顿的Profile页面
 * 删除jvmtop获取所有Java进程信息，有着不确定性的Overview页面

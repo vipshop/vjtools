@@ -71,36 +71,37 @@ public class VMDetailView {
 	/**
 	 * 打印单条线程的stack strace
 	 */
-	public void printStack(long tid) throws NumberFormatException, IOException {
+	public void printStack(long tid) throws IOException {
 		ThreadInfo info = vmInfo.getThreadMXBean().getThreadInfo(tid, 20);
 		if (info == null) {
 			System.err.println(" TID not exist:" + tid);
 			return;
 		}
 		StackTraceElement[] trace = info.getStackTrace();
-		System.err.println(" " + info.getThreadId() + ":" + info.getThreadName());
+		System.out.println(" " + info.getThreadId() + ":" + info.getThreadName());
 		for (StackTraceElement traceElement : trace) {
-			System.err.println("\tat " + traceElement);
+			System.out.println("\tat " + traceElement);
 		}
+		System.out.flush();
 	}
 
-	public void printAllThreads() throws Exception {
+	public void printAllThreads() throws IOException {
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(tids);
 		for (ThreadInfo info : threadInfos) {
-			System.err.println(" " + info.getThreadId() + "\t:" + info.getThreadName());
+			System.out.println(" " + info.getThreadId() + "\t:" + info.getThreadName());
 		}
+		System.out.flush();
 	}
 
 	private boolean checkState() {
 		if (vmInfo.state == VMInfoState.ATTACHED_UPDATE_ERROR) {
-			System.err.println("ERROR: Could not fetch telemetries - Process terminated?");
-			exit();
+			System.out.println("ERROR: Could not fetch data - Process terminated?");
 			return false;
 		}
 
 		if (vmInfo.state != VMInfoState.ATTACHED) {
-			System.err.println("ERROR: Could not attach to process.");
+			System.out.println("ERROR: Could not attach to process. ");
 			exit();
 			return false;
 		}
@@ -108,7 +109,7 @@ public class VMDetailView {
 		return true;
 	}
 
-	private void printJvmInfo() throws Exception {
+	private void printJvmInfo() {
 		System.out.printf(" PID: %s - %8tT, JVM: %s, USER: %s, UPTIME: %s%n", vmInfo.pid, new Date(), vmInfo.jvmVersion,
 				vmInfo.osUser, Utils.toTimeUnit(vmInfo.lastUpTimeMills));
 
@@ -153,7 +154,7 @@ public class VMDetailView {
 		}
 	}
 
-	private void printTopCpuThreads(DetailMode mode) throws Exception {
+	private void printTopCpuThreads(DetailMode mode) throws IOException {
 		if (!vmInfo.threadCpuTimeSupported) {
 			System.out.printf("%n -Thread CPU telemetries are not available on the monitored jvm/platform-%n");
 			return;
@@ -272,10 +273,10 @@ public class VMDetailView {
 		lastThreadSysCpuTotalTimes = threadSysCpuTotalTimes;
 	}
 
-	private void printTopMemoryThreads(DetailMode mode) throws Exception {
+	private void printTopMemoryThreads(DetailMode mode) throws IOException {
 
 		if (!vmInfo.threadMemoryAllocatedSupported) {
-			System.err.printf(
+			System.out.printf(
 					"%n -Thread Memory Allocated telemetries are not available on the monitored jvm/platform-%n");
 			return;
 		}
@@ -342,7 +343,6 @@ public class VMDetailView {
 					Utils.toSizeUnit(threadMemoryTotalBytesMap.get(tid)),
 					getThreadMemoryUtilization(threadMemoryTotalBytesMap.get(tid), totalBytes));
 		}
-
 
 		// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
 		System.out.printf("%n Total memory allocate rate : %5s/s",
@@ -431,7 +431,6 @@ public class VMDetailView {
 				case "6":
 					return totalmemory;
 				default:
-					System.err.println(" Wrong option for display mode(1-6)");
 					return null;
 			}
 		}

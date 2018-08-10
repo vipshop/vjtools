@@ -27,7 +27,9 @@ public class InteractiveTask implements Runnable {
 			try {
 				String command = readLine();
 				handleCommand(command);
-				tty.print(" Input command (h for help):");
+				if (!app.view.shouldExit()) {
+					tty.print(" Input command (h for help):");
+				}
 			} catch (Exception e) {
 				e.printStackTrace(tty);
 			}
@@ -100,11 +102,13 @@ public class InteractiveTask implements Runnable {
 				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): ");
 		String mode = readLine();
 		DetailMode detailMode = DetailMode.parse(mode);
-		if (detailMode != null && detailMode != app.view.mode) {
+		if (detailMode == null) {
+			tty.println(" Wrong option for display mode(1-6)");
+		} else if (detailMode == app.view.mode) {
+			tty.println(" Nothing be changed");
+		} else {
 			app.view.mode = detailMode;
 			tty.println(" Display mode changed to " + app.view.mode + " for next flush");
-		} else {
-			tty.println(" Nothing be changed");
 		}
 		app.continueFlush();
 	}

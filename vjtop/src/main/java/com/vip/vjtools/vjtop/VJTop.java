@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 
+import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -86,6 +88,11 @@ public class VJTop {
 			}
 
 			VMInfo vminfo = VMInfo.processNewVM(pid);
+			if (vminfo.state != VMInfoState.ATTACHED) {
+				System.out.println("\nERROR: Could not attach to process, please find reason in README\n");
+				return;
+			}
+
 			VMDetailView view = new VMDetailView(vminfo, displayMode, width);
 
 			if (optionSet.hasArgument("limit")) {
@@ -120,13 +127,16 @@ public class VJTop {
 			// 5. run views
 			app.run(view);
 		} catch (Exception e) {
-			e.printStackTrace(System.err);
+			e.printStackTrace(System.out);
+			System.out.flush();
 		}
 	}
 
 	private void run(VMDetailView view) throws Exception {
 		try {
+			// System.out 设为Buffered，需要使用System.out.flush刷新
 			System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(FileDescriptor.out)), false));
+
 			int iterations = 0;
 			while (!view.shouldExit()) {
 
@@ -143,20 +153,19 @@ public class VJTop {
 					break;
 				}
 
-				// 第一次只等待2秒
-				int sleepTime = iterations == 0 ? 2 : interval;
+				// 第一次只等待1秒
+				int sleepTime = iterations == 0 ? 1 : interval;
 
 				++iterations;
 
 				Utils.sleep(sleepTime * 1000);
 			}
 		} catch (NoClassDefFoundError e) {
-			e.printStackTrace(System.err);
-
-			System.err.println("");
-			System.err.println("ERROR: Some JDK classes cannot be found.");
-			System.err.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
-			System.err.println("");
+			e.printStackTrace(System.out);
+			System.out.println("ERROR: Some JDK classes cannot be found.");
+			System.out.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
+			System.out.println("");
+			System.out.flush();
 		}
 	}
 
@@ -218,7 +227,6 @@ public class VJTop {
 	public void exit() {
 		view.exit();
 		mainThread.interrupt();
-		System.err.println(" Quit.");
 	}
 
 	public void preventFlush() {
