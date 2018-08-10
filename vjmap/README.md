@@ -44,17 +44,11 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用kil
 ## 2.2 过滤对象大小，不显示过小的对象:
 
 ```
-// 按对象的total size进行过滤，只打印占用超过1K的数据
-./vjmap.sh -all:minsize=1024 PID > /tmp/histo.log
-
 // 按对象的oldgen size进行过滤，只打印OldGen占用超过1K的数据
 ./vjmap.sh -old:minsize=1024 PID > /tmp/histo-old.log
-
-// 按对象的survivor size进行过滤，只打印Survivor占用超过1K的数据
-./vjmap.sh -sur:minsize=1024 PID > /tmp/histo-sur.log
 ```
 
-## 2.3 按class name排序，配合大小过滤生成用于定时比较的报表:
+## 2.3 按class name排序，配合大小过滤， 生成用于两次结果比较的报表:
 
 ```
 ./vjmap.sh -all:minsize=1024,byname PID > /tmp/histo.log
@@ -96,8 +90,7 @@ SELECT * FROM INSTANCEOF java.lang.Object t WHERE (toHex(t.@objectAddress) >= "0
 第二种方式是使用vjmap的命令，在-old, -sur, -address 中，都会打印出区间的地址
 
 ```
-./vjmap.sh -address PID
-
+./vjmap.sh -address PI
 ``` 
 
 输出如下：
@@ -109,7 +102,7 @@ concurrent mark-sweep generation
 free-list-space[ 0x0000000123aa0000 , 0x0000000139000000 ) space capacity = 357957632 used(4%)= 17024696 free= 340932936
 ```
 
-上例中的 0x123aa0000 , 0x139000000 即为OldGen的上下界。 注意OQL中使用时要把数值前的那串0去掉。
+上例中的 0x123aa0000 , 0x139000000 即为OldGen的范围。 注意OQL中使用时要把数值前的那串0去掉。
 
 
 # 5. 打印加载的Class列表
@@ -128,8 +121,8 @@ since 1.0.2, 为了兼容JDK8，不再打印Class所在的Jar包
 * 新功能：Survivor区 age大于N的对象统计
 * 新功能：打印各分代的地址区间，用于MAT进一步分析
 * 性能提升：直接访问Survivor或OldGen区，而不是以Heap Visitor回调的方式访问整个Heap
-* 新配置项：按对象的大小进行过滤，不显示过小的对象
-* 新配置项：按对象的名称进行排序，用于生成定时比较的报表
+* 新配置项：按对象的占用内存进行过滤，不显示过小的对象
+* 新配置项：按对象的名称进行排序，可用于两次统计结果的比对
 * 输出改进：报表数字的单位化(k,m,g)与对齐，OldGen报表默认按对象在OldGen的大小排序
 
 ```
