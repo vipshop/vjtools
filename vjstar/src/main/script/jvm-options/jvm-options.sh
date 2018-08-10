@@ -83,7 +83,7 @@ fi
 
 
 if [ -f ${GC_LOG_FILE} ]; then
-  GC_LOG_BACKUP =  ${LOGDIR}/gc-${APPID}-$(date +'%Y%m%d_%H%M%S').log
+  GC_LOG_BACKUP=${LOGDIR}/gc-${APPID}-$(date +'%Y%m%d_%H%M%S').log
   echo "saving gc log ${GC_LOG_FILE} to ${GC_LOG_BACKUP}"
   mv ${GC_LOG_FILE} ${GC_LOG_BACKUP}
 fi
