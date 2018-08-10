@@ -13,7 +13,7 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 # 2.使用说明
 
-[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.2/vjmap-1.0.2.zip)
+[下载 vjmap-1.0.2.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.2/vjmap-1.0.2.zip) (from Maven Central)
 
 注意：vjmap在执行过程中，会完全停止应用一段时间，必须摘流量执行！！！！
 
@@ -87,11 +87,13 @@ Heap traversal took 1.3 seconds.
 SELECT * FROM INSTANCEOF java.lang.Object t WHERE (toHex(t.@objectAddress) >= "0xfbd4c000" AND toHex(t.@objectAddress) <= "0xfce94050")
 ```
 
+注意，MAT要在偏好设置中 勾选 "Keep unreachable object"
+
 用如下方式可获得老生代地址：
 
-第一种方式是在启动参数增加 -XX:+PrintHeapAtGC
+第一种方式是在启动参数增加 -XX:+PrintHeapAtGC，每次GC都打印地址
 
-第二种方式是使用vjmap的命令，在-old, -sur, -address 中，都会打印出区间的地址。 
+第二种方式是使用vjmap的命令，在-old, -sur, -address 中，都会打印出区间的地址
 
 ```
 ./vjmap.sh -address PID
@@ -106,6 +108,9 @@ SELECT * FROM INSTANCEOF java.lang.Object t WHERE (toHex(t.@objectAddress) >= "0
 concurrent mark-sweep generation
 free-list-space[ 0x0000000123aa0000 , 0x0000000139000000 ) space capacity = 357957632 used(4%)= 17024696 free= 340932936
 ```
+
+上例中的 0x123aa0000 , 0x139000000 即为OldGen的上下界。 注意OQL中使用时要把数值前的那串0去掉。
+
 
 # 5. 打印加载的Class列表
 
