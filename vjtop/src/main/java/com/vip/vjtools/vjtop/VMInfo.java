@@ -32,7 +32,9 @@ public class VMInfo {
 	public String vmArgs = "";
 	public String jvmVersion = "";
 	public int jvmMajorVersion;
+
 	public String permGenName;
+	public long threadStackSize;
 
 	public int processors;
 	public boolean isLinux;
@@ -154,6 +156,8 @@ public class VMInfo {
 		jvmVersion = systemProperties_.get("java.version");
 		jvmMajorVersion = getJavaMajorVersion(jvmVersion);
 
+		threadStackSize = 1024
+				* Long.parseLong(jmxClient.getHotSpotDiagnosticMXBean().getVMOption("ThreadStackSize").getValue());
 		permGenName = jvmMajorVersion >= 8 ? "metaspace" : "perm";
 
 		threadCpuTimeSupported = jmxClient.getThreadMXBean().isThreadCpuTimeSupported();
@@ -344,15 +348,23 @@ public class VMInfo {
 	}
 
 	public class Rate {
-		public long last = -1;
-		public long current = -1;
-		public long delta = -1;
+		private long last = -1;
+		private long current = -1;
+		private long delta = -1;
 
 		public void update() {
 			if (last != -1) {
 				delta = current - last;
 			}
 			last = current;
+		}
+
+		public long getDelta() {
+			return delta == -1 ? 0 : delta;
+		}
+
+		public long getCurrent() {
+			return current;
 		}
 
 	}

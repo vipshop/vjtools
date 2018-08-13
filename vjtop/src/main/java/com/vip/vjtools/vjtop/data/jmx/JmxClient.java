@@ -53,6 +53,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import com.sun.management.GarbageCollectorMXBean;
+import com.sun.management.HotSpotDiagnosticMXBean;
 import com.sun.management.OperatingSystemMXBean;
 import com.sun.management.ThreadMXBean;
 import com.sun.tools.attach.VirtualMachine;
@@ -73,6 +74,7 @@ public class JmxClient {
 	private ClassLoadingMXBean classLoadingMBean = null;
 	private OperatingSystemMXBean operatingSystemMBean = null;
 	private RuntimeMXBean runtimeMBean = null;
+	private HotSpotDiagnosticMXBean hotSpotDiagnosticMXBean = null;
 	private ThreadMXBean threadMBean = null;
 	private GarbageCollectorMXBean fullGarbageCollectorMXBean = null;
 	private GarbageCollectorMXBean youngGarbageCollectorMXBean = null;
@@ -158,6 +160,14 @@ public class JmxClient {
 					ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, OperatingSystemMXBean.class);
 		}
 		return operatingSystemMBean;
+	}
+
+	public synchronized HotSpotDiagnosticMXBean getHotSpotDiagnosticMXBean() throws IOException {
+		if (hasPlatformMXBeans && hotSpotDiagnosticMXBean == null) {
+			hotSpotDiagnosticMXBean = ManagementFactory.newPlatformMXBeanProxy(server,
+					"com.sun.management:type=HotSpotDiagnostic", HotSpotDiagnosticMXBean.class);
+		}
+		return hotSpotDiagnosticMXBean;
 	}
 
 	public synchronized GarbageCollectorMXBean getFullCollector() throws IOException {

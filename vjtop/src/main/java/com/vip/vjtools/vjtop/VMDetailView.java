@@ -111,7 +111,7 @@ public class VMDetailView {
 
 	private void printJvmInfo() {
 		System.out.printf(" PID: %s - %8tT, JVM: %s, USER: %s, UPTIME: %s%n", vmInfo.pid, new Date(), vmInfo.jvmVersion,
-				vmInfo.osUser, Utils.toTimeUnit(vmInfo.upTimeMills.current));
+				vmInfo.osUser, Utils.toTimeUnit(vmInfo.upTimeMills.getCurrent()));
 
 		System.out.printf(" PROCESS: %5.2f%% cpu (%5.2f%% of %d core)", vmInfo.singleCoreCpuLoad * 100,
 				vmInfo.cpuLoad * 100, vmInfo.processors);
@@ -120,8 +120,8 @@ public class VMDetailView {
 			System.out.printf(", %4s rss, %4s swap%n", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.swap));
 
 			System.out.printf(" IO: %4s rchar, %4s wchar, %4s readBytes, %4s writeBytes",
-					Utils.toSizeUnit(vmInfo.rchar.delta), Utils.toSizeUnit(vmInfo.wchar.delta),
-					Utils.toSizeUnit(vmInfo.readBytes.delta), Utils.toSizeUnit(vmInfo.writeBytes.delta));
+					Utils.toSizeUnit(vmInfo.rchar.getDelta()), Utils.toSizeUnit(vmInfo.wchar.getDelta()),
+					Utils.toSizeUnit(vmInfo.readBytes.getDelta()), Utils.toSizeUnit(vmInfo.writeBytes.getDelta()));
 		}
 		System.out.println();
 
@@ -139,15 +139,16 @@ public class VMDetailView {
 		}
 		System.out.println("");
 
-		System.out.printf(" OFF-HEAP: %s/%s direct, %s/%s map%n", Utils.toMB(vmInfo.direct.used),
-				Utils.toMB(vmInfo.direct.max), Utils.toMB(vmInfo.map.used), Utils.toMB(vmInfo.map.max));
+		System.out.printf(" OFF-HEAP: %s/%s direct, %s/%s map, %s threadStack%n", Utils.toMB(vmInfo.direct.used),
+				Utils.toMB(vmInfo.direct.max), Utils.toMB(vmInfo.map.used), Utils.toMB(vmInfo.map.max),
+				Utils.toMB(vmInfo.threadStackSize * vmInfo.threadActive));
 
-		System.out.printf(" GC: %d/%dms ygc, %d/%dms fgc", vmInfo.ygcCount.delta, vmInfo.ygcTimeMills.delta,
-				vmInfo.fullgcCount.delta, vmInfo.fullgcTimeMills.delta);
+		System.out.printf(" GC: %d/%dms ygc, %d/%dms fgc", vmInfo.ygcCount.getDelta(), vmInfo.ygcTimeMills.getDelta(),
+				vmInfo.fullgcCount.getDelta(), vmInfo.fullgcTimeMills.getDelta());
 
 		if (vmInfo.perfDataSupport) {
-			System.out.printf(", SAFE-POINT: %d count, %dms time, %dms syncTime%n", vmInfo.safepointCount.delta,
-					vmInfo.safepointTimeMills.delta, vmInfo.safepointSyncTimeMills.delta);
+			System.out.printf(", SAFE-POINT: %d count, %dms time, %dms syncTime%n", vmInfo.safepointCount.getDelta(),
+					vmInfo.safepointTimeMills.getDelta(), vmInfo.safepointSyncTimeMills.getDelta());
 		} else {
 			System.out.printf("%n");
 		}
@@ -243,19 +244,19 @@ public class VMDetailView {
 				String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 20);
 
 				System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
-						getThreadCPUUtilization(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
+						getThreadCPUUtilization(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
 								Utils.NANOS_TO_MILLS),
-						getThreadCPUUtilization(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
+						getThreadCPUUtilization(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
 								Utils.NANOS_TO_MILLS),
-						getThreadCPUUtilization(threadCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.last, 1),
-						getThreadCPUUtilization(threadSysCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.last, 1));
+						getThreadCPUUtilization(threadCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.getCurrent(), 1),
+						getThreadCPUUtilization(threadSysCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.getCurrent(), 1));
 			}
 		}
 
 		// 打印线程汇总
-		double deltaAllThreadCpuLoad = Utils.calcLoad(vmInfo.upTimeMills.delta,
+		double deltaAllThreadCpuLoad = Utils.calcLoad(vmInfo.upTimeMills.getDelta(),
 				(deltaAllThreadCpu * 100) / (Utils.NANOS_TO_MILLS * 1D), 1);
-		double deltaAllThreadSysCpuLoad = Utils.calcLoad(vmInfo.upTimeMills.delta,
+		double deltaAllThreadSysCpuLoad = Utils.calcLoad(vmInfo.upTimeMills.getDelta(),
 				(deltaAllThreadSysCpu * 100) / (Utils.NANOS_TO_MILLS * 1D), 1);
 
 		System.out.printf("%n Total cpu: %5.2f%% (user=%5.2f%%, sys=%5.2f%%)", deltaAllThreadCpuLoad,
@@ -337,7 +338,7 @@ public class VMDetailView {
 			String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 12);
 
 			System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
-					Utils.toSizeUnit((threadMemoryDeltaBytesMap.get(tid) * 1000) / vmInfo.upTimeMills.delta),
+					Utils.toSizeUnit((threadMemoryDeltaBytesMap.get(tid) * 1000) / vmInfo.upTimeMills.getDelta()),
 					getThreadMemoryUtilization(threadMemoryDeltaBytesMap.get(tid), totalDeltaBytes),
 					Utils.toSizeUnit(threadMemoryTotalBytesMap.get(tid)),
 					getThreadMemoryUtilization(threadMemoryTotalBytesMap.get(tid), totalBytes));
@@ -345,7 +346,7 @@ public class VMDetailView {
 
 		// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
 		System.out.printf("%n Total memory allocate rate : %5s/s",
-				Utils.toSizeUnit((totalDeltaBytes * 1000) / vmInfo.upTimeMills.delta));
+				Utils.toSizeUnit((totalDeltaBytes * 1000) / vmInfo.upTimeMills.getDelta()));
 
 		if (threadMemoryTotalBytesMap.size() > threadLimit) {
 			System.out.printf(", top %d threads are shown, order by %s%n", threadLimit, mode.toString().toUpperCase());
@@ -359,7 +360,7 @@ public class VMDetailView {
 
 	private void printWelcome() {
 		if (firstTime) {
-			System.out.printf(" VMARGS: %s%n%n", vmInfo.vmArgs);
+			System.out.printf("%n VMARGS: %s%n%n", vmInfo.vmArgs);
 			firstTime = false;
 		}
 		System.out.printf("%n Collecting data, please wait ......%n%n");
