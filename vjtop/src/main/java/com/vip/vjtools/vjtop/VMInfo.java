@@ -152,7 +152,7 @@ public class VMInfo {
 		Map<String, String> systemProperties_ = jmxClient.getRuntimeMXBean().getSystemProperties();
 		osUser = systemProperties_.get("user.name");
 		jvmVersion = systemProperties_.get("java.version");
-		jvmMajorVersion = getJavaMajorVersion();
+		jvmMajorVersion = getJavaMajorVersion(jvmVersion);
 
 		permGenName = jvmMajorVersion >= 8 ? "metaspace" : "perm";
 
@@ -178,8 +178,13 @@ public class VMInfo {
 
 			jmxClient.flush();
 
-			updateIO();
 			updateCpu();
+
+			if (isLinux) {
+				updateMemory();
+				updateIO();
+			}
+
 			updateThreads();
 			updateClassLoad();
 			updateMemoryPool();
@@ -190,8 +195,23 @@ public class VMInfo {
 		}
 	}
 
-	private void updateIO() {
+	private void updateCpu() throws IOException {
+		upTimeMills.current = jmxClient.getRuntimeMXBean().getUptime();
+		cpuTimeNanos.current = jmxClient.getOperatingSystemMXBean().getProcessCpuTime();
 
+		cpuTimeNanos.update();
+		upTimeMills.update();
+		cpuLoad = Utils.calcLoad(upTimeMills.delta, cpuTimeNanos.delta / (Utils.NANOS_TO_MILLS * 1D), processors);
+		singleCoreCpuLoad = Utils.calcLoad(upTimeMills.delta, cpuTimeNanos.delta / (Utils.NANOS_TO_MILLS * 1D), 1);
+	}
+
+	private void updateMemory() {
+		Map<String, String> procStatus = ProcFileData.getProcStatus(pid);
+		rss = Utils.parseFromSize(procStatus.get("VmRSS"));
+		swap = Utils.parseFromSize(procStatus.get("VmSwap"));
+	}
+
+	private void updateIO() {
 		Map<String, String> procIo = ProcFileData.getProcIO(pid);
 		rchar.current = Utils.parseFromSize(procIo.get("rchar"));
 		wchar.current = Utils.parseFromSize(procIo.get("wchar"));
@@ -204,19 +224,6 @@ public class VMInfo {
 		writeBytes.update();
 	}
 
-	private void updateCpu() throws IOException {
-		upTimeMills.current = jmxClient.getRuntimeMXBean().getUptime();
-		cpuTimeNanos.current = jmxClient.getOperatingSystemMXBean().getProcessCpuTime();
-
-		cpuTimeNanos.update();
-		upTimeMills.update();
-		cpuLoad = Utils.calcLoad(upTimeMills.delta, cpuTimeNanos.delta / (Utils.NANOS_TO_MILLS * 1D), processors);
-		singleCoreCpuLoad = Utils.calcLoad(upTimeMills.delta, cpuTimeNanos.delta / (Utils.NANOS_TO_MILLS * 1D), 1);
-
-		Map<String, String> procStatus = ProcFileData.getProcStatus(pid);
-		rss = Utils.parseFromSize(procStatus.get("VmRSS"));
-		swap = Utils.parseFromSize(procStatus.get("VmSwap"));
-	}
 
 	private void updateThreads() throws IOException {
 		if (perfDataSupport) {
@@ -246,38 +253,62 @@ public class VMInfo {
 	private void updateMemoryPool() throws IOException {
 		JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
 
-		// eden
-		eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
+		if (perfDataSupport) {
+			eden = new Usage((long) perfCounters.get("sun.gc.generation.0.space.0.used").getValue(),
+					(long) perfCounters.get("sun.gc.generation.0.space.0.capacity").getValue(),
+					(long) perfCounters.get("sun.gc.generation.0.space.0.maxCapacity").getValue());
 
-		// old gen
-		old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
+			old = new Usage((long) perfCounters.get("sun.gc.generation.1.space.0.used").getValue(),
+					(long) perfCounters.get("sun.gc.generation.1.space.0.capacity").getValue(),
+					(long) perfCounters.get("sun.gc.generation.1.space.0.maxCapacity").getValue());
 
-		// survivor
-		MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
-		if (survivorMemoryPool != null) {
-			sur = new Usage(survivorMemoryPool.getUsage());
+			sur = new Usage(
+					(long) perfCounters.get("sun.gc.generation.0.space.1.used").getValue()
+							+ (long) perfCounters.get("sun.gc.generation.0.space.2.used").getValue(),
+					(long) perfCounters.get("sun.gc.generation.0.space.1.capacity").getValue()
+							+ (long) perfCounters.get("sun.gc.generation.0.space.2.capacity").getValue(),
+					(long) perfCounters.get("sun.gc.generation.0.space.1.maxCapacity").getValue()
+							+ (long) perfCounters.get("sun.gc.generation.0.space.2.maxCapacity").getValue());
+
+			if (jvmMajorVersion >= 8) {
+				perm = new Usage((long) perfCounters.get("sun.gc.metaspace.used").getValue(),
+						(long) perfCounters.get("sun.gc.metaspace.capacity").getValue(),
+						(long) perfCounters.get("sun.gc.metaspace.maxCapacity").getValue());
+
+				ccs = new Usage((long) perfCounters.get("sun.gc.compressedclassspace.used").getValue(),
+						(long) perfCounters.get("sun.gc.compressedclassspace.capacity").getValue(),
+						(long) perfCounters.get("sun.gc.compressedclassspace.maxCapacity").getValue());
+			} else {
+				perm = new Usage((long) perfCounters.get("sun.gc.generation.2.space.0.used").getValue(),
+						(long) perfCounters.get("sun.gc.generation.2.space.0.capacity").getValue(),
+						(long) perfCounters.get("sun.gc.generation.2.space.0.maxCapacity").getValue());
+			}
 		} else {
-			sur = new Usage();
-		}
+			eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
 
-		// perm gen
-		perm = new Usage(memoryPoolManager.getPermMemoryPool().getUsage());
+			old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
 
-		// compressed class space
-		if (jvmMajorVersion >= 8) {
-			MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
-			if (compressedClassSpaceMemoryPool != null) {
-				ccs = new Usage(compressedClassSpaceMemoryPool.getUsage());
+			MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
+			if (survivorMemoryPool != null) {
+				sur = new Usage(survivorMemoryPool.getUsage());
+			} else {
+				sur = new Usage();
+			}
+
+			perm = new Usage(memoryPoolManager.getPermMemoryPool().getUsage());
+
+			if (jvmMajorVersion >= 8) {
+				MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
+				if (compressedClassSpaceMemoryPool != null) {
+					ccs = new Usage(compressedClassSpaceMemoryPool.getUsage());
+				}
 			}
 		}
 
-		// code cache
 		codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
 
-		// direct
 		direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool());
 
-		// map
 		map = new Usage(jmxClient.getBufferPoolManager().getMappedBufferPool());
 	}
 
@@ -330,7 +361,7 @@ public class VMInfo {
 	}
 
 
-	private int getJavaMajorVersion() {
+	private static int getJavaMajorVersion(String jvmVersion) {
 		if (jvmVersion.startsWith("1.8")) {
 			return 8;
 		} else if (jvmVersion.startsWith("1.7")) {

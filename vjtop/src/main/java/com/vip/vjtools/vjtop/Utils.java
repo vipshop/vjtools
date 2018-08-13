@@ -23,9 +23,15 @@ public class Utils {
 	 */
 	public static String toMB(long bytes) {
 		if (bytes < 0) {
-			return "n/a";
+			return "NaN";
 		}
-		return Long.toString(bytes / 1024 / 1024) + "m";
+		long mb = bytes / 1024 / 1024;
+
+		if (mb < 9999) {
+			return mb + "m";
+		} else {
+			return toSizeUnit(bytes);
+		}
 	}
 
 	public static String toSizeUnit(Long size) {

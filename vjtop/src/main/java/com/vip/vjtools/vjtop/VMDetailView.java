@@ -135,10 +135,9 @@ public class VMDetailView {
 		System.out.printf(" NON-HEAP: %s %s, %s codeCache", Utils.formatUsage(vmInfo.perm), vmInfo.permGenName,
 				Utils.formatUsage(vmInfo.codeCache));
 		if (vmInfo.jvmMajorVersion >= 8) {
-			System.out.printf(", %s ccs%n", Utils.formatUsage(vmInfo.ccs));
-		} else {
-			System.out.printf("%n");
+			System.out.printf(", %s ccs", Utils.formatUsage(vmInfo.ccs));
 		}
+		System.out.println("");
 
 		System.out.printf(" OFF-HEAP: %s/%s direct, %s/%s map%n", Utils.toMB(vmInfo.direct.used),
 				Utils.toMB(vmInfo.direct.max), Utils.toMB(vmInfo.map.used), Utils.toMB(vmInfo.map.max));
