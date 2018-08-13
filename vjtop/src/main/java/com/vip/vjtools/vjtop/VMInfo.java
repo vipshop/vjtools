@@ -51,6 +51,9 @@ public class VMInfo {
 	public Rate readBytes = new Rate();
 	public Rate writeBytes = new Rate();
 
+	public Rate receiveBytes = new Rate();
+	public Rate sendBytes = new Rate();
+
 	public Rate upTimeMills = new Rate();
 	public Rate cpuTimeNanos = new Rate();
 
@@ -170,7 +173,7 @@ public class VMInfo {
 	/**
 	 * Updates all jvm metrics to the most recent remote values
 	 */
-	public void update() throws Exception {
+	public void update() throws IOException {
 		if (state == VMInfoState.ERROR_DURING_ATTACH || state == VMInfoState.DETACHED) {
 			return;
 		}
@@ -205,8 +208,8 @@ public class VMInfo {
 
 		cpuTimeNanos.update();
 		upTimeMills.update();
-		cpuLoad = Utils.calcLoad(upTimeMills.delta, cpuTimeNanos.delta / (Utils.NANOS_TO_MILLS * 1D), processors);
-		singleCoreCpuLoad = Utils.calcLoad(upTimeMills.delta, cpuTimeNanos.delta / (Utils.NANOS_TO_MILLS * 1D), 1);
+		cpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta, processors);
+		singleCoreCpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta, 1);
 	}
 
 	private void updateMemory() {
@@ -226,6 +229,21 @@ public class VMInfo {
 		wchar.update();
 		readBytes.update();
 		writeBytes.update();
+
+		rchar.caculateRate(upTimeMills.delta);
+		wchar.caculateRate(upTimeMills.delta);
+		readBytes.caculateRate(upTimeMills.delta);
+		writeBytes.caculateRate(upTimeMills.delta);
+
+		Map<String, Long> procNet = ProcFileData.getProcNet(pid);
+
+		receiveBytes.current = procNet.get("receiveBytes");
+		sendBytes.current = procNet.get("sendBytes");
+
+		receiveBytes.update();
+		sendBytes.update();
+		receiveBytes.caculateRate(upTimeMills.delta);
+		sendBytes.caculateRate(upTimeMills.delta);
 	}
 
 
@@ -256,8 +274,8 @@ public class VMInfo {
 
 	private void updateMemoryPool() throws IOException {
 		JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
-		eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
 
+		eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
 		old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
 
 		MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
@@ -275,10 +293,10 @@ public class VMInfo {
 				ccs = new Usage(compressedClassSpaceMemoryPool.getUsage());
 			}
 		}
+
 		codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
 
 		direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool());
-
 		map = new Usage(jmxClient.getBufferPoolManager().getMappedBufferPool());
 	}
 
@@ -347,10 +365,11 @@ public class VMInfo {
 		INIT, ERROR_DURING_ATTACH, ATTACHED, ATTACHED_UPDATE_ERROR, DETACHED
 	}
 
-	public class Rate {
+	public static class Rate {
 		private long last = -1;
 		private long current = -1;
 		private long delta = -1;
+		private long ratePerSecond;
 
 		public void update() {
 			if (last != -1) {
@@ -359,8 +378,16 @@ public class VMInfo {
 			last = current;
 		}
 
+		public void caculateRate(long deltaTimeMills) {
+			ratePerSecond = delta * 1000 / deltaTimeMills;
+		}
+
 		public long getDelta() {
 			return delta == -1 ? 0 : delta;
+		}
+
+		public long getRate() {
+			return ratePerSecond == -1 ? 0 : ratePerSecond;
 		}
 
 		public long getCurrent() {
@@ -369,7 +396,7 @@ public class VMInfo {
 
 	}
 
-	public class Usage {
+	public static class Usage {
 		public long used = -1;
 		public long committed = -1;
 		public long max = -1;

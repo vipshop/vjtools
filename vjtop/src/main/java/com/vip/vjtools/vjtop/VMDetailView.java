@@ -119,9 +119,10 @@ public class VMDetailView {
 		if (vmInfo.isLinux) {
 			System.out.printf(", %4s rss, %4s swap%n", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.swap));
 
-			System.out.printf(" IO: %4s rchar, %4s wchar, %4s readBytes, %4s writeBytes",
-					Utils.toSizeUnit(vmInfo.rchar.getDelta()), Utils.toSizeUnit(vmInfo.wchar.getDelta()),
-					Utils.toSizeUnit(vmInfo.readBytes.getDelta()), Utils.toSizeUnit(vmInfo.writeBytes.getDelta()));
+			System.out.printf(" IO: %4s rchar/s, %4s wchar/s, %4s read/s, %4s write/s, NET: %4s recv/s, %4s send/s",
+					Utils.toSizeUnit(vmInfo.rchar.getRate()), Utils.toSizeUnit(vmInfo.wchar.getRate()),
+					Utils.toSizeUnit(vmInfo.readBytes.getRate()), Utils.toSizeUnit(vmInfo.writeBytes.getRate()),
+					Utils.toSizeUnit(vmInfo.receiveBytes.getRate()), Utils.toSizeUnit(vmInfo.sendBytes.getRate()));
 		}
 		System.out.println();
 
@@ -254,10 +255,10 @@ public class VMDetailView {
 		}
 
 		// 打印线程汇总
-		double deltaAllThreadCpuLoad = Utils.calcLoad(vmInfo.upTimeMills.getDelta(),
-				(deltaAllThreadCpu * 100) / (Utils.NANOS_TO_MILLS * 1D), 1);
-		double deltaAllThreadSysCpuLoad = Utils.calcLoad(vmInfo.upTimeMills.getDelta(),
-				(deltaAllThreadSysCpu * 100) / (Utils.NANOS_TO_MILLS * 1D), 1);
+		double deltaAllThreadCpuLoad = Utils.calcLoad((deltaAllThreadCpu * 100) / (Utils.NANOS_TO_MILLS * 1D),
+				vmInfo.upTimeMills.getDelta(), 1);
+		double deltaAllThreadSysCpuLoad = Utils.calcLoad((deltaAllThreadSysCpu * 100) / (Utils.NANOS_TO_MILLS * 1D),
+				vmInfo.upTimeMills.getDelta(), 1);
 
 		System.out.printf("%n Total cpu: %5.2f%% (user=%5.2f%%, sys=%5.2f%%)", deltaAllThreadCpuLoad,
 				deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad, deltaAllThreadSysCpuLoad);

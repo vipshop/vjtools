@@ -7,12 +7,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 // See http://man7.org/linux/man-pages/man5/proc.5.html for /proc file details
 public class ProcFileData {
 
 	private static final String PROC_SELF_STATUS_FILE_TPL = "/proc/%s/status";
 	private static final String PROC_SELF_IO_FILE_TPL = "/proc/%s/io";
+	private static final String PROC_SELF_NET_FILE_TPL = "/proc/%s/net/dev";
+
 	private static final String VALUE_SEPARATOR = ":";
 
 	public static Map<String, String> getProcStatus(String pid) {
@@ -21,6 +24,28 @@ public class ProcFileData {
 
 	public static Map<String, String> getProcIO(String pid) {
 		return getProcFileAsMap(String.format(PROC_SELF_IO_FILE_TPL, pid));
+	}
+
+	public static Map<String, Long> getProcNet(String pid) {
+		long totalReceiveBytes = 0;
+		long totalSendBytes = 0;
+
+		Map<String, String> devs = getProcFileAsMap(String.format(PROC_SELF_NET_FILE_TPL, pid));
+		for (Entry<String, String> entry : devs.entrySet()) {
+			if (entry.getKey().startsWith("lo") || entry.getKey().startsWith("bond")
+					|| entry.getKey().startsWith("face")) {
+				continue;
+			}
+
+			String[] values = entry.getValue().trim().split("\\s+");
+			totalReceiveBytes += Long.parseLong(values[0]);
+			totalSendBytes += Long.parseLong(values[8]);
+		}
+
+		Map<String, Long> netStats = new HashMap<String, Long>();
+		netStats.put("receiveBytes", new Long(totalReceiveBytes));
+		netStats.put("sendBytes", new Long(totalSendBytes));
+		return netStats;
 	}
 
 	public static Map<String, String> getProcFileAsMap(String filePath) {

@@ -10,7 +10,7 @@ import com.vip.vjtools.vjtop.VMInfo.Usage;
 
 public class Utils {
 
-	public static int NANOS_TO_MILLS = 1000 * 1000;
+	public static long NANOS_TO_MILLS = 1000 * 1000;
 
 	private static final int BYTE_SIZE = 1;
 	private static final int KB_SIZE = BYTE_SIZE * 1024;
@@ -134,7 +134,7 @@ public class Utils {
 	/**
 	 * calculates a "load", given on two deltas
 	 */
-	public static double calcLoad(double deltaUptime, double deltaTime, int factor) {
+	public static double calcLoad(double deltaTime, double deltaUptime, int factor) {
 		if (deltaTime <= 0 || deltaUptime == 0) {
 			return 0.0;
 		}
