@@ -9,8 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.vip.vjtools.vjtop.Utils;
 
-import sun.management.counter.perf.PerfInstrumentation;
 import sun.management.counter.Counter;
+import sun.management.counter.perf.PerfInstrumentation;
 import sun.misc.Perf;
 
 @SuppressWarnings("restriction")
@@ -38,6 +38,10 @@ public class PerfData {
 		instr = new PerfInstrumentation(bb);
 		long hz = ((sun.management.counter.LongCounter) instr.findByPattern("sun.os.hrt.frequency").get(0)).longValue();
 		nanosPerTick = ((double) TimeUnit.SECONDS.toNanos(1)) / hz;
+	}
+
+	public Counter findCounter(String pattern) {
+		return instr.findByPattern(pattern).get(0);
 	}
 
 	public Map<String, Counter> getAllCounters() {

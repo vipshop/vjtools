@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.vip.vjtools.vjtop.VMInfo.Usage;
+
 public class Utils {
 
 	public static int NANOS_TO_MILLS = 1000 * 1000;
@@ -64,6 +66,15 @@ public class Utils {
 		}
 
 		return String.format("%dd%02dh", seconds / (3600 * 24), (seconds / 3600) % 24);
+	}
+
+
+	public static String formatUsage(Usage usage) {
+		if (usage.committed == usage.max) {
+			return String.format("%s/%s", toMB(usage.used), toMB(usage.max));
+		} else {
+			return String.format("%s/%s/%s", toMB(usage.used), toMB(usage.committed), toMB(usage.max));
+		}
 	}
 
 	/**

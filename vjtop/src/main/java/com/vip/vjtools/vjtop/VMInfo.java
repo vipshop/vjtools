@@ -1,6 +1,7 @@
 package com.vip.vjtools.vjtop;
 
 import java.io.IOException;
+import java.lang.management.BufferPoolMXBean;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.util.Locale;
@@ -87,23 +88,17 @@ public class VMInfo {
 	private long lastSafepointSyncTimeMills;
 	public long deltaSafepointSyncTimeMills;
 
-	public long edenUsedBytes;
-	public long edenMaxBytes;
-	public long surUsedBytes;
-	public long surMaxBytes;
-	public long oldUsedBytes;
-	public long oldMaxBytes;
-	public long permUsedBytes;
-	public long permMaxBytes;
-	public long codeCacheUsedBytes;
-	public long codeCacheMaxBytes;
-	public long ccsUsedBytes;
-	public long ccsMaxBytes;
+	public Usage eden;
+	public Usage sur;
+	public Usage old;
 
-	public long directUsedBytes;
-	public long directMaxBytes;
-	public long mapUsedBytes;
-	public long mapMaxBytes;
+	public Usage perm;
+	public Usage codeCache;
+	public Usage ccs;
+
+	public Usage direct;
+	public Usage map;
+
 
 	public VMInfo(JmxClient jmxClient, String vmId) throws Exception {
 		this.jmxClient = jmxClient;
@@ -162,14 +157,18 @@ public class VMInfo {
 			System.err.println("PerfData not support");
 		}
 
-		vmArgs = Utils.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
+		if (perfDataSupport) {
+			vmArgs = (String) perfData.findCounter("java.rt.vmArgs").getValue();
+		} else {
+			vmArgs = Utils.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
+		}
 
 		Map<String, String> systemProperties_ = jmxClient.getRuntimeMXBean().getSystemProperties();
 		osUser = systemProperties_.get("user.name");
 		jvmVersion = systemProperties_.get("java.version");
 		jvmMajorVersion = getJavaMajorVersion();
 
-		permGenName = jmxClient.getMemoryPoolManager().getPermMemoryPool().getName().toLowerCase();
+		permGenName = jvmMajorVersion >= 8 ? "metaspace" : "perm";
 
 		threadCpuTimeSupported = jmxClient.getThreadMXBean().isThreadCpuTimeSupported();
 		threadMemoryAllocatedSupported = jmxClient.getThreadMXBean().isThreadAllocatedMemorySupported();
@@ -272,44 +271,38 @@ public class VMInfo {
 		JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
 
 		// eden
-		edenUsedBytes = memoryPoolManager.getEdenMemoryPool().getUsage().getUsed();
-		edenMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getEdenMemoryPool());
+		eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
 
 		// old gen
-		oldUsedBytes = memoryPoolManager.getOldMemoryPool().getUsage().getUsed();
-		oldMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getOldMemoryPool());
+		old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
 
 		// survivor
 		MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
 		if (survivorMemoryPool != null) {
-			surUsedBytes = survivorMemoryPool.getUsage().getUsed();
-			surMaxBytes = getMemoryPoolMaxOrCommited(survivorMemoryPool);
+			sur = new Usage(survivorMemoryPool.getUsage());
+		} else {
+			sur = new Usage();
 		}
 
 		// perm gen
-		permUsedBytes = memoryPoolManager.getPermMemoryPool().getUsage().getUsed();
-		permMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getPermMemoryPool());
+		perm = new Usage(memoryPoolManager.getPermMemoryPool().getUsage());
 
 		// compressed class space
 		if (jvmMajorVersion >= 8) {
 			MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
 			if (compressedClassSpaceMemoryPool != null) {
-				ccsUsedBytes = compressedClassSpaceMemoryPool.getUsage().getUsed();
-				ccsMaxBytes = getMemoryPoolMaxOrCommited(compressedClassSpaceMemoryPool);
+				ccs = new Usage(compressedClassSpaceMemoryPool.getUsage());
 			}
 		}
 
 		// code cache
-		codeCacheUsedBytes = memoryPoolManager.getCodeCacheMemoryPool().getUsage().getUsed();
-		codeCacheMaxBytes = getMemoryPoolMaxOrCommited(memoryPoolManager.getCodeCacheMemoryPool());
+		codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
 
 		// direct
-		directUsedBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed();
-		directMaxBytes = jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity();
+		direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool());
 
 		// map
-		mapUsedBytes = jmxClient.getBufferPoolManager().getMappedBufferPool().getMemoryUsed();
-		mapMaxBytes = jmxClient.getBufferPoolManager().getMappedBufferPool().getTotalCapacity();
+		map = new Usage(jmxClient.getBufferPoolManager().getMappedBufferPool());
 	}
 
 	private void updateGC() throws IOException {
@@ -381,12 +374,6 @@ public class VMInfo {
 		}
 	}
 
-	private long getMemoryPoolMaxOrCommited(MemoryPoolMXBean memoryPool) {
-		MemoryUsage usage = memoryPool.getUsage();
-		long max = usage.getMax();
-		max = max < 0 ? usage.getCommitted() : max;
-		return max;
-	}
 
 	private int getJavaMajorVersion() {
 		if (jvmVersion.startsWith("1.8")) {
@@ -402,5 +389,26 @@ public class VMInfo {
 
 	public enum VMInfoState {
 		INIT, ERROR_DURING_ATTACH, ATTACHED, ATTACHED_UPDATE_ERROR, DETACHED
+	}
+
+	public class Usage {
+		public long used = -1;
+		public long committed = -1;
+		public long max = -1;
+
+		public Usage() {
+
+		}
+
+		public Usage(MemoryUsage jmxUsage) {
+			this.used = jmxUsage.getUsed();
+			this.committed = jmxUsage.getCommitted();
+			this.max = jmxUsage.getMax();
+		}
+
+		public Usage(BufferPoolMXBean bufferPoolUsage) {
+			this.used = bufferPoolUsage.getMemoryUsed();
+			this.max = bufferPoolUsage.getTotalCapacity();
+		}
 	}
 }

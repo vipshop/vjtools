@@ -129,19 +129,19 @@ public class VMDetailView {
 				vmInfo.threadActive, vmInfo.threadDaemon, vmInfo.threadPeak, vmInfo.threadStarted, vmInfo.classLoaded,
 				vmInfo.classUnLoaded);
 
-		System.out.printf(" HEAP: %s/%s eden, %s/%s sur, %s/%s old%n", Utils.toMB(vmInfo.edenUsedBytes),
-				Utils.toMB(vmInfo.edenMaxBytes), Utils.toMB(vmInfo.surUsedBytes), Utils.toMB(vmInfo.surMaxBytes),
-				Utils.toMB(vmInfo.oldUsedBytes), Utils.toMB(vmInfo.oldMaxBytes));
+		System.out.printf(" HEAP: %s eden, %s sur, %s old%n", Utils.formatUsage(vmInfo.eden),
+				Utils.formatUsage(vmInfo.sur), Utils.formatUsage(vmInfo.old));
 
-		System.out.printf(" NON-HEAP: %s/%s %s, %s/%s codeCache", Utils.toMB(vmInfo.permUsedBytes),
-				Utils.toMB(vmInfo.permMaxBytes), vmInfo.permGenName, Utils.toMB(vmInfo.codeCacheUsedBytes),
-				Utils.toMB(vmInfo.codeCacheMaxBytes));
+		System.out.printf(" NON-HEAP: %s %s, %s codeCache", Utils.formatUsage(vmInfo.perm), vmInfo.permGenName,
+				Utils.formatUsage(vmInfo.codeCache));
 		if (vmInfo.jvmMajorVersion >= 8) {
-			System.out.printf(", %s/%s ccs", Utils.toMB(vmInfo.ccsUsedBytes), Utils.toMB(vmInfo.ccsMaxBytes));
+			System.out.printf(", %s ccs%n", Utils.formatUsage(vmInfo.ccs));
+		} else {
+			System.out.printf("%n");
 		}
 
-		System.out.printf(", %s/%s direct, %s/%s map%n", Utils.toMB(vmInfo.directUsedBytes),
-				Utils.toMB(vmInfo.directMaxBytes), Utils.toMB(vmInfo.mapUsedBytes), Utils.toMB(vmInfo.mapMaxBytes));
+		System.out.printf(" OFF-HEAP: %s/%s direct, %s/%s map%n", Utils.toMB(vmInfo.direct.used),
+				Utils.toMB(vmInfo.direct.max), Utils.toMB(vmInfo.map.used), Utils.toMB(vmInfo.map.max));
 
 		System.out.printf(" GC: %d/%dms ygc, %d/%dms fgc", vmInfo.deltaYgcCount, vmInfo.deltaYgcTimeMills,
 				vmInfo.deltaFullgcCount, vmInfo.deltaFullgcTimeMills);
