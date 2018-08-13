@@ -44,7 +44,7 @@ public class InteractiveTask implements Runnable {
 			displayAllThreads();
 		} else if (command.equals("m")) {
 			changeDisplayMode();
-		} else if (command.equals("d")) {
+		} else if (command.equals("i")) {
 			changeInterval();
 		} else if (command.equals("l")) {
 			changeThreadLimit();
@@ -156,7 +156,7 @@ public class InteractiveTask implements Runnable {
 		tty.println(" t [tid]: print stack trace for the thread you choose");
 		tty.println(" a : list all thread's id and name");
 		tty.println(" m : change threads display mode and ordering");
-		tty.println(" d : change flush interval seconds");
+		tty.println(" i : change flush interval seconds");
 		tty.println(" l : change number of display threads");
 		tty.println(" q : quit");
 		tty.println(" h : print help");

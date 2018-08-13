@@ -46,7 +46,7 @@ public class VJTop {
 		parser.acceptsAll(Arrays.asList(new String[] { "n", "iteration" }),
 				"vjtop will exit after n output iterations  (defaults to unlimit)").withRequiredArg()
 				.ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "d", "interval" }),
+		parser.acceptsAll(Arrays.asList(new String[] { "i", "interval", "d" }),
 				"interval between each output iteration (defaults to 10s)").withRequiredArg().ofType(Integer.class);
 		parser.acceptsAll(Arrays.asList(new String[] { "w", "width" }),
 				"Number of columns for the console display (defaults to 100)").withRequiredArg().ofType(Integer.class);
