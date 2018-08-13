@@ -36,7 +36,7 @@ public class VJTop {
 	private volatile boolean needMoreInput = false;
 
 	private Thread mainThread;
-
+	private long sleepStartTime;
 	private int maxIterations = -1;
 
 	private static OptionParser createOptionParser() {
@@ -157,7 +157,7 @@ public class VJTop {
 				int sleepTime = iterations == 0 ? 1 : interval;
 
 				++iterations;
-
+				sleepStartTime = System.currentTimeMillis();
 				Utils.sleep(sleepTime * 1000);
 			}
 		} catch (NoClassDefFoundError e) {
@@ -241,5 +241,9 @@ public class VJTop {
 		while (needMoreInput) {
 			Utils.sleep(1000);
 		}
+	}
+
+	public int nextFlushTime() {
+		return Math.max(0, interval - (int) ((System.currentTimeMillis() - sleepStartTime) / 1000));
 	}
 }

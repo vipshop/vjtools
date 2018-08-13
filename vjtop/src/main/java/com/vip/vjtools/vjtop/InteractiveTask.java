@@ -99,7 +99,8 @@ public class InteractiveTask implements Runnable {
 	private void changeDisplayMode() {
 		app.preventFlush();
 		tty.print(
-				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): ");
+				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory, current "
+						+ app.view.mode + "): ");
 		String mode = readLine();
 		DetailMode detailMode = DetailMode.parse(mode);
 		if (detailMode == null) {
@@ -108,20 +109,22 @@ public class InteractiveTask implements Runnable {
 			tty.println(" Nothing be changed");
 		} else {
 			app.view.mode = detailMode;
-			tty.println(" Display mode changed to " + app.view.mode + " for next flush");
+			tty.println(" Display mode changed to " + app.view.mode + " for next flush (" + app.nextFlushTime()
+					+ "s later)");
 		}
 		app.continueFlush();
 	}
 
 	private void changeInterval() {
 		app.preventFlush();
-		tty.print(" Input flush interval seconds:");
+		tty.print(" Input flush interval seconds(current " + app.interval + "):");
 		String intervalStr = readLine();
 		try {
 			int interval = Integer.parseInt(intervalStr);
 			if (interval != app.interval) {
+				tty.println(" Flush interval changed to " + interval + " seconds for next flush (" + app.nextFlushTime()
+						+ "s later)");
 				app.interval = interval;
-				tty.println(" Flush interval changed to " + interval + " seconds for next next flush");
 			} else {
 				tty.println(" Nothing be changed");
 			}
@@ -135,13 +138,14 @@ public class InteractiveTask implements Runnable {
 
 	private void changeThreadLimit() {
 		app.preventFlush();
-		tty.print(" Input number of threads to display :");
+		tty.print(" Input number of threads to display(current " + app.view.threadLimit + "):");
 		String threadLimitStr = readLine();
 		try {
 			int threadLimit = Integer.parseInt(threadLimitStr);
 			if (threadLimit != app.view.threadLimit) {
 				app.view.threadLimit = threadLimit;
-				tty.println(" Number of threads to display changed to " + threadLimit + " for next flush");
+				tty.println(" Number of threads to display changed to " + threadLimit + "for next flush ("
+						+ app.nextFlushTime() + "s later)");
 			} else {
 				tty.println(" Nothing be changed");
 			}
