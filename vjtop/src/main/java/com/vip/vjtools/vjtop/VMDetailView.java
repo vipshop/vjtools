@@ -100,7 +100,7 @@ public class VMDetailView {
 			return false;
 		}
 
-		if (vmInfo.state != VMInfoState.ATTACHED) {
+		if (vmInfo.state != VMInfo.VMInfoState.ATTACHED) {
 			System.out.println("ERROR: Could not attach to process. ");
 			exit();
 			return false;

@@ -55,9 +55,6 @@ import javax.management.remote.JMXServiceURL;
 import com.sun.management.GarbageCollectorMXBean;
 import com.sun.management.OperatingSystemMXBean;
 import com.sun.management.ThreadMXBean;
-import com.sun.tools.attach.AgentInitializationException;
-import com.sun.tools.attach.AgentLoadException;
-import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 
 @SuppressWarnings("restriction")
@@ -92,7 +89,7 @@ public class JmxClient {
 		}
 	}
 
-	public void connect() throws IOException {
+	public void connect() throws Exception {
 
 		// 如果jmx agent未启动，主动attach进JVM后加载
 		String address = attachToGetConnectorAddress();
@@ -231,17 +228,11 @@ public class JmxClient {
 	 * 并向JMXClient提供连接地址地址样例：service:jmx:rmi://127.0
 	 * .0.1/stub/rO0ABXN9AAAAAQAl...
 	 */
-	public String attachToGetConnectorAddress() throws IOException {
+	public String attachToGetConnectorAddress() throws Exception {
 		VirtualMachine vm = null;
 
 		// 1. attach vm
-		try {
-			vm = VirtualMachine.attach(pid);
-		} catch (AttachNotSupportedException x) {
-			IOException ioe = new IOException(x.getMessage());
-			ioe.initCause(x);
-			throw ioe;
-		}
+		vm = VirtualMachine.attach(pid);
 
 		try {
 			// 2. 检查smartAgent是否已启动
@@ -270,17 +261,7 @@ public class JmxClient {
 			}
 
 			agentPath = f.getCanonicalPath();
-			try {
-				vm.loadAgent(agentPath, "com.sun.management.jmxremote");
-			} catch (AgentLoadException x) {
-				IOException ioe = new IOException(x.getMessage());
-				ioe.initCause(x);
-				throw ioe;
-			} catch (AgentInitializationException x) {
-				IOException ioe = new IOException(x.getMessage());
-				ioe.initCause(x);
-				throw ioe;
-			}
+			vm.loadAgent(agentPath, "com.sun.management.jmxremote");
 
 			// 4. 再次获取connector address
 			agentProps = vm.getAgentProperties();
