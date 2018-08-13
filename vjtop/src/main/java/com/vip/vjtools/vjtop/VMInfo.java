@@ -252,59 +252,25 @@ public class VMInfo {
 
 	private void updateMemoryPool() throws IOException {
 		JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
+		eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
 
-		if (perfDataSupport) {
-			eden = new Usage((long) perfCounters.get("sun.gc.generation.0.space.0.used").getValue(),
-					(long) perfCounters.get("sun.gc.generation.0.space.0.capacity").getValue(),
-					(long) perfCounters.get("sun.gc.generation.0.space.0.maxCapacity").getValue());
+		old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
 
-			old = new Usage((long) perfCounters.get("sun.gc.generation.1.space.0.used").getValue(),
-					(long) perfCounters.get("sun.gc.generation.1.space.0.capacity").getValue(),
-					(long) perfCounters.get("sun.gc.generation.1.space.0.maxCapacity").getValue());
-
-			sur = new Usage(
-					(long) perfCounters.get("sun.gc.generation.0.space.1.used").getValue()
-							+ (long) perfCounters.get("sun.gc.generation.0.space.2.used").getValue(),
-					(long) perfCounters.get("sun.gc.generation.0.space.1.capacity").getValue()
-							+ (long) perfCounters.get("sun.gc.generation.0.space.2.capacity").getValue(),
-					(long) perfCounters.get("sun.gc.generation.0.space.1.maxCapacity").getValue()
-							+ (long) perfCounters.get("sun.gc.generation.0.space.2.maxCapacity").getValue());
-
-			if (jvmMajorVersion >= 8) {
-				perm = new Usage((long) perfCounters.get("sun.gc.metaspace.used").getValue(),
-						(long) perfCounters.get("sun.gc.metaspace.capacity").getValue(),
-						(long) perfCounters.get("sun.gc.metaspace.maxCapacity").getValue());
-
-				ccs = new Usage((long) perfCounters.get("sun.gc.compressedclassspace.used").getValue(),
-						(long) perfCounters.get("sun.gc.compressedclassspace.capacity").getValue(),
-						(long) perfCounters.get("sun.gc.compressedclassspace.maxCapacity").getValue());
-			} else {
-				perm = new Usage((long) perfCounters.get("sun.gc.generation.2.space.0.used").getValue(),
-						(long) perfCounters.get("sun.gc.generation.2.space.0.capacity").getValue(),
-						(long) perfCounters.get("sun.gc.generation.2.space.0.maxCapacity").getValue());
-			}
+		MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
+		if (survivorMemoryPool != null) {
+			sur = new Usage(survivorMemoryPool.getUsage());
 		} else {
-			eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
-
-			old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
-
-			MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
-			if (survivorMemoryPool != null) {
-				sur = new Usage(survivorMemoryPool.getUsage());
-			} else {
-				sur = new Usage();
-			}
-
-			perm = new Usage(memoryPoolManager.getPermMemoryPool().getUsage());
-
-			if (jvmMajorVersion >= 8) {
-				MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
-				if (compressedClassSpaceMemoryPool != null) {
-					ccs = new Usage(compressedClassSpaceMemoryPool.getUsage());
-				}
-			}
+			sur = new Usage();
 		}
 
+		perm = new Usage(memoryPoolManager.getPermMemoryPool().getUsage());
+
+		if (jvmMajorVersion >= 8) {
+			MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
+			if (compressedClassSpaceMemoryPool != null) {
+				ccs = new Usage(compressedClassSpaceMemoryPool.getUsage());
+			}
+		}
 		codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
 
 		direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool());
