@@ -41,37 +41,26 @@ public class VMInfo {
 	public boolean threadMemoryAllocatedSupported;
 
 	// 动态数据//
-	private long lastRchar = -1;
-	private long lastWchar = -1;
-	private long lastReadBytes = -1;
-	private long lastWriteBytes = -1;
-	public long deltaRchar = -1;
-	public long deltaWchar = -1;
-	public long deltaReadBytes = -1;
-	public long deltaWriteBytes = -1;
+	public long rss;
+	public long swap;
 
-	public long lastUpTimeMills = -1;
-	public long lastCPUTimeNanos = -1;
-	public long deltaUptimeMills = 0;
-	private long deltaCpuTimeNanos = 0;
+	public Rate rchar = new Rate();
+	public Rate wchar = new Rate();
+	public Rate readBytes = new Rate();
+	public Rate writeBytes = new Rate();
+
+	public Rate upTimeMills = new Rate();
+	public Rate cpuTimeNanos = new Rate();
 
 	public double cpuLoad = 0.0;
 	public double singleCoreCpuLoad = 0.0;
 
-	private long lastYgcCount = -1;
-	public long deltaYgcCount;
+	public Rate ygcCount = new Rate();
+	public Rate fullgcCount = new Rate();
 
-	private long lastFullgcCount = -1;
-	public long deltaFullgcCount;
+	public Rate ygcTimeMills = new Rate();
+	public Rate fullgcTimeMills = new Rate();
 
-	private long lastYgcTimeMills;
-	public long deltaYgcTimeMills;
-
-	private long lastFullgcTimeMills;
-	public long deltaFullgcTimeMills;
-
-	public long rss;
-	public long swap;
 
 	public long threadActive;
 	public long threadDaemon;
@@ -81,12 +70,9 @@ public class VMInfo {
 	public long classLoaded;
 	public long classUnLoaded;
 
-	private long lastSafepointCount = -1;
-	public long deltaSafepointCount;
-	private long lastSafepointTimeMills;
-	public long deltaSafepointTimeMills;
-	private long lastSafepointSyncTimeMills;
-	public long deltaSafepointSyncTimeMills;
+	public Rate safepointCount = new Rate();
+	public Rate safepointTimeMills = new Rate();
+	public Rate safepointSyncTimeMills = new Rate();
 
 	public Usage eden;
 	public Usage sur;
@@ -207,35 +193,25 @@ public class VMInfo {
 	private void updateIO() {
 
 		Map<String, String> procIo = ProcFileData.getProcIO(pid);
-		long rchar = Utils.parseFromSize(procIo.get("rchar"));
-		long wchar = Utils.parseFromSize(procIo.get("wchar"));
-		long readBytes = Utils.parseFromSize(procIo.get("read_bytes"));
-		long writeBytes = Utils.parseFromSize(procIo.get("write_bytes"));
+		rchar.current = Utils.parseFromSize(procIo.get("rchar"));
+		wchar.current = Utils.parseFromSize(procIo.get("wchar"));
+		readBytes.current = Utils.parseFromSize(procIo.get("read_bytes"));
+		writeBytes.current = Utils.parseFromSize(procIo.get("write_bytes"));
 
-		if (lastRchar > 0 || lastWchar > 0 || lastReadBytes > 0 || lastWriteBytes > 0) {
-			deltaRchar = rchar - lastRchar;
-			deltaWchar = wchar - lastWchar;
-			deltaReadBytes = readBytes - lastReadBytes;
-			deltaWriteBytes = writeBytes - lastWriteBytes;
-		}
-		lastRchar = rchar;
-		lastWchar = wchar;
-		lastReadBytes = readBytes;
-		lastWriteBytes = writeBytes;
+		rchar.update();
+		wchar.update();
+		readBytes.update();
+		writeBytes.update();
 	}
 
-	private void updateCpu() throws Exception {
-		long uptimeMills = jmxClient.getRuntimeMXBean().getUptime();
-		long cpuTimeNanos = jmxClient.getOperatingSystemMXBean().getProcessCpuTime();
+	private void updateCpu() throws IOException {
+		upTimeMills.current = jmxClient.getRuntimeMXBean().getUptime();
+		cpuTimeNanos.current = jmxClient.getOperatingSystemMXBean().getProcessCpuTime();
 
-		if (lastUpTimeMills > 0 && lastCPUTimeNanos > 0) {
-			deltaUptimeMills = uptimeMills - lastUpTimeMills;
-			deltaCpuTimeNanos = (cpuTimeNanos - lastCPUTimeNanos);
-			cpuLoad = Utils.calcLoad(deltaUptimeMills, deltaCpuTimeNanos / (Utils.NANOS_TO_MILLS * 1D), processors);
-			singleCoreCpuLoad = Utils.calcLoad(deltaUptimeMills, deltaCpuTimeNanos / (Utils.NANOS_TO_MILLS * 1D), 1);
-		}
-		lastUpTimeMills = uptimeMills;
-		lastCPUTimeNanos = cpuTimeNanos;
+		cpuTimeNanos.update();
+		upTimeMills.update();
+		cpuLoad = Utils.calcLoad(upTimeMills.delta, cpuTimeNanos.delta / (Utils.NANOS_TO_MILLS * 1D), processors);
+		singleCoreCpuLoad = Utils.calcLoad(upTimeMills.delta, cpuTimeNanos.delta / (Utils.NANOS_TO_MILLS * 1D), 1);
 
 		Map<String, String> procStatus = ProcFileData.getProcStatus(pid);
 		rss = Utils.parseFromSize(procStatus.get("VmRSS"));
@@ -306,37 +282,22 @@ public class VMInfo {
 	}
 
 	private void updateGC() throws IOException {
-		long youngGcCount = 0;
-		long youngGcTimeMills = 0;
-		long fullGcCount = 0;
-		long fullGcTimeMills = 0;
-
 		if (perfDataSupport) {
-			youngGcCount = (Long) perfCounters.get("sun.gc.collector.0.invocations").getValue();
-			youngGcTimeMills = perfData.tickToMills(perfCounters.get("sun.gc.collector.0.time"));
-			fullGcCount = (Long) perfCounters.get("sun.gc.collector.1.invocations").getValue();
-			fullGcTimeMills = perfData.tickToMills(perfCounters.get("sun.gc.collector.1.time"));
+			ygcCount.current = (Long) perfCounters.get("sun.gc.collector.0.invocations").getValue();
+			ygcTimeMills.current = perfData.tickToMills(perfCounters.get("sun.gc.collector.0.time"));
+			fullgcCount.current = (Long) perfCounters.get("sun.gc.collector.1.invocations").getValue();
+			fullgcTimeMills.current = perfData.tickToMills(perfCounters.get("sun.gc.collector.1.time"));
 		} else {
-			youngGcCount = jmxClient.getYoungCollector().getCollectionCount();
-			youngGcTimeMills = jmxClient.getYoungCollector().getCollectionTime();
-			fullGcCount = jmxClient.getFullCollector().getCollectionCount();
-			fullGcTimeMills = jmxClient.getFullCollector().getCollectionTime();
+			ygcCount.current = jmxClient.getYoungCollector().getCollectionCount();
+			ygcTimeMills.current = jmxClient.getYoungCollector().getCollectionTime();
+			fullgcCount.current = jmxClient.getFullCollector().getCollectionCount();
+			fullgcTimeMills.current = jmxClient.getFullCollector().getCollectionTime();
 		}
 
-		if (lastYgcCount > 0) {
-			deltaYgcTimeMills = youngGcTimeMills - lastYgcTimeMills;
-			deltaYgcCount = youngGcCount - lastYgcCount;
-		}
-
-		if (lastFullgcCount > 0) {
-			deltaFullgcTimeMills = fullGcTimeMills - lastFullgcTimeMills;
-			deltaFullgcCount = fullGcCount - lastFullgcCount;
-		}
-
-		lastYgcTimeMills = youngGcTimeMills;
-		lastYgcCount = youngGcCount;
-		lastFullgcTimeMills = fullGcTimeMills;
-		lastFullgcCount = fullGcCount;
+		ygcTimeMills.update();
+		ygcCount.update();
+		fullgcTimeMills.update();
+		fullgcCount.update();
 	}
 
 	private void updateSafepoint() {
@@ -344,19 +305,13 @@ public class VMInfo {
 			return;
 		}
 
-		long safepointCount = (Long) perfCounters.get("sun.rt.safepoints").getValue();
-		long safepointTimeMills = perfData.tickToMills(perfCounters.get("sun.rt.safepointTime"));
-		long safepointSyncTimeMills = perfData.tickToMills(perfCounters.get("sun.rt.safepointTime"));
+		safepointCount.current = (Long) perfCounters.get("sun.rt.safepoints").getValue();
+		safepointTimeMills.current = perfData.tickToMills(perfCounters.get("sun.rt.safepointTime"));
+		safepointSyncTimeMills.current = perfData.tickToMills(perfCounters.get("sun.rt.safepointTime"));
 
-		if (lastSafepointCount > 0) {
-			deltaSafepointCount = safepointCount - lastSafepointCount;
-			deltaSafepointTimeMills = safepointTimeMills - lastSafepointTimeMills;
-			deltaSafepointSyncTimeMills = safepointSyncTimeMills - lastSafepointSyncTimeMills;
-		}
-
-		lastSafepointCount = safepointCount;
-		lastSafepointTimeMills = safepointTimeMills;
-		lastSafepointSyncTimeMills = safepointSyncTimeMills;
+		safepointCount.update();
+		safepointTimeMills.update();
+		safepointSyncTimeMills.update();
 	}
 
 	public ThreadMXBean getThreadMXBean() throws IOException {
@@ -391,24 +346,40 @@ public class VMInfo {
 		INIT, ERROR_DURING_ATTACH, ATTACHED, ATTACHED_UPDATE_ERROR, DETACHED
 	}
 
+	public class Rate {
+		public long last = -1;
+		public long current = -1;
+		public long delta = -1;
+
+		public void update() {
+			if (last != -1) {
+				delta = current - last;
+			}
+			last = current;
+		}
+
+	}
+
 	public class Usage {
 		public long used = -1;
 		public long committed = -1;
 		public long max = -1;
 
 		public Usage() {
+		}
 
+		public Usage(long used, long committed, long max) {
+			this.used = used;
+			this.committed = committed;
+			this.max = max;
 		}
 
 		public Usage(MemoryUsage jmxUsage) {
-			this.used = jmxUsage.getUsed();
-			this.committed = jmxUsage.getCommitted();
-			this.max = jmxUsage.getMax();
+			this(jmxUsage.getUsed(), jmxUsage.getCommitted(), jmxUsage.getMax());
 		}
 
 		public Usage(BufferPoolMXBean bufferPoolUsage) {
-			this.used = bufferPoolUsage.getMemoryUsed();
-			this.max = bufferPoolUsage.getTotalCapacity();
+			this(bufferPoolUsage.getMemoryUsed(), -1, bufferPoolUsage.getTotalCapacity());
 		}
 	}
 }
