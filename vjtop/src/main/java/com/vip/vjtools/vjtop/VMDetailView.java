@@ -119,7 +119,7 @@ public class VMDetailView {
 		if (vmInfo.isLinux) {
 			System.out.printf(", %4s rss, %4s swap%n", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.swap));
 
-			System.out.printf(" IO: %4s rchar/s, %4s wchar/s, %4s read/s, %4s write/s, NET: %4s recv/s, %4s send/s",
+			System.out.printf(" IO: %4s rchar, %4s wchar, %4s read, %4s write, NET: %4s recv, %4s send",
 					Utils.toSizeUnit(vmInfo.rchar.getRate()), Utils.toSizeUnit(vmInfo.wchar.getRate()),
 					Utils.toSizeUnit(vmInfo.readBytes.getRate()), Utils.toSizeUnit(vmInfo.writeBytes.getRate()),
 					Utils.toSizeUnit(vmInfo.receiveBytes.getRate()), Utils.toSizeUnit(vmInfo.sendBytes.getRate()));
