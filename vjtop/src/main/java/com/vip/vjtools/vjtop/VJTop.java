@@ -139,12 +139,8 @@ public class VJTop {
 
 			int iterations = 0;
 			while (!view.shouldExit()) {
-
-				// 非只打印一次的场景
-				if (maxIterations > 1 || maxIterations == -1) {
-					waitForInput();
-					clearTerminal();
-				}
+				waitForInput();
+				clearTerminal();
 
 				view.printView();
 

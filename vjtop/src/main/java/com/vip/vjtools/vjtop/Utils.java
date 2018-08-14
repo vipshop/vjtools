@@ -30,13 +30,36 @@ public class Utils {
 		if (mb < 9999) {
 			return mb + "m";
 		} else {
-			return toSizeUnit(bytes);
+			return toSizeUnit(bytes).trim();
 		}
 	}
 
 	public static String toSizeUnit(Long size) {
 		if (size == null) {
-			return "n/a";
+			return "NaN";
+		}
+		if (size < 1024) {
+			return size.toString();
+		}
+
+		if (size / 1024 < 1024) {
+			return (size / 1024) + "k";
+		}
+
+		if (size / (1024 * 1024) < 1024) {
+			return (size / (1024 * 1024)) + "m";
+		}
+
+		if (size / (1024 * 1024 * 1024) < 1024) {
+			return (size / (1024 * 1024 * 1024)) + "g";
+		}
+
+		return (size / (1024 * 1024 * 1024 * 1024)) + "t";
+	}
+
+	public static String toFixLengthSizeUnit(Long size) {
+		if (size == null) {
+			return "NaN";
 		}
 		if (size < 1024) {
 			return String.format("%4d", size);
