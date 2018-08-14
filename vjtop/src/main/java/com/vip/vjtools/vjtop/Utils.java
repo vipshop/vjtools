@@ -12,10 +12,11 @@ public class Utils {
 
 	public static long NANOS_TO_MILLS = 1000 * 1000;
 
-	private static final int BYTE_SIZE = 1;
-	private static final int KB_SIZE = BYTE_SIZE * 1024;
-	private static final int MB_SIZE = KB_SIZE * 1024;
-	private static final int GB_SIZE = MB_SIZE * 1024;
+	private static final long BYTE_SIZE = 1;
+	private static final long KB_SIZE = BYTE_SIZE * 1024;
+	private static final long MB_SIZE = KB_SIZE * 1024;
+	private static final long GB_SIZE = MB_SIZE * 1024;
+	private static final long TB_SIZE = GB_SIZE * 1024;
 
 	/**
 	 * Formats a long value containing "number of bytes" to its megabyte representation. If the value is negative, "n/a"
@@ -25,7 +26,7 @@ public class Utils {
 		if (bytes < 0) {
 			return "NaN";
 		}
-		long mb = bytes / 1024 / 1024;
+		long mb = bytes / MB_SIZE;
 
 		if (mb < 9999) {
 			return mb + "m";
@@ -38,46 +39,46 @@ public class Utils {
 		if (size == null) {
 			return "NaN";
 		}
-		if (size < 1024) {
+		if (size < KB_SIZE) {
 			return size.toString();
 		}
 
-		if (size / 1024 < 1024) {
-			return (size / 1024) + "k";
+		if (size < MB_SIZE) {
+			return (size / KB_SIZE) + "k";
 		}
 
-		if (size / (1024 * 1024) < 1024) {
-			return (size / (1024 * 1024)) + "m";
+		if (size < GB_SIZE) {
+			return (size / MB_SIZE) + "m";
 		}
 
-		if (size / (1024 * 1024 * 1024) < 1024) {
-			return (size / (1024 * 1024 * 1024)) + "g";
+		if (size < TB_SIZE) {
+			return (size / GB_SIZE) + "g";
 		}
 
-		return (size / (1024 * 1024 * 1024 * 1024)) + "t";
+		return (size / TB_SIZE) + "t";
 	}
 
 	public static String toFixLengthSizeUnit(Long size) {
 		if (size == null) {
 			return "NaN";
 		}
-		if (size < 1024) {
+		if (size < KB_SIZE) {
 			return String.format("%4d", size);
 		}
 
-		if (size / 1024 < 1024) {
-			return String.format("%4dk", size / 1024);
+		if (size < MB_SIZE) {
+			return String.format("%4dk", size / KB_SIZE);
 		}
 
-		if (size / (1024 * 1024) < 1024) {
-			return String.format("%4dm", size / (1024 * 1024));
+		if (size < GB_SIZE) {
+			return String.format("%4dm", size / MB_SIZE);
 		}
 
-		if (size / (1024 * 1024 * 1024) < 1024) {
-			return String.format("%4dg", size / (1024 * 1024 * 1024));
+		if (size < TB_SIZE) {
+			return String.format("%4dg", size / GB_SIZE);
 		}
 
-		return String.format("%4dt", size / (1024 * 1024 * 1024 * 1024));
+		return String.format("%4dt", size / TB_SIZE);
 	}
 
 	public static String toTimeUnit(long millis) {
@@ -195,7 +196,7 @@ public class Utils {
 		}
 
 		str = str.toLowerCase();
-		int fromScale = BYTE_SIZE;
+		long fromScale = BYTE_SIZE;
 
 		try {
 			if (str.endsWith("kb")) {
