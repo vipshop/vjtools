@@ -222,13 +222,26 @@ ERROR: Could not attach to process.
 ```
 
 
-1. 执行vjtop的用户，对/tmp/.java_pid$PID 文件有读写权限，该文件权限为srw------- 1，所以需要相同用户或root权限用户 sudo执行。
+1. 执行vjtop的用户，对/tmp/.java_pid$PID 文件有读写权限，该文件权限为srw------- 1，所以需要相同用户
 
-2. /tmp/.java_pid$PID 文件再首次连接时会生成，但如果生成之后被/tmp 目录的清理程序错误删除，JVM将不再能连入，只能重启应用。
+2. /tmp/.java_pid$PID 文件在首次连接时会生成，但如果生成之后被/tmp 目录的清理程序错误删除，JVM将不再能连入，只能重启应用。
 
 3. 目标JVM使用启动参数-Djava.io.tmpdir，重定向了tmp目录路径
 
 4. 目标JVM使用启动参数-XX:+DisableAttachMechanism禁止了attach
+
+如果实在没有办法attach，可以考虑在原目标进程中配置JMX启动参数，设定JMX的地址与端口，然后在vjtop中指定
+
+目标进程的JVM参数：
+```
+-Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.port=7001 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.X=false -Dcom.sun.management.jmxremote.ssl=false
+```
+
+vjtop的命令(since 1.0.3):
+
+```
+./vjtop.sh -j 127.0.0.1:7001 <PID>
+```
 
 
 # 4. 改进点

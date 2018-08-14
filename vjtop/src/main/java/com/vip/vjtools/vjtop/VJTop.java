@@ -45,6 +45,9 @@ public class VJTop {
 		parser.acceptsAll(Arrays.asList(new String[] { "l", "limit" }),
 				"Number of threads to display ( default to 10 threads)").withRequiredArg().ofType(Integer.class);
 
+		parser.acceptsAll(Arrays.asList(new String[] { "j", "jmxurl" }),
+				"JMX url like 127.0.0.1:7001 when VM attach is not work").withRequiredArg().ofType(String.class);
+
 		// detail mode
 		parser.accepts("cpu",
 				"default mode in detail view, display thread cpu usage and sort by thread delta cpu time ");
@@ -59,7 +62,6 @@ public class VJTop {
 
 	public static void main(String[] args) {
 		try {
-
 			// 1. create option parser
 			OptionParser parser = createOptionParser();
 			OptionSet optionSet = parser.parse(args);
@@ -72,9 +74,14 @@ public class VJTop {
 			// 2. create vminfo
 			String pid = parsePid(parser, optionSet);
 
-			VMInfo vminfo = VMInfo.processNewVM(pid);
+			String jmxHostAndPort = null;
+			if (optionSet.hasArgument("jmxurl")) {
+				jmxHostAndPort = (String) optionSet.valueOf("jmxurl");
+			}
+
+			VMInfo vminfo = VMInfo.processNewVM(pid, jmxHostAndPort);
 			if (vminfo.state != VMInfoState.ATTACHED) {
-				System.out.println("\nERROR: Could not attach to process, please find reason in README\n");
+				System.out.println("\nERROR: Could not attach to process, see the solution in README\n");
 				return;
 			}
 

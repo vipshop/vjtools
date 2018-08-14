@@ -66,7 +66,6 @@ public class JmxClient {
 
 	private String pid;
 
-	private JMXServiceURL jmxUrl = null;
 	private MBeanServerConnection mbsc = null;
 	private SnapshotMBeanServerConnection server = null;
 	private JMXConnector jmxc = null;
@@ -81,8 +80,7 @@ public class JmxClient {
 	private JmxMemoryPoolManager memoryPoolManager = null;
 	private JmxBufferPoolManager bufferPoolManager = null;
 
-	public JmxClient(String pid) throws IOException {
-		this.pid = pid;
+	public JmxClient() throws IOException {
 	}
 
 	public void flush() {
@@ -91,13 +89,24 @@ public class JmxClient {
 		}
 	}
 
-	public void connect() throws Exception {
+	public void connect(String pid, String jmxHostAndPort) throws Exception {
+		this.pid = pid;
 
-		// 如果jmx agent未启动，主动attach进JVM后加载
-		String address = attachToGetConnectorAddress();
+		if (jmxHostAndPort != null) {
+			JMXServiceURL jmxUrl = new JMXServiceURL(
+					"service:jmx:rmi://" + jmxHostAndPort + "/jndi/rmi://" + jmxHostAndPort + "/jmxrmi");
+			Map credentials = new HashMap(1);
+			String[] creds = new String[] { null, null };
+			credentials.put(JMXConnector.CREDENTIALS, creds);
 
-		this.jmxUrl = new JMXServiceURL(address);
-		this.jmxc = JMXConnectorFactory.connect(jmxUrl);// NOSONAR
+			this.jmxc = JMXConnectorFactory.connect(jmxUrl, credentials);
+		} else {
+			// 如果jmx agent未启动，主动attach进JVM后加载
+			String address = attachToGetConnectorAddress();
+
+			JMXServiceURL jmxUrl = new JMXServiceURL(address);
+			this.jmxc = JMXConnectorFactory.connect(jmxUrl);// NOSONAR
+		}
 
 		this.mbsc = jmxc.getMBeanServerConnection();
 		this.server = Snapshot.newSnapshot(mbsc);
@@ -230,7 +239,7 @@ public class JmxClient {
 
 	@Override
 	public String toString() {
-		return pid;
+		return "JMX Client for PID:" + pid;
 	}
 
 	/**

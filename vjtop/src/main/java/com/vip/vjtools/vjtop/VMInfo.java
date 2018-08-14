@@ -104,10 +104,10 @@ public class VMInfo {
 	/**
 	 * 创建JMX连接并构造VMInfo实例
 	 */
-	public static VMInfo processNewVM(String pid) {
+	public static VMInfo processNewVM(String pid, String jmxHostAndPort) {
 		try {
-			final JmxClient jmxClient = new JmxClient(pid);
-			jmxClient.connect();
+			final JmxClient jmxClient = new JmxClient();
+			jmxClient.connect(pid, jmxHostAndPort);
 
 			// 注册JMXClient注销的钩子
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
