@@ -18,6 +18,9 @@ public class ProcFileData {
 
 	private static final String VALUE_SEPARATOR = ":";
 
+	public static final String SEND_BYTES = "sendBytes";
+	public static final String RECEIVE_BYTES = "receiveBytes";
+
 	public static Map<String, String> getProcStatus(String pid) {
 		return getProcFileAsMap(String.format(PROC_SELF_STATUS_FILE_TPL, pid));
 	}
@@ -43,8 +46,8 @@ public class ProcFileData {
 		}
 
 		Map<String, Long> netStats = new HashMap<String, Long>();
-		netStats.put("receiveBytes", new Long(totalReceiveBytes));
-		netStats.put("sendBytes", new Long(totalSendBytes));
+		netStats.put(RECEIVE_BYTES, new Long(totalReceiveBytes));
+		netStats.put(SEND_BYTES, new Long(totalSendBytes));
 		return netStats;
 	}
 

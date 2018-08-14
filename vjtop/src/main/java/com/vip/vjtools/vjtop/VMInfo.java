@@ -43,8 +43,12 @@ public class VMInfo {
 	public boolean threadMemoryAllocatedSupported;
 
 	// 动态数据//
+	public Rate upTimeMills = new Rate();
+	public Rate cpuTimeNanos = new Rate();
+
 	public long rss;
 	public long swap;
+	public long processThreads;
 
 	public Rate rchar = new Rate();
 	public Rate wchar = new Rate();
@@ -54,18 +58,13 @@ public class VMInfo {
 	public Rate receiveBytes = new Rate();
 	public Rate sendBytes = new Rate();
 
-	public Rate upTimeMills = new Rate();
-	public Rate cpuTimeNanos = new Rate();
-
 	public double cpuLoad = 0.0;
 	public double singleCoreCpuLoad = 0.0;
 
 	public Rate ygcCount = new Rate();
-	public Rate fullgcCount = new Rate();
-
 	public Rate ygcTimeMills = new Rate();
+	public Rate fullgcCount = new Rate();
 	public Rate fullgcTimeMills = new Rate();
-
 
 	public long threadActive;
 	public long threadDaemon;
@@ -144,8 +143,7 @@ public class VMInfo {
 		try {
 			perfData = PerfData.connect(Integer.parseInt(pid));
 			perfDataSupport = true;
-		} catch (Exception e) {
-			System.err.println("PerfData not support");
+		} catch (Throwable ignored) {
 		}
 
 		if (perfDataSupport) {
@@ -188,8 +186,9 @@ public class VMInfo {
 			updateCpu();
 
 			if (isLinux) {
-				updateMemory();
+				updateProcessStatus();
 				updateIO();
+				updateNet();
 			}
 
 			updateThreads();
@@ -212,10 +211,11 @@ public class VMInfo {
 		singleCoreCpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta, 1);
 	}
 
-	private void updateMemory() {
+	private void updateProcessStatus() {
 		Map<String, String> procStatus = ProcFileData.getProcStatus(pid);
 		rss = Utils.parseFromSize(procStatus.get("VmRSS"));
 		swap = Utils.parseFromSize(procStatus.get("VmSwap"));
+		processThreads = Long.parseLong(procStatus.get("Threads"));
 	}
 
 	private void updateIO() {
@@ -234,18 +234,19 @@ public class VMInfo {
 		wchar.caculateRate(upTimeMills.delta);
 		readBytes.caculateRate(upTimeMills.delta);
 		writeBytes.caculateRate(upTimeMills.delta);
+	}
 
+	private void updateNet() {
 		Map<String, Long> procNet = ProcFileData.getProcNet(pid);
 
-		receiveBytes.current = procNet.get("receiveBytes");
-		sendBytes.current = procNet.get("sendBytes");
+		receiveBytes.current = procNet.get(ProcFileData.RECEIVE_BYTES);
+		sendBytes.current = procNet.get(ProcFileData.SEND_BYTES);
 
 		receiveBytes.update();
 		sendBytes.update();
 		receiveBytes.caculateRate(upTimeMills.delta);
 		sendBytes.caculateRate(upTimeMills.delta);
 	}
-
 
 	private void updateThreads() throws IOException {
 		if (perfDataSupport) {
@@ -259,6 +260,8 @@ public class VMInfo {
 			threadPeak = jmxClient.getThreadMXBean().getPeakThreadCount();
 			threadStarted = jmxClient.getThreadMXBean().getTotalStartedThreadCount();
 		}
+
+
 	}
 
 	private void updateClassLoad() throws IOException {
@@ -369,7 +372,7 @@ public class VMInfo {
 		private long last = -1;
 		private long current = -1;
 		private long delta = -1;
-		private long ratePerSecond;
+		private long ratePerSecond = -1;
 
 		public void update() {
 			if (last != -1) {
@@ -379,7 +382,9 @@ public class VMInfo {
 		}
 
 		public void caculateRate(long deltaTimeMills) {
-			ratePerSecond = delta * 1000 / deltaTimeMills;
+			if (delta != -1) {
+				ratePerSecond = delta * 1000 / deltaTimeMills;
+			}
 		}
 
 		public long getDelta() {
@@ -393,7 +398,6 @@ public class VMInfo {
 		public long getCurrent() {
 			return current;
 		}
-
 	}
 
 	public static class Usage {

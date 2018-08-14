@@ -34,7 +34,7 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 ### 2.21 进程区数据来源
 
 * 从/proc/PID/* 文件中获取进程数据
-* 从JDK的PerfData文件中获取JVM数据(JDK每秒写入/tmp/hsperfxxxx文件的统计数据)
+* 从JDK的PerfData文件中获取JVM数据(JDK每秒写入/tmp/hsperfdata_$userid/$pid文件的统计数据)
 * 使用目标JVM的JMX中获取JVM数据（如果目标JVM还没启动JMX，通过attach方式动态加载）
 
 如果数据同时在PerfData和JMX存在，优先使用PerfData，除非PerfData被屏蔽。 
@@ -98,11 +98,11 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 
 * `rss`: `Resident Set Size`, 该进程在内存中的页的数量。该数据从/proc/\<pid\>/status中获取, 含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
 * `swap`: 被交换出去的虚存大小。该数据从/proc/\<pid\>/status中获取, 含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
-* `rchar/wchar`: 通过系统调用的读/写的字节数。该数据从/proc/\<pid\>/io中获取，含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
+* `rchar/wchar`: 通过系统调用的读/写的字节数。包含从PageCache的读写，该数据从/proc/\<pid\>/io中获取，含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
 * `read_bytes/write_bytes`: 真正达到存储层的读/写的字节数。该数据从/proc/\<pid\>/io中获取，含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
 * `codeCache`: JIT编译的二进制代码的存放区，满后将不能编译新的代码。
 * `direct`: 堆外内存，但注意新版Netty不经过JDK API所分配的堆外内存未能纪录。
-* `SAFE-POINT`: PerfData开启时可用，JVM真正的停顿次数及停顿时间
+* `SAFE-POINT`: PerfData开启时可用，JVM真正的停顿次数及停顿时间。
 
 
 线程区数据解释:

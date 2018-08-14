@@ -77,20 +77,20 @@ public class VJTop {
 				System.exit(0);
 			}
 
-			// 2. create vminfo & view
+			// 2. create vminfo
 			String pid = parsePid(parser, optionSet);
-
-			VMDetailView.DetailMode displayMode = parseDisplayMode(optionSet);
-
-			Integer width = null;
-			if (optionSet.hasArgument("width")) {
-				width = (Integer) optionSet.valueOf("width");
-			}
 
 			VMInfo vminfo = VMInfo.processNewVM(pid);
 			if (vminfo.state != VMInfoState.ATTACHED) {
 				System.out.println("\nERROR: Could not attach to process, please find reason in README\n");
 				return;
+			}
+
+			// 3. create view
+			VMDetailView.DetailMode displayMode = parseDisplayMode(optionSet);
+			Integer width = null;
+			if (optionSet.hasArgument("width")) {
+				width = (Integer) optionSet.valueOf("width");
 			}
 
 			VMDetailView view = new VMDetailView(vminfo, displayMode, width);
@@ -100,7 +100,7 @@ public class VJTop {
 				view.threadLimit = limit;
 			}
 
-			// 3. create main application
+			// 4. create main application
 			VJTop app = new VJTop();
 			app.mainThread = Thread.currentThread();
 			app.view = view;
@@ -119,12 +119,12 @@ public class VJTop {
 				app.maxIterations = iterations;
 			}
 
-			// 4. start thread to get user input
+			// 5. start thread to get user input
 			Thread interactiveThread = new Thread(new InteractiveTask(app), "InteractiveThread");
 			interactiveThread.setDaemon(true);
 			interactiveThread.start();
 
-			// 5. run views
+			// 6. run app
 			app.run(view);
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
@@ -140,6 +140,7 @@ public class VJTop {
 			int iterations = 0;
 			while (!view.shouldExit()) {
 
+				// 非只打印一次的场景
 				if (maxIterations > 1 || maxIterations == -1) {
 					waitForInput();
 					clearTerminal();
@@ -150,15 +151,17 @@ public class VJTop {
 				System.out.flush();
 
 				if (maxIterations > 0 && iterations >= maxIterations) {
+					System.out.println("");
+					System.out.flush();
 					break;
 				}
 
-				// 第一次只等待1秒
-				int sleepTime = iterations == 0 ? 1 : interval;
+				// 第一次最多只等待2秒
+				int sleepSeconds = (iterations == 0) ? Math.min(2, interval) : interval;
 
-				++iterations;
+				iterations++;
 				sleepStartTime = System.currentTimeMillis();
-				Utils.sleep(sleepTime * 1000);
+				Utils.sleep(sleepSeconds * 1000);
 			}
 		} catch (NoClassDefFoundError e) {
 			e.printStackTrace(System.out);

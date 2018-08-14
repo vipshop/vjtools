@@ -26,9 +26,7 @@ public class PerfData {
 			throw e;
 		} catch (OutOfMemoryError e) {
 			throw e;
-		} catch (Error e) {
-			throw new RuntimeException("Cannot perf data for process " + pid + " - " + e.toString());
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new RuntimeException("Cannot perf data for process " + pid + " - " + e.toString());
 		}
 	}

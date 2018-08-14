@@ -109,8 +109,10 @@ public class InteractiveTask implements Runnable {
 			tty.println(" Nothing be changed");
 		} else {
 			app.view.mode = detailMode;
-			tty.println(" Display mode changed to " + app.view.mode + " for next flush (" + app.nextFlushTime()
-					+ "s later)");
+			if (app.nextFlushTime() > 1) {
+				tty.println(" Display mode changed to " + app.view.mode + " for next flush (" + app.nextFlushTime()
+						+ "s later)");
+			}
 		}
 		app.continueFlush();
 	}
@@ -122,8 +124,10 @@ public class InteractiveTask implements Runnable {
 		try {
 			int interval = Integer.parseInt(intervalStr);
 			if (interval != app.interval) {
-				tty.println(" Flush interval changed to " + interval + " seconds for next flush (" + app.nextFlushTime()
-						+ "s later)");
+				if (app.nextFlushTime() > 1) {
+					tty.println(" Flush interval changed to " + interval + " seconds for next flush ("
+							+ app.nextFlushTime() + "s later)");
+				}
 				app.interval = interval;
 			} else {
 				tty.println(" Nothing be changed");
@@ -135,7 +139,6 @@ public class InteractiveTask implements Runnable {
 		}
 	}
 
-
 	private void changeThreadLimit() {
 		app.preventFlush();
 		tty.print(" Input number of threads to display(current " + app.view.threadLimit + "):");
@@ -144,8 +147,10 @@ public class InteractiveTask implements Runnable {
 			int threadLimit = Integer.parseInt(threadLimitStr);
 			if (threadLimit != app.view.threadLimit) {
 				app.view.threadLimit = threadLimit;
-				tty.println(" Number of threads to display changed to " + threadLimit + "for next flush ("
-						+ app.nextFlushTime() + "s later)");
+				if (app.nextFlushTime() > 1) {
+					tty.println(" Number of threads to display changed to " + threadLimit + "for next flush ("
+							+ app.nextFlushTime() + "s later)");
+				}
 			} else {
 				tty.println(" Nothing be changed");
 			}

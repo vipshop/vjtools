@@ -68,31 +68,6 @@ public class VMDetailView {
 		System.out.print(" Input command (h for help):");
 	}
 
-	/**
-	 * 打印单条线程的stack strace
-	 */
-	public void printStack(long tid) throws IOException {
-		ThreadInfo info = vmInfo.getThreadMXBean().getThreadInfo(tid, 20);
-		if (info == null) {
-			System.err.println(" TID not exist:" + tid);
-			return;
-		}
-		StackTraceElement[] trace = info.getStackTrace();
-		System.out.println(" " + info.getThreadId() + ":" + info.getThreadName());
-		for (StackTraceElement traceElement : trace) {
-			System.out.println("\tat " + traceElement);
-		}
-		System.out.flush();
-	}
-
-	public void printAllThreads() throws IOException {
-		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
-		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(tids);
-		for (ThreadInfo info : threadInfos) {
-			System.out.println(" " + info.getThreadId() + "\t:" + info.getThreadName());
-		}
-		System.out.flush();
-	}
 
 	private boolean checkState() {
 		if (vmInfo.state == VMInfoState.ATTACHED_UPDATE_ERROR) {
@@ -117,9 +92,10 @@ public class VMDetailView {
 				vmInfo.cpuLoad * 100, vmInfo.processors);
 
 		if (vmInfo.isLinux) {
-			System.out.printf(", %4s rss, %4s swap%n", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.swap));
+			System.out.printf(", %4s rss, %4s swap, %d thread%n", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.swap),
+					vmInfo.processThreads);
 
-			System.out.printf(" IO: %4s rchar, %4s wchar, %4s read, %4s write, NET: %4s recv, %4s send",
+			System.out.printf(" IO: %4s rchar, %4s wchar, DISK: %4sB read, %4sB write, NET: %4sB recv, %4sB send",
 					Utils.toSizeUnit(vmInfo.rchar.getRate()), Utils.toSizeUnit(vmInfo.wchar.getRate()),
 					Utils.toSizeUnit(vmInfo.readBytes.getRate()), Utils.toSizeUnit(vmInfo.writeBytes.getRate()),
 					Utils.toSizeUnit(vmInfo.receiveBytes.getRate()), Utils.toSizeUnit(vmInfo.sendBytes.getRate()));
@@ -361,11 +337,48 @@ public class VMDetailView {
 
 	private void printWelcome() {
 		if (firstTime) {
+			if (!vmInfo.isLinux) {
+				System.out.printf("%n OS isn't linux, Process's MEMORY, IO, DISK, NET data will be skipped.%n");
+			}
+
+			if (!vmInfo.perfDataSupport) {
+				System.out.printf("%n Perfdata doesn't support, SAFE-POINT data will be skipped.%n");
+			}
+
 			System.out.printf("%n VMARGS: %s%n%n", vmInfo.vmArgs);
 			firstTime = false;
 		}
 		System.out.printf("%n Collecting data, please wait ......%n%n");
 		collectingData = true;
+	}
+
+	/**
+	 * 打印单条线程的stack strace，不造成停顿
+	 */
+	public void printStack(long tid) throws IOException {
+		ThreadInfo info = vmInfo.getThreadMXBean().getThreadInfo(tid, 20);
+		if (info == null) {
+			System.err.println(" TID not exist:" + tid);
+			return;
+		}
+		StackTraceElement[] trace = info.getStackTrace();
+		System.out.println(" " + info.getThreadId() + ":" + info.getThreadName());
+		for (StackTraceElement traceElement : trace) {
+			System.out.println("\tat " + traceElement);
+		}
+		System.out.flush();
+	}
+
+	/**
+	 * 打印所有线程，只获取名称不获取stack，不造成停顿
+	 */
+	public void printAllThreads() throws IOException {
+		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
+		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(tids);
+		for (ThreadInfo info : threadInfos) {
+			System.out.println(" " + info.getThreadId() + "\t:" + info.getThreadName());
+		}
+		System.out.flush();
 	}
 
 	private static double getThreadCPUUtilization(Long deltaThreadCpuTime, long totalTime, double factor) {
