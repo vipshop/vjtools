@@ -23,7 +23,10 @@ public class VMDetailView {
 	volatile public boolean collectingData = true;
 
 	private VMInfo vmInfo;
+
+	// 纪录vjtop进程本身的消耗
 	private OperatingSystemMXBean operatingSystemMXBean;
+	private long lastCpu = 0;
 
 	private int width;
 	private boolean shouldExit;
@@ -44,7 +47,6 @@ public class VMDetailView {
 
 	public void printView() throws Exception {
 		long iterationStartTime = System.currentTimeMillis();
-		long preCpuTime = operatingSystemMXBean.getProcessCpuTime();
 
 		vmInfo.update();
 
@@ -63,15 +65,12 @@ public class VMDetailView {
 		}
 
 		// 打印vjtop自身消耗
-		long deltaTime = System.currentTimeMillis() - iterationStartTime;
-		long deltaCpuTime = (operatingSystemMXBean.getProcessCpuTime() - preCpuTime) / (Utils.NANOS_TO_MILLS);
-		System.out.printf(" Cost time: %3dms, CPU time: %3dms%n", deltaTime, deltaCpuTime);
+		printIterationCost(iterationStartTime);
 
 		if (displayCommandHints) {
 			System.out.print(" Input command (h for help):");
 		}
 	}
-
 
 	private boolean checkState() {
 		if (vmInfo.state == VMInfoState.ATTACHED_UPDATE_ERROR) {
@@ -342,6 +341,15 @@ public class VMDetailView {
 		}
 
 		lastThreadMemoryTotalBytes = threadMemoryTotalBytesMap;
+	}
+
+	public void printIterationCost(long iterationStartTime) {
+		long deltaTime = System.currentTimeMillis() - iterationStartTime;
+
+		long currentCpu = operatingSystemMXBean.getProcessCpuTime();
+		long deltaCpuTime = (currentCpu - lastCpu) / Utils.NANOS_TO_MILLS;
+		lastCpu = currentCpu;
+		System.out.printf(" Cost time: %3dms, CPU time: %3dms%n", deltaTime, deltaCpuTime);
 	}
 
 	private void printWelcome() {

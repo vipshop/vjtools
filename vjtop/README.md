@@ -222,9 +222,9 @@ ERROR: Could not attach to process.
 ```
 
 
-1. 执行vjtop的用户，对/tmp/.java_pid$PID 文件有读写权限，该文件权限为srw------- 1，所以需要相同用户
+1. VM Attach时，会强制检查执行vjtop的用户，与目标JMV的用户一致，否则会抛出"well-known file is not secure"之类的异常
 
-2. /tmp/.java_pid$PID 文件在首次连接时会生成，但如果生成之后被/tmp 目录的清理程序错误删除，JVM将不再能连入，只能重启应用。
+2. /tmp/.java_pid$PID 文件在首次连接时会生成，但如果生成之后被大家的文件清理脚本错误删除，JVM将不再能连入，只能重启应用。
 
 3. 目标JVM使用启动参数-Djava.io.tmpdir，重定向了tmp目录路径
 

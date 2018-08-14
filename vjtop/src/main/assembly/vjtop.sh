@@ -17,7 +17,7 @@ if [ ! -f "$TOOLSJAR" ] ; then
 fi
 
 DIR=$( cd $(dirname $0) ; pwd -P )
-JAVA_OPTS="-Xms256m -Xmx256m -XX:NewRatio=1 -Xss256k -XX:+UseSerialGC -XX:-TieredCompilation -XX:CICompilerCount=2 -Xverify:none -XX:AutoBoxCacheMax=20000"
+JAVA_OPTS="-Xms256m -Xmx256m -XX:NewRatio=1 -Xss256k -XX:+UseSerialGC -XX:CICompilerCount=2 -Xverify:none -XX:AutoBoxCacheMax=20000"
 
 "$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$DIR/vjtop.jar:$TOOLSJAR" com.vip.vjtools.vjtop.VJTop "$@"
 
