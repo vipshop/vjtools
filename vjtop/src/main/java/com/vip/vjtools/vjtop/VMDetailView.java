@@ -99,10 +99,14 @@ public class VMDetailView {
 			System.out.printf(", %s rss, %s swap, %d thread%n", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.swap),
 					vmInfo.processThreads);
 
-			System.out.printf(" IO: %s rchar, %s wchar | DISK: %sB read, %sB write | NET: %sB recv, %sB send",
-					Utils.toSizeUnit(vmInfo.rchar.getRate()), Utils.toSizeUnit(vmInfo.wchar.getRate()),
-					Utils.toSizeUnit(vmInfo.readBytes.getRate()), Utils.toSizeUnit(vmInfo.writeBytes.getRate()),
-					Utils.toSizeUnit(vmInfo.receiveBytes.getRate()), Utils.toSizeUnit(vmInfo.sendBytes.getRate()));
+			if (vmInfo.ioDataSupport) {
+				System.out.printf(" IO: %s rchar, %s wchar | DISK: %sB read, %sB write |",
+						Utils.toSizeUnit(vmInfo.rchar.getRate()), Utils.toSizeUnit(vmInfo.wchar.getRate()),
+						Utils.toSizeUnit(vmInfo.readBytes.getRate()), Utils.toSizeUnit(vmInfo.writeBytes.getRate()));
+			}
+
+			System.out.printf(" NET: %sB recv, %sB send", Utils.toSizeUnit(vmInfo.receiveBytes.getRate()),
+					Utils.toSizeUnit(vmInfo.sendBytes.getRate()));
 		}
 		System.out.println();
 
@@ -344,6 +348,11 @@ public class VMDetailView {
 		if (firstTime) {
 			if (!vmInfo.isLinux) {
 				System.out.printf("%n OS isn't linux, Process's MEMORY, IO, DISK, NET data will be skipped.%n");
+			}
+
+			if (!vmInfo.ioDataSupport) {
+				System.out.printf("%n /proc/%s/io is not readable, Process's IO, DISK data will be skipped.%n",
+						vmInfo.pid);
 			}
 
 			if (!vmInfo.perfDataSupport) {

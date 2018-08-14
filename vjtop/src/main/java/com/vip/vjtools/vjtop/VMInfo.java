@@ -38,7 +38,7 @@ public class VMInfo {
 
 	public int processors;
 	public boolean isLinux;
-
+	public boolean ioDataSupport = true;// 不是同一个用户，不能读/proc/PID/io
 	public boolean threadCpuTimeSupported;
 	public boolean threadMemoryAllocatedSupported;
 
@@ -213,13 +213,26 @@ public class VMInfo {
 
 	private void updateProcessStatus() {
 		Map<String, String> procStatus = ProcFileData.getProcStatus(pid);
+		if (procStatus.isEmpty()) {
+			return;
+		}
 		rss = Utils.parseFromSize(procStatus.get("VmRSS"));
 		swap = Utils.parseFromSize(procStatus.get("VmSwap"));
 		processThreads = Long.parseLong(procStatus.get("Threads"));
 	}
 
 	private void updateIO() {
+		if (!ioDataSupport) {
+			return;
+		}
+
 		Map<String, String> procIo = ProcFileData.getProcIO(pid);
+
+		if (procIo.isEmpty()) {
+			ioDataSupport = false;
+			return;
+		}
+
 		rchar.current = Utils.parseFromSize(procIo.get("rchar"));
 		wchar.current = Utils.parseFromSize(procIo.get("wchar"));
 		readBytes.current = Utils.parseFromSize(procIo.get("read_bytes"));
@@ -260,8 +273,6 @@ public class VMInfo {
 			threadPeak = jmxClient.getThreadMXBean().getPeakThreadCount();
 			threadStarted = jmxClient.getThreadMXBean().getTotalStartedThreadCount();
 		}
-
-
 	}
 
 	private void updateClassLoad() throws IOException {
@@ -350,7 +361,6 @@ public class VMInfo {
 			state = VMInfoState.ATTACHED_UPDATE_ERROR;
 		}
 	}
-
 
 	private static int getJavaMajorVersion(String jvmVersion) {
 		if (jvmVersion.startsWith("1.8")) {
