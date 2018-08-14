@@ -18,9 +18,9 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 
 ## 2.1 概述
 
-[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.2/vjtop-1.0.2.zip)
+[Download 1.0.3.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.3/vjtop-1.0.3.zip) from Maven Central
 
-必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行。如果仍有问题，请看后面的执行问题排查章节。
+必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行。 如果仍有问题，请看后面的执行问题排查章节。
 
 ```
 // 占用CPU最多的线程
@@ -69,13 +69,14 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 ### 2.3.2 输出示例：
 
 ```
- PID: 57789 - 15:37:07, JVM: 1.8.0_144, USER: calvin, UPTIME: 01h07m
- PROCESS:  0.99% cpu ( 0.04% of 24 core), 2491m rss,   0m swap
- IO:   24k rchar,    1k wchar,    0 read_bytes,    0 write_bytes
- THREAD:   97 active,   89 daemon,   99 peak,  461 created, CLASS: 12243 loaded, 0 unloaded
- HEAP: 160m/819m eden, 0m/102m sur, 43m/1024m old
- NON-HEAP: 55m/256m cms perm gen, 8m/96m codeCache, 0m/0m direct, 0m/0m map
- GC: 0/0ms ygc, 0/0ms fgc, SAFE-POINT: 6 count, 1ms time, 1ms syncTime
+ PID: 9893 - 19:11:13 JVM: 1.7.0_79 USER: calvin UPTIME: 03m10s
+ PROCESS: 66.64% cpu( 2.78% of 24 core), 2385m rss, 0m swap, 117 thread
+ IO: 13m rchar, 14m wchar | DISK: 0B read, 827kB write | NET: 13mB recv, 14mB send
+ THREAD: 99 active, 93 daemon, 99 peak, 112 created | CLASS: 13315 loaded, 0 unloaded
+ HEAP: 118m/819m eden, 0m/102m sur, 44m/1024m old
+ NON-HEAP: 60m/128m/256m perm, 6m/6m/96m codeCache
+ OFF-HEAP: 0m/0m direct, 0m/0m map, 99m threadStack
+ GC: 0/0ms ygc, 0/0ms fgc | SAFE-POINT: 6 count, 1ms time, 1ms syncTime
 
     TID NAME                                                      STATE    CPU SYSCPU  TOTAL TOLSYS
      43 metrics-mercury-metric-logger-1-thread-1             TIMED_WAIT  0.38%  0.28% 25.48%  9.13%
@@ -94,13 +95,20 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 ```
 进程区数据解释:
 
-* `rss`: `Resident Set Size`, 该进程在内存中的页的数量。该数据从/proc/\<pid\>/status中获取, 含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
-* `swap`: 被交换出去的虚存大小。该数据从/proc/\<pid\>/status中获取, 含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
-* `rchar/wchar`: 通过系统调用的读/写的字节数。包含从PageCache的读写，该数据从/proc/\<pid\>/io中获取，含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
-* `read_bytes/write_bytes`: 真正达到存储层的读/写的字节数。该数据从/proc/\<pid\>/io中获取，含义与[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)中一致。
+* `rss`: `Resident Set Size`, 进程实际占用的内存。
+* `swap`: 进程被交换到磁盘的虚拟内存。
+* `thread`: 进程的操作系统线程数。 (since 1.0.3)
+* `IO`: 通过系统调用的读/写的字节数。包含从PageCache的读写。
+* `DISK`: 真正达到物理存储层的读/写的字节数。
+* `NET`: 所有网卡(不包含lo与bond)流量的总和。(since 1.0.3)
+* `THREAD`: Java线程，active为当前线程数, daemon为当前线程中的daemon线程数, peak为历史最高线程数, create为创建过的线程总数
+* `HEAP`: 1.0.3版开始每一项有三个数字，分别为1.当前使用内存，2.当前已申请内存，3.最大内存。如果后两个数字相同时则合并。
+* `sur`: 当前存活区的大小，注意实际有from, to 两个存活区。
+* `NON-HEAP`: 数字含义同`HEAP`
 * `codeCache`: JIT编译的二进制代码的存放区，满后将不能编译新的代码。
 * `direct`: 堆外内存，但注意新版Netty不经过JDK API所分配的堆外内存未能纪录。
-* `SAFE-POINT`: PerfData开启时可用，JVM真正的停顿次数及停顿时间。
+* `threadStack`: Java线程所占的栈内存总和，但不包含VM线程。(since 1.0.3)
+* `SAFE-POINT`: PerfData开启时可用，JVM真正的停顿次数及停顿时间，以及等待所有线程进入安全点所消耗的时间。
 
 
 线程区数据解释:
