@@ -29,6 +29,7 @@ public class VMDetailView {
 	private boolean shouldExit;
 
 	private boolean firstTime = true;
+	public boolean displayCommandHints = false;
 
 	private Map<Long, Long> lastThreadCpuTotalTimes = new HashMap<Long, Long>();
 	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
@@ -65,7 +66,10 @@ public class VMDetailView {
 		long deltaTime = System.currentTimeMillis() - iterationStartTime;
 		long deltaCpuTime = (operatingSystemMXBean.getProcessCpuTime() - preCpuTime) / (Utils.NANOS_TO_MILLS);
 		System.out.printf(" Cost time: %3dms, CPU time: %3dms%n", deltaTime, deltaCpuTime);
-		System.out.print(" Input command (h for help):");
+
+		if (displayCommandHints) {
+			System.out.print(" Input command (h for help):");
+		}
 	}
 
 

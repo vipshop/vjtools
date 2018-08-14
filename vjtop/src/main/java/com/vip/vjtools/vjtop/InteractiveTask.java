@@ -1,8 +1,7 @@
 package com.vip.vjtools.vjtop;
 
-import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 
 import com.vip.vjtools.vjtop.VMDetailView.DetailMode;
@@ -12,20 +11,34 @@ import com.vip.vjtools.vjtop.VMDetailView.DetailMode;
  */
 public class InteractiveTask implements Runnable {
 	private VJTop app;
-	private BufferedReader reader;
+	private Console console;
 	private PrintStream tty;
 
 	public InteractiveTask(VJTop app) {
 		this.app = app;
-		reader = new BufferedReader(new InputStreamReader(System.in));
 		tty = System.err;
+		console = System.console();
+	}
+
+	public boolean inputEnabled() {
+		return console != null;
 	}
 
 	@Override
 	public void run() {
+		// background执行时，console为Null
+		if (console == null) {
+
+			return;
+		}
+
 		while (true) {
 			try {
-				String command = readLine();
+				String command = readLine("");
+				if (command == null) {
+					break;
+				}
+
 				handleCommand(command);
 				if (!app.view.shouldExit()) {
 					tty.print(" Input command (h for help):");
@@ -37,7 +50,6 @@ public class InteractiveTask implements Runnable {
 	}
 
 	public void handleCommand(String command) throws Exception {
-
 		if (command.equals("t") || (command.startsWith("t "))) {
 			printStacktrace(command);
 		} else if (command.equals("a")) {
@@ -69,8 +81,7 @@ public class InteractiveTask implements Runnable {
 		app.preventFlush();
 		String pidStr;
 		if (command.length() == 1) {
-			tty.print(" Input TID:");
-			pidStr = readLine();
+			pidStr = readLine(" Input TID:");
 		} else {
 			pidStr = command.substring(2);
 		}
@@ -98,10 +109,10 @@ public class InteractiveTask implements Runnable {
 
 	private void changeDisplayMode() {
 		app.preventFlush();
-		tty.print(
+
+		String mode = readLine(
 				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory, current "
 						+ app.view.mode + "): ");
-		String mode = readLine();
 		DetailMode detailMode = DetailMode.parse(mode);
 		if (detailMode == null) {
 			tty.println(" Wrong option for display mode(1-6)");
@@ -119,8 +130,7 @@ public class InteractiveTask implements Runnable {
 
 	private void changeInterval() {
 		app.preventFlush();
-		tty.print(" Input flush interval seconds(current " + app.interval + "):");
-		String intervalStr = readLine();
+		String intervalStr = readLine(" Input flush interval seconds(current " + app.interval + "):");
 		try {
 			int interval = Integer.parseInt(intervalStr);
 			if (interval != app.interval) {
@@ -141,8 +151,7 @@ public class InteractiveTask implements Runnable {
 
 	private void changeThreadLimit() {
 		app.preventFlush();
-		tty.print(" Input number of threads to display(current " + app.view.threadLimit + "):");
-		String threadLimitStr = readLine();
+		String threadLimitStr = readLine(" Input number of threads to display(current " + app.view.threadLimit + "):");
 		try {
 			int threadLimit = Integer.parseInt(threadLimitStr);
 			if (threadLimit != app.view.threadLimit) {
@@ -178,21 +187,16 @@ public class InteractiveTask implements Runnable {
 	}
 
 	private String waitForEnter() {
-		tty.println(" Please hit <ENTER> to continue...");
-		return readLine();
+		return readLine(" Please hit <ENTER> to continue...");
 	}
 
-	private String readLine() {
-		String result;
-		try {
-			result = reader.readLine();
-		} catch (IOException e) {
-			return null;
-		}
+	private String readLine(String hints) {
+		String result = console.readLine(hints);
 
 		if (result != null) {
 			return result.trim().toLowerCase();
 		}
+
 		return null;
 	}
 }
