@@ -218,6 +218,12 @@ public class Utils {
 			} else if (str.endsWith("g")) {
 				str = str.substring(0, str.length() - 1).trim();
 				fromScale = GB_SIZE;
+			} else if (str.endsWith("tb")) {
+				str = str.substring(0, str.length() - 2).trim();
+				fromScale = TB_SIZE;
+			} else if (str.endsWith("t")) {
+				str = str.substring(0, str.length() - 1).trim();
+				fromScale = TB_SIZE;
 			} else if (str.endsWith("bytes")) {
 				str = str.substring(0, str.length() - "bytes".length()).trim();
 				fromScale = BYTE_SIZE;
