@@ -35,7 +35,7 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 * 从JDK的PerfData文件中获取JVM数据(JDK每秒写入/tmp/hsperfdata_$userid/$pid文件的统计数据)
 * 使用目标JVM的JMX中获取JVM数据（如果目标JVM还没启动JMX，通过attach方式动态加载）
 
-如果数据同时在PerfData和JMX存在，优先使用PerfData，除非PerfData被屏蔽。 
+如果数据同时在PerfData和JMX存在，优先使用PerfData。 
 
 
 ### 2.2.2 线程区数据来源 
@@ -101,7 +101,7 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 * `IO`: 通过系统调用的读/写的字节数。包含从PageCache的读写。
 * `DISK`: 真正达到物理存储层的读/写的字节数。
 * `NET`: 所有网卡(不包含lo与bond)流量的总和。(since 1.0.3)
-* `THREAD`: Java线程，active为当前线程数, daemon为当前线程中的daemon线程数, peak为历史最高线程数, create为创建过的线程总数
+* `THREAD`: Java线程数，active为当前线程数, daemon为当前线程中的daemon线程数, peak为历史最高线程数, create为创建过的线程总数
 * `HEAP`: 1.0.3版开始每一项有三个数字，分别为1.当前使用内存，2.当前已申请内存，3.最大内存。如果后两个数字相同时则合并。
 * `sur`: 当前存活区的大小，注意实际有from, to 两个存活区。
 * `NON-HEAP`: 数字含义同`HEAP`
@@ -223,26 +223,28 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 
 首先，运行vjtop的JDK，与目标JDK的版本必须一致
 
-其次，vjtop 使用JVM attach机制 连入PID 并获得JMX的本地连接地址，如果出现如下出错，可能的原因有
+其次，vjtop 使用JVM attach机制 连入PID 并获得JMX的本地连接地址，attach失败时出现如下报错
 
 ```
 ERROR: Could not attach to process.
 ```
 
+可能的原因有：
 
-1. VM Attach时，会强制检查执行vjtop的用户，与目标JMV的用户一致，否则会抛出"well-known file is not secure"之类的异常
+1. VM Attach时，会强制检查执行vjtop的用户，与目标JMV的用户一致，否则会抛出"well-known file is not secure"之类的异常。
 
 2. /tmp/.java_pid$PID 文件在首次连接时会生成，但如果生成之后被大家的文件清理脚本错误删除，JVM将不再能连入，只能重启应用。
 
-3. 目标JVM使用启动参数-Djava.io.tmpdir，重定向了tmp目录路径
+3. 目标JVM使用启动参数-Djava.io.tmpdir，重定向了tmp目录路径。
 
-4. 目标JVM使用启动参数-XX:+DisableAttachMechanism禁止了attach
+4. 目标JVM使用启动参数-XX:+DisableAttachMechanism禁止了attach。
 
 如果实在没有办法attach，可以考虑在原目标进程中配置JMX启动参数，设定JMX的地址与端口，然后在vjtop中指定
 
 目标进程的JVM参数：
 ```
--Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.port=7001 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.X=false -Dcom.sun.management.jmxremote.ssl=false
+-Djava.rmi.server.hostname=127.0.0.1 -Dcom.sun.management.jmxremote.port=7001 -Dcom.sun.management.jmxremote
+ -Dcom.sun.management.jmxremote.X=false -Dcom.sun.management.jmxremote.ssl=false
 ```
 
 vjtop的命令(since 1.0.3):
