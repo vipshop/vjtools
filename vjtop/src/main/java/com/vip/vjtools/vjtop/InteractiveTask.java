@@ -119,6 +119,9 @@ public class InteractiveTask implements Runnable {
 		} else if (detailMode == app.view.mode) {
 			tty.println(" Nothing be changed");
 		} else {
+			if (app.view.mode.isCpuMode != detailMode.isCpuMode) {
+				app.view.cleanupThreadsHistory();
+			}
 			app.view.mode = detailMode;
 			if (app.nextFlushTime() > 1) {
 				tty.println(" Display mode changed to " + app.view.mode + " for next flush (" + app.nextFlushTime()

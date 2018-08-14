@@ -56,10 +56,10 @@ public class VMDetailView {
 		printJvmInfo();
 
 		// 打印线程级别内容
-		if (mode == DetailMode.memory || mode == DetailMode.totalmemory) {
-			printTopMemoryThreads(mode);
-		} else {
+		if (mode.isCpuMode) {
 			printTopCpuThreads(mode);
+		} else {
+			printTopMemoryThreads(mode);
 		}
 
 		// 打印vjtop自身消耗
@@ -395,6 +395,12 @@ public class VMDetailView {
 		System.out.flush();
 	}
 
+	public void cleanupThreadsHistory() {
+		this.lastThreadCpuTotalTimes.clear();
+		this.lastThreadSysCpuTotalTimes.clear();
+		this.lastThreadMemoryTotalBytes.clear();
+	}
+
 	private static double getThreadCPUUtilization(Long deltaThreadCpuTime, long totalTime, double factor) {
 		if (deltaThreadCpuTime == null) {
 			return 0;
@@ -442,7 +448,13 @@ public class VMDetailView {
 	}
 
 	public enum DetailMode {
-		cpu, totalcpu, syscpu, totalsyscpu, memory, totalmemory;
+		cpu(true), totalcpu(true), syscpu(true), totalsyscpu(true), memory(false), totalmemory(false);
+
+		public boolean isCpuMode;
+
+		private DetailMode(boolean isCpuMode) {
+			this.isCpuMode = isCpuMode;
+		}
 
 		public static DetailMode parse(String mode) {
 			switch (mode) {
