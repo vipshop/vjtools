@@ -31,7 +31,7 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 
 ### 2.21 进程区数据来源
 
-* 从/proc/PID/* 文件中获取进程数据
+* 从/proc/PID/* 文件中获取进程数据, 详见[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
 * 从JDK的PerfData文件中获取JVM数据(JDK每秒写入/tmp/hsperfdata_$userid/$pid文件的统计数据)
 * 使用目标JVM的JMX中获取JVM数据（如果目标JVM还没启动JMX，通过attach方式动态加载）
 
@@ -71,7 +71,7 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 ```
  PID: 9893 - 19:11:13 JVM: 1.7.0_79 USER: calvin UPTIME: 03m10s
  PROCESS: 66.64% cpu( 2.78% of 24 core), 2385m rss, 0m swap, 117 thread
- IO: 13m rchar, 14m wchar | DISK: 0B read, 827kB write | NET: 13mB recv, 14mB send
+ DISK: 0B read, 827kB write | HOST-NET: 13mB recv, 14mB send
  THREAD: 99 active, 93 daemon, 99 peak, 112 created | CLASS: 13315 loaded, 0 unloaded
  HEAP: 118m/819m eden, 0m/102m sur, 44m/1024m old
  NON-HEAP: 60m/128m/256m perm, 6m/6m/96m codeCache
@@ -98,9 +98,8 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 * `rss`: `Resident Set Size`, 进程实际占用的内存。
 * `swap`: 进程被交换到磁盘的虚拟内存。
 * `thread`: 进程的操作系统线程数。 (since 1.0.3)
-* `IO`: 通过系统调用的读/写的字节数。包含从PageCache的读写。
 * `DISK`: 真正达到物理存储层的读/写的字节数。
-* `NET`: 所有网卡(不包含lo与bond)流量的总和。(since 1.0.3)
+* `HOST-NET`: 所有网卡(不包含lo与bond)流量的总和，注意为服务器级别的总数。(since 1.0.3)
 * `THREAD`: Java线程数，active为当前线程数, daemon为当前线程中的daemon线程数, peak为历史最高线程数, create为创建过的线程总数
 * `HEAP`: 1.0.3版开始每一项有三个数字，分别为1.当前使用内存，2.当前已申请内存，3.最大内存。如果后两个数字相同时则合并。
 * `sur`: 当前存活区的大小，注意实际有from, to 两个存活区。
@@ -219,7 +218,21 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 ./vjtop.sh -n 20 <PID>
 ```
 
-# 3. 执行问题排查
+# 3. 变色告警规则
+
+* 物理CPU：服务器总CPU的50%黄， 70%红
+* SWAP： 一旦使用即红
+* 线程数：如果少于8核，核数＊150 黄， 核数＊225 红。 如果大于8核，核数＊100 黄, 核数＊150红。
+* DISK: 读写磁盘大于70MB/s 黄， 大于100MB/s 红
+* NET: 在有些版本的Linux，Net数据为主机级别，非线程级别，且取决于网卡能力，暂时不处理
+* 永久代: 如果设置了Max，则85%黄，95%红 
+* CodeCache: 如果设置了Max，则85%黄，95%红
+* YGC: 平均耗时100ms黄，200ms红,总耗时达到了时间间隔的5%黄，10%红，
+* FGC: 次数1黄，2红
+* SAFEPOINT: 总耗时达到了时间间隔的5%黄，10%红, async时间平均每次20ms黄，50ms红
+* 线程CPU: CPU为50%黄，70%红，SYS为30%黄，50%红 
+
+# 4. 执行问题排查
 
 首先，运行vjtop的JDK，与目标JDK的版本必须一致
 
@@ -254,29 +267,29 @@ vjtop的命令(since 1.0.3):
 ```
 
 
-# 4. 改进点
+# 5. 改进点
 
-### 4.1 进程概览
+### 5.1 进程概览
 
-* 新功能：进程的物理内存，SWAP，IO信息
+* 新功能：进程的物理内存，SWAP，IO，网络流量，物理线程信息。
 * 新功能：将内存信息与GC信息拆开不同分代独立显示
-* 新功能：显示CodeCache与堆外内存信息
+* 新功能：CodeCache与堆外内存，Thread Stack内存信息
 
 
-### 4.2 热点线程
+### 5.2 热点线程
 
 * 新功能：线程内存分配速度的展示与排序 (from SJK)
 * 新功能：线程SYS CPU的展示与排序，应用启动以来线程的总CPU间的排序 (from SJK)
 * 新配置项：打印间隔，展示线程数
 * 性能优化：减少了几倍的耗时，通过批量获取线程CPU时间(from SJK)等方法
 
-### 4.3 实时交互(since 1.0.1)
+### 5.3 实时交互(since 1.0.1)
 
-* 新功能： 选择打印某条线程的stack trace
-* 新功能： 打印全部的线程名
+* 新功能： 无停顿地选择打印某条线程的stack trace
+* 新功能： 无停顿地打印全部的线程名
 * 新功能： 实时切换显示模式和排序，刷新频率和显示线程数
 
-### 4.4 为在生产环境运行优化：
+### 5.4 为在生产环境运行优化：
 
 * 删除jvmtop会造成应用停顿的Profile页面
 * 删除jvmtop获取所有Java进程信息，有着不确定性的Overview页面

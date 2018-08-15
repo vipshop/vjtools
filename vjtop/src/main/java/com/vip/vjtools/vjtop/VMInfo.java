@@ -42,6 +42,8 @@ public class VMInfo {
 	public boolean threadCpuTimeSupported;
 	public boolean threadMemoryAllocatedSupported;
 
+	public WarningRule warning = new WarningRule();
+
 	// 动态数据//
 	public Rate upTimeMills = new Rate();
 	public Rate cpuTimeNanos = new Rate();
@@ -50,8 +52,6 @@ public class VMInfo {
 	public long swap;
 	public long processThreads;
 
-	public Rate rchar = new Rate();
-	public Rate wchar = new Rate();
 	public Rate readBytes = new Rate();
 	public Rate writeBytes = new Rate();
 
@@ -166,6 +166,7 @@ public class VMInfo {
 
 		processors = jmxClient.getOperatingSystemMXBean().getAvailableProcessors();
 		isLinux = System.getProperty("os.name").toLowerCase(Locale.US).contains("linux");
+		warning.updateProcessor(processors);
 	}
 
 	/**
@@ -233,18 +234,12 @@ public class VMInfo {
 			return;
 		}
 
-		rchar.current = Utils.parseFromSize(procIo.get("rchar"));
-		wchar.current = Utils.parseFromSize(procIo.get("wchar"));
 		readBytes.current = Utils.parseFromSize(procIo.get("read_bytes"));
 		writeBytes.current = Utils.parseFromSize(procIo.get("write_bytes"));
 
-		rchar.update();
-		wchar.update();
 		readBytes.update();
 		writeBytes.update();
 
-		rchar.caculateRate(upTimeMills.delta);
-		wchar.caculateRate(upTimeMills.delta);
 		readBytes.caculateRate(upTimeMills.delta);
 		writeBytes.caculateRate(upTimeMills.delta);
 	}
@@ -291,6 +286,7 @@ public class VMInfo {
 
 		eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
 		old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
+		warning.updateOld(old.max);
 
 		MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
 		if (survivorMemoryPool != null) {
@@ -300,6 +296,7 @@ public class VMInfo {
 		}
 
 		perm = new Usage(memoryPoolManager.getPermMemoryPool().getUsage());
+		warning.updatePerm(perm.max);
 
 		if (jvmMajorVersion >= 8) {
 			MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
@@ -374,6 +371,7 @@ public class VMInfo {
 		}
 	}
 
+
 	public enum VMInfoState {
 		INIT, ERROR_DURING_ATTACH, ATTACHED, ATTACHED_UPDATE_ERROR, DETACHED
 	}
@@ -432,4 +430,6 @@ public class VMInfo {
 			this(bufferPoolUsage.getMemoryUsed(), -1, bufferPoolUsage.getTotalCapacity());
 		}
 	}
+
+
 }

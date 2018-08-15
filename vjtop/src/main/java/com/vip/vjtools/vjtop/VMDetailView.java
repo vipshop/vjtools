@@ -9,11 +9,11 @@ import java.util.Map;
 
 import com.sun.management.OperatingSystemMXBean;
 import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
+import com.vip.vjtools.vjtop.WarningRule.LongWarning;
 
 
 @SuppressWarnings("restriction")
 public class VMDetailView {
-
 
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
@@ -23,7 +23,8 @@ public class VMDetailView {
 	volatile public int threadLimit = 10;
 	volatile public boolean collectingData = true;
 
-	private VMInfo vmInfo;
+	public VMInfo vmInfo;
+	public WarningRule warning;
 
 	// 纪录vjtop进程本身的消耗
 	private OperatingSystemMXBean operatingSystemMXBean;
@@ -41,6 +42,7 @@ public class VMDetailView {
 
 	public VMDetailView(VMInfo vmInfo, DetailMode mode, Integer width) throws Exception {
 		this.vmInfo = vmInfo;
+		this.warning = vmInfo.warning;
 		this.mode = mode;
 		setWidth(width);
 		operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
@@ -92,33 +94,37 @@ public class VMDetailView {
 		System.out.printf(" PID: %s - %8tT JVM: %s USER: %s UPTIME: %s%n", vmInfo.pid, new Date(), vmInfo.jvmVersion,
 				vmInfo.osUser, Utils.toTimeUnit(vmInfo.upTimeMills.getCurrent()));
 
-		System.out.printf(" PROCESS: %5.2f%% cpu(%5.2f%% of %d core)", vmInfo.singleCoreCpuLoad * 100,
-				vmInfo.cpuLoad * 100, vmInfo.processors);
+		double cpuLoad = vmInfo.cpuLoad * 100;
+		String[] cpuLoadAnsi = Utils.colorAnsi(cpuLoad, warning.cpu);
+
+		System.out.printf(" PROCESS: %5.2f%% cpu(%s%5.2f%%%s of %d core)", vmInfo.singleCoreCpuLoad * 100,
+				cpuLoadAnsi[0], cpuLoad, cpuLoadAnsi[1], vmInfo.processors);
 
 		if (vmInfo.isLinux) {
-			System.out.printf(", %s rss, %s swap, %d thread%n", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.swap),
-					vmInfo.processThreads);
+			System.out.printf(", %s rss, %s swap, %s thread%n", Utils.toMB(vmInfo.rss),
+					Utils.toMBWithColor(vmInfo.swap, warning.swap),
+					Utils.toColor(vmInfo.processThreads, warning.thread));
 
 			if (vmInfo.ioDataSupport) {
-				System.out.printf(" IO: %s rchar, %s wchar | DISK: %sB read, %sB write |",
-						Utils.toSizeUnit(vmInfo.rchar.getRate()), Utils.toSizeUnit(vmInfo.wchar.getRate()),
-						Utils.toSizeUnit(vmInfo.readBytes.getRate()), Utils.toSizeUnit(vmInfo.writeBytes.getRate()));
+				System.out.printf(" DISK: %sB read, %sB write |",
+						Utils.toSizeUnitWithColor(vmInfo.readBytes.getRate(), warning.io),
+						Utils.toSizeUnitWithColor(vmInfo.writeBytes.getRate(), warning.io));
 			}
 
-			System.out.printf(" NET: %sB recv, %sB send", Utils.toSizeUnit(vmInfo.receiveBytes.getRate()),
+			System.out.printf(" HOST-NET: %sB recv, %sB send", Utils.toSizeUnit(vmInfo.receiveBytes.getRate()),
 					Utils.toSizeUnit(vmInfo.sendBytes.getRate()));
 		}
 		System.out.println();
 
-		System.out.printf(" THREAD: %d active, %d daemon, %d peak, %d created | CLASS: %d loaded, %d unloaded%n",
-				vmInfo.threadActive, vmInfo.threadDaemon, vmInfo.threadPeak, vmInfo.threadStarted, vmInfo.classLoaded,
-				vmInfo.classUnLoaded);
+		System.out.printf(" THREAD: %s active, %s daemon, %s peak, %d created | CLASS: %d loaded, %d unloaded%n",
+				Utils.toColor(vmInfo.threadActive, warning.thread), Utils.toColor(vmInfo.threadDaemon, warning.thread),
+				vmInfo.threadPeak, vmInfo.threadStarted, vmInfo.classLoaded, vmInfo.classUnLoaded);
 
 		System.out.printf(" HEAP: %s eden, %s sur, %s old%n", Utils.formatUsage(vmInfo.eden),
-				Utils.formatUsage(vmInfo.sur), Utils.formatUsage(vmInfo.old));
+				Utils.formatUsage(vmInfo.sur), Utils.formatUsageWithColor(vmInfo.old, warning.old));
 
-		System.out.printf(" NON-HEAP: %s %s, %s codeCache", Utils.formatUsage(vmInfo.perm), vmInfo.permGenName,
-				Utils.formatUsage(vmInfo.codeCache));
+		System.out.printf(" NON-HEAP: %s %s, %s codeCache", Utils.formatUsageWithColor(vmInfo.perm, warning.perm),
+				vmInfo.permGenName, Utils.formatUsageWithColor(vmInfo.codeCache, warning.codeCache));
 		if (vmInfo.jvmMajorVersion >= 8) {
 			System.out.printf(", %s ccs", Utils.formatUsage(vmInfo.ccs));
 		}
@@ -128,15 +134,21 @@ public class VMDetailView {
 				Utils.toMB(vmInfo.direct.max), Utils.toMB(vmInfo.map.used), Utils.toMB(vmInfo.map.max),
 				Utils.toMB(vmInfo.threadStackSize * vmInfo.threadActive));
 
-		System.out.printf(" GC: %d/%dms ygc, %d/%dms fgc", vmInfo.ygcCount.getDelta(), vmInfo.ygcTimeMills.getDelta(),
-				vmInfo.fullgcCount.getDelta(), vmInfo.fullgcTimeMills.getDelta());
+		long ygcCount = vmInfo.ygcCount.getDelta();
+		long ygcTime = vmInfo.ygcTimeMills.getDelta();
+		long avgYgcTime = ygcCount == 0 ? 0 : ygcTime / ygcCount;
+		System.out.printf(" GC: %d/%sms/%sms ygc, %s/%dms fgc", ygcCount, Utils.toColor(ygcTime, warning.ygcTime),
+				Utils.toColor(avgYgcTime, warning.ygcAvgTime),
+				Utils.toColor(vmInfo.fullgcCount.getDelta(), warning.fullgcCount), vmInfo.fullgcTimeMills.getDelta());
 
 		if (vmInfo.perfDataSupport) {
-			System.out.printf(" | SAFE-POINT: %d count, %dms time, %dms syncTime%n", vmInfo.safepointCount.getDelta(),
-					vmInfo.safepointTimeMills.getDelta(), vmInfo.safepointSyncTimeMills.getDelta());
-		} else {
-			System.out.printf("%n");
+			System.out.printf(" | SAFE-POINT: %d count, %sms time, %sms syncTime", vmInfo.safepointCount.getDelta(),
+					Utils.toColor(vmInfo.safepointTimeMills.getDelta(), warning.ygcTime),
+					Utils.toColor(vmInfo.safepointSyncTimeMills.getDelta(), new LongWarning(
+							vmInfo.safepointCount.getDelta() * 20 + 1, vmInfo.safepointCount.getDelta() * 50 + 1)));
 		}
+		System.out.println("");
+
 	}
 
 	private void printTopCpuThreads(DetailMode mode) throws IOException {
@@ -202,8 +214,7 @@ public class VMDetailView {
 
 		// 打印线程view的页头
 		String titleFormat = " %6s %-" + getThreadNameWidth() + "s %10s %6s %6s %6s %6s%n";
-		String dataFormat = " %6d %-" + getThreadNameWidth()
-				+ "s %10s %s%5.2f%%%s %s%5.2f%%%s %s%5.2f%%%s %s%5.2f%%%s%n";
+		String dataFormat = " %6d %-" + getThreadNameWidth() + "s %10s %s%5.2f%%%s %s%5.2f%%%s %5.2f%% %5.2f%%%n";
 		System.out.printf("%n%n" + titleFormat, "TID", "NAME  ", "STATE", "CPU", "SYSCPU", " TOTAL", "TOLSYS");
 
 		// 按不同类型排序,过滤
@@ -232,23 +243,20 @@ public class VMDetailView {
 
 				double cpu = getThreadCPUUtilization(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
 						Utils.NANOS_TO_MILLS);
-				String[] cpuAnsi = Utils.colorValue(cpu, 50, 70);
+				String[] cpuAnsi = Utils.colorAnsi(cpu, warning.cpu);
 
 				double syscpu = getThreadCPUUtilization(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
 						Utils.NANOS_TO_MILLS);
-				String[] syscpuAnsi = Utils.colorValue(syscpu, 20, 40);
+				String[] syscpuAnsi = Utils.colorAnsi(syscpu, warning.syscpu);
 
 				double totalcpu = getThreadCPUUtilization(threadCpuTotalTimes.get(tid),
 						vmInfo.cpuTimeNanos.getCurrent(), 1);
-				String[] totalcpuAnsi = Utils.colorValue(totalcpu, 40, 60);
 
 				double totalsys = getThreadCPUUtilization(threadSysCpuTotalTimes.get(tid),
 						vmInfo.cpuTimeNanos.getCurrent(), 1);
-				String[] totalsysAnsi = Utils.colorValue(totalsys, 15, 30);
 
 				System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
-						cpuAnsi[0], cpu, cpuAnsi[1], syscpuAnsi[0], syscpu, syscpuAnsi[1], totalcpuAnsi[0], totalcpu,
-						totalcpuAnsi[1], totalsysAnsi[0], totalsys, totalsysAnsi[1]);
+						cpuAnsi[0], cpu, cpuAnsi[1], syscpuAnsi[0], syscpu, syscpuAnsi[1], totalcpu, totalsys);
 			}
 		}
 

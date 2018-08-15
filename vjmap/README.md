@@ -78,7 +78,7 @@ Heap traversal took 1.3 seconds.
 假设，OldGen地址范围是"0xfbd4c000" ～ "0xfce94050"
 
 ```
-SELECT * FROM INSTANCEOF java.lang.Object t WHERE (toHex(t.@objectAddress) >= "0xfbd4c000" AND toHex(t.@objectAddress) <= "0xfce94050")
+SELECT * FROM INSTANCEOF java.lang.Object t WHERE toHex(t.@objectAddress) >= "0xfbd4c000"
 ```
 
 注意，MAT要在偏好设置中 勾选 "Keep unreachable object"
@@ -102,7 +102,7 @@ concurrent mark-sweep generation
 free-list-space[ 0x0000000123aa0000 , 0x0000000139000000 ) space capacity = 357957632 used(4%)= 17024696 free= 340932936
 ```
 
-上例中的 0x123aa0000 , 0x139000000 即为OldGen的范围。 注意OQL中使用时要把数值前的那串0去掉。
+上例中的 0x123aa0000  即为OldGen的下界。 注意OQL中使用时要把数值前的那串0去掉。
 
 
 # 5. 打印加载的Class列表

@@ -111,7 +111,7 @@ public class VJTop {
 					throw new IllegalArgumentException("Interval cannot be set below 1.0");
 				}
 			}
-			app.interval = interval;
+			app.updateInterval(interval);
 
 			if (optionSet.hasArgument("n")) {
 				Integer iterations = (Integer) optionSet.valueOf("n");
@@ -247,5 +247,10 @@ public class VJTop {
 
 	public int nextFlushTime() {
 		return Math.max(0, interval - (int) ((System.currentTimeMillis() - sleepStartTime) / 1000));
+	}
+
+	public void updateInterval(int interval) {
+		this.interval = interval;
+		view.vmInfo.warning.updateInterval(interval);
 	}
 }

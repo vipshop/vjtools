@@ -8,6 +8,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.vip.vjtools.vjtop.VMInfo.Usage;
+import com.vip.vjtools.vjtop.WarningRule.DoubleWarning;
+import com.vip.vjtools.vjtop.WarningRule.LongWarning;
 
 public class Utils {
 
@@ -15,7 +17,7 @@ public class Utils {
 
 	private static final long BYTE_SIZE = 1;
 	private static final long KB_SIZE = BYTE_SIZE * 1024;
-	private static final long MB_SIZE = KB_SIZE * 1024;
+	public static final long MB_SIZE = KB_SIZE * 1024;
 	private static final long GB_SIZE = MB_SIZE * 1024;
 	private static final long TB_SIZE = GB_SIZE * 1024;
 
@@ -24,6 +26,15 @@ public class Utils {
 	private static final String ANSI_END = "\033[0m";
 	public static boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.US).contains("windows");
 
+	public static String toMBWithColor(long bytes, LongWarning warning) {
+		String[] ansi = colorAnsi(bytes, warning);
+		return ansi[0] + toMB(bytes) + ansi[1];
+	}
+
+	public static String toColor(long value, LongWarning warning) {
+		String[] ansi = colorAnsi(value, warning);
+		return ansi[0] + value + ansi[1];
+	}
 
 	/**
 	 * Formats a long value containing "number of bytes" to its megabyte representation. If the value is negative, "n/a"
@@ -40,6 +51,11 @@ public class Utils {
 		} else {
 			return toSizeUnit(bytes).trim();
 		}
+	}
+
+	public static String toSizeUnitWithColor(Long size, LongWarning warning) {
+		String[] ansi = colorAnsi(size, warning);
+		return ansi[0] + toSizeUnit(size) + ansi[1];
 	}
 
 	public static String toSizeUnit(Long size) {
@@ -114,17 +130,38 @@ public class Utils {
 		}
 	}
 
-	public static String[] colorValue(double value, double yellow, double red) {
+	public static String formatUsageWithColor(Usage usage, LongWarning warning) {
+		String[] ansi = colorAnsi(usage.used, warning);
+		return ansi[0] + formatUsage(usage) + ansi[1];
+	}
+
+	public static String[] colorAnsi(long value, LongWarning warning) {
 		String[] ansi = new String[2];
 
-		if (isWindows || value < yellow) {
+		if (isWindows || value < warning.yellow) {
 			ansi[0] = "";
 			ansi[1] = "";
-		} else if (value >= yellow && value < red) {
-			ansi[0] = YELLOW_BEGIN;
+		} else if (value >= warning.red) {
+			ansi[0] = RED_BEGIN;
 			ansi[1] = ANSI_END;
 		} else {
+			ansi[0] = YELLOW_BEGIN;
+			ansi[1] = ANSI_END;
+		}
+		return ansi;
+	}
+
+	public static String[] colorAnsi(double value, DoubleWarning warning) {
+		String[] ansi = new String[2];
+
+		if (isWindows || value < warning.yellow) {
+			ansi[0] = "";
+			ansi[1] = "";
+		} else if (value >= warning.red) {
 			ansi[0] = RED_BEGIN;
+			ansi[1] = ANSI_END;
+		} else {
+			ansi[0] = YELLOW_BEGIN;
 			ansi[1] = ANSI_END;
 		}
 		return ansi;

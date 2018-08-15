@@ -141,7 +141,7 @@ public class InteractiveTask implements Runnable {
 					tty.println(" Flush interval changed to " + interval + " seconds for next flush ("
 							+ app.nextFlushTime() + "s later)");
 				}
-				app.interval = interval;
+				app.updateInterval(interval);
 			} else {
 				tty.println(" Nothing be changed");
 			}
