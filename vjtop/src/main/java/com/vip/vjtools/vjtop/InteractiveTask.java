@@ -133,10 +133,10 @@ public class InteractiveTask implements Runnable {
 
 	private void changeInterval() {
 		app.preventFlush();
-		String intervalStr = readLine(" Input flush interval seconds(current " + app.interval + "):");
+		String intervalStr = readLine(" Input flush interval seconds(current " + app.getInterval() + "):");
 		try {
 			int interval = Integer.parseInt(intervalStr);
-			if (interval != app.interval) {
+			if (interval != app.getInterval()) {
 				if (app.nextFlushTime() > 1) {
 					tty.println(" Flush interval changed to " + interval + " seconds for next flush ("
 							+ app.nextFlushTime() + "s later)");

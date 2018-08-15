@@ -14,7 +14,7 @@ import joptsimple.OptionSet;
 
 public class VJTop {
 
-	public static final String VERSION = "1.0.3";
+	public static final String VERSION = "1.0.4";
 
 	public static final int DEFAULT_INTERVAL = 10;
 
@@ -23,7 +23,7 @@ public class VJTop {
 
 	public VMDetailView view;
 
-	public volatile Integer interval = DEFAULT_INTERVAL;
+	private volatile Integer interval = DEFAULT_INTERVAL;
 
 	private volatile boolean needMoreInput = false;
 
@@ -252,5 +252,9 @@ public class VJTop {
 	public void updateInterval(int interval) {
 		this.interval = interval;
 		view.vmInfo.warning.updateInterval(interval);
+	}
+
+	public int getInterval() {
+		return interval;
 	}
 }

@@ -1,7 +1,6 @@
 package com.vip.vjtools.vjtop;
 
 import java.io.IOException;
-import java.lang.management.BufferPoolMXBean;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.util.Locale;
@@ -35,6 +34,7 @@ public class VMInfo {
 
 	public String permGenName;
 	public long threadStackSize;
+	public long maxDirectMemorySize;
 
 	public int processors;
 	public boolean isLinux;
@@ -55,9 +55,6 @@ public class VMInfo {
 	public Rate readBytes = new Rate();
 	public Rate writeBytes = new Rate();
 
-	public Rate receiveBytes = new Rate();
-	public Rate sendBytes = new Rate();
-
 	public double cpuLoad = 0.0;
 	public double singleCoreCpuLoad = 0.0;
 
@@ -65,14 +62,13 @@ public class VMInfo {
 	public Rate ygcTimeMills = new Rate();
 	public Rate fullgcCount = new Rate();
 	public Rate fullgcTimeMills = new Rate();
-	public String lastGcCause;
 
 	public long threadActive;
 	public long threadDaemon;
 	public long threadPeak;
-	public long threadStarted;
+	public Rate threadNew = new Rate();
 
-	public long classLoaded;
+	public Rate classLoaded = new Rate();
 	public long classUnLoaded;
 
 	public Rate safepointCount = new Rate();
@@ -89,7 +85,6 @@ public class VMInfo {
 
 	public Usage direct;
 	public Usage map;
-
 
 	public VMInfo(JmxClient jmxClient, String vmId) throws Exception {
 		this.jmxClient = jmxClient;
@@ -160,14 +155,20 @@ public class VMInfo {
 
 		threadStackSize = 1024
 				* Long.parseLong(jmxClient.getHotSpotDiagnosticMXBean().getVMOption("ThreadStackSize").getValue());
+		maxDirectMemorySize = Long
+				.parseLong(jmxClient.getHotSpotDiagnosticMXBean().getVMOption("MaxDirectMemorySize").getValue());
+		maxDirectMemorySize = maxDirectMemorySize == 0 ? -1 : maxDirectMemorySize;
+
 		permGenName = jvmMajorVersion >= 8 ? "metaspace" : "perm";
 
 		threadCpuTimeSupported = jmxClient.getThreadMXBean().isThreadCpuTimeSupported();
 		threadMemoryAllocatedSupported = jmxClient.getThreadMXBean().isThreadAllocatedMemorySupported();
 
 		processors = jmxClient.getOperatingSystemMXBean().getAvailableProcessors();
-		isLinux = System.getProperty("os.name").toLowerCase(Locale.US).contains("linux");
 		warning.updateProcessor(processors);
+
+		isLinux = System.getProperty("os.name").toLowerCase(Locale.US).contains("linux");
+
 	}
 
 	/**
@@ -190,7 +191,6 @@ public class VMInfo {
 			if (isLinux) {
 				updateProcessStatus();
 				updateIO();
-				updateNet();
 			}
 
 			updateThreads();
@@ -245,41 +245,33 @@ public class VMInfo {
 		writeBytes.caculateRate(upTimeMills.delta);
 	}
 
-	private void updateNet() {
-		Map<String, Long> procNet = ProcFileData.getProcNet(pid);
-
-		receiveBytes.current = procNet.get(ProcFileData.RECEIVE_BYTES);
-		sendBytes.current = procNet.get(ProcFileData.SEND_BYTES);
-
-		receiveBytes.update();
-		sendBytes.update();
-		receiveBytes.caculateRate(upTimeMills.delta);
-		sendBytes.caculateRate(upTimeMills.delta);
-	}
 
 	private void updateThreads() throws IOException {
 		if (perfDataSupport) {
 			threadActive = (Long) perfCounters.get("java.threads.live").getValue();
 			threadDaemon = (Long) perfCounters.get("java.threads.daemon").getValue();
 			threadPeak = (Long) perfCounters.get("java.threads.livePeak").getValue();
-			threadStarted = (Long) perfCounters.get("java.threads.started").getValue();
+			threadNew.current = (Long) perfCounters.get("java.threads.started").getValue();
 		} else {
 			threadActive = jmxClient.getThreadMXBean().getThreadCount();
 			threadDaemon = jmxClient.getThreadMXBean().getDaemonThreadCount();
 			threadPeak = jmxClient.getThreadMXBean().getPeakThreadCount();
-			threadStarted = jmxClient.getThreadMXBean().getTotalStartedThreadCount();
+			threadNew.current = jmxClient.getThreadMXBean().getTotalStartedThreadCount();
 		}
+		threadNew.update();
 	}
 
 	private void updateClassLoad() throws IOException {
 		// 优先从perfData取值
 		if (perfDataSupport) {
-			classLoaded = (long) perfCounters.get("java.cls.loadedClasses").getValue();
 			classUnLoaded = (long) perfCounters.get("java.cls.unloadedClasses").getValue();
+			classLoaded.current = (long) perfCounters.get("java.cls.loadedClasses").getValue() - classUnLoaded;
 		} else {
-			classLoaded = jmxClient.getClassLoadingMXBean().getLoadedClassCount();
+			classLoaded.current = jmxClient.getClassLoadingMXBean().getLoadedClassCount();
 			classUnLoaded = jmxClient.getClassLoadingMXBean().getUnloadedClassCount();
 		}
+
+		classLoaded.update();
 	}
 
 	private void updateMemoryPool() throws IOException {
@@ -307,9 +299,13 @@ public class VMInfo {
 		}
 
 		codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
+		direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed(),
+				jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity(), maxDirectMemorySize);
 
-		direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool());
-		map = new Usage(jmxClient.getBufferPoolManager().getMappedBufferPool());
+		// 取巧用法，将count 放入无用的max中。
+		map = new Usage(jmxClient.getBufferPoolManager().getMappedBufferPool().getMemoryUsed(),
+				jmxClient.getBufferPoolManager().getMappedBufferPool().getTotalCapacity(),
+				jmxClient.getBufferPoolManager().getMappedBufferPool().getCount());
 	}
 
 	private void updateGC() throws IOException {
@@ -318,7 +314,6 @@ public class VMInfo {
 			ygcTimeMills.current = perfData.tickToMills(perfCounters.get("sun.gc.collector.0.time"));
 			fullgcCount.current = (Long) perfCounters.get("sun.gc.collector.1.invocations").getValue();
 			fullgcTimeMills.current = perfData.tickToMills(perfCounters.get("sun.gc.collector.1.time"));
-			lastGcCause = (String) perfCounters.get("sun.gc.lastCause").getValue();
 		} else {
 			ygcCount.current = jmxClient.getYoungCollector().getCollectionCount();
 			ygcTimeMills.current = jmxClient.getYoungCollector().getCollectionTime();
@@ -428,9 +423,6 @@ public class VMInfo {
 			this(jmxUsage.getUsed(), jmxUsage.getCommitted(), jmxUsage.getMax());
 		}
 
-		public Usage(BufferPoolMXBean bufferPoolUsage) {
-			this(bufferPoolUsage.getMemoryUsed(), -1, bufferPoolUsage.getTotalCapacity());
-		}
 	}
 
 

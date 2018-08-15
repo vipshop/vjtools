@@ -6,24 +6,38 @@ public class WarningRule {
 	public DoubleWarning syscpu = new DoubleWarning(30d, 50d);
 	public LongWarning swap = new LongWarning(1, 1);
 	public LongWarning thread = new LongWarning();
+	public LongWarning newThread = new LongWarning();
 	public LongWarning io = new LongWarning(50 * Utils.MB_SIZE, 100 * Utils.MB_SIZE);
+
+	public LongWarning newClass = new LongWarning(1, Long.MAX_VALUE);
 
 	public LongWarning old = new LongWarning();
 	public LongWarning codeCache = new LongWarning();
 	public LongWarning perm = new LongWarning();
 
+	public LongWarning ygcCount = new LongWarning();
 	public LongWarning ygcTime = new LongWarning();
 	public LongWarning ygcAvgTime = new LongWarning(100, 200);
 	public LongWarning fullgcCount = new LongWarning(1, 2);
+	public LongWarning safepointCount = new LongWarning();
 
 	public void updateProcessor(int processors) {
 		thread.yellow = processors <= 8 ? processors * 150 : Math.max(8 * 150, processors * 100);
 		thread.red = processors <= 8 ? processors * 225 : Math.max(8 * 225, processors * 150);
 	}
 
-	public void updateInterval(int interval) {
-		ygcTime.yellow = interval * 1000 * 5 / 100;
-		ygcTime.red = interval * 1000 * 10 / 100;
+	public void updateInterval(int intervalSeconds) {
+		newThread.yellow = 1;
+		newThread.red = intervalSeconds;
+
+		ygcTime.yellow = intervalSeconds * 1000 * 5 / 100; // 5% interval
+		ygcTime.red = intervalSeconds * 1000 * 10 / 100; // 10% interval
+
+		ygcCount.yellow = intervalSeconds;
+		ygcCount.red = intervalSeconds * 2;
+
+		safepointCount.yellow = intervalSeconds * 2;
+		safepointCount.red = intervalSeconds * 4;
 	}
 
 	public void updateOld(long max) {

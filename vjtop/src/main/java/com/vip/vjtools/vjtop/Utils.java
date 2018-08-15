@@ -21,8 +21,8 @@ public class Utils {
 	private static final long GB_SIZE = MB_SIZE * 1024;
 	private static final long TB_SIZE = GB_SIZE * 1024;
 
-	private static final String RED_BEGIN = "\033[31m";
-	private static final String YELLOW_BEGIN = "\033[33m";
+	private static final String RED_BEGIN = "\033[31m\033[01m";
+	private static final String YELLOW_BEGIN = "\033[33m\033[01m";
 	private static final String ANSI_END = "\033[0m";
 	public static boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.US).contains("windows");
 

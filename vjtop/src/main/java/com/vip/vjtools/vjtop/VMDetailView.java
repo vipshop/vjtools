@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.sun.management.OperatingSystemMXBean;
 import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
-import com.vip.vjtools.vjtop.WarningRule.LongWarning;
 
 
 @SuppressWarnings("restriction")
@@ -101,24 +100,23 @@ public class VMDetailView {
 				cpuLoadAnsi[0], cpuLoad, cpuLoadAnsi[1], vmInfo.processors);
 
 		if (vmInfo.isLinux) {
-			System.out.printf(", %s rss, %s swap, %s thread%n", Utils.toMB(vmInfo.rss),
-					Utils.toMBWithColor(vmInfo.swap, warning.swap),
-					Utils.toColor(vmInfo.processThreads, warning.thread));
+			System.out.printf(", %s thread%n", Utils.toColor(vmInfo.processThreads, warning.thread));
+
+			System.out.printf(" MEMORY: %s rss, %s swap |", Utils.toMB(vmInfo.rss),
+					Utils.toMBWithColor(vmInfo.swap, warning.swap));
 
 			if (vmInfo.ioDataSupport) {
-				System.out.printf(" DISK: %sB read, %sB write |",
+				System.out.printf(" DISK: %sB read, %sB write%n",
 						Utils.toSizeUnitWithColor(vmInfo.readBytes.getRate(), warning.io),
 						Utils.toSizeUnitWithColor(vmInfo.writeBytes.getRate(), warning.io));
 			}
-
-			System.out.printf(" HOST-NET: %sB recv, %sB send", Utils.toSizeUnit(vmInfo.receiveBytes.getRate()),
-					Utils.toSizeUnit(vmInfo.sendBytes.getRate()));
 		}
 		System.out.println();
 
-		System.out.printf(" THREAD: %s active, %s daemon, %s peak, %d created | CLASS: %d loaded, %d unloaded%n",
-				Utils.toColor(vmInfo.threadActive, warning.thread), Utils.toColor(vmInfo.threadDaemon, warning.thread),
-				vmInfo.threadPeak, vmInfo.threadStarted, vmInfo.classLoaded, vmInfo.classUnLoaded);
+		System.out.printf(" THREAD: %s active, %d daemon, %s peak, %s new | CLASS: %d loaded, %d unloaded, %s new%n",
+				Utils.toColor(vmInfo.threadActive, warning.thread), vmInfo.threadDaemon, vmInfo.threadPeak,
+				Utils.toColor(vmInfo.threadNew.getDelta(), warning.newThread), vmInfo.classLoaded.getCurrent(),
+				vmInfo.classUnLoaded, Utils.toColor(vmInfo.classLoaded.getDelta(), warning.newClass));
 
 		System.out.printf(" HEAP: %s eden, %s sur, %s old%n", Utils.formatUsage(vmInfo.eden),
 				Utils.formatUsage(vmInfo.sur), Utils.formatUsageWithColor(vmInfo.old, warning.old));
@@ -130,27 +128,24 @@ public class VMDetailView {
 		}
 		System.out.println("");
 
-		System.out.printf(" OFF-HEAP: %s/%s direct, %s/%s map, %s threadStack%n", Utils.toMB(vmInfo.direct.used),
-				Utils.toMB(vmInfo.direct.max), Utils.toMB(vmInfo.map.used), Utils.toMB(vmInfo.map.max),
+		System.out.printf(" OFF-HEAP: %s/%s direct(max=%s), %s/%s map(count=%d), %s threadStack%n",
+				Utils.toMB(vmInfo.direct.used), Utils.toMB(vmInfo.direct.committed), Utils.toMB(vmInfo.direct.max),
+				Utils.toMB(vmInfo.map.used), Utils.toMB(vmInfo.map.committed), vmInfo.map.max,
 				Utils.toMB(vmInfo.threadStackSize * vmInfo.threadActive));
 
 		long ygcCount = vmInfo.ygcCount.getDelta();
 		long ygcTime = vmInfo.ygcTimeMills.getDelta();
 		long avgYgcTime = ygcCount == 0 ? 0 : ygcTime / ygcCount;
 		long fgcCount = vmInfo.fullgcCount.getDelta();
-		System.out.printf(" GC: %d/%sms/%sms ygc, %s/%dms fgc", ygcCount, Utils.toColor(ygcTime, warning.ygcTime),
-				Utils.toColor(avgYgcTime, warning.ygcAvgTime), Utils.toColor(fgcCount, warning.fullgcCount),
-				vmInfo.fullgcTimeMills.getDelta());
+		System.out.printf(" GC: %s/%sms/%sms ygc, %s/%dms fgc", Utils.toColor(ygcCount, warning.ygcCount),
+				Utils.toColor(ygcTime, warning.ygcTime), Utils.toColor(avgYgcTime, warning.ygcAvgTime),
+				Utils.toColor(fgcCount, warning.fullgcCount), vmInfo.fullgcTimeMills.getDelta());
 
 		if (vmInfo.perfDataSupport) {
-			if ((ygcCount != 0 || fgcCount != 0) && !vmInfo.lastGcCause.equals("Allocation Failure")) {
-				System.out.print(" " + vmInfo.lastGcCause);
-			}
-
-			System.out.printf(" | SAFE-POINT: %d count, %sms time, %sms syncTime", vmInfo.safepointCount.getDelta(),
+			System.out.printf(" | SAFE-POINT: %s count, %sms time, %dms syncTime",
+					Utils.toColor(vmInfo.safepointCount.getDelta(), warning.safepointCount),
 					Utils.toColor(vmInfo.safepointTimeMills.getDelta(), warning.ygcTime),
-					Utils.toColor(vmInfo.safepointSyncTimeMills.getDelta(), new LongWarning(
-							vmInfo.safepointCount.getDelta() * 20 + 1, vmInfo.safepointCount.getDelta() * 50 + 1)));
+					vmInfo.safepointSyncTimeMills.getDelta());
 		}
 		System.out.println("");
 
@@ -384,7 +379,7 @@ public class VMDetailView {
 	private void printWelcome() {
 		if (firstTime) {
 			if (!vmInfo.isLinux) {
-				System.out.printf("%n OS isn't linux, Process's MEMORY, IO, DISK, NET data will be skipped.%n");
+				System.out.printf("%n OS isn't linux, Process's MEMORY, THREAD, DISK data will be skipped.%n");
 			}
 
 			if (!vmInfo.ioDataSupport) {
