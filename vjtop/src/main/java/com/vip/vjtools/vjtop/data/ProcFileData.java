@@ -24,7 +24,6 @@ public class ProcFileData {
 		return getProcFileAsMap(String.format(PROC_SELF_IO_FILE_TPL, pid));
 	}
 
-
 	public static Map<String, String> getProcFileAsMap(String filePath) {
 		try {
 			File file = new File(filePath);

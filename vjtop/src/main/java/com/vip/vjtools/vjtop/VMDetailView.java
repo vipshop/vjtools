@@ -100,7 +100,9 @@ public class VMDetailView {
 				cpuLoadAnsi[0], cpuLoad, cpuLoadAnsi[1], vmInfo.processors);
 
 		if (vmInfo.isLinux) {
-			System.out.printf(", %s thread%n", Utils.toColor(vmInfo.processThreads, warning.thread));
+			System.out.printf(", %s thread, %s/%s cxtsw%n", Utils.toColor(vmInfo.osThreads, warning.thread),
+					Utils.toSizeUnit(vmInfo.voluntaryCtxtSwitch.getDelta()),
+					Utils.toSizeUnit(vmInfo.nonvoluntaryCtxtSwitch.getDelta()));
 
 			System.out.printf(" MEMORY: %s rss, %s swap |", Utils.toMB(vmInfo.rss),
 					Utils.toMBWithColor(vmInfo.swap, warning.swap));
@@ -379,7 +381,8 @@ public class VMDetailView {
 	private void printWelcome() {
 		if (firstTime) {
 			if (!vmInfo.isLinux) {
-				System.out.printf("%n OS isn't linux, Process's MEMORY, THREAD, DISK data will be skipped.%n");
+				System.out.printf(
+						"%n OS isn't linux, Process's MEMORY, THREAD, CONTEXT_SWITCH, DISK data will be skipped.%n");
 			}
 
 			if (!vmInfo.ioDataSupport) {

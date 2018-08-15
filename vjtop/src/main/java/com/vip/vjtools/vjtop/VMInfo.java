@@ -39,6 +39,7 @@ public class VMInfo {
 	public int processors;
 	public boolean isLinux;
 	public boolean ioDataSupport = true;// 不是同一个用户，不能读/proc/PID/io
+	public boolean processDataSupport = true;
 	public boolean threadCpuTimeSupported;
 	public boolean threadMemoryAllocatedSupported;
 
@@ -50,7 +51,9 @@ public class VMInfo {
 
 	public long rss;
 	public long swap;
-	public long processThreads;
+	public long osThreads;
+	public Rate voluntaryCtxtSwitch = new Rate();
+	public Rate nonvoluntaryCtxtSwitch = new Rate();
 
 	public Rate readBytes = new Rate();
 	public Rate writeBytes = new Rate();
@@ -204,23 +207,30 @@ public class VMInfo {
 	}
 
 	private void updateCpu() throws IOException {
-		upTimeMills.current = jmxClient.getRuntimeMXBean().getUptime();
-		cpuTimeNanos.current = jmxClient.getOperatingSystemMXBean().getProcessCpuTime();
+		upTimeMills.update(jmxClient.getRuntimeMXBean().getUptime());
+		cpuTimeNanos.update(jmxClient.getOperatingSystemMXBean().getProcessCpuTime());
 
-		cpuTimeNanos.update();
-		upTimeMills.update();
 		cpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta, processors);
 		singleCoreCpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta, 1);
 	}
 
 	private void updateProcessStatus() {
+		if (!processDataSupport) {
+			return;
+		}
+
 		Map<String, String> procStatus = ProcFileData.getProcStatus(pid);
 		if (procStatus.isEmpty()) {
+			processDataSupport = false;
 			return;
 		}
 		rss = Utils.parseFromSize(procStatus.get("VmRSS"));
 		swap = Utils.parseFromSize(procStatus.get("VmSwap"));
-		processThreads = Long.parseLong(procStatus.get("Threads"));
+		osThreads = Long.parseLong(procStatus.get("Threads"));
+
+		voluntaryCtxtSwitch.update(Long.parseLong(procStatus.get("voluntary_ctxt_switches")));
+		nonvoluntaryCtxtSwitch.update(Long.parseLong(procStatus.get("nonvoluntary_ctxt_switches")));
+
 	}
 
 	private void updateIO() {
@@ -235,11 +245,8 @@ public class VMInfo {
 			return;
 		}
 
-		readBytes.current = Utils.parseFromSize(procIo.get("read_bytes"));
-		writeBytes.current = Utils.parseFromSize(procIo.get("write_bytes"));
-
-		readBytes.update();
-		writeBytes.update();
+		readBytes.update(Utils.parseFromSize(procIo.get("read_bytes")));
+		writeBytes.update(Utils.parseFromSize(procIo.get("write_bytes")));
 
 		readBytes.caculateRate(upTimeMills.delta);
 		writeBytes.caculateRate(upTimeMills.delta);
@@ -251,27 +258,24 @@ public class VMInfo {
 			threadActive = (Long) perfCounters.get("java.threads.live").getValue();
 			threadDaemon = (Long) perfCounters.get("java.threads.daemon").getValue();
 			threadPeak = (Long) perfCounters.get("java.threads.livePeak").getValue();
-			threadNew.current = (Long) perfCounters.get("java.threads.started").getValue();
+			threadNew.update((Long) perfCounters.get("java.threads.started").getValue());
 		} else {
 			threadActive = jmxClient.getThreadMXBean().getThreadCount();
 			threadDaemon = jmxClient.getThreadMXBean().getDaemonThreadCount();
 			threadPeak = jmxClient.getThreadMXBean().getPeakThreadCount();
-			threadNew.current = jmxClient.getThreadMXBean().getTotalStartedThreadCount();
+			threadNew.update(jmxClient.getThreadMXBean().getTotalStartedThreadCount());
 		}
-		threadNew.update();
 	}
 
 	private void updateClassLoad() throws IOException {
 		// 优先从perfData取值
 		if (perfDataSupport) {
 			classUnLoaded = (long) perfCounters.get("java.cls.unloadedClasses").getValue();
-			classLoaded.current = (long) perfCounters.get("java.cls.loadedClasses").getValue() - classUnLoaded;
+			classLoaded.update((long) perfCounters.get("java.cls.loadedClasses").getValue() - classUnLoaded);
 		} else {
-			classLoaded.current = jmxClient.getClassLoadingMXBean().getLoadedClassCount();
 			classUnLoaded = jmxClient.getClassLoadingMXBean().getUnloadedClassCount();
+			classLoaded.update(jmxClient.getClassLoadingMXBean().getLoadedClassCount());
 		}
-
-		classLoaded.update();
 	}
 
 	private void updateMemoryPool() throws IOException {
@@ -310,21 +314,16 @@ public class VMInfo {
 
 	private void updateGC() throws IOException {
 		if (perfDataSupport) {
-			ygcCount.current = (Long) perfCounters.get("sun.gc.collector.0.invocations").getValue();
-			ygcTimeMills.current = perfData.tickToMills(perfCounters.get("sun.gc.collector.0.time"));
-			fullgcCount.current = (Long) perfCounters.get("sun.gc.collector.1.invocations").getValue();
-			fullgcTimeMills.current = perfData.tickToMills(perfCounters.get("sun.gc.collector.1.time"));
+			ygcCount.update((Long) perfCounters.get("sun.gc.collector.0.invocations").getValue());
+			ygcTimeMills.update(perfData.tickToMills(perfCounters.get("sun.gc.collector.0.time")));
+			fullgcCount.update((Long) perfCounters.get("sun.gc.collector.1.invocations").getValue());
+			fullgcTimeMills.update(perfData.tickToMills(perfCounters.get("sun.gc.collector.1.time")));
 		} else {
-			ygcCount.current = jmxClient.getYoungCollector().getCollectionCount();
-			ygcTimeMills.current = jmxClient.getYoungCollector().getCollectionTime();
-			fullgcCount.current = jmxClient.getFullCollector().getCollectionCount();
-			fullgcTimeMills.current = jmxClient.getFullCollector().getCollectionTime();
+			ygcCount.update(jmxClient.getYoungCollector().getCollectionCount());
+			ygcTimeMills.update(jmxClient.getYoungCollector().getCollectionTime());
+			fullgcCount.update(jmxClient.getFullCollector().getCollectionCount());
+			fullgcTimeMills.update(jmxClient.getFullCollector().getCollectionTime());
 		}
-
-		ygcTimeMills.update();
-		ygcCount.update();
-		fullgcTimeMills.update();
-		fullgcCount.update();
 	}
 
 	private void updateSafepoint() {
@@ -332,13 +331,9 @@ public class VMInfo {
 			return;
 		}
 
-		safepointCount.current = (Long) perfCounters.get("sun.rt.safepoints").getValue();
-		safepointTimeMills.current = perfData.tickToMills(perfCounters.get("sun.rt.safepointTime"));
-		safepointSyncTimeMills.current = perfData.tickToMills(perfCounters.get("sun.rt.safepointTime"));
-
-		safepointCount.update();
-		safepointTimeMills.update();
-		safepointSyncTimeMills.update();
+		safepointCount.update((Long) perfCounters.get("sun.rt.safepoints").getValue());
+		safepointTimeMills.update(perfData.tickToMills(perfCounters.get("sun.rt.safepointTime")));
+		safepointSyncTimeMills.update(perfData.tickToMills(perfCounters.get("sun.rt.safepointTime")));
 	}
 
 	public ThreadMXBean getThreadMXBean() throws IOException {
@@ -379,7 +374,8 @@ public class VMInfo {
 		private long delta = -1;
 		private long ratePerSecond = -1;
 
-		public void update() {
+		public void update(long current) {
+			this.current = current;
 			if (last != -1) {
 				delta = current - last;
 			}
