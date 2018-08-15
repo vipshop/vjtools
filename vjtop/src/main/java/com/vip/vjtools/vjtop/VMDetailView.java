@@ -104,7 +104,7 @@ public class VMDetailView {
 					Utils.toSizeUnit(vmInfo.voluntaryCtxtSwitch.getDelta()),
 					Utils.toSizeUnit(vmInfo.nonvoluntaryCtxtSwitch.getDelta()));
 
-			System.out.printf(" MEMORY: %s rss, %s swap |", Utils.toMB(vmInfo.rss),
+			System.out.printf(" MEMORY: %s rss, %s peak, %s swap |", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.peakRss),
 					Utils.toMBWithColor(vmInfo.swap, warning.swap));
 
 			if (vmInfo.ioDataSupport) {
