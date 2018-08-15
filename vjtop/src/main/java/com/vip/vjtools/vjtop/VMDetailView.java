@@ -14,6 +14,7 @@ import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
 @SuppressWarnings("restriction")
 public class VMDetailView {
 
+
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
@@ -201,7 +202,8 @@ public class VMDetailView {
 
 		// 打印线程view的页头
 		String titleFormat = " %6s %-" + getThreadNameWidth() + "s %10s %6s %6s %6s %6s%n";
-		String dataFormat = " %6d %-" + getThreadNameWidth() + "s %10s %5.2f%% %5.2f%% %5.2f%% %5.2f%%%n";
+		String dataFormat = " %6d %-" + getThreadNameWidth()
+				+ "s %10s %s%5.2f%%%s %s%5.2f%%%s %s%5.2f%%%s %s%5.2f%%%s%n";
 		System.out.printf("%n%n" + titleFormat, "TID", "NAME  ", "STATE", "CPU", "SYSCPU", " TOTAL", "TOLSYS");
 
 		// 按不同类型排序,过滤
@@ -227,13 +229,26 @@ public class VMDetailView {
 			if (info != null) {
 				String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 20);
 
+
+				double cpu = getThreadCPUUtilization(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
+						Utils.NANOS_TO_MILLS);
+				String[] cpuAnsi = Utils.colorValue(cpu, 50, 70);
+
+				double syscpu = getThreadCPUUtilization(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
+						Utils.NANOS_TO_MILLS);
+				String[] syscpuAnsi = Utils.colorValue(syscpu, 20, 40);
+
+				double totalcpu = getThreadCPUUtilization(threadCpuTotalTimes.get(tid),
+						vmInfo.cpuTimeNanos.getCurrent(), 1);
+				String[] totalcpuAnsi = Utils.colorValue(totalcpu, 40, 60);
+
+				double totalsys = getThreadCPUUtilization(threadSysCpuTotalTimes.get(tid),
+						vmInfo.cpuTimeNanos.getCurrent(), 1);
+				String[] totalsysAnsi = Utils.colorValue(totalsys, 15, 30);
+
 				System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
-						getThreadCPUUtilization(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
-								Utils.NANOS_TO_MILLS),
-						getThreadCPUUtilization(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
-								Utils.NANOS_TO_MILLS),
-						getThreadCPUUtilization(threadCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.getCurrent(), 1),
-						getThreadCPUUtilization(threadSysCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.getCurrent(), 1));
+						cpuAnsi[0], cpu, cpuAnsi[1], syscpuAnsi[0], syscpu, syscpuAnsi[1], totalcpuAnsi[0], totalcpu,
+						totalcpuAnsi[1], totalsysAnsi[0], totalsys, totalsysAnsi[1]);
 			}
 		}
 
@@ -256,6 +271,7 @@ public class VMDetailView {
 		lastThreadCpuTotalTimes = threadCpuTotalTimes;
 		lastThreadSysCpuTotalTimes = threadSysCpuTotalTimes;
 	}
+
 
 	private void printTopMemoryThreads(DetailMode mode) throws IOException {
 
@@ -419,6 +435,7 @@ public class VMDetailView {
 		return deltaThreadCpuTime * 100d / factor / totalTime;// 这里因为最后单位是百分比%，所以cpu time除以total cpu
 		// time以后要乘以100，才可以再加上单位%
 	}
+
 
 	private static double getThreadMemoryUtilization(Long threadBytes, long totalBytes) {
 		if (threadBytes == null) {

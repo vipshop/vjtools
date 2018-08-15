@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.vip.vjtools.vjtop.VMInfo.Usage;
@@ -17,6 +18,12 @@ public class Utils {
 	private static final long MB_SIZE = KB_SIZE * 1024;
 	private static final long GB_SIZE = MB_SIZE * 1024;
 	private static final long TB_SIZE = GB_SIZE * 1024;
+
+	private static final String RED_BEGIN = "\033[31m";
+	private static final String YELLOW_BEGIN = "\033[33m";
+	private static final String ANSI_END = "\033[0m";
+	public static boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.US).contains("windows");
+
 
 	/**
 	 * Formats a long value containing "number of bytes" to its megabyte representation. If the value is negative, "n/a"
@@ -105,6 +112,22 @@ public class Utils {
 		} else {
 			return String.format("%s/%s/%s", toMB(usage.used), toMB(usage.committed), toMB(usage.max));
 		}
+	}
+
+	public static String[] colorValue(double value, double yellow, double red) {
+		String[] ansi = new String[2];
+
+		if (isWindows || value < yellow) {
+			ansi[0] = "";
+			ansi[1] = "";
+		} else if (value >= yellow && value < red) {
+			ansi[0] = YELLOW_BEGIN;
+			ansi[1] = ANSI_END;
+		} else {
+			ansi[0] = RED_BEGIN;
+			ansi[1] = ANSI_END;
+		}
+		return ansi;
 	}
 
 	/**

@@ -219,11 +219,8 @@ public class VJTop {
 	}
 
 	private static void clearTerminal() {
-		if (System.getProperty("os.name").contains("Windows")) {
-			// hack
+		if (Utils.isWindows) {
 			System.out.printf("%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n");
-		} else if (System.getProperty("vjtop.altClear") != null) {
-			System.out.print('\f');
 		} else {
 			System.out.print(CLEAR_TERMINAL_ANSI_CMD);
 		}

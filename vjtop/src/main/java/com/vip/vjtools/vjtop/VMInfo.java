@@ -165,7 +165,7 @@ public class VMInfo {
 		threadMemoryAllocatedSupported = jmxClient.getThreadMXBean().isThreadAllocatedMemorySupported();
 
 		processors = jmxClient.getOperatingSystemMXBean().getAvailableProcessors();
-		isLinux = jmxClient.getOperatingSystemMXBean().getName().toLowerCase(Locale.US).contains("linux");
+		isLinux = System.getProperty("os.name").toLowerCase(Locale.US).contains("linux");
 	}
 
 	/**
