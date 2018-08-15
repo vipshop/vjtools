@@ -65,6 +65,7 @@ public class VMInfo {
 	public Rate ygcTimeMills = new Rate();
 	public Rate fullgcCount = new Rate();
 	public Rate fullgcTimeMills = new Rate();
+	public String lastGcCause;
 
 	public long threadActive;
 	public long threadDaemon;
@@ -317,6 +318,7 @@ public class VMInfo {
 			ygcTimeMills.current = perfData.tickToMills(perfCounters.get("sun.gc.collector.0.time"));
 			fullgcCount.current = (Long) perfCounters.get("sun.gc.collector.1.invocations").getValue();
 			fullgcTimeMills.current = perfData.tickToMills(perfCounters.get("sun.gc.collector.1.time"));
+			lastGcCause = (String) perfCounters.get("sun.gc.lastCause").getValue();
 		} else {
 			ygcCount.current = jmxClient.getYoungCollector().getCollectionCount();
 			ygcTimeMills.current = jmxClient.getYoungCollector().getCollectionTime();

@@ -137,11 +137,16 @@ public class VMDetailView {
 		long ygcCount = vmInfo.ygcCount.getDelta();
 		long ygcTime = vmInfo.ygcTimeMills.getDelta();
 		long avgYgcTime = ygcCount == 0 ? 0 : ygcTime / ygcCount;
+		long fgcCount = vmInfo.fullgcCount.getDelta();
 		System.out.printf(" GC: %d/%sms/%sms ygc, %s/%dms fgc", ygcCount, Utils.toColor(ygcTime, warning.ygcTime),
-				Utils.toColor(avgYgcTime, warning.ygcAvgTime),
-				Utils.toColor(vmInfo.fullgcCount.getDelta(), warning.fullgcCount), vmInfo.fullgcTimeMills.getDelta());
+				Utils.toColor(avgYgcTime, warning.ygcAvgTime), Utils.toColor(fgcCount, warning.fullgcCount),
+				vmInfo.fullgcTimeMills.getDelta());
 
 		if (vmInfo.perfDataSupport) {
+			if ((ygcCount != 0 || fgcCount != 0) && !vmInfo.lastGcCause.equals("Allocation Failure")) {
+				System.out.print(" " + vmInfo.lastGcCause);
+			}
+
 			System.out.printf(" | SAFE-POINT: %d count, %sms time, %sms syncTime", vmInfo.safepointCount.getDelta(),
 					Utils.toColor(vmInfo.safepointTimeMills.getDelta(), warning.ygcTime),
 					Utils.toColor(vmInfo.safepointSyncTimeMills.getDelta(), new LongWarning(
