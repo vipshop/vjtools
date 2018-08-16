@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjkit</artifactId>
-	<version>1.0.4</version>
+	<version>1.0.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>vjkit</name>
 	<description>VIP's core java libraries</description>

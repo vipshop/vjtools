@@ -28,7 +28,7 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 
 ## 2.1 概述
 
-[Download 1.0.3.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.3/vjtop-1.0.3.zip) from Maven Central
+[Download 1.0.4.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.4/vjtop-1.0.4.zip) (from Maven Central)
 
 必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行。 如果仍有问题，请看后面的执行问题排查章节。
 
