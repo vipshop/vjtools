@@ -44,6 +44,8 @@ public class VJTop {
 				"Number of columns for the console display (defaults to 100)").withRequiredArg().ofType(Integer.class);
 		parser.acceptsAll(Arrays.asList(new String[] { "l", "limit" }),
 				"Number of threads to display ( default to 10 threads)").withRequiredArg().ofType(Integer.class);
+		parser.acceptsAll(Arrays.asList(new String[] { "f", "filter" }), "Thread name filter ( no default)")
+				.withRequiredArg().ofType(String.class);
 
 		parser.acceptsAll(Arrays.asList(new String[] { "j", "jmxurl" }),
 				"JMX url like 127.0.0.1:7001 when VM attach is not work").withRequiredArg().ofType(String.class);
@@ -105,6 +107,11 @@ public class VJTop {
 			if (optionSet.hasArgument("limit")) {
 				Integer limit = (Integer) optionSet.valueOf("limit");
 				view.threadLimit = limit;
+			}
+
+			if (optionSet.hasArgument("filter")) {
+				String filter = (String) optionSet.valueOf("filter");
+				view.threadNameFilter = filter;
 			}
 
 			// 4. create main application

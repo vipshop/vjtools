@@ -9,7 +9,7 @@ public class WarningRule {
 	public LongWarning newThread = new LongWarning();
 	public LongWarning io = new LongWarning(30 * Utils.MB_SIZE, 100 * Utils.MB_SIZE);
 
-	public LongWarning loadClass = new LongWarning(100000, 200000);
+	public LongWarning loadClass = new LongWarning(80000, 150000);
 	public LongWarning newClass = new LongWarning(1, Long.MAX_VALUE);
 
 	public LongWarning old = new LongWarning();
@@ -21,6 +21,7 @@ public class WarningRule {
 	public LongWarning ygcAvgTime = new LongWarning(100, 200);
 	public LongWarning fullgcCount = new LongWarning(1, 2);
 	public LongWarning safepointCount = new LongWarning();
+	public LongWarning safepointTime = new LongWarning();
 
 	public void updateProcessor(int processors) {
 		thread.yellow = processors <= 8 ? processors * 150 : Math.max(8 * 150, processors * 100);
@@ -39,6 +40,9 @@ public class WarningRule {
 
 		safepointCount.yellow = intervalSeconds * 2;
 		safepointCount.red = intervalSeconds * 4;
+
+		safepointTime.yellow = intervalSeconds * 1000 * 5 / 100; // 5% interval
+		safepointTime.red = intervalSeconds * 1000 * 10 / 100; // 10% interval
 	}
 
 	public void updateOld(long max) {

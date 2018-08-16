@@ -179,7 +179,7 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 
 ### 2.5.1 打印线程Stack Trace
 
-在页面中输入t，再选择线程号，可打印线程的Stack Trace，看繁忙的线程在忙什么。
+在页面中输入t，再输入线程号，可打印线程的Stack Trace，看繁忙的线程在忙什么。
 
 ```
  Cost time:  55ms, CPU time:  68ms
@@ -191,22 +191,32 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:52)
 ```
 
+上例子也可以直接输入 t 4161
+
 ### 2.5.2 实时切换显示模式
 
 在页面中输入m，可选择模式显示和排序模式。 
 ```
  Input command (h for help):m
- Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory): 5
- Display mode changed to memory for next flush
+ Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory, current cpu): 5
 ```
 
-其他选项包括l：显示的线程数，i：刷新的频率
+ 设定按线程名过滤线程，在打印繁忙线程和全部线程时，线程名都必须contains filter字符串，大小写敏感，不支持正则匹配。
 
+```
+ Input command (h for help):f
+ Input filter of thread name (current null):Worker
+ thread name filter change to "Worker" for next flush (3s later)
+```
+
+其他选项包括 l：显示的线程数 及  i：刷新的频率，
 ```
  Input command (h for help):l
  Input number of threads to display :20
  Number of threads to display changed to 20 for next flush
 ```
+也可以直接输入"l 20" 切换 
+
 
 ## 2.6 公共参数
 
@@ -218,7 +228,7 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 ./vjtop.sh <PID> > /tmp/vjtop.log
 
 // 每5秒打印一次（默认10秒）
-./vjtop.sh -d 5 <PID>
+./vjtop.sh -i 5 <PID>
 
 // 显示前20的线程（默认10）
 ./vjtop.sh -l 20 <PID>
@@ -228,6 +238,9 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 
 // 打印20次后退出
 ./vjtop.sh -n 20 <PID>
+
+// 过滤只打印线程名包含worker字样的
+./vjtop.sh -f worker <PID>
 ```
 
 # 3. 变色告警规则

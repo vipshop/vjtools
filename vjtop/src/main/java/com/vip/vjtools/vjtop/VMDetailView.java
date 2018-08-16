@@ -16,13 +16,14 @@ public class VMDetailView {
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
-	// 按线程CPU or 分配内存模式
 	volatile public DetailMode mode;
 	volatile public int threadLimit = 10;
 	volatile private int interval;
+	private int width;
+	volatile public String threadNameFilter = null;
+
 	volatile private long minDeltaCpuTime;
 	volatile private long minDeltaMemory;
-	public boolean collectingData = true;
 
 	public VMInfo vmInfo;
 	private WarningRule warning;
@@ -31,11 +32,10 @@ public class VMDetailView {
 	private boolean isDebug = false;
 	private long lastCpu = 0;
 
-	private int width;
-	private boolean shouldExit;
-
+	private boolean shouldExit = false;
 	private boolean firstTime = true;
 	public boolean displayCommandHints = false;
+	volatile public boolean collectingData = true;
 
 	private Map<Long, Long> lastThreadCpuTotalTimes = new HashMap<Long, Long>();
 	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
@@ -156,7 +156,7 @@ public class VMDetailView {
 		if (vmInfo.perfDataSupport) {
 			System.out.printf(" | SAFE-POINT: %s count, %sms time, %dms syncTime",
 					Utils.toColor(vmInfo.safepointCount.delta, warning.safepointCount),
-					Utils.toColor(vmInfo.safepointTimeMills.delta, warning.ygcTime),
+					Utils.toColor(vmInfo.safepointTimeMills.delta, warning.safepointTime),
 					vmInfo.safepointSyncTimeMills.delta);
 		}
 		System.out.println("");
@@ -196,7 +196,7 @@ public class VMDetailView {
 			Long lastTime = lastThreadCpuTotalTimes.get(tid);
 			if (lastTime != null) {
 				long deltaThreadCpuTime = threadCpuTotalTime - lastTime;
-				if (deltaThreadCpuTime > minDeltaCpuTime) {
+				if (deltaThreadCpuTime >= minDeltaCpuTime) {
 					threadCpuDeltaTimes.put(tid, deltaThreadCpuTime);
 					deltaAllThreadCpu += deltaThreadCpuTime;
 				}
@@ -213,7 +213,7 @@ public class VMDetailView {
 			Long lastTime = lastThreadSysCpuTotalTimes.get(tid);
 			if (lastTime != null) {
 				long deltaThreadSysCpuTime = Math.max(0, threadSysCpuTotalTime - lastTime);
-				if (deltaThreadSysCpuTime > minDeltaCpuTime) {
+				if (deltaThreadSysCpuTime >= minDeltaCpuTime) {
 					threadSysCpuDeltaTimes.put(tid, deltaThreadSysCpuTime);
 					deltaAllThreadSysCpu += deltaThreadSysCpuTime;
 				}
@@ -261,7 +261,10 @@ public class VMDetailView {
 			Long tid = info.getThreadId();
 			if (info != null) {
 				String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 20);
-
+				// 过滤threadName
+				if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
+					continue;
+				}
 				// 刷新间隔里，所使用的单核CPU比例
 				double cpu = getThreadCPUUtilization(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
 						Utils.NANOS_TO_MILLS);
@@ -294,8 +297,9 @@ public class VMDetailView {
 				deltaAllThreadCpuLoad, deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad, deltaAllThreadSysCpuLoad,
 				threadsHaveValue);
 
-		System.out.printf(" Setting  : top %d threads order by %s , flush every %ds%n", threadLimit,
-				mode.toString().toUpperCase(), interval);
+		System.out.printf(" Setting  : top %d threads order by %s%s, flush every %ds%n", threadLimit,
+				mode.toString().toUpperCase(), threadNameFilter == null ? "" : " filter by " + threadNameFilter,
+				interval);
 
 		lastThreadCpuTotalTimes = threadCpuTotalTimes;
 		lastThreadSysCpuTotalTimes = threadSysCpuTotalTimes;
@@ -335,7 +339,7 @@ public class VMDetailView {
 
 			if (lastBytes != null) {
 				threadMemoryDeltaBytes = threadMemoryTotalBytes - lastBytes;
-				if (threadMemoryDeltaBytes > minDeltaMemory) {
+				if (threadMemoryDeltaBytes >= minDeltaMemory) {
 					threadMemoryDeltaBytesMap.put(tid, threadMemoryDeltaBytes);
 					totalDeltaBytes += threadMemoryDeltaBytes;
 				}
@@ -373,6 +377,11 @@ public class VMDetailView {
 			Long tid = info.getThreadId();
 			String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 12);
 
+			// 过滤threadName
+			if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
+				continue;
+			}
+
 			System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
 					Utils.toFixLengthSizeUnit((threadMemoryDeltaBytesMap.get(tid) * 1000) / vmInfo.upTimeMills.delta),
 					getThreadMemoryUtilization(threadMemoryDeltaBytesMap.get(tid), totalDeltaBytes),
@@ -384,8 +393,9 @@ public class VMDetailView {
 		System.out.printf("%n Total memory allocate: %5s/s, %d threads have min value%n",
 				Utils.toFixLengthSizeUnit((totalDeltaBytes * 1000) / vmInfo.upTimeMills.delta), threadsHaveValue);
 
-		System.out.printf(" Setting : top %d threads order by %s, flush every %ds%n", threadLimit,
-				mode.toString().toUpperCase(), interval);
+		System.out.printf(" Setting  : top %d threads order by %s%s, flush every %ds%n", threadLimit,
+				mode.toString().toUpperCase(), threadNameFilter == null ? "" : " filter by " + threadNameFilter,
+				interval);
 
 
 		lastThreadMemoryTotalBytes = threadMemoryTotalBytesMap;
@@ -452,7 +462,14 @@ public class VMDetailView {
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(tids);
 		for (ThreadInfo info : threadInfos) {
-			System.out.println(" " + info.getThreadId() + "\t:" + info.getThreadName());
+			String threadName = info.getThreadName();
+			if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
+				continue;
+			}
+			System.out.println(" " + info.getThreadId() + "\t:" + threadName);
+		}
+		if (threadNameFilter != null) {
+			System.out.println(" Thread name filter is:" + threadNameFilter);
 		}
 		System.out.flush();
 	}
@@ -471,7 +488,6 @@ public class VMDetailView {
 		// 这里因为最后单位是百分比%，所以cpu time除以total cpu time以后要乘以100，才可以再加上单位%
 		return deltaThreadCpuTime * 100d / factor / totalTime;
 	}
-
 
 	private static double getThreadMemoryUtilization(Long threadBytes, long totalBytes) {
 		if (threadBytes == null) {
@@ -514,6 +530,7 @@ public class VMDetailView {
 		this.interval = interval;
 		warning.updateInterval(interval);
 	}
+
 
 	public enum DetailMode {
 		cpu(true), totalcpu(true), syscpu(true), totalsyscpu(true), memory(false), totalmemory(false);
