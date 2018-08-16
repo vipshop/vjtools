@@ -13,7 +13,6 @@ import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
 @SuppressWarnings("restriction")
 public class VMDetailView {
 
-
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
@@ -110,9 +109,7 @@ public class VMDetailView {
 				cpuLoadAnsi[0], cpuLoad, cpuLoadAnsi[1], vmInfo.processors);
 
 		if (vmInfo.isLinux) {
-			System.out.printf(", %s thread, %s/%s cxtsw%n", Utils.toColor(vmInfo.osThreads, warning.thread),
-					Utils.toSizeUnit(vmInfo.voluntaryCtxtSwitch.delta),
-					Utils.toSizeUnit(vmInfo.nonvoluntaryCtxtSwitch.delta));
+			System.out.printf(", %s thread%n", Utils.toColor(vmInfo.osThreads, warning.thread));
 
 			System.out.printf(" MEMORY: %s rss, %s peak, %s swap |", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.peakRss),
 					Utils.toMBWithColor(vmInfo.swap, warning.swap));
@@ -125,10 +122,13 @@ public class VMDetailView {
 		}
 		System.out.println();
 
-		System.out.printf(" THREAD: %s active, %d daemon, %s peak, %s new | CLASS: %d loaded, %d unloaded, %s new%n",
+		System.out.printf(" THREAD: %s active, %d daemon, %s peak, %s new",
 				Utils.toColor(vmInfo.threadActive, warning.thread), vmInfo.threadDaemon, vmInfo.threadPeak,
-				Utils.toColor(vmInfo.threadNew.delta, warning.newThread), vmInfo.classLoaded.current,
-				vmInfo.classUnLoaded, Utils.toColor(vmInfo.classLoaded.delta, warning.newClass));
+				Utils.toColor(vmInfo.threadNew.delta, warning.newThread));
+
+		System.out.printf(" | CLASS: %s loaded, %d unloaded, %s new%n",
+				Utils.toColor(vmInfo.classLoaded.current, warning.loadClass), vmInfo.classUnLoaded,
+				Utils.toColor(vmInfo.classLoaded.delta, warning.newClass));
 
 		System.out.printf(" HEAP: %s eden, %s sur, %s old%n", Utils.formatUsage(vmInfo.eden),
 				Utils.formatUsage(vmInfo.sur), Utils.formatUsageWithColor(vmInfo.old, warning.old));
@@ -408,13 +408,11 @@ public class VMDetailView {
 	private void printWelcome() {
 		if (firstTime) {
 			if (!vmInfo.isLinux) {
-				System.out.printf(
-						"%n OS isn't linux, Process's MEMORY, THREAD, CONTEXT_SWITCH, DISK data will be skipped.%n");
+				System.out.printf("%n OS isn't linux, Process's MEMORY, THREAD, DISK data will be skipped.%n");
 			}
 
 			if (!vmInfo.ioDataSupport) {
-				System.out.printf("%n /proc/%s/io is not readable, Process's IO, DISK data will be skipped.%n",
-						vmInfo.pid);
+				System.out.printf("%n /proc/%s/io is not readable, Process's DISK data will be skipped.%n", vmInfo.pid);
 			}
 
 			if (!vmInfo.perfDataSupport) {

@@ -53,8 +53,6 @@ public class VMInfo {
 	public long peakRss;
 	public long swap;
 	public long osThreads;
-	public Rate voluntaryCtxtSwitch = new Rate();
-	public Rate nonvoluntaryCtxtSwitch = new Rate();
 
 	public Rate readBytes = new Rate();
 	public Rate writeBytes = new Rate();
@@ -229,11 +227,6 @@ public class VMInfo {
 		peakRss = Utils.parseFromSize(procStatus.get("VmHWM"));
 		swap = Utils.parseFromSize(procStatus.get("VmSwap"));
 		osThreads = Long.parseLong(procStatus.get("Threads"));
-
-		voluntaryCtxtSwitch.update(Long.parseLong(procStatus.get("voluntary_ctxt_switches")));
-		nonvoluntaryCtxtSwitch.update(Long.parseLong(procStatus.get("nonvoluntary_ctxt_switches")));
-		voluntaryCtxtSwitch.caculateRatePerSecond(upTimeMills.delta);
-		nonvoluntaryCtxtSwitch.caculateRatePerSecond(upTimeMills.delta);
 	}
 
 	private void updateIO() {
