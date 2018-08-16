@@ -382,8 +382,10 @@ public class VMDetailView {
 				continue;
 			}
 
+			Long threadDelta = threadMemoryDeltaBytesMap.get(tid);
+			long allocationRate = threadDelta == null ? 0 : (threadDelta * 1000) / vmInfo.upTimeMills.delta;
 			System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
-					Utils.toFixLengthSizeUnit((threadMemoryDeltaBytesMap.get(tid) * 1000) / vmInfo.upTimeMills.delta),
+					Utils.toFixLengthSizeUnit(allocationRate),
 					getThreadMemoryUtilization(threadMemoryDeltaBytesMap.get(tid), totalDeltaBytes),
 					Utils.toFixLengthSizeUnit(threadMemoryTotalBytesMap.get(tid)),
 					getThreadMemoryUtilization(threadMemoryTotalBytesMap.get(tid), totalBytes));
@@ -481,12 +483,10 @@ public class VMDetailView {
 	}
 
 	private static double getThreadMemoryUtilization(Long threadBytes, long totalBytes) {
-		if (threadBytes == null) {
+		if (threadBytes == null || totalBytes == 0) {
 			return 0;
 		}
-		if (totalBytes == 0) {
-			return 0;
-		}
+
 		return (threadBytes * 100d) / totalBytes;// 这里因为最后单位是百分比%，所以bytes除以totalBytes以后要乘以100，才可以再加上单位%
 	}
 
