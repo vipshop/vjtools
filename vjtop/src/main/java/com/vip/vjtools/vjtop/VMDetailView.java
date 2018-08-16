@@ -293,7 +293,7 @@ public class VMDetailView {
 		double deltaAllThreadSysCpuLoad = Utils.calcLoad(deltaAllThreadSysCpu / Utils.NANOS_TO_MILLS,
 				vmInfo.upTimeMills.delta);
 
-		System.out.printf("%n Total cpu: %5.2f%%(user=%5.2f%%, sys=%5.2f%%), %d threads have min value%n",
+		System.out.printf("%n Total cpu: %5.2f%%(user=%5.2f%%, sys=%5.2f%%), %d threads used at least 0.1%% cpu%n",
 				deltaAllThreadCpuLoad, deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad, deltaAllThreadSysCpuLoad,
 				threadsHaveValue);
 
@@ -390,7 +390,7 @@ public class VMDetailView {
 		}
 
 		// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
-		System.out.printf("%n Total memory allocate: %5s/s, %d threads have min value%n",
+		System.out.printf("%n Total memory allocate: %5s/s, %d threads allocated at least 1k/s%n",
 				Utils.toFixLengthSizeUnit((totalDeltaBytes * 1000) / vmInfo.upTimeMills.delta), threadsHaveValue);
 
 		System.out.printf(" Setting  : top %d threads order by %s%s, flush every %ds%n", threadLimit,
