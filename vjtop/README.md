@@ -79,29 +79,31 @@ JVM进程信息，一次拉取了JVM在操作系统层面和JVM层面的所有�
 ### 2.3.2 输出示例：
 
 ```
- PID: 9893 - 19:11:13 JVM: 1.7.0_79 USER: calvin UPTIME: 03m10s
- PROCESS: 66.64% cpu( 2.78% of 24 core), 2385m rss, 0m swap, 117 thread
- DISK: 0B read, 827kB write | HOST-NET: 13mB recv, 14mB send
- THREAD: 99 active, 93 daemon, 99 peak, 112 created | CLASS: 13315 loaded, 0 unloaded
- HEAP: 118m/819m eden, 0m/102m sur, 44m/1024m old
- NON-HEAP: 60m/128m/256m perm, 6m/6m/96m codeCache
- OFF-HEAP: 0m/0m direct, 0m/0m map, 99m threadStack
- GC: 0/0ms ygc, 0/0ms fgc | SAFE-POINT: 6 count, 1ms time, 1ms syncTime
+ PID: 191082 - 17:43:12 JVM: 1.7.0_79 USER: calvin UPTIME: 2d02h
+ PROCESS: 685.00% cpu(28.54% of 24 core), 787 thread
+ MEMORY: 6626m rss, 6711m peak, 0m swap | DISK: 0B read, 13mB write
+ THREAD: 756 active, 749 daemon, 1212 peak, 0 new | CLASS: 15176 loaded, 161 unloaded, 0 new
+ HEAP: 630m/1638m eden, 5m/204m sur, 339m/2048m old
+ NON-HEAP: 80m/256m/512m perm, 13m/13m/240m codeCache
+ OFF-HEAP: 0m/0m direct(max=2048m), 0m/0m map(count=0), 756m threadStack
+ GC: 6/66ms/11ms ygc, 0/0ms fgc | SAFE-POINT: 6 count, 66ms time, 5ms syncTime
+
 
     TID NAME                                                      STATE    CPU SYSCPU  TOTAL TOLSYS
-     43 metrics-mercury-metric-logger-1-thread-1             TIMED_WAIT  0.38%  0.28% 25.48%  9.13%
-    110 metrics-mercury-metric-logger-2-thread-1             TIMED_WAIT  0.38%  0.18% 25.43%  9.10%
-    496 RMI TCP Connection(365)-192.168.200.87                 RUNNABLE  0.05%  0.05%  0.00%  0.00%
-     82 Proxy-Worker-5-10                                      RUNNABLE  0.01%  0.01%  0.93%  0.30%
-    120 threadDeathWatcher-6-1                               TIMED_WAIT  0.00%  0.00%  0.26%  0.09%
-     98 Proxy-Worker-5-16                                      RUNNABLE  0.00%  0.00%  0.80%  0.26%
-     99 Proxy-Worker-5-17                                      RUNNABLE  0.00%  0.00%  0.92%  0.31%
-     63 Proxy-Worker-5-2                                       RUNNABLE  0.00%  0.00%  1.07%  0.37%
-     70 Proxy-Worker-5-5                                       RUNNABLE  0.00%  0.00%  0.78%  0.26%
-    102 Proxy-Worker-5-20                                      RUNNABLE  0.00%  0.00%  0.80%  0.27%
+     23 AsyncAppender-Worker-ACCESSFILE-ASYNC                   WAITING 23.56%  6.68%  2.73%  0.72%
+    560 OSP-Server-Worker-4-5                                  RUNNABLE 22.58% 10.67%  1.08%  0.48%
+   9218 OSP-Server-Worker-4-14                                 RUNNABLE 22.37% 11.45%  0.84%  0.40%
+   8290 OSP-Server-Worker-4-10                                 RUNNABLE 22.36% 11.24%  0.88%  0.41%
+   8425 OSP-Server-Worker-4-12                                 RUNNABLE 22.24% 10.72%  0.98%  0.47%
+   8132 OSP-Server-Worker-4-9                                  RUNNABLE 22.00% 10.68%  0.90%  0.42%
+   8291 OSP-Server-Worker-4-11                                 RUNNABLE 21.80% 10.09%  0.89%  0.41%
+   8131 OSP-Server-Worker-4-8                                  RUNNABLE 21.68%  9.77%  0.93%  0.44%
+   9219 OSP-Server-Worker-4-15                                 RUNNABLE 21.56% 10.43%  0.90%  0.41%
+   8426 OSP-Server-Worker-4-13                                 RUNNABLE 21.35% 10.42%  0.66%  0.31%
 
- Total cpu:  1.01% (user= 0.31%, sys= 0.70%), top 10 threads are shown, order by CPU
- Cost time:  46ms, CPU time:  60ms
+ Total cpu: 668.56%(user=473.25%, sys=195.31%), 526 threads have min value
+ Setting  : top 10 threads order by CPU, flush every 10s
+ Input command (h for help):
 ```
 进程区数据解释:
 
