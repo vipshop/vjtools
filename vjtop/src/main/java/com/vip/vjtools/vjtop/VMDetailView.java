@@ -10,9 +10,9 @@ import java.util.Map;
 import com.sun.management.OperatingSystemMXBean;
 import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
 
-
 @SuppressWarnings("restriction")
 public class VMDetailView {
+
 
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
@@ -20,13 +20,16 @@ public class VMDetailView {
 	// 按线程CPU or 分配内存模式
 	volatile public DetailMode mode;
 	volatile public int threadLimit = 10;
-	volatile public boolean collectingData = true;
+	volatile private int interval;
+	volatile private long minDeltaCpuTime;
+	volatile private long minDeltaMemory;
+	public boolean collectingData = true;
 
 	public VMInfo vmInfo;
-	public WarningRule warning;
+	private WarningRule warning;
 
 	// 纪录vjtop进程本身的消耗
-	private OperatingSystemMXBean operatingSystemMXBean;
+	private boolean isDebug = false;
 	private long lastCpu = 0;
 
 	private int width;
@@ -39,16 +42,22 @@ public class VMDetailView {
 	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
 	private Map<Long, Long> lastThreadMemoryTotalBytes = new HashMap<Long, Long>();
 
-	public VMDetailView(VMInfo vmInfo, DetailMode mode, Integer width) throws Exception {
+	public VMDetailView(VMInfo vmInfo, DetailMode mode, Integer width, Integer interval) throws Exception {
 		this.vmInfo = vmInfo;
 		this.warning = vmInfo.warning;
 		this.mode = mode;
 		setWidth(width);
-		operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+		updateInterval(interval);
 	}
 
 	public void printView() throws Exception {
-		long iterationStartTime = System.currentTimeMillis();
+		long iterationStartTime = 0;
+		long iterationStartCpu = 0;
+		if (isDebug) {
+			iterationStartTime = System.currentTimeMillis();
+			iterationStartCpu = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean())
+					.getProcessCpuTime();
+		}
 
 		vmInfo.update();
 
@@ -66,9 +75,10 @@ public class VMDetailView {
 			printTopMemoryThreads(mode);
 		}
 
-		// 打印vjtop自身消耗
-		printIterationCost(iterationStartTime);
-
+		if (isDebug) {
+			// 打印vjtop自身消耗
+			printIterationCost(iterationStartTime, iterationStartCpu);
+		}
 		if (displayCommandHints) {
 			System.out.print(" Input command (h for help):");
 		}
@@ -91,7 +101,7 @@ public class VMDetailView {
 
 	private void printJvmInfo() {
 		System.out.printf(" PID: %s - %8tT JVM: %s USER: %s UPTIME: %s%n", vmInfo.pid, new Date(), vmInfo.jvmVersion,
-				vmInfo.osUser, Utils.toTimeUnit(vmInfo.upTimeMills.getCurrent()));
+				vmInfo.osUser, Utils.toTimeUnit(vmInfo.upTimeMills.current));
 
 		double cpuLoad = vmInfo.cpuLoad * 100;
 		String[] cpuLoadAnsi = Utils.colorAnsi(cpuLoad, warning.cpu);
@@ -101,24 +111,24 @@ public class VMDetailView {
 
 		if (vmInfo.isLinux) {
 			System.out.printf(", %s thread, %s/%s cxtsw%n", Utils.toColor(vmInfo.osThreads, warning.thread),
-					Utils.toSizeUnit(vmInfo.voluntaryCtxtSwitch.getDelta()),
-					Utils.toSizeUnit(vmInfo.nonvoluntaryCtxtSwitch.getDelta()));
+					Utils.toSizeUnit(vmInfo.voluntaryCtxtSwitch.delta),
+					Utils.toSizeUnit(vmInfo.nonvoluntaryCtxtSwitch.delta));
 
 			System.out.printf(" MEMORY: %s rss, %s peak, %s swap |", Utils.toMB(vmInfo.rss), Utils.toMB(vmInfo.peakRss),
 					Utils.toMBWithColor(vmInfo.swap, warning.swap));
 
 			if (vmInfo.ioDataSupport) {
-				System.out.printf(" DISK: %sB read, %sB write%n",
-						Utils.toSizeUnitWithColor(vmInfo.readBytes.getRate(), warning.io),
-						Utils.toSizeUnitWithColor(vmInfo.writeBytes.getRate(), warning.io));
+				System.out.printf(" DISK: %sB read, %sB write",
+						Utils.toSizeUnitWithColor(vmInfo.readBytes.ratePerSecond, warning.io),
+						Utils.toSizeUnitWithColor(vmInfo.writeBytes.ratePerSecond, warning.io));
 			}
 		}
 		System.out.println();
 
 		System.out.printf(" THREAD: %s active, %d daemon, %s peak, %s new | CLASS: %d loaded, %d unloaded, %s new%n",
 				Utils.toColor(vmInfo.threadActive, warning.thread), vmInfo.threadDaemon, vmInfo.threadPeak,
-				Utils.toColor(vmInfo.threadNew.getDelta(), warning.newThread), vmInfo.classLoaded.getCurrent(),
-				vmInfo.classUnLoaded, Utils.toColor(vmInfo.classLoaded.getDelta(), warning.newClass));
+				Utils.toColor(vmInfo.threadNew.delta, warning.newThread), vmInfo.classLoaded.current,
+				vmInfo.classUnLoaded, Utils.toColor(vmInfo.classLoaded.delta, warning.newClass));
 
 		System.out.printf(" HEAP: %s eden, %s sur, %s old%n", Utils.formatUsage(vmInfo.eden),
 				Utils.formatUsage(vmInfo.sur), Utils.formatUsageWithColor(vmInfo.old, warning.old));
@@ -135,19 +145,19 @@ public class VMDetailView {
 				Utils.toMB(vmInfo.map.used), Utils.toMB(vmInfo.map.committed), vmInfo.map.max,
 				Utils.toMB(vmInfo.threadStackSize * vmInfo.threadActive));
 
-		long ygcCount = vmInfo.ygcCount.getDelta();
-		long ygcTime = vmInfo.ygcTimeMills.getDelta();
+		long ygcCount = vmInfo.ygcCount.delta;
+		long ygcTime = vmInfo.ygcTimeMills.delta;
 		long avgYgcTime = ygcCount == 0 ? 0 : ygcTime / ygcCount;
-		long fgcCount = vmInfo.fullgcCount.getDelta();
+		long fgcCount = vmInfo.fullgcCount.delta;
 		System.out.printf(" GC: %s/%sms/%sms ygc, %s/%dms fgc", Utils.toColor(ygcCount, warning.ygcCount),
 				Utils.toColor(ygcTime, warning.ygcTime), Utils.toColor(avgYgcTime, warning.ygcAvgTime),
-				Utils.toColor(fgcCount, warning.fullgcCount), vmInfo.fullgcTimeMills.getDelta());
+				Utils.toColor(fgcCount, warning.fullgcCount), vmInfo.fullgcTimeMills.delta);
 
 		if (vmInfo.perfDataSupport) {
 			System.out.printf(" | SAFE-POINT: %s count, %sms time, %dms syncTime",
-					Utils.toColor(vmInfo.safepointCount.getDelta(), warning.safepointCount),
-					Utils.toColor(vmInfo.safepointTimeMills.getDelta(), warning.ygcTime),
-					vmInfo.safepointSyncTimeMills.getDelta());
+					Utils.toColor(vmInfo.safepointCount.delta, warning.safepointCount),
+					Utils.toColor(vmInfo.safepointTimeMills.delta, warning.ygcTime),
+					vmInfo.safepointSyncTimeMills.delta);
 		}
 		System.out.println("");
 
@@ -163,6 +173,8 @@ public class VMDetailView {
 		Map<Long, Long> threadCpuDeltaTimes = new HashMap<Long, Long>();
 		Map<Long, Long> threadSysCpuTotalTimes = new HashMap<Long, Long>();
 		Map<Long, Long> threadSysCpuDeltaTimes = new HashMap<Long, Long>();
+
+		long threadsHaveValue = 0;
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 
@@ -184,23 +196,27 @@ public class VMDetailView {
 			Long lastTime = lastThreadCpuTotalTimes.get(tid);
 			if (lastTime != null) {
 				long deltaThreadCpuTime = threadCpuTotalTime - lastTime;
-				threadCpuDeltaTimes.put(tid, deltaThreadCpuTime);
-				deltaAllThreadCpu += deltaThreadCpuTime;
+				if (deltaThreadCpuTime > minDeltaCpuTime) {
+					threadCpuDeltaTimes.put(tid, deltaThreadCpuTime);
+					deltaAllThreadCpu += deltaThreadCpuTime;
+				}
 			}
 		}
 
 		// 计算本次SYSCPU Time
 		for (int i = 0; i < tids.length; i++) {
 			Long tid = tids[i];
-			// 要处理cpuTime 获取时间有先后，sys本身接近0时，造成sysTime为负数的场景,
+			// 因为totalTime 与 userTime 的获取时间有先后，实际sys接近0时，后取的userTime可能比前一时刻的totalTime高，计算出来的sysTime可为负数
 			long threadSysCpuTotalTime = Math.max(0, threadCpuTotalTimeArray[i] - threadUserCpuTotalTimeArray[i]);
 			threadSysCpuTotalTimes.put(tid, threadSysCpuTotalTime);
 
 			Long lastTime = lastThreadSysCpuTotalTimes.get(tid);
 			if (lastTime != null) {
 				long deltaThreadSysCpuTime = Math.max(0, threadSysCpuTotalTime - lastTime);
-				threadSysCpuDeltaTimes.put(tid, deltaThreadSysCpuTime);
-				deltaAllThreadSysCpu += deltaThreadSysCpuTime;
+				if (deltaThreadSysCpuTime > minDeltaCpuTime) {
+					threadSysCpuDeltaTimes.put(tid, deltaThreadSysCpuTime);
+					deltaAllThreadSysCpu += deltaThreadSysCpuTime;
+				}
 			}
 		}
 
@@ -223,12 +239,16 @@ public class VMDetailView {
 		long[] topTidArray;
 		if (mode == DetailMode.cpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadCpuDeltaTimes, threadLimit);
+			threadsHaveValue = threadCpuDeltaTimes.size();
 		} else if (mode == DetailMode.syscpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadSysCpuDeltaTimes, threadLimit);
+			threadsHaveValue = threadSysCpuDeltaTimes.size();
 		} else if (mode == DetailMode.totalcpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadCpuTotalTimes, threadLimit);
+			threadsHaveValue = threadCpuTotalTimes.size();
 		} else if (mode == DetailMode.totalsyscpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadSysCpuTotalTimes, threadLimit);
+			threadsHaveValue = threadSysCpuTotalTimes.size();
 		} else {
 			throw new RuntimeException("unkown mode");
 		}
@@ -242,41 +262,40 @@ public class VMDetailView {
 			if (info != null) {
 				String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 20);
 
-
-				double cpu = getThreadCPUUtilization(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
+				// 刷新间隔里，所使用的单核CPU比例
+				double cpu = getThreadCPUUtilization(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
 						Utils.NANOS_TO_MILLS);
 				String[] cpuAnsi = Utils.colorAnsi(cpu, warning.cpu);
 
-				double syscpu = getThreadCPUUtilization(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.getDelta(),
+				double syscpu = getThreadCPUUtilization(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
 						Utils.NANOS_TO_MILLS);
 				String[] syscpuAnsi = Utils.colorAnsi(syscpu, warning.syscpu);
 
-				double totalcpu = getThreadCPUUtilization(threadCpuTotalTimes.get(tid),
-						vmInfo.cpuTimeNanos.getCurrent(), 1);
+				// 在进程所有消耗的CPU里，本线程的比例
+				double totalcpuPercent = getThreadCPUUtilization(threadCpuTotalTimes.get(tid),
+						vmInfo.cpuTimeNanos.current, 1);
 
-				double totalsys = getThreadCPUUtilization(threadSysCpuTotalTimes.get(tid),
-						vmInfo.cpuTimeNanos.getCurrent(), 1);
+				double totalsysPercent = getThreadCPUUtilization(threadSysCpuTotalTimes.get(tid),
+						vmInfo.cpuTimeNanos.current, 1);
 
 				System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
-						cpuAnsi[0], cpu, cpuAnsi[1], syscpuAnsi[0], syscpu, syscpuAnsi[1], totalcpu, totalsys);
+						cpuAnsi[0], cpu, cpuAnsi[1], syscpuAnsi[0], syscpu, syscpuAnsi[1], totalcpuPercent,
+						totalsysPercent);
 			}
 		}
 
 		// 打印线程汇总
 		double deltaAllThreadCpuLoad = Utils.calcLoad((deltaAllThreadCpu * 100) / (Utils.NANOS_TO_MILLS * 1D),
-				vmInfo.upTimeMills.getDelta(), 1);
+				vmInfo.upTimeMills.delta);
 		double deltaAllThreadSysCpuLoad = Utils.calcLoad((deltaAllThreadSysCpu * 100) / (Utils.NANOS_TO_MILLS * 1D),
-				vmInfo.upTimeMills.getDelta(), 1);
+				vmInfo.upTimeMills.delta);
 
-		System.out.printf("%n Total cpu: %5.2f%% (user=%5.2f%%, sys=%5.2f%%)", deltaAllThreadCpuLoad,
-				deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad, deltaAllThreadSysCpuLoad);
+		System.out.printf("%n Total cpu: %5.2f%%(user=%5.2f%%, sys=%5.2f%%), %d threads have min value%n",
+				deltaAllThreadCpuLoad, deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad, deltaAllThreadSysCpuLoad,
+				threadsHaveValue);
 
-		if (threadCpuTotalTimes.size() > threadLimit) {
-			System.out.printf(", top %d threads are shown, order by %s%n", threadLimit, mode.toString().toUpperCase());
-		} else {
-			System.out.printf(", all %d threads are shown, order by %s%n", threadCpuTotalTimes.size(),
-					mode.toString().toUpperCase());
-		}
+		System.out.printf(" Setting  : top %d threads order by %s , flush every %ds%n", threadLimit,
+				mode.toString().toUpperCase(), interval);
 
 		lastThreadCpuTotalTimes = threadCpuTotalTimes;
 		lastThreadSysCpuTotalTimes = threadSysCpuTotalTimes;
@@ -295,8 +314,11 @@ public class VMDetailView {
 
 		Map<Long, Long> threadMemoryTotalBytesMap = new HashMap<Long, Long>();
 		Map<Long, Long> threadMemoryDeltaBytesMap = new HashMap<Long, Long>();
+
 		long totalDeltaBytes = 0;
 		long totalBytes = 0;
+
+		long threadsHaveValue = 0;
 
 		// 批量获取内存分配
 		long[] threadMemoryTotalBytesArray = vmInfo.getThreadMXBean().getThreadAllocatedBytes(tids);
@@ -313,8 +335,10 @@ public class VMDetailView {
 
 			if (lastBytes != null) {
 				threadMemoryDeltaBytes = threadMemoryTotalBytes - lastBytes;
-				threadMemoryDeltaBytesMap.put(tid, threadMemoryDeltaBytes);
-				totalDeltaBytes += threadMemoryDeltaBytes;
+				if (threadMemoryDeltaBytes > minDeltaMemory) {
+					threadMemoryDeltaBytesMap.put(tid, threadMemoryDeltaBytes);
+					totalDeltaBytes += threadMemoryDeltaBytes;
+				}
 			}
 		}
 
@@ -336,8 +360,10 @@ public class VMDetailView {
 		long[] topTidArray;
 		if (mode == DetailMode.memory) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadMemoryDeltaBytesMap, threadLimit);
+			threadsHaveValue = threadMemoryDeltaBytesMap.size();
 		} else {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadMemoryTotalBytesMap, threadLimit);
+			threadsHaveValue = threadMemoryTotalBytesMap.size();
 		}
 
 		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(topTidArray);
@@ -348,34 +374,35 @@ public class VMDetailView {
 			String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 12);
 
 			System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
-					Utils.toFixLengthSizeUnit(
-							(threadMemoryDeltaBytesMap.get(tid) * 1000) / vmInfo.upTimeMills.getDelta()),
+					Utils.toFixLengthSizeUnit((threadMemoryDeltaBytesMap.get(tid) * 1000) / vmInfo.upTimeMills.delta),
 					getThreadMemoryUtilization(threadMemoryDeltaBytesMap.get(tid), totalDeltaBytes),
 					Utils.toFixLengthSizeUnit(threadMemoryTotalBytesMap.get(tid)),
 					getThreadMemoryUtilization(threadMemoryTotalBytesMap.get(tid), totalBytes));
 		}
 
 		// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
-		System.out.printf("%n Total memory allocate rate : %5s/s",
-				Utils.toFixLengthSizeUnit((totalDeltaBytes * 1000) / vmInfo.upTimeMills.getDelta()));
+		System.out.printf("%n Total memory allocate: %5s/s, %d threads have min value%n",
+				Utils.toFixLengthSizeUnit((totalDeltaBytes * 1000) / vmInfo.upTimeMills.delta), threadsHaveValue);
 
-		if (threadMemoryTotalBytesMap.size() > threadLimit) {
-			System.out.printf(", top %d threads are shown, order by %s%n", threadLimit, mode.toString().toUpperCase());
-		} else {
-			System.out.printf(", all %d threads are shown, order by %s%n", threadMemoryTotalBytesMap.size(),
-					mode.toString().toUpperCase());
-		}
+		System.out.printf(" Setting : top %d threads order by %s, flush every %ds%n", threadLimit,
+				mode.toString().toUpperCase(), interval);
+
 
 		lastThreadMemoryTotalBytes = threadMemoryTotalBytesMap;
 	}
 
-	public void printIterationCost(long iterationStartTime) {
-		long deltaTime = System.currentTimeMillis() - iterationStartTime;
+	public void printIterationCost(long iterationStartTime, long iterationStartCpu) {
+		long currentCpu = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getProcessCpuTime();
+		long deltaIterationTime = System.currentTimeMillis() - iterationStartTime;
 
-		long currentCpu = operatingSystemMXBean.getProcessCpuTime();
-		long deltaCpuTime = (currentCpu - lastCpu) / Utils.NANOS_TO_MILLS;
+		long deltaIterationCpuTime = (currentCpu - iterationStartCpu) / Utils.NANOS_TO_MILLS;
+		long deltaOtherCpuTime = (iterationStartCpu - lastCpu) / Utils.NANOS_TO_MILLS;
+		long deltaTotalCpuTime = deltaIterationCpuTime + deltaOtherCpuTime;
 		lastCpu = currentCpu;
-		System.out.printf(" Cost time: %3dms, CPU time: %3dms%n", deltaTime, deltaCpuTime);
+
+		System.out.printf(" Cost %5.2f%% cpu in %dms, other is %dms, total is %dms%n",
+				deltaIterationCpuTime * 100d / deltaIterationTime, deltaIterationTime, deltaOtherCpuTime,
+				deltaTotalCpuTime);
 	}
 
 	private void printWelcome() {
@@ -395,7 +422,9 @@ public class VMDetailView {
 			}
 
 			System.out.printf("%n VMARGS: %s%n%n", vmInfo.vmArgs);
+
 			firstTime = false;
+
 		}
 		System.out.printf("%n Collecting data, please wait ......%n%n");
 		collectingData = true;
@@ -437,14 +466,12 @@ public class VMDetailView {
 	}
 
 	private static double getThreadCPUUtilization(Long deltaThreadCpuTime, long totalTime, double factor) {
-		if (deltaThreadCpuTime == null) {
+		if (deltaThreadCpuTime == null || totalTime == 0) {
 			return 0;
 		}
-		if (totalTime == 0) {
-			return 0;
-		}
-		return deltaThreadCpuTime * 100d / factor / totalTime;// 这里因为最后单位是百分比%，所以cpu time除以total cpu
-		// time以后要乘以100，才可以再加上单位%
+
+		// 这里因为最后单位是百分比%，所以cpu time除以total cpu time以后要乘以100，才可以再加上单位%
+		return deltaThreadCpuTime * 100d / factor / totalTime;
 	}
 
 
@@ -481,6 +508,13 @@ public class VMDetailView {
 
 	private int getThreadNameWidth() {
 		return this.width - 48;
+	}
+
+	public void updateInterval(int interval) {
+		minDeltaCpuTime = interval * Utils.NANOS_TO_MILLS;
+		minDeltaMemory = interval * 1024;
+		this.interval = interval;
+		warning.updateInterval(interval);
 	}
 
 	public enum DetailMode {

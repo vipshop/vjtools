@@ -92,7 +92,15 @@ public class VJTop {
 				width = (Integer) optionSet.valueOf("width");
 			}
 
-			VMDetailView view = new VMDetailView(vminfo, displayMode, width);
+			Integer interval = DEFAULT_INTERVAL;
+			if (optionSet.hasArgument("interval")) {
+				interval = (Integer) (optionSet.valueOf("interval"));
+				if (interval < 1) {
+					throw new IllegalArgumentException("Interval cannot be set below 1.0");
+				}
+			}
+
+			VMDetailView view = new VMDetailView(vminfo, displayMode, width, interval);
 
 			if (optionSet.hasArgument("limit")) {
 				Integer limit = (Integer) optionSet.valueOf("limit");
@@ -103,14 +111,6 @@ public class VJTop {
 			VJTop app = new VJTop();
 			app.mainThread = Thread.currentThread();
 			app.view = view;
-
-			Integer interval = DEFAULT_INTERVAL;
-			if (optionSet.hasArgument("interval")) {
-				interval = (Integer) (optionSet.valueOf("interval"));
-				if (interval < 1) {
-					throw new IllegalArgumentException("Interval cannot be set below 1.0");
-				}
-			}
 			app.updateInterval(interval);
 
 			if (optionSet.hasArgument("n")) {
@@ -231,6 +231,10 @@ public class VJTop {
 		mainThread.interrupt();
 	}
 
+	public void interruptSleep() {
+		mainThread.interrupt();
+	}
+
 	public void preventFlush() {
 		needMoreInput = true;
 	}
@@ -251,6 +255,7 @@ public class VJTop {
 
 	public void updateInterval(int interval) {
 		this.interval = interval;
+		view.updateInterval(interval);
 		view.vmInfo.warning.updateInterval(interval);
 	}
 

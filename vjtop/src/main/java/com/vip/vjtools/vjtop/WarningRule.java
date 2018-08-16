@@ -7,7 +7,7 @@ public class WarningRule {
 	public LongWarning swap = new LongWarning(1, 1);
 	public LongWarning thread = new LongWarning();
 	public LongWarning newThread = new LongWarning();
-	public LongWarning io = new LongWarning(50 * Utils.MB_SIZE, 100 * Utils.MB_SIZE);
+	public LongWarning io = new LongWarning(30 * Utils.MB_SIZE, 100 * Utils.MB_SIZE);
 
 	public LongWarning newClass = new LongWarning(1, Long.MAX_VALUE);
 
@@ -28,16 +28,16 @@ public class WarningRule {
 
 	public void updateInterval(int intervalSeconds) {
 		newThread.yellow = 1;
-		newThread.red = intervalSeconds;
+		newThread.red = intervalSeconds + 1;
 
 		ygcTime.yellow = intervalSeconds * 1000 * 5 / 100; // 5% interval
 		ygcTime.red = intervalSeconds * 1000 * 10 / 100; // 10% interval
 
-		ygcCount.yellow = intervalSeconds;
-		ygcCount.red = intervalSeconds * 2;
+		ygcCount.yellow = intervalSeconds + 1;
+		ygcCount.red = intervalSeconds * 2 + 1;
 
-		safepointCount.yellow = intervalSeconds * 2;
-		safepointCount.red = intervalSeconds * 4;
+		safepointCount.yellow = intervalSeconds * 2 + 1;
+		safepointCount.red = intervalSeconds * 4 + 1;
 	}
 
 	public void updateOld(long max) {

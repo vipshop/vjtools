@@ -21,9 +21,9 @@ public class Utils {
 	private static final long GB_SIZE = MB_SIZE * 1024;
 	private static final long TB_SIZE = GB_SIZE * 1024;
 
-	private static final String RED_BEGIN = "\033[31m\033[01m";
-	private static final String YELLOW_BEGIN = "\033[33m\033[01m";
-	private static final String ANSI_END = "\033[0m";
+	private static final String[] RED_ANSI = new String[] { "\033[31m\033[01m", "\033[0m" };
+	private static final String[] YELLOW_ANSI = new String[] { "\033[33m\033[01m", "\033[0m" };
+	private static final String[] NORMAL_ANSI = new String[] { "", "" };
 	public static boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.US).contains("windows");
 
 	public static String toMBWithColor(long bytes, LongWarning warning) {
@@ -136,35 +136,23 @@ public class Utils {
 	}
 
 	public static String[] colorAnsi(long value, LongWarning warning) {
-		String[] ansi = new String[2];
-
 		if (isWindows || value < warning.yellow) {
-			ansi[0] = "";
-			ansi[1] = "";
+			return NORMAL_ANSI;
 		} else if (value >= warning.red) {
-			ansi[0] = RED_BEGIN;
-			ansi[1] = ANSI_END;
+			return RED_ANSI;
 		} else {
-			ansi[0] = YELLOW_BEGIN;
-			ansi[1] = ANSI_END;
+			return YELLOW_ANSI;
 		}
-		return ansi;
 	}
 
 	public static String[] colorAnsi(double value, DoubleWarning warning) {
-		String[] ansi = new String[2];
-
 		if (isWindows || value < warning.yellow) {
-			ansi[0] = "";
-			ansi[1] = "";
+			return NORMAL_ANSI;
 		} else if (value >= warning.red) {
-			ansi[0] = RED_BEGIN;
-			ansi[1] = ANSI_END;
+			return RED_ANSI;
 		} else {
-			ansi[0] = YELLOW_BEGIN;
-			ansi[1] = ANSI_END;
+			return YELLOW_ANSI;
 		}
-		return ansi;
 	}
 
 	/**
@@ -218,11 +206,11 @@ public class Utils {
 	/**
 	 * calculates a "load", given on two deltas
 	 */
-	public static double calcLoad(double deltaTime, double deltaUptime, int factor) {
+	public static double calcLoad(double deltaTime, double deltaUptime) {
 		if (deltaTime <= 0 || deltaUptime == 0) {
 			return 0.0;
 		}
-		return Math.min(99.99, deltaTime / (deltaUptime * factor));
+		return Math.min(99.99, deltaTime / deltaUptime);
 	}
 
 	/**

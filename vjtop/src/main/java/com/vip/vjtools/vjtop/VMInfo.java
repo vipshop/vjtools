@@ -198,7 +198,7 @@ public class VMInfo {
 			}
 
 			updateThreads();
-			updateClassLoad();
+			updateClassLoader();
 			updateMemoryPool();
 			updateGC();
 			updateSafepoint();
@@ -211,8 +211,8 @@ public class VMInfo {
 		upTimeMills.update(jmxClient.getRuntimeMXBean().getUptime());
 		cpuTimeNanos.update(jmxClient.getOperatingSystemMXBean().getProcessCpuTime());
 
-		cpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta, processors);
-		singleCoreCpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta, 1);
+		singleCoreCpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta);
+		cpuLoad = singleCoreCpuLoad / processors;
 	}
 
 	private void updateProcessStatus() {
@@ -232,6 +232,8 @@ public class VMInfo {
 
 		voluntaryCtxtSwitch.update(Long.parseLong(procStatus.get("voluntary_ctxt_switches")));
 		nonvoluntaryCtxtSwitch.update(Long.parseLong(procStatus.get("nonvoluntary_ctxt_switches")));
+		voluntaryCtxtSwitch.caculateRatePerSecond(upTimeMills.delta);
+		nonvoluntaryCtxtSwitch.caculateRatePerSecond(upTimeMills.delta);
 	}
 
 	private void updateIO() {
@@ -249,10 +251,9 @@ public class VMInfo {
 		readBytes.update(Utils.parseFromSize(procIo.get("read_bytes")));
 		writeBytes.update(Utils.parseFromSize(procIo.get("write_bytes")));
 
-		readBytes.caculateRate(upTimeMills.delta);
-		writeBytes.caculateRate(upTimeMills.delta);
+		readBytes.caculateRatePerSecond(upTimeMills.delta);
+		writeBytes.caculateRatePerSecond(upTimeMills.delta);
 	}
-
 
 	private void updateThreads() throws IOException {
 		if (perfDataSupport) {
@@ -268,8 +269,8 @@ public class VMInfo {
 		}
 	}
 
-	private void updateClassLoad() throws IOException {
-		// 优先从perfData取值
+	private void updateClassLoader() throws IOException {
+		// 优先从perfData取值，注意此处loadedClasses 等于JMX的TotalLoadedClassCount
 		if (perfDataSupport) {
 			classUnLoaded = (long) perfCounters.get("java.cls.unloadedClasses").getValue();
 			classLoaded.update((long) perfCounters.get("java.cls.loadedClasses").getValue() - classUnLoaded);
@@ -300,17 +301,20 @@ public class VMInfo {
 			MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
 			if (compressedClassSpaceMemoryPool != null) {
 				ccs = new Usage(compressedClassSpaceMemoryPool.getUsage());
+			} else {
+				ccs = new Usage();
 			}
 		}
 
 		codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
+
 		direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed(),
 				jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity(), maxDirectMemorySize);
 
 		// 取巧用法，将count 放入无用的max中。
-		map = new Usage(jmxClient.getBufferPoolManager().getMappedBufferPool().getMemoryUsed(),
-				jmxClient.getBufferPoolManager().getMappedBufferPool().getTotalCapacity(),
-				jmxClient.getBufferPoolManager().getMappedBufferPool().getCount());
+		long mapUsed = jmxClient.getBufferPoolManager().getMappedBufferPool().getMemoryUsed();
+		map = new Usage(mapUsed, jmxClient.getBufferPoolManager().getMappedBufferPool().getTotalCapacity(),
+				mapUsed == 0 ? 0 : jmxClient.getBufferPoolManager().getMappedBufferPool().getCount());
 	}
 
 	private void updateGC() throws IOException {
@@ -371,9 +375,9 @@ public class VMInfo {
 
 	public static class Rate {
 		private long last = -1;
-		private long current = -1;
-		private long delta = -1;
-		private long ratePerSecond = -1;
+		public long current = -1;
+		public long delta = 0;
+		public long ratePerSecond = 0;
 
 		public void update(long current) {
 			this.current = current;
@@ -383,22 +387,10 @@ public class VMInfo {
 			last = current;
 		}
 
-		public void caculateRate(long deltaTimeMills) {
-			if (delta != -1) {
+		public void caculateRatePerSecond(long deltaTimeMills) {
+			if (delta != 0) {
 				ratePerSecond = delta * 1000 / deltaTimeMills;
 			}
-		}
-
-		public long getDelta() {
-			return delta == -1 ? 0 : delta;
-		}
-
-		public long getRate() {
-			return ratePerSecond == -1 ? 0 : ratePerSecond;
-		}
-
-		public long getCurrent() {
-			return current;
 		}
 	}
 
@@ -419,8 +411,5 @@ public class VMInfo {
 		public Usage(MemoryUsage jmxUsage) {
 			this(jmxUsage.getUsed(), jmxUsage.getCommitted(), jmxUsage.getMax());
 		}
-
 	}
-
-
 }

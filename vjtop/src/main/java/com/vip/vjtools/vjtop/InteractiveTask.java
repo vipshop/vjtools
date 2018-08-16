@@ -121,11 +121,14 @@ public class InteractiveTask implements Runnable {
 		} else {
 			if (app.view.mode.isCpuMode != detailMode.isCpuMode) {
 				app.view.cleanupThreadsHistory();
-			}
-			app.view.mode = detailMode;
-			if (app.nextFlushTime() > 1) {
-				tty.println(" Display mode changed to " + app.view.mode + " for next flush (" + app.nextFlushTime()
-						+ "s later)");
+				app.view.mode = detailMode;
+				app.interruptSleep();
+			} else {
+				app.view.mode = detailMode;
+				if (app.nextFlushTime() > 1) {
+					tty.println(" Display mode changed to " + app.view.mode + " for next flush (" + app.nextFlushTime()
+							+ "s later)");
+				}
 			}
 		}
 		app.continueFlush();
@@ -137,11 +140,8 @@ public class InteractiveTask implements Runnable {
 		try {
 			int interval = Integer.parseInt(intervalStr);
 			if (interval != app.getInterval()) {
-				if (app.nextFlushTime() > 1) {
-					tty.println(" Flush interval changed to " + interval + " seconds for next flush ("
-							+ app.nextFlushTime() + "s later)");
-				}
 				app.updateInterval(interval);
+				app.interruptSleep();
 			} else {
 				tty.println(" Nothing be changed");
 			}
