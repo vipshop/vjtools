@@ -266,19 +266,20 @@ public class VMDetailView {
 					continue;
 				}
 				// 刷新间隔里，所使用的单核CPU比例
-				double cpu = Utils.calcLoad(threadCpuDeltaTimes.get(tid) / Utils.NANOS_TO_MILLS,
-						vmInfo.upTimeMills.delta);
+				double cpu = Utils.calcLoad(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
+						Utils.NANOS_TO_MILLS);
 				String[] cpuAnsi = Utils.colorAnsi(cpu, warning.cpu);
 
-				double syscpu = Utils.calcLoad(threadSysCpuDeltaTimes.get(tid) / Utils.NANOS_TO_MILLS,
-						vmInfo.upTimeMills.delta);
+				double syscpu = Utils.calcLoad(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
+						Utils.NANOS_TO_MILLS);
 
 				String[] syscpuAnsi = Utils.colorAnsi(syscpu, warning.syscpu);
 
 				// 在进程所有消耗的CPU里，本线程的比例
-				double totalcpuPercent = Utils.calcLoad(threadCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.current);
+				double totalcpuPercent = Utils.calcLoad(threadCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.current, 1);
 
-				double totalsysPercent = Utils.calcLoad(threadSysCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.current);
+				double totalsysPercent = Utils.calcLoad(threadSysCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.current,
+						1);
 
 				System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
 						cpuAnsi[0], cpu, cpuAnsi[1], syscpuAnsi[0], syscpu, syscpuAnsi[1], totalcpuPercent,
@@ -287,9 +288,9 @@ public class VMDetailView {
 		}
 
 		// 打印线程汇总
-		double deltaAllThreadCpuLoad = Utils.calcLoad(deltaAllThreadCpu / (Utils.NANOS_TO_MILLS * 1D),
+		double deltaAllThreadCpuLoad = Utils.calcLoad(deltaAllThreadCpu / Utils.NANOS_TO_MILLS,
 				vmInfo.upTimeMills.delta);
-		double deltaAllThreadSysCpuLoad = Utils.calcLoad(deltaAllThreadSysCpu / (Utils.NANOS_TO_MILLS * 1D),
+		double deltaAllThreadSysCpuLoad = Utils.calcLoad(deltaAllThreadSysCpu / Utils.NANOS_TO_MILLS,
 				vmInfo.upTimeMills.delta);
 
 		System.out.printf("%n Total cpu: %5.2f%%(user=%5.2f%%, sys=%5.2f%%), %d threads have min value%n",

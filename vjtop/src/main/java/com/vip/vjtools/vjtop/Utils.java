@@ -206,12 +206,23 @@ public class Utils {
 	/**
 	 * calculates a "load", given on two deltas
 	 */
-	public static double calcLoad(double deltaCpuTime, long deltaUptime) {
+	public static double calcLoad(long deltaCpuTime, long deltaUptime) {
 		if (deltaCpuTime <= 0 || deltaUptime == 0) {
 			return 0.0;
 		}
 		return deltaCpuTime * 100d / deltaUptime;
 	}
+
+	/**
+	 * calculates a "load", given on two deltas
+	 */
+	public static double calcLoad(Long deltaCpuTime, long deltaUptime, long factor) {
+		if (deltaCpuTime == null || deltaCpuTime <= 0 || deltaUptime == 0) {
+			return 0.0;
+		}
+		return deltaCpuTime * 100d / factor / deltaUptime;
+	}
+
 
 	/**
 	 * Sorts a Map by its values, using natural ordering.
