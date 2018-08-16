@@ -206,11 +206,11 @@ public class Utils {
 	/**
 	 * calculates a "load", given on two deltas
 	 */
-	public static double calcLoad(double deltaTime, double deltaUptime) {
-		if (deltaTime <= 0 || deltaUptime == 0) {
+	public static double calcLoad(double deltaCpuTime, long deltaUptime) {
+		if (deltaCpuTime <= 0 || deltaUptime == 0) {
 			return 0.0;
 		}
-		return Math.min(99.99, deltaTime / deltaUptime);
+		return deltaCpuTime * 100d / deltaUptime;
 	}
 
 	/**

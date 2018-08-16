@@ -30,7 +30,7 @@ public class WarningRule {
 
 	public void updateInterval(int intervalSeconds) {
 		newThread.yellow = 1;
-		newThread.red = intervalSeconds + 1;
+		newThread.red = intervalSeconds * 2;
 
 		ygcTime.yellow = intervalSeconds * 1000 * 5 / 100; // 5% interval
 		ygcTime.red = intervalSeconds * 1000 * 10 / 100; // 10% interval
