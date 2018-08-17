@@ -1,8 +1,8 @@
 # 1. 概述
 
-对应于观看“OS指标及繁忙的进程”的top，vjtop就是观察“JVM进程指标及繁忙线程”的首选工具。
+对应于观看“OS指标及繁忙进程”的top，vjtop就是观察“JVM进程指标及其繁忙线程”的首选工具。
 
-**JVM进程信息**：收集了JVM进程在OS层面和JVM层面的所有重要指标。大家为什么喜欢用[dstat](http://dag.wiee.rs/home-made/dstat/)看OS状态，因为它将你想看的数据全都收集呈现眼前了，vjtop也是这样的风格。
+**JVM进程信息**：收集了进程在OS层面和JVM层面的所有重要指标。大家为什么喜欢用[dstat](http://dag.wiee.rs/home-made/dstat/)看OS状态，因为它将你想看的数据全都收集呈现眼前了，vjtop也是这样的风格。
 
 **繁忙线程信息**： 对比于“先top -H 列出线程，再执行jstack拿到全部线程，再手工换算十与十六进制的线程号”的繁琐过程，vjtop既方便，又可以连续跟踪，更不会因为jstack造成JVM停顿。
 

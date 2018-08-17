@@ -173,7 +173,7 @@ public class VMDetailView {
 		long threadsHaveValue = 0;
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
-		int mapSize = tids * 1.5;
+		int mapSize = tids.length * 1.5;
 		Map<Long, Long> threadCpuTotalTimes = new HashMap<Long, Long>(mapSize);
 		Map<Long, Long> threadCpuDeltaTimes = new HashMap<Long, Long>(mapSize);
 		Map<Long, Long> threadSysCpuTotalTimes = new HashMap<Long, Long>(mapSize);
