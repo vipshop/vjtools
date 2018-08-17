@@ -329,3 +329,5 @@ vjtop的命令(since 1.0.3):
 * 删除jvmtop获取所有Java进程信息，有着不确定性的Overview页面
 * 默认打印间隔调整到10s
 * 显示vjtop自身的消耗
+
+![51.la](http://ia.51.la/go1?id=19520351&pvFlag=1)
