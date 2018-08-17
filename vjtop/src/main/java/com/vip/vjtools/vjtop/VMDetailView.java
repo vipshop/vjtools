@@ -169,14 +169,15 @@ public class VMDetailView {
 			return;
 		}
 
-		Map<Long, Long> threadCpuTotalTimes = new HashMap<Long, Long>();
-		Map<Long, Long> threadCpuDeltaTimes = new HashMap<Long, Long>();
-		Map<Long, Long> threadSysCpuTotalTimes = new HashMap<Long, Long>();
-		Map<Long, Long> threadSysCpuDeltaTimes = new HashMap<Long, Long>();
 
 		long threadsHaveValue = 0;
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
+		int mapSize = tids * 1.5;
+		Map<Long, Long> threadCpuTotalTimes = new HashMap<Long, Long>(mapSize);
+		Map<Long, Long> threadCpuDeltaTimes = new HashMap<Long, Long>(mapSize);
+		Map<Long, Long> threadSysCpuTotalTimes = new HashMap<Long, Long>(mapSize);
+		Map<Long, Long> threadSysCpuDeltaTimes = new HashMap<Long, Long>(mapSize);
 
 		// 批量获取CPU times，性能大幅提高。
 		// 两次获取之间有间隔，在低流量下可能造成负数
@@ -305,7 +306,6 @@ public class VMDetailView {
 		lastThreadSysCpuTotalTimes = threadSysCpuTotalTimes;
 	}
 
-
 	private void printTopMemoryThreads(DetailMode mode) throws IOException {
 
 		if (!vmInfo.threadMemoryAllocatedSupported) {
@@ -315,9 +315,9 @@ public class VMDetailView {
 		}
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
-
-		Map<Long, Long> threadMemoryTotalBytesMap = new HashMap<Long, Long>();
-		Map<Long, Long> threadMemoryDeltaBytesMap = new HashMap<Long, Long>();
+		int mapSize = tids.length * 1.5;
+		Map<Long, Long> threadMemoryTotalBytesMap = new HashMap<Long, Long>(mapSize);
+		Map<Long, Long> threadMemoryDeltaBytesMap = new HashMap<Long, Long>(mapSize);
 
 		long totalDeltaBytes = 0;
 		long totalBytes = 0;
@@ -386,9 +386,9 @@ public class VMDetailView {
 			long allocationRate = threadDelta == null ? 0 : (threadDelta * 1000) / vmInfo.upTimeMills.delta;
 			System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
 					Utils.toFixLengthSizeUnit(allocationRate),
-					getThreadMemoryUtilization(threadMemoryDeltaBytesMap.get(tid), totalDeltaBytes),
+					getMemoryUtilization(threadMemoryDeltaBytesMap.get(tid), totalDeltaBytes),
 					Utils.toFixLengthSizeUnit(threadMemoryTotalBytesMap.get(tid)),
-					getThreadMemoryUtilization(threadMemoryTotalBytesMap.get(tid), totalBytes));
+					getMemoryUtilization(threadMemoryTotalBytesMap.get(tid), totalBytes));
 		}
 
 		// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
@@ -482,7 +482,7 @@ public class VMDetailView {
 		this.lastThreadMemoryTotalBytes.clear();
 	}
 
-	private static double getThreadMemoryUtilization(Long threadBytes, long totalBytes) {
+	private static double getMemoryUtilization(Long threadBytes, long totalBytes) {
 		if (threadBytes == null || totalBytes == 0) {
 			return 0;
 		}
