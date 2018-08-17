@@ -31,8 +31,9 @@ public class ProcFileData {
 				return Collections.emptyMap();
 			}
 
-			Map<String, String> result = new HashMap<>();
 			List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+			Map<String, String> result = new HashMap<>(lines.size() * 2);
+
 			for (String line : lines) {
 				int index = line.indexOf(VALUE_SEPARATOR);
 				if (index <= 0 || index >= line.length() - 1) {
