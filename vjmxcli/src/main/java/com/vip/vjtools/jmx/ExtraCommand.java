@@ -49,7 +49,7 @@ public class ExtraCommand {
 
 	private Object[] executGCutil(final String[] commands, GCutilExpression gcE) throws Exception {
 		Object[] result = new Object[commands.length];
-		
+
 		for (int i = 0; i < commands.length; i++) {
 			String command = commands[i];
 			if ("S".equals(command)) {

@@ -28,7 +28,7 @@ public class CloneableRuntimeException extends RuntimeException implements Clone
 	}
 
 	@Override
-	public CloneableRuntimeException clone() { //NOSONAR
+	public CloneableRuntimeException clone() { // NOSONAR
 		try {
 			return (CloneableRuntimeException) super.clone();
 		} catch (CloneNotSupportedException e) { // NOSONAR

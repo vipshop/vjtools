@@ -1,4 +1,3 @@
-
 package com.vip.vjtools.vjtop.data;
 
 import java.io.File;
@@ -14,6 +13,7 @@ public class ProcFileData {
 
 	private static final String PROC_SELF_STATUS_FILE_TPL = "/proc/%s/status";
 	private static final String PROC_SELF_IO_FILE_TPL = "/proc/%s/io";
+
 	private static final String VALUE_SEPARATOR = ":";
 
 	public static Map<String, String> getProcStatus(String pid) {
@@ -31,8 +31,9 @@ public class ProcFileData {
 				return Collections.emptyMap();
 			}
 
-			Map<String, String> result = new HashMap<>();
 			List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+			Map<String, String> result = new HashMap<>(lines.size() * 2);
+
 			for (String line : lines) {
 				int index = line.indexOf(VALUE_SEPARATOR);
 				if (index <= 0 || index >= line.length() - 1) {

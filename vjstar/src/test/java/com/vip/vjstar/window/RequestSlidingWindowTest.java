@@ -45,8 +45,8 @@ public class RequestSlidingWindowTest {
     
     @Test
     public void mutiThreadNotOverWindowTest() throws Exception {
-        int threadNum = 100;
-        final int num = 1000;
+        int threadNum = 10;
+        final int num = 100;
         final RequestSlidingWindow slidingWindow = new RequestSlidingWindow(threadNum * num * 2);
         final CyclicBarrier barrier = new CyclicBarrier(threadNum);
         final CountDownLatch countDownLatch = new CountDownLatch(threadNum);
@@ -80,9 +80,9 @@ public class RequestSlidingWindowTest {
     
     @Test
     public void mutiThreadOverWindowTest() throws Exception {
-        int threadNum = 100;
-        final int num = 1000;
-        final int size = 1000;
+        int threadNum = 2;
+        final int num = 100;
+        final int size = 20;
         final AtomicInteger index = new AtomicInteger();
         final RequestSlidingWindow slidingWindow = new RequestSlidingWindow(size);
         final CyclicBarrier barrier = new CyclicBarrier(threadNum);

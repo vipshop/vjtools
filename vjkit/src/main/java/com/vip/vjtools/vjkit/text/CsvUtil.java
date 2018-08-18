@@ -114,7 +114,7 @@ public class CsvUtil {
 						// if this is the end of the field
 						addField(row, line, fieldStart, i, inQuotedField);
 						fieldStart = i + 2;
-						i++; //and skip the comma
+						i++; // and skip the comma
 						inQuotedField = false;
 					}
 				} else if (fieldStart == i) {

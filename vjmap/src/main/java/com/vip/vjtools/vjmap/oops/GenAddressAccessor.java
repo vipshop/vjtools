@@ -13,9 +13,10 @@ import sun.jvm.hotspot.memory.DefNewGeneration;
  */
 public class GenAddressAccessor {
 
+	private PrintStream tty = System.out;
+
 	public void printHeapAddress() {
 		CollectedHeap heap = HeapUtils.getHeap();
-		PrintStream tty = System.err;
 
 		if (HeapUtils.isCMSGC(heap)) {
 			DefNewGeneration youngGen = HeapUtils.getYoungGenForCMS(heap);

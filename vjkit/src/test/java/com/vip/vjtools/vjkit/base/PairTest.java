@@ -19,7 +19,7 @@ public class PairTest {
 		assertThat(pair.equals(pair3)).isFalse();
 		assertThat(pair.hashCode() != pair2.hashCode()).isTrue();
 		assertThat(pair.toString()).isEqualTo("Pair [left=haha, right=1]");
-	
+
 		assertThat(pair.getLeft()).isEqualTo("haha");
 		assertThat(pair.getRight()).isEqualTo(1);
 	}
@@ -30,8 +30,8 @@ public class PairTest {
 		Triple<String, String, Integer> triple2 = Triple.of("haha", "hehe", 2);
 		Triple<String, String, Integer> triple3 = Triple.of("haha", "lala", 2);
 		Triple<String, String, Integer> triple4 = Triple.of("kaka", "lala", 2);
-		
-		
+
+
 		Pair<String, Integer> pair = Pair.of("haha", 1);
 		assertThat(triple.equals(triple2)).isFalse();
 		assertThat(triple.equals(triple3)).isFalse();
@@ -39,7 +39,7 @@ public class PairTest {
 		assertThat(triple.equals(pair)).isFalse();
 		assertThat(triple.hashCode() != triple2.hashCode()).isTrue();
 		assertThat(triple.toString()).isEqualTo("Triple [left=haha, middle=hehe, right=1]");
-	
+
 		assertThat(triple.getLeft()).isEqualTo("haha");
 		assertThat(triple.getMiddle()).isEqualTo("hehe");
 		assertThat(triple.getRight()).isEqualTo(1);

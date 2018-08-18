@@ -1,5 +1,6 @@
 package com.vip.vjtools.vjmap.oops;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,19 +10,21 @@ import sun.jvm.hotspot.memory.SystemDictionary;
 import sun.jvm.hotspot.oops.InstanceKlass;
 import sun.jvm.hotspot.oops.Klass;
 import sun.jvm.hotspot.oops.Oop;
-import sun.jvm.hotspot.oops.OopField;
-import sun.jvm.hotspot.oops.OopUtilities;
 import sun.jvm.hotspot.runtime.VM;
 
 public class LoadedClassAccessor {
 
+	private PrintStream tty = System.out;
+
 	public void pringLoadedClass() {
+		tty.println("Finding classes in System Dictionary..");
+
 		try {
-			System.err.println("Finding classes in System Dictionary..");
 			final ArrayList<InstanceKlass> klasses = new ArrayList<>(128);
 
 			SystemDictionary dict = VM.getVM().getSystemDictionary();
 			dict.classesDo(new SystemDictionary.ClassVisitor() {
+				@Override
 				public void visit(Klass k) {
 					if (k instanceof InstanceKlass) {
 						klasses.add((InstanceKlass) k);
@@ -30,18 +33,19 @@ public class LoadedClassAccessor {
 			});
 
 			Collections.sort(klasses, new Comparator<InstanceKlass>() {
+				@Override
 				public int compare(InstanceKlass x, InstanceKlass y) {
 					return x.getName().asString().compareTo(y.getName().asString());
 				}
 			});
 
-			System.out.println("#class             #loader");
-			System.out.println("-----------------------------------------------");
+			tty.println("#class             #loader");
+			tty.println("-----------------------------------------------");
 			for (InstanceKlass k : klasses) {
-				System.out.printf("%s, %s\n", getClassNameFrom(k), getClassLoaderOopFrom(k));
+				tty.printf("%s, %s\n", getClassNameFrom(k), getClassLoaderOopFrom(k));
 			}
 		} catch (AddressException e) {
-			System.err.println("Error accessing address 0x" + Long.toHexString(e.getAddress()));
+			tty.println("Error accessing address 0x" + Long.toHexString(e.getAddress()));
 			e.printStackTrace();
 		}
 	}

@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.vip.vjtools.vjkit.io.ResourceUtil;
 
 public class HashUtilTest {
-	
+
 
 	@Test
 	public void hashSha1() {
@@ -73,7 +73,7 @@ public class HashUtilTest {
 		assertThat(HashUtil.murmur32AsInt("hahhha4")).isEqualTo(-2003559207);
 		assertThat(HashUtil.murmur32AsInt("hahhha5")).isEqualTo(-3887993);
 		assertThat(HashUtil.murmur32AsInt("hahhha6")).isEqualTo(-446760132);
-		
+
 		assertThat(HashUtil.murmur128AsLong("hahhha6")).isEqualTo(-5203515929515563680L);
 		assertThat(HashUtil.murmur128AsLong("hahhha6".getBytes(Charsets.UTF_8))).isEqualTo(-5203515929515563680L);
 

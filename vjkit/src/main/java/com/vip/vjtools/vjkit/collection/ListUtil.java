@@ -152,7 +152,7 @@ public class ListUtil {
 	 * @see java.util.Collections#emptyList()
 	 */
 	public static <T> List<T> emptyListIfNull(final List<T> list) {
-		return list == null ? (List<T>) Collections.EMPTY_LIST : list;
+		return list == null ? (List<T>) Collections.emptyList() : list;
 	}
 
 	/**

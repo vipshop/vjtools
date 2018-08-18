@@ -77,14 +77,14 @@ public class BasicFutureTest {
 		MyFuture<String> future4 = new MyFuture<String>();
 		Tasks.cancel(future4);
 		assertThat(future4.isCancelled()).isTrue();
-		try{
+		try {
 			String result4 = future4.get();
 			fail("should fail here");
-		}catch(CancellationException cae){
-			
+		} catch (CancellationException cae) {
+
 		}
-		
-		
+
+
 	}
 
 }

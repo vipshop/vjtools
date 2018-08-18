@@ -70,7 +70,7 @@ public class SetUtilTest {
 			assertThat(t).isInstanceOf(UnsupportedOperationException.class);
 		}
 
-		Set<String> set7 = SetUtil.newSetFromMap(MapUtil.<String, Boolean> newConcurrentSortedMap());
+		Set<String> set7 = SetUtil.newSetFromMap(MapUtil.<String, Boolean>newConcurrentSortedMap());
 	}
 
 	@Test

@@ -36,27 +36,27 @@ public class FileTreeWalkerTest {
 		files = FileTreeWalker.listFile(tmpDir);
 		assertThat(files).hasSize(3);
 
-		//extension
+		// extension
 		files = FileTreeWalker.listFileWithExtension(tmpDir, "tmp");
 		assertThat(files).hasSize(2);
 
 		files = FileTreeWalker.listFileWithExtension(tmpDir, "tp");
 		assertThat(files).hasSize(0);
 
-		//wildcard
+		// wildcard
 		files = FileTreeWalker.listFileWithWildcardFileName(tmpDir, "*.tmp");
 		assertThat(files).hasSize(2);
 		files = FileTreeWalker.listFileWithWildcardFileName(tmpDir, "*.tp");
 		assertThat(files).hasSize(0);
 
-		//regex
+		// regex
 		files = FileTreeWalker.listFileWithRegexFileName(tmpDir, ".*\\.tmp");
 		assertThat(files).hasSize(2);
 		files = FileTreeWalker.listFileWithRegexFileName(tmpDir, ".*\\.tp");
 		assertThat(files).hasSize(0);
 
 
-		//antpath
+		// antpath
 		files = FileTreeWalker.listFileWithAntPath(tmpDir, "**" + File.separator + "*.tmp");
 		assertThat(files).hasSize(2);
 

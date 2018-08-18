@@ -1,11 +1,9 @@
-# VJTools
+![VJTools](/docs/images/logo.jpg) [![Build Status](https://travis-ci.org/vipshop/vjtools.svg?branch=master)](https://travis-ci.org/vipshop/vjtools) 
 
-[![GitHub release](https://img.shields.io/github/release/vipshop/vjtools.svg)](https://github.com/vipshop/vjtools/releases)
-[![Build Status](https://travis-ci.org/vipshop/vjtools.svg?branch=master)](https://travis-ci.org/vipshop/vjtools) 
 
 主力于Java的唯品会，关于Java的一些小家底。 
 
-各位看官看着是好的，烦请拨冗“Star”。
+各位看官看着是好的，烦请“Star”。
 
 
 ## Java Standard
@@ -34,7 +32,9 @@
 | [vjdump](/vjdump)  | 线上紧急收集JVM数据脚本 | [Chinese](/vjdump/README.md), [English](/vjdump/README_EN.md)|
 | [vjmxcli](/vjmxcli)  | JMX 查看工具 | [Chinese](/vjmxcli/README.md)|
 
-其他常用问题排查及性能调优工具: [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
+视频：[《VJTools如何利用佛性技术玩转JVM》](http://kai.vkaijiang.com/product/course?courseID=120897)
+
+其他直接使用的工具，见[常用工具](docs/other/othertools.md)
 
 
 ## Contributing
