@@ -336,7 +336,7 @@ public class Client {
 	}
 
 	public static ObjectName getObjectName(final String beanname)
-			throws MalformedObjectNameException, NullPointerException {
+			throws MalformedObjectNameException {
 		return notEmpty(beanname) ? new ObjectName(beanname) : null;
 	}
 
@@ -348,7 +348,7 @@ public class Client {
 			final String[] command, final boolean oneBeanOnly) throws Exception {
 		Object[] result = null;
 		Set beans = mbsc.queryMBeans(objName, null);
-		if (beans.size() == 0) {
+		if (beans.isEmpty()) {
 			// No bean found. Check if we are to create a bean?
 			if (command.length == 1 && notEmpty(command[0]) && command[0].startsWith(CREATE_CMD_PREFIX)) {
 				String className = command[0].substring(CREATE_CMD_PREFIX.length());
@@ -467,7 +467,7 @@ public class Client {
 			result = buffer;
 		} else if (result instanceof AttributeList) {
 			AttributeList list = (AttributeList) result;
-			if (list.size() <= 0) {
+			if (list.isEmpty()) {
 				result = null;
 			} else {
 				StringBuffer buffer = new StringBuffer("\n");
@@ -607,8 +607,8 @@ public class Client {
 		// Get first attribute of name 'cmd'. Assumption is no method
 		// overrides. Then, look at the attribute and use its type.
 		MBeanAttributeInfo info = (MBeanAttributeInfo) getFeatureInfo(infos, parse.getCmd());
-		java.lang.reflect.Constructor c = Class.forName(info.getType()).getConstructor(new Class[] { String.class });
-		Attribute a = new Attribute(parse.getCmd(), c.newInstance(new Object[] { parse.getArgs()[0] }));
+		java.lang.reflect.Constructor c = Class.forName(info.getType()).getConstructor(String.class);
+		Attribute a = new Attribute(parse.getCmd(), c.newInstance(parse.getArgs()[0]));
 		mbsc.setAttribute(instance.getObjectName(), a);
 		return null;
 	}
@@ -637,8 +637,8 @@ public class Client {
 				for (int i = 0; i < paraminfosLength; i++) {
 					MBeanParameterInfo paraminfo = paraminfos[i];
 					java.lang.reflect.Constructor c = Class.forName(paraminfo.getType())
-							.getConstructor(new Class[] { String.class });
-					params[i] = c.newInstance(new Object[] { parse.getArgs()[i] });
+							.getConstructor(String.class);
+					params[i] = c.newInstance(parse.getArgs()[i]);
 					signature[i] = paraminfo.getType();
 				}
 				result = mbsc.invoke(instance.getObjectName(), parse.getCmd(), params, signature);
@@ -723,6 +723,7 @@ public class Client {
 			super();
 		}
 
+		@Override
 		public synchronized String format(LogRecord record) {
 			this.buffer.setLength(0);
 			this.date.setTime(record.getMillis());

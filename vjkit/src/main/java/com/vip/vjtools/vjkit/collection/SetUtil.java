@@ -26,7 +26,7 @@ public class SetUtil {
 	 * @see com.google.common.collect.Sets#newHashSet()
 	 */
 	public static <T> HashSet<T> newHashSet() {
-		return new HashSet<T>();
+		return new HashSet<>();
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class SetUtil {
 	 */
 	@SuppressWarnings("rawtypes")
 	public static <T extends Comparable> TreeSet<T> newSortedSet() {
-		return new TreeSet<T>();
+		return new TreeSet<>();
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class SetUtil {
 	 * 根据等号左边的类型，构造类型正确的ConcurrentHashSet
 	 */
 	public static <T> ConcurrentHashSet<T> newConcurrentHashSet() {
-		return new ConcurrentHashSet<T>();
+		return new ConcurrentHashSet<>();
 	}
 
 	///////////////// from JDK Collections的常用构造函数 ///////////////////

@@ -40,7 +40,7 @@ public class BeanMapper {
 	 * 简单的复制出新对象ArrayList
 	 */
 	public static <S, D> List<D> mapList(Iterable<S> sourceList, Class<D> destinationClass) {
-		List<D> destionationList = new ArrayList<D>();
+		List<D> destionationList = new ArrayList<>();
 		for (S source : sourceList) {
 			if (source != null) {
 				destionationList.add(mapper.map(source, destinationClass));

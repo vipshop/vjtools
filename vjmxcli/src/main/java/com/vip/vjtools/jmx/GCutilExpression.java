@@ -64,7 +64,7 @@ public class GCutilExpression {
 	private void mappingPools() throws Exception {
 		// full gc的collector，下属的memoryPool包括所有需要GC的Pool(Code Reserve等则不在此列)
 		Set<ObjectInstance> beans = mbsc.queryMBeans(Client.getObjectName(MEM_POOL_PREFIX + "*"), null);
-		pollNameMapping = new HashMap<String, String>();
+		pollNameMapping = new HashMap<>();
 		for (ObjectInstance collector : beans) {
 			ObjectName collectorName = collector.getObjectName();
 			String name = (String) getAttribute(collectorName, "Name");

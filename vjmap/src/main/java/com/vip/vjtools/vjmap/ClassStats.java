@@ -115,18 +115,21 @@ public class ClassStats {
 	}
 
 	public static Comparator<ClassStats> TOTAL_SIZE_COMPARATOR = new Comparator<ClassStats>() {
+		@Override
 		public int compare(ClassStats o1, ClassStats o2) {
 			return (int) (o2.getSize() - o1.getSize());
 		}
 	};
 
 	public static Comparator<ClassStats> OLD_SIZE_COMPARATOR = new Comparator<ClassStats>() {
+		@Override
 		public int compare(ClassStats o1, ClassStats o2) {
 			return (int) (o2.getOldSize() - o1.getOldSize());
 		}
 	};
 
 	public static Comparator<ClassStats> SUR_SIZE_COMPARATOR = new Comparator<ClassStats>() {
+		@Override
 		public int compare(ClassStats o1, ClassStats o2) {
 			return (int) (o2.getSurvivorSize() - o1.getSurvivorSize());
 		}

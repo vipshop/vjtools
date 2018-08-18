@@ -91,6 +91,6 @@ public class Triple<L, M, R> {
 	 * 根据等号左边的泛型，自动构造合适的Triple
 	 */
 	public static <L, M, R> Triple<L, M, R> of(@Nullable L left, @Nullable M middle, @Nullable R right) {
-		return new Triple<L, M, R>(left, middle, right);
+		return new Triple<>(left, middle, right);
 	}
 }

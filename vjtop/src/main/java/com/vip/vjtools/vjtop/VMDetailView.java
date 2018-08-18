@@ -37,9 +37,9 @@ public class VMDetailView {
 
 	private boolean firstTime = true;
 
-	private Map<Long, Long> lastThreadCpuTotalTimes = new HashMap<Long, Long>();
-	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
-	private Map<Long, Long> lastThreadMemoryTotalBytes = new HashMap<Long, Long>();
+	private Map<Long, Long> lastThreadCpuTotalTimes = new HashMap<>();
+	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<>();
+	private Map<Long, Long> lastThreadMemoryTotalBytes = new HashMap<>();
 
 	public VMDetailView(String pid, DetailMode mode, Integer width) throws Exception {
 		this.vmInfo = VMInfo.processNewVM(pid);
@@ -168,10 +168,10 @@ public class VMDetailView {
 			return;
 		}
 
-		Map<Long, Long> threadCpuTotalTimes = new HashMap<Long, Long>();
-		Map<Long, Long> threadCpuDeltaTimes = new HashMap<Long, Long>();
-		Map<Long, Long> threadSysCpuTotalTimes = new HashMap<Long, Long>();
-		Map<Long, Long> threadSysCpuDeltaTimes = new HashMap<Long, Long>();
+		Map<Long, Long> threadCpuTotalTimes = new HashMap<>();
+		Map<Long, Long> threadCpuDeltaTimes = new HashMap<>();
+		Map<Long, Long> threadSysCpuTotalTimes = new HashMap<>();
+		Map<Long, Long> threadSysCpuDeltaTimes = new HashMap<>();
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 
@@ -288,8 +288,8 @@ public class VMDetailView {
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 
-		Map<Long, Long> threadMemoryTotalBytesMap = new HashMap<Long, Long>();
-		Map<Long, Long> threadMemoryDeltaBytesMap = new HashMap<Long, Long>();
+		Map<Long, Long> threadMemoryTotalBytesMap = new HashMap<>();
+		Map<Long, Long> threadMemoryDeltaBytesMap = new HashMap<>();
 		long totalDeltaBytes = 0;
 		long totalBytes = 0;
 

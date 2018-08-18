@@ -28,7 +28,7 @@ public class OldgenAccessor {
 
 	public List<ClassStats> dump() {
 
-		HashMap<Klass, ClassStats> classStatsMap = new HashMap<Klass, ClassStats>(2048, 0.2f);
+		HashMap<Klass, ClassStats> classStatsMap = new HashMap<>(2048, 0.2f);
 		CollectedHeap heap = HeapUtils.getHeap();
 		ObjectHeap objectHeap = HeapUtils.getObjectHeap();
 		PrintStream tty = System.err;

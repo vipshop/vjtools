@@ -143,9 +143,9 @@ public class ThreadPoolBuilder {
 		public ThreadPoolExecutor build() {
 			BlockingQueue<Runnable> queue = null;
 			if (queueSize < 1) {
-				queue = new LinkedBlockingQueue<Runnable>();
+				queue = new LinkedBlockingQueue<>();
 			} else {
-				queue = new ArrayBlockingQueue<Runnable>(queueSize);
+				queue = new ArrayBlockingQueue<>(queueSize);
 			}
 
 			threadFactory = createThreadFactory(threadFactory, threadNamePrefix, daemon);

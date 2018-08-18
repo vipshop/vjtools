@@ -104,7 +104,7 @@ public class ResourceUtil {
 	public static List<URL> getResourcesQuietly(String resourceName, ClassLoader contextClassLoader) {
 		try {
 			Enumeration<URL> urls = contextClassLoader.getResources(resourceName);
-			List<URL> list = new ArrayList<URL>(10);
+			List<URL> list = new ArrayList<>(10);
 			while (urls.hasMoreElements()) {
 				list.add(urls.nextElement());
 			}

@@ -47,7 +47,7 @@ public class MoreMaps {
 	 * @param loadFactor 默认为0.5
 	 */
 	public static <V> IntObjectHashMap<V> createPrimitiveIntKeyMap(int initialCapacity, float loadFactor) {
-		return new IntObjectHashMap<V>(initialCapacity, loadFactor);
+		return new IntObjectHashMap<>(initialCapacity, loadFactor);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class MoreMaps {
 	 * @param loadFactor 默认为0.5
 	 */
 	public static <V> LongObjectHashMap<V> createPrimitiveLongKeyMap(int initialCapacity, float loadFactor) {
-		return new LongObjectHashMap<V>(initialCapacity, loadFactor);
+		return new LongObjectHashMap<>(initialCapacity, loadFactor);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class MoreMaps {
 	 * @param loadFactor 建议为0.5
 	 */
 	public static <K> HashMap<K, MutableInt> createMutableIntValueMap(int initialCapacity, float loadFactor) {
-		return new HashMap<K, MutableInt>(initialCapacity, loadFactor);
+		return new HashMap<>(initialCapacity, loadFactor);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class MoreMaps {
 	 * @param loadFactor 建议为0.5
 	 */
 	public static <K> HashMap<K, MutableLong> createMutableLongValueMap(int initialCapacity, float loadFactor) {
-		return new HashMap<K, MutableLong>(initialCapacity, loadFactor);
+		return new HashMap<>(initialCapacity, loadFactor);
 	}
 
 	/**

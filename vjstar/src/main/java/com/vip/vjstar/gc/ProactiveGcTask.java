@@ -38,7 +38,7 @@ public class ProactiveGcTask implements Runnable {
 			this.valid = false;
 		}
 	}
-
+	@Override
 	public void run() {
 		if (!valid) {
 			logger.warn("OldMemoryPool is not valid, task stop.");

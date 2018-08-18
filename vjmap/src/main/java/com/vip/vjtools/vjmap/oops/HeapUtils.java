@@ -56,7 +56,7 @@ public class HeapUtils {
 	}
 
 	public static List<ClassStats> getClassStatsList(HashMap<Klass, ClassStats> classStatsMap) {
-		List<ClassStats> list = new ArrayList<ClassStats>(classStatsMap.size());
+		List<ClassStats> list = new ArrayList<>(classStatsMap.size());
 		list.addAll(classStatsMap.values());
 		return list;
 	}

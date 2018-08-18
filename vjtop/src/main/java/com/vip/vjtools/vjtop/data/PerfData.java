@@ -112,8 +112,8 @@ public abstract class PerfData {
 
 		private static sun.management.counter.Units U_TICKS = sun.management.counter.Units.TICKS;
 
-		private static Map<Object, Units> UNIT_MAP = new HashMap<Object, Units>();
-		private static Map<Object, Variability> VARIABILITY_MAP = new HashMap<Object, Variability>();
+		private static Map<Object, Units> UNIT_MAP = new HashMap<>();
+		private static Map<Object, Variability> VARIABILITY_MAP = new HashMap<>();
 
 		static {
 			UNIT_MAP.put(sun.management.counter.Units.INVALID, Units.INVALID);
@@ -162,7 +162,7 @@ public abstract class PerfData {
 
 		@Override
 		public Map<String, Counter<?>> getAllCounters() {
-			Map<String, Counter<?>> result = new LinkedHashMap<String, PerfData.Counter<?>>();
+			Map<String, Counter<?>> result = new LinkedHashMap<>();
 
 			for (Object c : instr.getAllCounters()) {
 				Counter<?> cc = convert(c);
@@ -179,7 +179,7 @@ public abstract class PerfData {
 
 		@SuppressWarnings("rawtypes")
 		private List<Counter<?>> convert(List list) {
-			List<Counter<?>> cl = new ArrayList<Counter<?>>(list.size());
+			List<Counter<?>> cl = new ArrayList<>(list.size());
 			for (Object c : list) {
 				cl.add(convert(c));
 			}

@@ -29,7 +29,7 @@ public class CachingDateFormatter {
 		onSecond = fastDateFormat.getPattern().indexOf("SSS") == -1;
 
 		long current = System.currentTimeMillis();
-		this.cachedTime = new AtomicReference<CachedTime>(new CachedTime(current, fastDateFormat.format(current)));
+		this.cachedTime = new AtomicReference<>(new CachedTime(current, fastDateFormat.format(current)));
 	}
 
 	public String format(final long timestampMillis) {

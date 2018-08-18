@@ -62,7 +62,7 @@ public class MoreStringUtil {
 			return ListUtil.emptyList();
 		}
 
-		final List<String> list = new ArrayList<String>(expectParts);
+		final List<String> list = new ArrayList<>(expectParts);
 		int i = 0;
 		int start = 0;
 		boolean match = false;

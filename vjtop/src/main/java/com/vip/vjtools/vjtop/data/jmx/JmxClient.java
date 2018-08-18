@@ -417,7 +417,7 @@ public class JmxClient {
 			if (values != null && values.keySet().containsAll(attrNames)) {
 				return values;
 			}
-			attrNames = new TreeSet<String>(attrNames);
+			attrNames = new TreeSet<>(attrNames);
 			Set<String> oldNames = cachedNames.get(objName);
 			if (oldNames != null) {
 				attrNames.addAll(oldNames);
@@ -434,7 +434,7 @@ public class JmxClient {
 
 		// See http://www.artima.com/weblogs/viewpost.jsp?thread=79394
 		private static <K, V> Map<K, V> newMap() {
-			return new HashMap<K, V>();
+			return new HashMap<>();
 		}
 	}
 

@@ -8,3 +8,5 @@ release.sh
 vjmap/vjmap/
 vjtop/vjtop/
 release.properties
+*.iml
+.idea/

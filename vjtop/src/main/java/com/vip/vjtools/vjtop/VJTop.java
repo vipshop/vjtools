@@ -40,15 +40,15 @@ public class VJTop {
 	private static OptionParser createOptionParser() {
 		OptionParser parser = new OptionParser();
 		// commmon
-		parser.acceptsAll(Arrays.asList(new String[]{"help", "?", "h"}), "shows this help").forHelp();
-		parser.acceptsAll(Arrays.asList(new String[]{"n", "iteration"}),
+		parser.acceptsAll(Arrays.asList("help", "?", "h"), "shows this help").forHelp();
+		parser.acceptsAll(Arrays.asList("n", "iteration"),
 				"vjtop will exit after n output iterations  (defaults to unlimit)").withRequiredArg()
 				.ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"d", "interval"}),
+		parser.acceptsAll(Arrays.asList("d", "interval"),
 				"interval between each output iteration (defaults to 10s)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"w", "width"}),
+		parser.acceptsAll(Arrays.asList("w", "width"),
 				"Number of columns for the console display (defaults to 100)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"l", "limit"}),
+		parser.acceptsAll(Arrays.asList("l", "limit"),
 				"Number of threads to display ( default to 10 threads)").withRequiredArg().ofType(Integer.class);
 
 		// detail mode
@@ -143,7 +143,7 @@ public class VJTop {
 		Integer pid = null;
 
 		// to support PID as non option argument
-		if (optionSet.nonOptionArguments().size() > 0) {
+        if (!optionSet.nonOptionArguments().isEmpty()) {
 			pid = Integer.valueOf((String) optionSet.nonOptionArguments().get(0));
 		}
 

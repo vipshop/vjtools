@@ -18,7 +18,7 @@ public class LoadedClassAccessor {
 	public void pringLoadedClass() {
 		try {
 			System.err.println("Finding classes in System Dictionary..");
-			final ArrayList<InstanceKlass> klasses = new ArrayList<InstanceKlass>(128);
+			final ArrayList<InstanceKlass> klasses = new ArrayList<>(128);
 
 			SystemDictionary dict = VM.getVM().getSystemDictionary();
 			dict.classesDo(new SystemDictionary.ClassVisitor() {
