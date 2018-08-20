@@ -2,7 +2,7 @@ package com.vip.vjtools.vjtop.data;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -38,12 +38,8 @@ public class PerfData {
 		nanosPerTick = ((double) TimeUnit.SECONDS.toNanos(1)) / hz;
 	}
 
-	public Counter findCounter(String pattern) {
-		return instr.findByPattern(pattern).get(0);
-	}
-
 	public Map<String, Counter> getAllCounters() {
-		Map<String, Counter> result = new LinkedHashMap<String, Counter>();
+		Map<String, Counter> result = new HashMap<String, Counter>(512);
 
 		for (Counter c : instr.getAllCounters()) {
 			result.put(c.getName(), c);
@@ -52,6 +48,16 @@ public class PerfData {
 		return result;
 	}
 
+	/**
+	 * 按Pattern返回唯一Counter
+	 */
+	public Counter findCounter(String pattern) {
+		return instr.findByPattern(pattern).get(0);
+	}
+
+	/**
+	 * 按Pattern返回所有Counter
+	 */
 	public List<Counter> findByPattern(String pattern) {
 		return instr.findByPattern(pattern);
 	}
