@@ -67,7 +67,7 @@ public class ListUtil {
 	 * @see com.google.common.collect.Lists#newArrayList()
 	 */
 	public static <T> ArrayList<T> newArrayList() {
-		return new ArrayList<T>();
+		return new ArrayList<>();
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class ListUtil {
 	 * @see com.google.common.collect.Lists#newArrayListWithCapacity(int)
 	 */
 	public static <T> ArrayList<T> newArrayListWithCapacity(int initSize) {
-		return new ArrayList<T>(initSize);
+		return new ArrayList<>(initSize);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class ListUtil {
 	 * @see com.google.common.collect.Lists#newLinkedList()
 	 */
 	public static <T> LinkedList<T> newLinkedList() {
-		return new LinkedList<T>();
+		return new LinkedList<>();
 	}
 
 	/**
@@ -121,14 +121,14 @@ public class ListUtil {
 	 * @see com.google.common.collect.Lists#newCopyOnWriteArrayList()
 	 */
 	public static <T> CopyOnWriteArrayList<T> newCopyOnWriteArrayList() {
-		return new CopyOnWriteArrayList<T>();
+		return new CopyOnWriteArrayList<>();
 	}
 
 	/**
 	 * 根据等号左边的类型，构造类型转换的CopyOnWriteArrayList, 并初始化元素.
 	 */
 	public static <T> CopyOnWriteArrayList<T> newCopyOnWriteArrayList(T... elements) {
-		return new CopyOnWriteArrayList<T>(elements);
+		return new CopyOnWriteArrayList<>(elements);
 	}
 
 	///////////////// from JDK Collections的常用构造函数 ///////////////////
@@ -152,7 +152,7 @@ public class ListUtil {
 	 * @see java.util.Collections#emptyList()
 	 */
 	public static <T> List<T> emptyListIfNull(final List<T> list) {
-		return list == null ? (List<T>) Collections.EMPTY_LIST : list;
+		return list == null ? (List<T>) Collections.emptyList() : list;
 	}
 
 	/**
@@ -285,7 +285,7 @@ public class ListUtil {
 	 * 对比Apache Common Collection4 ListUtils, 优化了初始大小
 	 */
 	public static <E> List<E> union(final List<? extends E> list1, final List<? extends E> list2) {
-		final List<E> result = new ArrayList<E>(list1.size() + list2.size());
+		final List<E> result = new ArrayList<>(list1.size() + list2.size());
 		result.addAll(list1);
 		result.addAll(list2);
 		return result;
@@ -307,8 +307,8 @@ public class ListUtil {
 		}
 
 		// 克隆一个可修改的副本
-		List<T> newSmaller = new ArrayList<T>(smaller);
-		List<T> result = new ArrayList<T>(smaller.size());
+		List<T> newSmaller = new ArrayList<>(smaller);
+		List<T> result = new ArrayList<>(smaller.size());
 		for (final T e : larger) {
 			if (newSmaller.contains(e)) {
 				result.add(e);
@@ -324,7 +324,7 @@ public class ListUtil {
 	 * 与List.removeAll()相比，会计算元素出现的次数，如"a"在list1出现两次，而在list2中只出现一次，则差集里会保留一个"a".
 	 */
 	public static <T> List<T> difference(final List<? extends T> list1, final List<? extends T> list2) {
-		final List<T> result = new ArrayList<T>(list1);
+		final List<T> result = new ArrayList<>(list1);
 		final Iterator<? extends T> iterator = list2.iterator();
 
 		while (iterator.hasNext()) {

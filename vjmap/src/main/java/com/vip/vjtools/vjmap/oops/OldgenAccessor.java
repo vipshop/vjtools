@@ -25,7 +25,7 @@ import sun.jvm.hotspot.runtime.VMObjectFactory;
  * 
  * 迭代分区的代码，来自于 sun.jvm.hotspot.memory.CompactibleFreeListSpace.getLiveRegions()
  * sun.jvm.hotspot.oops.ObjectHeap.iterateLiveRegions()
- * 
+ *
  * 第一版全抄iterateLiveRegions()，后来发现getLiveRegions()本身已经遍历了一次堆，所以改为在其基础上修改。
  */
 public class OldgenAccessor {
@@ -39,7 +39,7 @@ public class OldgenAccessor {
 
 	public List<ClassStats> caculateHistogram() {
 
-		HashMap<Klass, ClassStats> classStatsMap = new HashMap<Klass, ClassStats>(2048, 0.2f);
+		HashMap<Klass, ClassStats> classStatsMap = new HashMap<>(2048, 0.2f);
 
 		ObjectHeap objectHeap = HeapUtils.getObjectHeap();
 		CollectedHeap heap = checkHeapType();

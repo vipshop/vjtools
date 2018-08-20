@@ -30,12 +30,12 @@ public class AnnotationUtil {
 		allTypes.addAll(ClassUtil.getAllInterfaces(cls));
 		allTypes.add(cls);
 
-		Set<Annotation> anns = new HashSet<Annotation>();
+		Set<Annotation> anns = new HashSet<>();
 		for (Class<?> type : allTypes) {
 			anns.addAll(Arrays.asList(type.getDeclaredAnnotations()));
 		}
 
-		Set<Annotation> superAnnotations = new HashSet<Annotation>();
+		Set<Annotation> superAnnotations = new HashSet<>();
 		for (Annotation ann : anns) {
 			getSuperAnnotations(ann.annotationType(), superAnnotations);
 		}
@@ -69,7 +69,7 @@ public class AnnotationUtil {
 			return Collections.emptySet();
 		}
 
-		Set<Field> annotatedFields = new HashSet<Field>();
+		Set<Field> annotatedFields = new HashSet<>();
 		Field[] fields = clazz.getFields();
 
 		for (Field field : fields) {
@@ -93,7 +93,7 @@ public class AnnotationUtil {
 		if (Object.class.equals(clazz)) {
 			return Collections.emptySet();
 		}
-		Set<Field> annotatedFields = new HashSet<Field>();
+		Set<Field> annotatedFields = new HashSet<>();
 		Field[] fields = clazz.getDeclaredFields();
 		for (Field field : fields) {
 			if (field.getAnnotation(annotation) != null) {
@@ -118,7 +118,7 @@ public class AnnotationUtil {
 		}
 
 		List<Class<?>> ifcs = ClassUtils.getAllInterfaces(clazz);
-		Set<Method> annotatedMethods = new HashSet<Method>();
+		Set<Method> annotatedMethods = new HashSet<>();
 
 		// 遍历当前类的所有公共方法
 		Method[] methods = clazz.getMethods();

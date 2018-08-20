@@ -37,9 +37,9 @@ public class VMDetailView {
 	public boolean displayCommandHints = false;
 	volatile public boolean collectingData = true;
 
-	private Map<Long, Long> lastThreadCpuTotalTimes = new HashMap<Long, Long>();
-	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
-	private Map<Long, Long> lastThreadMemoryTotalBytes = new HashMap<Long, Long>();
+	private Map<Long, Long> lastThreadCpuTotalTimes = new HashMap<>();
+	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<>();
+	private Map<Long, Long> lastThreadMemoryTotalBytes = new HashMap<>();
 
 	public VMDetailView(VMInfo vmInfo, DetailMode mode, Integer width, Integer interval) throws Exception {
 		this.vmInfo = vmInfo;
@@ -174,10 +174,10 @@ public class VMDetailView {
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 		int mapSize = tids.length * 2;
-		Map<Long, Long> threadCpuTotalTimes = new HashMap<Long, Long>(mapSize);
-		Map<Long, Long> threadCpuDeltaTimes = new HashMap<Long, Long>(mapSize);
-		Map<Long, Long> threadSysCpuTotalTimes = new HashMap<Long, Long>(mapSize);
-		Map<Long, Long> threadSysCpuDeltaTimes = new HashMap<Long, Long>(mapSize);
+		Map<Long, Long> threadCpuTotalTimes = new HashMap<>(mapSize);
+		Map<Long, Long> threadCpuDeltaTimes = new HashMap<>(mapSize);
+		Map<Long, Long> threadSysCpuTotalTimes = new HashMap<>(mapSize);
+		Map<Long, Long> threadSysCpuDeltaTimes = new HashMap<>(mapSize);
 
 		// 批量获取CPU times，性能大幅提高。
 		// 两次获取之间有间隔，在低流量下可能造成负数
@@ -316,8 +316,8 @@ public class VMDetailView {
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 		int mapSize = tids.length * 2;
-		Map<Long, Long> threadMemoryTotalBytesMap = new HashMap<Long, Long>(mapSize);
-		Map<Long, Long> threadMemoryDeltaBytesMap = new HashMap<Long, Long>(mapSize);
+		Map<Long, Long> threadMemoryTotalBytesMap = new HashMap<>(mapSize);
+		Map<Long, Long> threadMemoryDeltaBytesMap = new HashMap<>(mapSize);
 
 		long totalDeltaBytes = 0;
 		long totalBytes = 0;

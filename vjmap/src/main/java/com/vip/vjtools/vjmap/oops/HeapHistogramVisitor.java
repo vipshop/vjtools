@@ -41,7 +41,7 @@ public class HeapHistogramVisitor implements HeapVisitor {
 	private ProgressNodifier progressNodifier;
 
 	public HeapHistogramVisitor() {
-		classStatsMap = new HashMap<Klass, ClassStats>(2048, 0.2f);
+		classStatsMap = new HashMap<>(2048, 0.2f);
 
 		heap = HeapUtils.getHeap();
 		if (HeapUtils.isCMSGC(heap)) {

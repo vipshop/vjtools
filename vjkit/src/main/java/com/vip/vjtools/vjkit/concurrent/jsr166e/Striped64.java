@@ -99,7 +99,7 @@ public abstract class Striped64 extends Number {
 	 * int[] representation to avoid introducing a new type that can
 	 * impede class-unloading when ThreadLocals are not removed.
 	 */
-	static final ThreadLocal<int[]> threadHashCode = new ThreadLocal<int[]>();
+	static final ThreadLocal<int[]> threadHashCode = new ThreadLocal<>();
 
 	/**
 	 * Generator of new random hash codes
