@@ -1,12 +1,11 @@
 package com.vip.vjtools.vjkit.time;
 
-import java.util.Calendar;
-import java.util.Date;
-
+import com.vip.vjtools.vjkit.base.annotation.NotNull;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.DateUtils;
 
-import com.vip.vjtools.vjkit.base.annotation.NotNull;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * 日期工具类.
@@ -146,10 +145,13 @@ public class DateUtil {
 	}
 
 	/**
-	 * 设置月份, 0-11.
+	 * 设置月份, 1-12.
 	 */
 	public static Date setMonths(@NotNull final Date date, int amount) {
-		return DateUtils.setMonths(date, amount);
+		if (amount < 1 || amount > 12) {
+			throw new IllegalArgumentException("monthOfYear must be in the range[ 1, 12]");
+		}
+		return DateUtils.setMonths(date, amount - 1);
 	}
 
 	/**
