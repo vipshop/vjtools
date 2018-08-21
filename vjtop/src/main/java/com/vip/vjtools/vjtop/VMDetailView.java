@@ -46,7 +46,7 @@ public class VMDetailView {
 		this.warning = vmInfo.warning;
 		this.mode = mode;
 		setWidth(width);
-		updateInterval(interval);
+		setInterval(interval);
 	}
 
 	public void printView() throws Exception {
@@ -101,7 +101,6 @@ public class VMDetailView {
 	private void printJvmInfo() {
 		System.out.printf(" PID: %s - %8tT JVM: %s USER: %s UPTIME: %s%n", vmInfo.pid, new Date(), vmInfo.jvmVersion,
 				vmInfo.osUser, Utils.toTimeUnit(vmInfo.upTimeMills.current));
-
 
 		String[] cpuLoadAnsi = Utils.colorAnsi(vmInfo.cpuLoad, warning.cpu);
 
@@ -160,7 +159,6 @@ public class VMDetailView {
 					vmInfo.safepointSyncTimeMills.delta);
 		}
 		System.out.println("");
-
 	}
 
 	private void printTopCpuThreads(DetailMode mode) throws IOException {
@@ -168,7 +166,6 @@ public class VMDetailView {
 			System.out.printf("%n -Thread CPU telemetries are not available on the monitored jvm/platform-%n");
 			return;
 		}
-
 
 		long threadsHaveValue = 0;
 
@@ -186,6 +183,9 @@ public class VMDetailView {
 
 		long deltaAllThreadCpu = 0;
 		long deltaAllThreadSysCpu = 0;
+
+		// 过滤CPU占用太少的线程，每秒0.1%CPU (1ms)
+		minDeltaCpuTime = (vmInfo.upTimeMills.delta / 1000) * Utils.NANOS_TO_MILLS;
 
 		// 计算本次CPU Time
 		// 此算法第一次不会显示任何数据，保证每次显示都只显示区间内数据
@@ -259,33 +259,32 @@ public class VMDetailView {
 
 		// 打印线程Detail
 		for (ThreadInfo info : threadInfos) {
-			Long tid = info.getThreadId();
-			if (info != null) {
-				String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 20);
-				// 过滤threadName
-				if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
-					continue;
-				}
-				// 刷新间隔里，所使用的单核CPU比例
-				double cpu = Utils.calcLoad(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
-						Utils.NANOS_TO_MILLS);
-				String[] cpuAnsi = Utils.colorAnsi(cpu, warning.cpu);
-
-				double syscpu = Utils.calcLoad(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
-						Utils.NANOS_TO_MILLS);
-
-				String[] syscpuAnsi = Utils.colorAnsi(syscpu, warning.syscpu);
-
-				// 在进程所有消耗的CPU里，本线程的比例
-				double totalcpuPercent = Utils.calcLoad(threadCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.current, 1);
-
-				double totalsysPercent = Utils.calcLoad(threadSysCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.current,
-						1);
-
-				System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
-						cpuAnsi[0], cpu, cpuAnsi[1], syscpuAnsi[0], syscpu, syscpuAnsi[1], totalcpuPercent,
-						totalsysPercent);
+			if (info == null) {
+				continue;
 			}
+			Long tid = info.getThreadId();
+			String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 20);
+			// 过滤threadName
+			if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
+				continue;
+			}
+			// 刷新间隔里，所使用的单核CPU比例
+			double cpu = Utils.calcLoad(threadCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta, Utils.NANOS_TO_MILLS);
+			String[] cpuAnsi = Utils.colorAnsi(cpu, warning.cpu);
+
+			double syscpu = Utils.calcLoad(threadSysCpuDeltaTimes.get(tid), vmInfo.upTimeMills.delta,
+					Utils.NANOS_TO_MILLS);
+			String[] syscpuAnsi = Utils.colorAnsi(syscpu, warning.syscpu);
+
+			// 在进程所有消耗的CPU里，本线程的比例
+			double totalcpuPercent = Utils.calcLoad(threadCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.current, 1);
+
+			double totalsysPercent = Utils.calcLoad(threadSysCpuTotalTimes.get(tid), vmInfo.cpuTimeNanos.current, 1);
+
+			System.out.printf(dataFormat, tid, threadName, Utils.leftStr(info.getThreadState().toString(), 10),
+					cpuAnsi[0], cpu, cpuAnsi[1], syscpuAnsi[0], syscpu, syscpuAnsi[1], totalcpuPercent,
+					totalsysPercent);
+
 		}
 
 		// 打印线程汇总
@@ -294,11 +293,12 @@ public class VMDetailView {
 		double deltaAllThreadSysCpuLoad = Utils.calcLoad(deltaAllThreadSysCpu / Utils.NANOS_TO_MILLS,
 				vmInfo.upTimeMills.delta);
 
-		System.out.printf("%n Total cpu: %5.2f%%(user=%5.2f%%, sys=%5.2f%%), %d threads used at least 0.1%% cpu%n",
+		System.out.printf(
+				"%n Total  : %5.2f%% cpu(user=%5.2f%%, sys=%5.2f%%) by %d notable threads(which cpu>0.1%%)%n",
 				deltaAllThreadCpuLoad, deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad, deltaAllThreadSysCpuLoad,
 				threadsHaveValue);
 
-		System.out.printf(" Setting  : top %d threads order by %s%s, flush every %ds%n", threadLimit,
+		System.out.printf(" Setting: top %d threads order by %s%s, flush every %ds%n", threadLimit,
 				mode.toString().toUpperCase(), threadNameFilter == null ? "" : " filter by " + threadNameFilter,
 				interval);
 
@@ -326,6 +326,9 @@ public class VMDetailView {
 
 		// 批量获取内存分配
 		long[] threadMemoryTotalBytesArray = vmInfo.getThreadMXBean().getThreadAllocatedBytes(tids);
+
+		// 过滤太少的线程，每秒小于1k
+		minDeltaMemory = (vmInfo.upTimeMills.delta / 1000) * 1024;
 
 		// 此算法第一次不会显示任何数据，保证每次显示都只显示区间内数据
 		for (int i = 0; i < tids.length; i++) {
@@ -374,6 +377,9 @@ public class VMDetailView {
 
 		// 打印线程Detail
 		for (ThreadInfo info : threadInfos) {
+			if (info == null) {
+				continue;
+			}
 			Long tid = info.getThreadId();
 			String threadName = Utils.shortName(info.getThreadName(), getThreadNameWidth(), 12);
 
@@ -392,13 +398,12 @@ public class VMDetailView {
 		}
 
 		// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
-		System.out.printf("%n Total memory allocate: %5s/s, %d threads allocated at least 1k/s%n",
+		System.out.printf("%n Total  : %5s/s memory allocated by %d noteable threads(which >1k/s)%n",
 				Utils.toFixLengthSizeUnit((totalDeltaBytes * 1000) / vmInfo.upTimeMills.delta), threadsHaveValue);
 
-		System.out.printf(" Setting  : top %d threads order by %s%s, flush every %ds%n", threadLimit,
+		System.out.printf(" Setting: top %d threads order by %s%s, flush every %ds%n", threadLimit,
 				mode.toString().toUpperCase(), threadNameFilter == null ? "" : " filter by " + threadNameFilter,
 				interval);
-
 
 		lastThreadMemoryTotalBytes = threadMemoryTotalBytesMap;
 	}
@@ -464,6 +469,10 @@ public class VMDetailView {
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(tids);
 		for (ThreadInfo info : threadInfos) {
+			if (info == null) {
+				continue;
+			}
+
 			String threadName = info.getThreadName();
 			if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
 				continue;
@@ -515,13 +524,9 @@ public class VMDetailView {
 		return this.width - 48;
 	}
 
-	public void updateInterval(int interval) {
-		minDeltaCpuTime = interval * Utils.NANOS_TO_MILLS;
-		minDeltaMemory = interval * 1024;
+	public void setInterval(int interval) {
 		this.interval = interval;
-		warning.updateInterval(interval);
 	}
-
 
 	public enum DetailMode {
 		cpu(true), totalcpu(true), syscpu(true), totalsyscpu(true), memory(false), totalmemory(false);

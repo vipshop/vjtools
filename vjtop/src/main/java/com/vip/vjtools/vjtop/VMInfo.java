@@ -27,6 +27,7 @@ public class VMInfo {
 	private int updateErrorCount;
 
 	// 静态数据//
+	private long startTime = 0;
 	public String osUser;
 	public String vmArgs = "";
 	public String jvmVersion = "";
@@ -150,18 +151,19 @@ public class VMInfo {
 			vmArgs = Utils.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
 		}
 
+		startTime = jmxClient.getRuntimeMXBean().getStartTime();
+
 		Map<String, String> systemProperties_ = jmxClient.getRuntimeMXBean().getSystemProperties();
 		osUser = systemProperties_.get("user.name");
 		jvmVersion = systemProperties_.get("java.version");
 		jvmMajorVersion = getJavaMajorVersion(jvmVersion);
+		permGenName = jvmMajorVersion >= 8 ? "metaspace" : "perm";
 
 		threadStackSize = 1024
 				* Long.parseLong(jmxClient.getHotSpotDiagnosticMXBean().getVMOption("ThreadStackSize").getValue());
 		maxDirectMemorySize = Long
 				.parseLong(jmxClient.getHotSpotDiagnosticMXBean().getVMOption("MaxDirectMemorySize").getValue());
 		maxDirectMemorySize = maxDirectMemorySize == 0 ? -1 : maxDirectMemorySize;
-
-		permGenName = jvmMajorVersion >= 8 ? "metaspace" : "perm";
 
 		threadCpuTimeSupported = jmxClient.getThreadMXBean().isThreadCpuTimeSupported();
 		threadMemoryAllocatedSupported = jmxClient.getThreadMXBean().isThreadAllocatedMemorySupported();
@@ -170,7 +172,6 @@ public class VMInfo {
 		warning.updateProcessor(processors);
 
 		isLinux = System.getProperty("os.name").toLowerCase(Locale.US).contains("linux");
-
 	}
 
 	/**
@@ -185,6 +186,8 @@ public class VMInfo {
 			if (perfDataSupport) {
 				perfCounters = perfData.getAllCounters();
 			}
+
+			updateUpTime();
 
 			jmxClient.flush();
 
@@ -205,8 +208,12 @@ public class VMInfo {
 		}
 	}
 
+	private void updateUpTime() {
+		upTimeMills.update(System.currentTimeMillis() - startTime);
+		warning.updateInterval(Math.max(1, upTimeMills.delta / 1000));
+	}
+
 	private void updateCpu() throws IOException {
-		upTimeMills.update(jmxClient.getRuntimeMXBean().getUptime());
 		cpuTimeNanos.update(jmxClient.getOperatingSystemMXBean().getProcessCpuTime());
 
 		singleCoreCpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta);

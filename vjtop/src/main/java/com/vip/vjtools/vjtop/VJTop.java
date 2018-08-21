@@ -262,8 +262,7 @@ public class VJTop {
 
 	public void updateInterval(int interval) {
 		this.interval = interval;
-		view.updateInterval(interval);
-		view.vmInfo.warning.updateInterval(interval);
+		view.setInterval(interval);
 	}
 
 	public int getInterval() {

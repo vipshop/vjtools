@@ -28,7 +28,7 @@ public class WarningRule {
 		thread.red = processors <= 8 ? processors * 225 : Math.max(8 * 225, processors * 150);
 	}
 
-	public void updateInterval(int intervalSeconds) {
+	public void updateInterval(long intervalSeconds) {
 		newThread.yellow = 1;
 		newThread.red = intervalSeconds * 2;
 
