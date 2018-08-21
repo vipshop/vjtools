@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.management.OperatingSystemMXBean;
-import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
 
 @SuppressWarnings("restriction")
 public class VMDetailView {
@@ -43,7 +42,7 @@ public class VMDetailView {
 
 	public VMDetailView(VMInfo vmInfo, DetailMode mode, Integer width, Integer interval) throws Exception {
 		this.vmInfo = vmInfo;
-		this.warning = vmInfo.warning;
+		this.warning = vmInfo.warningRule;
 		this.mode = mode;
 		setWidth(width);
 		setInterval(interval);
@@ -67,34 +66,46 @@ public class VMDetailView {
 		// 打印进程级别内容
 		printJvmInfo();
 
+		// JMX更新失败，不打印后续一定需要JMX获取的数据
+		if (!vmInfo.isJmxStateOk()) {
+			System.out.print("\n " + Utils.RED_ANSI[0] + "ERROR: Could not fetch data via JMX");
+			if (!vmInfo.currentGcCause.equals("No GC")) {
+				System.out.println(" - Process is doing GC, cause is " + vmInfo.currentGcCause + Utils.RED_ANSI[1]);
+			} else {
+				System.out.println(" - Process terminated?" + Utils.RED_ANSI[1]);
+			}
+			return;
+		}
+
 		// 打印线程级别内容
-		if (mode.isCpuMode) {
-			printTopCpuThreads(mode);
-		} else {
-			printTopMemoryThreads(mode);
+		try {
+			if (mode.isCpuMode) {
+				printTopCpuThreads(mode);
+			} else {
+				printTopMemoryThreads(mode);
+			}
+		} catch (Exception e) {
+			System.out.println("\n" + Utils.RED_ANSI[0]
+					+ "ERROR: Exception happen when fetch thread information via JMX" + Utils.RED_ANSI[1]);
 		}
 
 		if (isDebug) {
 			// 打印vjtop自身消耗
 			printIterationCost(iterationStartTime, iterationStartCpu);
 		}
+
 		if (displayCommandHints) {
 			System.out.print(" Input command (h for help):");
 		}
 	}
 
 	private boolean checkState() {
-		if (vmInfo.state == VMInfoState.ATTACHED_UPDATE_ERROR) {
-			System.out.println("ERROR: Could not fetch data - Process terminated?");
-			return false;
-		}
-
-		if (vmInfo.state != VMInfo.VMInfoState.ATTACHED) {
-			System.out.println("ERROR: Could not attach to process. ");
+		if (vmInfo.state != VMInfo.VMInfoState.ATTACHED && vmInfo.state != VMInfo.VMInfoState.ATTACHED_UPDATE_ERROR) {
+			System.out.println(
+					"\n" + Utils.RED_ANSI[0] + "ERROR: Could not attach to process, exit now." + Utils.RED_ANSI[1]);
 			exit();
 			return false;
 		}
-
 		return true;
 	}
 
@@ -121,7 +132,7 @@ public class VMDetailView {
 		}
 		System.out.println();
 
-		System.out.printf(" THREAD: %s active, %d daemon, %s peak, %s new",
+		System.out.printf(" THREAD: %s live, %d daemon, %s peak, %s new",
 				Utils.toColor(vmInfo.threadActive, warning.thread), vmInfo.threadDaemon, vmInfo.threadPeak,
 				Utils.toColor(vmInfo.threadNew.delta, warning.newThread));
 
@@ -167,7 +178,7 @@ public class VMDetailView {
 			return;
 		}
 
-		long threadsHaveValue = 0;
+		long noteableThreads = 0;
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 		int mapSize = tids.length * 2;
@@ -184,8 +195,8 @@ public class VMDetailView {
 		long deltaAllThreadCpu = 0;
 		long deltaAllThreadSysCpu = 0;
 
-		// 过滤CPU占用太少的线程，每秒0.1%CPU (1ms)
-		minDeltaCpuTime = (vmInfo.upTimeMills.delta / 1000) * Utils.NANOS_TO_MILLS;
+		// 过滤CPU占用太少的线程，每秒0.05%CPU (0.5ms cpu time)
+		minDeltaCpuTime = (vmInfo.upTimeMills.delta * Utils.NANOS_TO_MILLS / 2000);
 
 		// 计算本次CPU Time
 		// 此算法第一次不会显示任何数据，保证每次显示都只显示区间内数据
@@ -240,18 +251,22 @@ public class VMDetailView {
 		long[] topTidArray;
 		if (mode == DetailMode.cpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadCpuDeltaTimes, threadLimit);
-			threadsHaveValue = threadCpuDeltaTimes.size();
+			noteableThreads = threadCpuDeltaTimes.size();
 		} else if (mode == DetailMode.syscpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadSysCpuDeltaTimes, threadLimit);
-			threadsHaveValue = threadSysCpuDeltaTimes.size();
+			noteableThreads = threadSysCpuDeltaTimes.size();
 		} else if (mode == DetailMode.totalcpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadCpuTotalTimes, threadLimit);
-			threadsHaveValue = threadCpuTotalTimes.size();
+			noteableThreads = threadCpuTotalTimes.size();
 		} else if (mode == DetailMode.totalsyscpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadSysCpuTotalTimes, threadLimit);
-			threadsHaveValue = threadSysCpuTotalTimes.size();
+			noteableThreads = threadSysCpuTotalTimes.size();
 		} else {
-			throw new RuntimeException("unkown mode");
+			throw new RuntimeException("unkown mode:" + mode);
+		}
+
+		if (noteableThreads == 0) {
+			System.out.printf("%n -Every thread use cpu lower than 0.05%%-%n");
 		}
 
 		// 获得threadInfo
@@ -293,10 +308,9 @@ public class VMDetailView {
 		double deltaAllThreadSysCpuLoad = Utils.calcLoad(deltaAllThreadSysCpu / Utils.NANOS_TO_MILLS,
 				vmInfo.upTimeMills.delta);
 
-		System.out.printf(
-				"%n Total  : %5.2f%% cpu(user=%5.2f%%, sys=%5.2f%%) by %d notable threads(which cpu>0.1%%)%n",
+		System.out.printf("%n Total  : %5.2f%% cpu(user=%5.2f%%, sys=%5.2f%%) by %d active threads(which cpu>0.05%%)%n",
 				deltaAllThreadCpuLoad, deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad, deltaAllThreadSysCpuLoad,
-				threadsHaveValue);
+				noteableThreads);
 
 		System.out.printf(" Setting: top %d threads order by %s%s, flush every %ds%n", threadLimit,
 				mode.toString().toUpperCase(), threadNameFilter == null ? "" : " filter by " + threadNameFilter,
@@ -322,13 +336,13 @@ public class VMDetailView {
 		long totalDeltaBytes = 0;
 		long totalBytes = 0;
 
-		long threadsHaveValue = 0;
+		long noteableThreads = 0;
 
 		// 批量获取内存分配
 		long[] threadMemoryTotalBytesArray = vmInfo.getThreadMXBean().getThreadAllocatedBytes(tids);
 
 		// 过滤太少的线程，每秒小于1k
-		minDeltaMemory = (vmInfo.upTimeMills.delta / 1000) * 1024;
+		minDeltaMemory = vmInfo.upTimeMills.delta * 1024 / 1000;
 
 		// 此算法第一次不会显示任何数据，保证每次显示都只显示区间内数据
 		for (int i = 0; i < tids.length; i++) {
@@ -367,10 +381,14 @@ public class VMDetailView {
 		long[] topTidArray;
 		if (mode == DetailMode.memory) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadMemoryDeltaBytesMap, threadLimit);
-			threadsHaveValue = threadMemoryDeltaBytesMap.size();
+			noteableThreads = threadMemoryDeltaBytesMap.size();
 		} else {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadMemoryTotalBytesMap, threadLimit);
-			threadsHaveValue = threadMemoryTotalBytesMap.size();
+			noteableThreads = threadMemoryTotalBytesMap.size();
+		}
+
+		if (noteableThreads == 0) {
+			System.out.printf("%n -Every thread allocate memory slower than 1k/s-%n");
 		}
 
 		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(topTidArray);
@@ -398,8 +416,8 @@ public class VMDetailView {
 		}
 
 		// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
-		System.out.printf("%n Total  : %5s/s memory allocated by %d noteable threads(which >1k/s)%n",
-				Utils.toFixLengthSizeUnit((totalDeltaBytes * 1000) / vmInfo.upTimeMills.delta), threadsHaveValue);
+		System.out.printf("%n Total  : %5s/s memory allocated by %d active threads(which >1k/s)%n",
+				Utils.toFixLengthSizeUnit((totalDeltaBytes * 1000) / vmInfo.upTimeMills.delta), noteableThreads);
 
 		System.out.printf(" Setting: top %d threads order by %s%s, flush every %ds%n", threadLimit,
 				mode.toString().toUpperCase(), threadNameFilter == null ? "" : " filter by " + threadNameFilter,

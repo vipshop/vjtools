@@ -3,7 +3,6 @@ package com.vip.vjtools.vjtop.data;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -18,6 +17,8 @@ public class PerfData {
 	private final PerfInstrumentation instr;
 	// PerfData中的时间相关数据以tick表示，每个tick的时长与计算机频率相关
 	private final double nanosPerTick;
+
+	private final Map<String, Counter> counters;
 
 	public static PerfData connect(long pid) {
 		try {
@@ -34,11 +35,13 @@ public class PerfData {
 	private PerfData(int pid) throws IOException {
 		ByteBuffer bb = Perf.getPerf().attach(pid, "r");
 		instr = new PerfInstrumentation(bb);
-		long hz = ((sun.management.counter.LongCounter) instr.findByPattern("sun.os.hrt.frequency").get(0)).longValue();
+		counters = buildAllCounters();
+
+		long hz = (Long) counters.get("sun.os.hrt.frequency").getValue();
 		nanosPerTick = ((double) TimeUnit.SECONDS.toNanos(1)) / hz;
 	}
 
-	public Map<String, Counter> getAllCounters() {
+	private Map<String, Counter> buildAllCounters() {
 		Map<String, Counter> result = new HashMap<String, Counter>(512);
 
 		for (Counter c : instr.getAllCounters()) {
@@ -48,18 +51,16 @@ public class PerfData {
 		return result;
 	}
 
-	/**
-	 * 按Pattern返回唯一Counter
-	 */
-	public Counter findCounter(String pattern) {
-		return instr.findByPattern(pattern).get(0);
+	public long getModificationTime() {
+		return instr.getModificationTimeStamp();
 	}
 
-	/**
-	 * 按Pattern返回所有Counter
-	 */
-	public List<Counter> findByPattern(String pattern) {
-		return instr.findByPattern(pattern);
+	public Map<String, Counter> getCounters() {
+		return counters;
+	}
+
+	public Counter findCounter(String counterName) {
+		return counters.get(counterName);
 	}
 
 	public long tickToMills(Counter tickCounter) {

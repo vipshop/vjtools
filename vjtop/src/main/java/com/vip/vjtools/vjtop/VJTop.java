@@ -83,7 +83,8 @@ public class VJTop {
 
 			VMInfo vminfo = VMInfo.processNewVM(pid, jmxHostAndPort);
 			if (vminfo.state != VMInfoState.ATTACHED) {
-				System.out.println("\nERROR: Could not attach to process, see the solution in README\n");
+				System.out.println("\n" + Utils.RED_ANSI[0]
+						+ "ERROR: Could not attach to process, see the solution in README" + Utils.RED_ANSI[1]);
 				return;
 			}
 
@@ -157,6 +158,10 @@ public class VJTop {
 
 				view.printView();
 
+				if (view.shouldExit()) {
+					break;
+				}
+
 				System.out.flush();
 
 				if (maxIterations > 0 && iterations >= maxIterations) {
@@ -174,7 +179,7 @@ public class VJTop {
 			System.out.flush();
 		} catch (NoClassDefFoundError e) {
 			e.printStackTrace(System.out);
-			System.out.println("ERROR: Some JDK classes cannot be found.");
+			System.out.println(Utils.RED_ANSI[0] + "ERROR: Some JDK classes cannot be found." + Utils.RED_ANSI[1]);
 			System.out.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
 			System.out.println("");
 			System.out.flush();

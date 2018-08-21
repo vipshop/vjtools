@@ -19,12 +19,11 @@ public class VMInfo {
 	private JmxClient jmxClient = null;
 
 	private PerfData perfData = null;
-	private Map<String, Counter> perfCounters;
 	public boolean perfDataSupport = false;
 
 	public VMInfoState state = VMInfoState.INIT;
 	public String pid;
-	private int updateErrorCount;
+	private int jmxUpdateErrorCount;
 
 	// 静态数据//
 	private long startTime = 0;
@@ -44,7 +43,7 @@ public class VMInfo {
 	public boolean threadCpuTimeSupported;
 	public boolean threadMemoryAllocatedSupported;
 
-	public WarningRule warning = new WarningRule();
+	public WarningRule warningRule = new WarningRule();
 
 	// 动态数据//
 	public Rate upTimeMills = new Rate();
@@ -65,6 +64,7 @@ public class VMInfo {
 	public Rate ygcTimeMills = new Rate();
 	public Rate fullgcCount = new Rate();
 	public Rate fullgcTimeMills = new Rate();
+	public String currentGcCause = "";
 
 	public long threadActive;
 	public long threadDaemon;
@@ -88,6 +88,22 @@ public class VMInfo {
 
 	public Usage direct;
 	public Usage map;
+
+	private Counter threadLiveCounter;
+	private Counter threadDaemonCounter;
+	private Counter threadPeakCounter;
+	private Counter threadStartedCounter;
+	private Counter classUnloadCounter;
+	private Counter classLoadedCounter;
+	private Counter ygcCountCounter;
+	private Counter ygcTimeCounter;
+	private Counter fullGcCountCounter;
+	private Counter fullgcTimeCounter;
+	private Counter safepointCountCounter;
+	private Counter safepointTimeCounter;
+	private Counter safepointSyncTimeCounter;
+	private Counter currentGcCauseCounter;
+
 
 	public VMInfo(JmxClient jmxClient, String vmId) throws Exception {
 		this.jmxClient = jmxClient;
@@ -139,23 +155,26 @@ public class VMInfo {
 	 * 初始化静态数据
 	 */
 	private void init() throws IOException {
+		Map<String, Counter> perfCounters = null;
 		try {
 			perfData = PerfData.connect(Integer.parseInt(pid));
+			perfCounters = perfData.getCounters();
+			initPerfCounters(perfCounters);
 			perfDataSupport = true;
 		} catch (Throwable ignored) {
 		}
 
 		if (perfDataSupport) {
-			vmArgs = (String) perfData.findCounter("java.rt.vmArgs").getValue();
+			vmArgs = (String) perfCounters.get("java.rt.vmArgs").getValue();
 		} else {
 			vmArgs = Utils.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
 		}
 
 		startTime = jmxClient.getRuntimeMXBean().getStartTime();
 
-		Map<String, String> systemProperties_ = jmxClient.getRuntimeMXBean().getSystemProperties();
-		osUser = systemProperties_.get("user.name");
-		jvmVersion = systemProperties_.get("java.version");
+		Map<String, String> taregetVMSystemProperties = jmxClient.getRuntimeMXBean().getSystemProperties();
+		osUser = taregetVMSystemProperties.get("user.name");
+		jvmVersion = taregetVMSystemProperties.get("java.version");
 		jvmMajorVersion = getJavaMajorVersion(jvmVersion);
 		permGenName = jvmMajorVersion >= 8 ? "metaspace" : "perm";
 
@@ -169,55 +188,55 @@ public class VMInfo {
 		threadMemoryAllocatedSupported = jmxClient.getThreadMXBean().isThreadAllocatedMemorySupported();
 
 		processors = jmxClient.getOperatingSystemMXBean().getAvailableProcessors();
-		warning.updateProcessor(processors);
+		warningRule.updateProcessor(processors);
 
 		isLinux = System.getProperty("os.name").toLowerCase(Locale.US).contains("linux");
 	}
 
+
 	/**
 	 * Updates all jvm metrics to the most recent remote values
 	 */
-	public void update() throws IOException {
+	public void update() {
 		if (state == VMInfoState.ERROR_DURING_ATTACH || state == VMInfoState.DETACHED) {
 			return;
 		}
 
 		try {
-			if (perfDataSupport) {
-				perfCounters = perfData.getAllCounters();
-			}
+			int lastJmxErrorCount = jmxUpdateErrorCount;
+			state = VMInfoState.ATTACHED;
 
-			updateUpTime();
-
+			// 清空JMX内部缓存
 			jmxClient.flush();
 
-			updateCpu();
+			updateUpTime();
 
 			if (isLinux) {
 				updateProcessStatus();
 				updateIO();
 			}
 
+			updateCpu();
 			updateThreads();
 			updateClassLoader();
 			updateMemoryPool();
 			updateGC();
 			updateSafepoint();
+
+			// 无新异常，状态重新判定为正常
+			if (jmxUpdateErrorCount - lastJmxErrorCount == 0) {
+				jmxUpdateErrorCount = 0;
+			}
 		} catch (Throwable e) {
-			handleFetchDataError(e);
+			// 其他非JMX异常，直接退出
+			e.printStackTrace(System.out);
+			state = VMInfoState.DETACHED;
 		}
 	}
 
 	private void updateUpTime() {
 		upTimeMills.update(System.currentTimeMillis() - startTime);
-		warning.updateInterval(Math.max(1, upTimeMills.delta / 1000));
-	}
-
-	private void updateCpu() throws IOException {
-		cpuTimeNanos.update(jmxClient.getOperatingSystemMXBean().getProcessCpuTime());
-
-		singleCoreCpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta);
-		cpuLoad = singleCoreCpuLoad / processors;
+		warningRule.updateInterval(Math.max(1, upTimeMills.delta / 1000));
 	}
 
 	private void updateProcessStatus() {
@@ -255,79 +274,112 @@ public class VMInfo {
 		writeBytes.caculateRatePerSecond(upTimeMills.delta);
 	}
 
-	private void updateThreads() throws IOException {
-		if (perfDataSupport) {
-			threadActive = (Long) perfCounters.get("java.threads.live").getValue();
-			threadDaemon = (Long) perfCounters.get("java.threads.daemon").getValue();
-			threadPeak = (Long) perfCounters.get("java.threads.livePeak").getValue();
-			threadNew.update((Long) perfCounters.get("java.threads.started").getValue());
-		} else {
-			threadActive = jmxClient.getThreadMXBean().getThreadCount();
-			threadDaemon = jmxClient.getThreadMXBean().getDaemonThreadCount();
-			threadPeak = jmxClient.getThreadMXBean().getPeakThreadCount();
-			threadNew.update(jmxClient.getThreadMXBean().getTotalStartedThreadCount());
+	private void updateCpu() {
+		if (!isJmxStateOk()) {
+			return;
+		}
+		try {
+			cpuTimeNanos.update(jmxClient.getOperatingSystemMXBean().getProcessCpuTime());
+			singleCoreCpuLoad = Utils.calcLoad(cpuTimeNanos.delta / Utils.NANOS_TO_MILLS, upTimeMills.delta);
+			cpuLoad = singleCoreCpuLoad / processors;
+		} catch (Exception e) {
+			handleJmxFetchDataError(e);
 		}
 	}
 
-	private void updateClassLoader() throws IOException {
-		// 优先从perfData取值，注意此处loadedClasses 等于JMX的TotalLoadedClassCount
+	private void updateThreads() {
 		if (perfDataSupport) {
-			classUnLoaded = (long) perfCounters.get("java.cls.unloadedClasses").getValue();
-			classLoaded.update((long) perfCounters.get("java.cls.loadedClasses").getValue() - classUnLoaded);
-		} else {
-			classUnLoaded = jmxClient.getClassLoadingMXBean().getUnloadedClassCount();
-			classLoaded.update(jmxClient.getClassLoadingMXBean().getLoadedClassCount());
-		}
-	}
 
-	private void updateMemoryPool() throws IOException {
-		JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
-
-		eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
-		old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
-		warning.updateOld(old.max);
-
-		MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
-		if (survivorMemoryPool != null) {
-			sur = new Usage(survivorMemoryPool.getUsage());
-		} else {
-			sur = new Usage();
-		}
-
-		perm = new Usage(memoryPoolManager.getPermMemoryPool().getUsage());
-		warning.updatePerm(perm.max);
-
-		if (jvmMajorVersion >= 8) {
-			MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
-			if (compressedClassSpaceMemoryPool != null) {
-				ccs = new Usage(compressedClassSpaceMemoryPool.getUsage());
-			} else {
-				ccs = new Usage();
+			threadActive = (Long) threadLiveCounter.getValue();
+			threadDaemon = (Long) threadDaemonCounter.getValue();
+			threadPeak = (Long) threadPeakCounter.getValue();
+			threadNew.update((Long) threadStartedCounter.getValue());
+		} else if (isJmxStateOk()) {
+			try {
+				threadActive = jmxClient.getThreadMXBean().getThreadCount();
+				threadDaemon = jmxClient.getThreadMXBean().getDaemonThreadCount();
+				threadPeak = jmxClient.getThreadMXBean().getPeakThreadCount();
+				threadNew.update(jmxClient.getThreadMXBean().getTotalStartedThreadCount());
+			} catch (Exception e) {
+				handleJmxFetchDataError(e);
 			}
 		}
-
-		codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
-
-		direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed(),
-				jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity(), maxDirectMemorySize);
-
-		// 取巧用法，将count 放入无用的max中。
-		long mapUsed = jmxClient.getBufferPoolManager().getMappedBufferPool().getMemoryUsed();
-		map = new Usage(mapUsed, jmxClient.getBufferPoolManager().getMappedBufferPool().getTotalCapacity(),
-				mapUsed == 0 ? 0 : jmxClient.getBufferPoolManager().getMappedBufferPool().getCount());
 	}
 
-	private void updateGC() throws IOException {
+	private void updateClassLoader() {
+		// 优先从perfData取值，注意此处loadedClasses 等于JMX的TotalLoadedClassCount
 		if (perfDataSupport) {
-			ygcCount.update((Long) perfCounters.get("sun.gc.collector.0.invocations").getValue());
-			ygcTimeMills.update(perfData.tickToMills(perfCounters.get("sun.gc.collector.0.time")));
-			fullgcCount.update((Long) perfCounters.get("sun.gc.collector.1.invocations").getValue());
-			fullgcTimeMills.update(perfData.tickToMills(perfCounters.get("sun.gc.collector.1.time")));
-		} else {
-			ygcCount.update(jmxClient.getYoungCollector().getCollectionCount());
-			ygcTimeMills.update(jmxClient.getYoungCollector().getCollectionTime());
-			fullgcCount.update(jmxClient.getFullCollector().getCollectionCount());
-			fullgcTimeMills.update(jmxClient.getFullCollector().getCollectionTime());
+			classUnLoaded = (long) classUnloadCounter.getValue();
+			classLoaded.update((long) classLoadedCounter.getValue() - classUnLoaded);
+		} else if (isJmxStateOk()) {
+			try {
+				classUnLoaded = jmxClient.getClassLoadingMXBean().getUnloadedClassCount();
+				classLoaded.update(jmxClient.getClassLoadingMXBean().getLoadedClassCount());
+			} catch (Exception e) {
+				handleJmxFetchDataError(e);
+			}
+		}
+	}
+
+	private void updateMemoryPool() {
+		if (!isJmxStateOk()) {
+			return;
+		}
+		try {
+			JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
+			eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
+			old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
+			warningRule.updateOld(old.max);
+
+			MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
+			if (survivorMemoryPool != null) {
+				sur = new Usage(survivorMemoryPool.getUsage());
+			} else {
+				sur = new Usage();
+			}
+
+			perm = new Usage(memoryPoolManager.getPermMemoryPool().getUsage());
+			warningRule.updatePerm(perm.max);
+
+			if (jvmMajorVersion >= 8) {
+				MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
+				if (compressedClassSpaceMemoryPool != null) {
+					ccs = new Usage(compressedClassSpaceMemoryPool.getUsage());
+				} else {
+					ccs = new Usage();
+				}
+			}
+
+			codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
+
+			direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed(),
+					jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity(), maxDirectMemorySize);
+
+			// 取巧用法，将count 放入无用的max中。
+			long mapUsed = jmxClient.getBufferPoolManager().getMappedBufferPool().getMemoryUsed();
+			map = new Usage(mapUsed, jmxClient.getBufferPoolManager().getMappedBufferPool().getTotalCapacity(),
+					mapUsed == 0 ? 0 : jmxClient.getBufferPoolManager().getMappedBufferPool().getCount());
+
+		} catch (Exception e) {
+			handleJmxFetchDataError(e);
+		}
+	}
+
+	private void updateGC() {
+		if (perfDataSupport) {
+			ygcCount.update((Long) ygcCountCounter.getValue());
+			ygcTimeMills.update(perfData.tickToMills(ygcTimeCounter));
+			fullgcCount.update((Long) fullGcCountCounter.getValue());
+			fullgcTimeMills.update(perfData.tickToMills(fullgcTimeCounter));
+		} else if (isJmxStateOk()) {
+			try {
+				ygcCount.update(jmxClient.getYoungCollector().getCollectionCount());
+				ygcTimeMills.update(jmxClient.getYoungCollector().getCollectionTime());
+				fullgcCount.update(jmxClient.getFullCollector().getCollectionCount());
+				fullgcTimeMills.update(jmxClient.getFullCollector().getCollectionTime());
+			} catch (Exception e) {
+				handleJmxFetchDataError(e);
+			}
 		}
 	}
 
@@ -335,25 +387,51 @@ public class VMInfo {
 		if (!perfDataSupport) {
 			return;
 		}
+		safepointCount.update((Long) safepointCountCounter.getValue());
+		safepointTimeMills.update(perfData.tickToMills(safepointTimeCounter));
+		safepointSyncTimeMills.update(perfData.tickToMills(safepointSyncTimeCounter));
 
-		safepointCount.update((Long) perfCounters.get("sun.rt.safepoints").getValue());
-		safepointTimeMills.update(perfData.tickToMills(perfCounters.get("sun.rt.safepointTime")));
-		safepointSyncTimeMills.update(perfData.tickToMills(perfCounters.get("sun.rt.safepointTime")));
+		currentGcCause = (String) currentGcCauseCounter.getValue();
 	}
 
 	public ThreadMXBean getThreadMXBean() throws IOException {
 		return jmxClient.getThreadMXBean();
 	}
 
-	private void handleFetchDataError(Throwable e) {
-		e.printStackTrace(System.out);
-		updateErrorCount++;
+	private void initPerfCounters(Map<String, Counter> perfCounters) {
+		threadLiveCounter = perfCounters.get("java.threads.live");
+		threadDaemonCounter = perfCounters.get("java.threads.daemon");
+		threadPeakCounter = perfCounters.get("java.threads.livePeak");
+		threadStartedCounter = perfCounters.get("java.threads.started");
+		classUnloadCounter = perfCounters.get("java.cls.unloadedClasses");
+		classLoadedCounter = perfCounters.get("java.cls.loadedClasses");
+		ygcCountCounter = perfCounters.get("sun.gc.collector.0.invocations");
+		ygcTimeCounter = perfCounters.get("sun.gc.collector.0.time");
 
-		if (updateErrorCount > 3) {
+		fullGcCountCounter = perfCounters.get("sun.gc.collector.1.invocations");
+		fullgcTimeCounter = perfCounters.get("sun.gc.collector.1.time");
+
+		safepointCountCounter = perfCounters.get("sun.rt.safepoints");
+		safepointTimeCounter = perfCounters.get("sun.rt.safepointTime");
+		safepointSyncTimeCounter = perfCounters.get("sun.rt.safepointSyncTime");
+		currentGcCauseCounter = perfCounters.get("sun.gc.cause");
+	}
+
+
+	private void handleJmxFetchDataError(Throwable e) {
+		e.printStackTrace(System.out);
+		jmxUpdateErrorCount++;
+
+		// 连续三次刷新周期JMX 获取数据失败则退出
+		if (jmxUpdateErrorCount > 3) {
 			state = VMInfoState.DETACHED;
 		} else {
 			state = VMInfoState.ATTACHED_UPDATE_ERROR;
 		}
+	}
+
+	public boolean isJmxStateOk() {
+		return state != VMInfoState.ATTACHED_UPDATE_ERROR && state != VMInfoState.DETACHED;
 	}
 
 	private static int getJavaMajorVersion(String jvmVersion) {
@@ -367,7 +445,6 @@ public class VMInfo {
 			return 0;
 		}
 	}
-
 
 	public enum VMInfoState {
 		INIT, ERROR_DURING_ATTACH, ATTACHED, ATTACHED_UPDATE_ERROR, DETACHED

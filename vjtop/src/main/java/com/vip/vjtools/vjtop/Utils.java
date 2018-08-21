@@ -21,7 +21,7 @@ public class Utils {
 	private static final long GB_SIZE = MB_SIZE * 1024;
 	private static final long TB_SIZE = GB_SIZE * 1024;
 
-	private static final String[] RED_ANSI = new String[] { "\033[31m\033[01m", "\033[0m" };
+	public static final String[] RED_ANSI = new String[] { "\033[31m\033[01m", "\033[0m" };
 	private static final String[] YELLOW_ANSI = new String[] { "\033[33m\033[01m", "\033[0m" };
 	private static final String[] NORMAL_ANSI = new String[] { "", "" };
 	public static boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.US).contains("windows");
