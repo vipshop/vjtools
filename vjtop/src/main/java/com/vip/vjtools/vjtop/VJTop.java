@@ -267,7 +267,7 @@ public class VJTop {
 
 	public void updateInterval(int interval) {
 		this.interval = interval;
-		view.setInterval(interval);
+		view.interval = interval;
 	}
 
 	public int getInterval() {

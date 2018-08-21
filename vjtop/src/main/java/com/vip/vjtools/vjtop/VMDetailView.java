@@ -15,16 +15,16 @@ public class VMDetailView {
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
-	volatile public DetailMode mode;
-	volatile public int threadLimit = 10;
-	volatile private int interval;
+	public volatile DetailMode mode;
+	public volatile int threadLimit = 10;
+	public volatile int interval;
+	public volatile String threadNameFilter = null;
+
 	private int width;
-	volatile public String threadNameFilter = null;
+	private long minDeltaCpuTime;
+	private long minDeltaMemory;
 
-	volatile private long minDeltaCpuTime;
-	volatile private long minDeltaMemory;
-
-	public VMInfo vmInfo;
+	private VMInfo vmInfo;
 	private WarningRule warning;
 
 	// 纪录vjtop进程本身的消耗
@@ -33,8 +33,8 @@ public class VMDetailView {
 
 	private boolean shouldExit = false;
 	private boolean firstTime = true;
-	public boolean displayCommandHints = false;
-	volatile public boolean collectingData = true;
+	public volatile boolean displayCommandHints = false;
+	public volatile boolean collectingData = true;
 
 	private Map<Long, Long> lastThreadCpuTotalTimes = new HashMap<Long, Long>();
 	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
@@ -44,8 +44,8 @@ public class VMDetailView {
 		this.vmInfo = vmInfo;
 		this.warning = vmInfo.warningRule;
 		this.mode = mode;
+		this.interval = interval;
 		setWidth(width);
-		setInterval(interval);
 	}
 
 	public void printView() throws Exception {
@@ -74,6 +74,7 @@ public class VMDetailView {
 			} else {
 				System.out.println(" - Process terminated?" + Utils.RED_ANSI[1]);
 			}
+
 			return;
 		}
 
@@ -542,9 +543,6 @@ public class VMDetailView {
 		return this.width - 48;
 	}
 
-	public void setInterval(int interval) {
-		this.interval = interval;
-	}
 
 	public enum DetailMode {
 		cpu(true), totalcpu(true), syscpu(true), totalsyscpu(true), memory(false), totalmemory(false);

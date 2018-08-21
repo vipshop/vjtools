@@ -51,10 +51,6 @@ public class PerfData {
 		return result;
 	}
 
-	public long getModificationTime() {
-		return instr.getModificationTimeStamp();
-	}
-
 	public Map<String, Counter> getCounters() {
 		return counters;
 	}
