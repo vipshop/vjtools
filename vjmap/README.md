@@ -23,6 +23,12 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 vjmap的运行需要一段时间，如果中途需要停止执行，请使用kill vjmap的PID，让vjmap从目标进程退出。如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID，重新唤醒目标java进程。
 
+指令格式：
+```bash
+./vjmap.sh ${command} ${pid}
+./vjmap.sh ${command} ${path_to_java} ${path_to_coredump}
+```
+
     
 ## 2.1 常用指令
 
@@ -31,7 +37,7 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用kil
 ./vjmap.sh -all PID > /tmp/histo.log
 
 // 推荐，打印老年代的对象统计信息，按对象的oldgen size排序，比-all快很多，暂时只支持CMS:
-./vjmap.sh -old PID > /tmp/histo-old.log
+./vjmap.sh -old PATH_TO_JAVA PATH_TO_COREDUMP > /tmp/histo-old.log
 
 // 推荐，打印Survivor区的对象统计信息，默认age>=3，可以 -sur:minage=x调整:
 ./vjmap.sh -sur PID > /tmp/histo-sur.log
@@ -90,7 +96,7 @@ SELECT * FROM INSTANCEOF java.lang.Object t WHERE toHex(t.@objectAddress) >= "0x
 第二种方式是使用vjmap的命令，在-old, -sur, -address 中，都会打印出区间的地址
 
 ```
-./vjmap.sh -address PI
+./vjmap.sh -address PID
 ``` 
 
 输出如下：
