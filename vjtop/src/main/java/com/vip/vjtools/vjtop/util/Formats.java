@@ -1,19 +1,13 @@
-package com.vip.vjtools.vjtop;
+package com.vip.vjtools.vjtop.util;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import com.vip.vjtools.vjtop.VMInfo.Usage;
 import com.vip.vjtools.vjtop.WarningRule.DoubleWarning;
 import com.vip.vjtools.vjtop.WarningRule.LongWarning;
 
-public class Utils {
-
-	public static long NANOS_TO_MILLS = 1000 * 1000;
+public class Formats {
 
 	private static final long BYTE_SIZE = 1;
 	private static final long KB_SIZE = BYTE_SIZE * 1024;
@@ -24,6 +18,10 @@ public class Utils {
 	public static final String[] RED_ANSI = new String[] { "\033[31m\033[01m", "\033[0m" };
 	private static final String[] YELLOW_ANSI = new String[] { "\033[33m\033[01m", "\033[0m" };
 	private static final String[] NORMAL_ANSI = new String[] { "", "" };
+	private static final String CLEAR_TERMINAL_ANSI_CMD = new String(
+			new byte[] { (byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48 });
+
+
 	public static boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.US).contains("windows");
 
 	public static String toMBWithColor(long bytes, LongWarning warning) {
@@ -203,52 +201,6 @@ public class Utils {
 		return sb.toString();
 	}
 
-	/**
-	 * calculates a "load", given on two deltas
-	 */
-	public static double calcLoad(long deltaCpuTime, long deltaUptime) {
-		if (deltaCpuTime <= 0 || deltaUptime == 0) {
-			return 0.0;
-		}
-		return deltaCpuTime * 100d / deltaUptime;
-	}
-
-	/**
-	 * calculates a "load", given on two deltas
-	 */
-	public static double calcLoad(Long deltaCpuTime, long deltaUptime, long factor) {
-		if (deltaCpuTime == null || deltaCpuTime <= 0 || deltaUptime == 0) {
-			return 0.0;
-		}
-		return deltaCpuTime * 100d / factor / deltaUptime;
-	}
-
-
-	/**
-	 * Sorts a Map by its values, using natural ordering.
-	 */
-	public static long[] sortAndFilterThreadIdsByValue(Map map, int threadLimit) {
-		int max = Math.min(threadLimit, map.size());
-		List<Map.Entry> list = new LinkedList(map.entrySet());
-		Collections.sort(list, new Comparator() {
-			@Override
-			public int compare(Object o1, Object o2) {
-				return ((Comparable) ((Map.Entry) (o2)).getValue()).compareTo(((Map.Entry) (o1)).getValue());
-			}
-		});
-
-		long[] topTidArray = new long[max];
-		int i = 0;
-		for (Map.Entry entry : list) {
-			topTidArray[i] = (Long) entry.getKey();
-			if (++i >= max) {
-				break;
-			}
-		}
-
-		return topTidArray;
-	}
-
 	public static long parseFromSize(String str) {
 		if (str == null || str.isEmpty()) {
 			return -1;
@@ -297,10 +249,11 @@ public class Utils {
 		}
 	}
 
-	public static void sleep(long mills) {
-		try {
-			Thread.sleep(mills);
-		} catch (InterruptedException e) {
+	public static void clearTerminal() {
+		if (isWindows) {
+			System.out.printf("%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n");
+		} else {
+			System.out.print(CLEAR_TERMINAL_ANSI_CMD);
 		}
 	}
 }

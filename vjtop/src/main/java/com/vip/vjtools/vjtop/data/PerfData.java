@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.vip.vjtools.vjtop.Utils;
+import com.vip.vjtools.vjtop.util.Utils;
 
 import sun.management.counter.Counter;
 import sun.management.counter.perf.PerfInstrumentation;

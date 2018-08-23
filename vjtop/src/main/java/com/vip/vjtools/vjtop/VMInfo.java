@@ -11,6 +11,8 @@ import com.vip.vjtools.vjtop.data.PerfData;
 import com.vip.vjtools.vjtop.data.ProcFileData;
 import com.vip.vjtools.vjtop.data.jmx.JmxClient;
 import com.vip.vjtools.vjtop.data.jmx.JmxMemoryPoolManager;
+import com.vip.vjtools.vjtop.util.Formats;
+import com.vip.vjtools.vjtop.util.Utils;
 
 import sun.management.counter.Counter;
 
@@ -167,7 +169,7 @@ public class VMInfo {
 		if (perfDataSupport) {
 			vmArgs = (String) perfCounters.get("java.rt.vmArgs").getValue();
 		} else {
-			vmArgs = Utils.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
+			vmArgs = Formats.join(jmxClient.getRuntimeMXBean().getInputArguments(), " ");
 		}
 
 		startTime = jmxClient.getRuntimeMXBean().getStartTime();
@@ -249,9 +251,9 @@ public class VMInfo {
 			processDataSupport = false;
 			return;
 		}
-		rss = Utils.parseFromSize(procStatus.get("VmRSS"));
-		peakRss = Utils.parseFromSize(procStatus.get("VmHWM"));
-		swap = Utils.parseFromSize(procStatus.get("VmSwap"));
+		rss = Formats.parseFromSize(procStatus.get("VmRSS"));
+		peakRss = Formats.parseFromSize(procStatus.get("VmHWM"));
+		swap = Formats.parseFromSize(procStatus.get("VmSwap"));
 		osThreads = Long.parseLong(procStatus.get("Threads"));
 	}
 
@@ -267,8 +269,8 @@ public class VMInfo {
 			return;
 		}
 
-		readBytes.update(Utils.parseFromSize(procIo.get("read_bytes")));
-		writeBytes.update(Utils.parseFromSize(procIo.get("write_bytes")));
+		readBytes.update(Formats.parseFromSize(procIo.get("read_bytes")));
+		writeBytes.update(Formats.parseFromSize(procIo.get("write_bytes")));
 
 		readBytes.caculateRatePerSecond(upTimeMills.delta);
 		writeBytes.caculateRatePerSecond(upTimeMills.delta);

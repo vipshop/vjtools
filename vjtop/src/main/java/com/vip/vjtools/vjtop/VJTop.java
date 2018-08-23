@@ -8,6 +8,8 @@ import java.io.PrintStream;
 import java.util.Arrays;
 
 import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
+import com.vip.vjtools.vjtop.util.Formats;
+import com.vip.vjtools.vjtop.util.Utils;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -18,8 +20,6 @@ public class VJTop {
 
 	public static final int DEFAULT_INTERVAL = 10;
 
-	private static final String CLEAR_TERMINAL_ANSI_CMD = new String(
-			new byte[] { (byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48 });
 
 	public VMDetailView view;
 
@@ -83,8 +83,8 @@ public class VJTop {
 
 			VMInfo vminfo = VMInfo.processNewVM(pid, jmxHostAndPort);
 			if (vminfo.state != VMInfoState.ATTACHED) {
-				System.out.println("\n" + Utils.RED_ANSI[0]
-						+ "ERROR: Could not attach to process, see the solution in README" + Utils.RED_ANSI[1]);
+				System.out.println("\n" + Formats.RED_ANSI[0]
+						+ "ERROR: Could not attach to process, see the solution in README" + Formats.RED_ANSI[1]);
 				return;
 			}
 
@@ -154,7 +154,8 @@ public class VJTop {
 			int iterations = 0;
 			while (!view.shouldExit()) {
 				waitForInput();
-				clearTerminal();
+
+				Formats.clearTerminal();
 
 				view.printView();
 
@@ -179,7 +180,7 @@ public class VJTop {
 			System.out.flush();
 		} catch (NoClassDefFoundError e) {
 			e.printStackTrace(System.out);
-			System.out.println(Utils.RED_ANSI[0] + "ERROR: Some JDK classes cannot be found." + Utils.RED_ANSI[1]);
+			System.out.println(Formats.RED_ANSI[0] + "ERROR: Some JDK classes cannot be found." + Formats.RED_ANSI[1]);
 			System.out.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
 			System.out.println("");
 			System.out.flush();
@@ -227,14 +228,6 @@ public class VJTop {
 			parser.printHelpOn(System.out);
 		} catch (IOException ignored) {
 
-		}
-	}
-
-	private static void clearTerminal() {
-		if (Utils.isWindows) {
-			System.out.printf("%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n");
-		} else {
-			System.out.print(CLEAR_TERMINAL_ANSI_CMD);
 		}
 	}
 
