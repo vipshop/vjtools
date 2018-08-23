@@ -8,6 +8,8 @@ import java.util.Map;
 
 public class Utils {
 
+	public static long NANOS_TO_MILLS = 1000 * 1000;
+
 	/**
 	 * Sorts a Map by its values, using natural ordering.
 	 */
@@ -33,7 +35,6 @@ public class Utils {
 		return topTidArray;
 	}
 
-	public static long NANOS_TO_MILLS = 1000 * 1000;
 
 	/**
 	 * calculates a "load", given on two deltas

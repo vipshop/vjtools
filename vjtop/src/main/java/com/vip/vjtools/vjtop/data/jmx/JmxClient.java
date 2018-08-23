@@ -32,7 +32,6 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -52,7 +51,6 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import com.sun.management.GarbageCollectorMXBean;
 import com.sun.management.HotSpotDiagnosticMXBean;
 import com.sun.management.OperatingSystemMXBean;
 import com.sun.management.ThreadMXBean;
@@ -75,8 +73,8 @@ public class JmxClient {
 	private RuntimeMXBean runtimeMBean = null;
 	private HotSpotDiagnosticMXBean hotSpotDiagnosticMXBean = null;
 	private ThreadMXBean threadMBean = null;
-	private GarbageCollectorMXBean fullGarbageCollectorMXBean = null;
-	private GarbageCollectorMXBean youngGarbageCollectorMXBean = null;
+
+	private JmxGarbageCollectorManager garbageCollectorManager = null;
 	private JmxMemoryPoolManager memoryPoolManager = null;
 	private JmxBufferPoolManager bufferPoolManager = null;
 
@@ -148,13 +146,6 @@ public class JmxClient {
 		return classLoadingMBean;
 	}
 
-	public synchronized JmxMemoryPoolManager getMemoryPoolManager() throws IOException {
-		if (hasPlatformMXBeans && memoryPoolManager == null) {
-			memoryPoolManager = new JmxMemoryPoolManager(server);
-		}
-		return memoryPoolManager;
-	}
-
 	public synchronized RuntimeMXBean getRuntimeMXBean() throws IOException {
 		if (hasPlatformMXBeans && runtimeMBean == null) {
 			runtimeMBean = ManagementFactory.newPlatformMXBeanProxy(server, ManagementFactory.RUNTIME_MXBEAN_NAME,
@@ -179,11 +170,19 @@ public class JmxClient {
 		return hotSpotDiagnosticMXBean;
 	}
 
-	public synchronized GarbageCollectorMXBean getFullCollector() throws IOException {
-		if (fullGarbageCollectorMXBean == null) {
-			initGarbageCollector();
+	public synchronized ThreadMXBean getThreadMXBean() throws IOException {
+		if (hasPlatformMXBeans && threadMBean == null) {
+			threadMBean = JMX.newMXBeanProxy(server, createBeanName(ManagementFactory.THREAD_MXBEAN_NAME),
+					ThreadMXBean.class);
 		}
-		return fullGarbageCollectorMXBean;
+		return threadMBean;
+	}
+
+	public synchronized JmxMemoryPoolManager getMemoryPoolManager() throws IOException {
+		if (hasPlatformMXBeans && memoryPoolManager == null) {
+			memoryPoolManager = new JmxMemoryPoolManager(server);
+		}
+		return memoryPoolManager;
 	}
 
 	public synchronized JmxBufferPoolManager getBufferPoolManager() throws IOException {
@@ -194,39 +193,11 @@ public class JmxClient {
 		return bufferPoolManager;
 	}
 
-	public synchronized GarbageCollectorMXBean getYoungCollector() throws IOException {
-		if (hasPlatformMXBeans && youngGarbageCollectorMXBean == null) {
-			initGarbageCollector();
+	public synchronized JmxGarbageCollectorManager getGarbageCollectorManager() throws IOException {
+		if (hasPlatformMXBeans && garbageCollectorManager == null) {
+			garbageCollectorManager = new JmxGarbageCollectorManager(server);
 		}
-		return youngGarbageCollectorMXBean;
-	}
-
-	private synchronized void initGarbageCollector() throws IOException {
-		if (fullGarbageCollectorMXBean != null || youngGarbageCollectorMXBean != null) {
-			return;
-		}
-
-		List<GarbageCollectorMXBean> garbageCollectorMXBeans = ManagementFactory.getPlatformMXBeans(server,
-				GarbageCollectorMXBean.class);
-		A: for (GarbageCollectorMXBean gcollector : garbageCollectorMXBeans) {
-			String[] memoryPoolNames = gcollector.getMemoryPoolNames();
-			for (String poolName : memoryPoolNames) {
-				if (poolName.toLowerCase().contains(JmxMemoryPoolManager.OLD)
-						|| poolName.toLowerCase().contains(JmxMemoryPoolManager.TENURED)) {
-					fullGarbageCollectorMXBean = gcollector;
-					continue A;
-				}
-			}
-			youngGarbageCollectorMXBean = gcollector;
-		}
-	}
-
-	public synchronized ThreadMXBean getThreadMXBean() throws IOException {
-		if (hasPlatformMXBeans && threadMBean == null) {
-			threadMBean = JMX.newMXBeanProxy(server, createBeanName(ManagementFactory.THREAD_MXBEAN_NAME),
-					ThreadMXBean.class);
-		}
-		return threadMBean;
+		return garbageCollectorManager;
 	}
 
 	private ObjectName createBeanName(String beanName) {
@@ -423,5 +394,4 @@ public class JmxClient {
 			return new HashMap<K, V>();
 		}
 	}
-
 }

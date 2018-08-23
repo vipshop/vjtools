@@ -291,7 +291,6 @@ public class VMInfo {
 
 	private void updateThreads() {
 		if (perfDataSupport) {
-
 			threadActive = (Long) threadLiveCounter.getValue();
 			threadDaemon = (Long) threadDaemonCounter.getValue();
 			threadPeak = (Long) threadPeakCounter.getValue();
@@ -375,10 +374,10 @@ public class VMInfo {
 			fullgcTimeMills.update(perfData.tickToMills(fullgcTimeCounter));
 		} else if (isJmxStateOk()) {
 			try {
-				ygcCount.update(jmxClient.getYoungCollector().getCollectionCount());
-				ygcTimeMills.update(jmxClient.getYoungCollector().getCollectionTime());
-				fullgcCount.update(jmxClient.getFullCollector().getCollectionCount());
-				fullgcTimeMills.update(jmxClient.getFullCollector().getCollectionTime());
+				ygcCount.update(jmxClient.getGarbageCollectorManager().getYoungCollector().getCollectionCount());
+				ygcTimeMills.update(jmxClient.getGarbageCollectorManager().getYoungCollector().getCollectionTime());
+				fullgcCount.update(jmxClient.getGarbageCollectorManager().getFullCollector().getCollectionCount());
+				fullgcTimeMills.update(jmxClient.getGarbageCollectorManager().getFullCollector().getCollectionTime());
 			} catch (Exception e) {
 				handleJmxFetchDataError(e);
 			}
@@ -405,11 +404,12 @@ public class VMInfo {
 		threadDaemonCounter = perfCounters.get("java.threads.daemon");
 		threadPeakCounter = perfCounters.get("java.threads.livePeak");
 		threadStartedCounter = perfCounters.get("java.threads.started");
+
 		classUnloadCounter = perfCounters.get("java.cls.unloadedClasses");
 		classLoadedCounter = perfCounters.get("java.cls.loadedClasses");
+
 		ygcCountCounter = perfCounters.get("sun.gc.collector.0.invocations");
 		ygcTimeCounter = perfCounters.get("sun.gc.collector.0.time");
-
 		fullGcCountCounter = perfCounters.get("sun.gc.collector.1.invocations");
 		fullgcTimeCounter = perfCounters.get("sun.gc.collector.1.time");
 
@@ -418,7 +418,6 @@ public class VMInfo {
 		safepointSyncTimeCounter = perfCounters.get("sun.rt.safepointSyncTime");
 		currentGcCauseCounter = perfCounters.get("sun.gc.cause");
 	}
-
 
 	private void handleJmxFetchDataError(Throwable e) {
 		e.printStackTrace(System.out);
