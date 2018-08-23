@@ -40,6 +40,8 @@ public class VMDetailView {
 	private Map<Long, Long> lastThreadSysCpuTotalTimes = new HashMap<Long, Long>();
 	private Map<Long, Long> lastThreadMemoryTotalBytes = new HashMap<Long, Long>();
 
+	private long[] topTidArray;
+
 	public VMDetailView(VMInfo vmInfo, DetailMode mode, Integer width, Integer interval) throws Exception {
 		this.vmInfo = vmInfo;
 		this.warning = vmInfo.warningRule;
@@ -249,7 +251,6 @@ public class VMDetailView {
 		System.out.printf("%n%n" + titleFormat, "TID", "NAME  ", "STATE", "CPU", "SYSCPU", " TOTAL", "TOLSYS");
 
 		// 按不同类型排序,过滤
-		long[] topTidArray;
 		if (mode == DetailMode.cpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(threadCpuDeltaTimes, threadLimit);
 			noteableThreads = threadCpuDeltaTimes.size();
@@ -468,15 +469,39 @@ public class VMDetailView {
 	 * 打印单条线程的stack strace，不造成停顿
 	 */
 	public void printStack(long tid) throws IOException {
+		System.out.println("\n Stack trace of thread " + tid + ":");
+
 		ThreadInfo info = vmInfo.getThreadMXBean().getThreadInfo(tid, 20);
 		if (info == null) {
 			System.err.println(" TID not exist:" + tid);
 			return;
 		}
 		StackTraceElement[] trace = info.getStackTrace();
-		System.out.println(" " + info.getThreadId() + ":" + info.getThreadName());
+		System.out.println(" " + info.getThreadId() + ": \"" + info.getThreadName() + "\"\n   java.lang.Thread.State: "
+				+ info.getThreadState().toString());
 		for (StackTraceElement traceElement : trace) {
 			System.out.println("\tat " + traceElement);
+		}
+		System.out.flush();
+	}
+
+	/**
+	 * 打印单条线程的stack strace，不造成停顿
+	 */
+	public void printTopStack() throws IOException {
+		System.out.println("\n Stack trace of top " + threadLimit + " threads:");
+
+		ThreadInfo[] infos = vmInfo.getThreadMXBean().getThreadInfo(topTidArray, 20);
+		for (ThreadInfo info : infos) {
+			if (info == null) {
+				continue;
+			}
+			StackTraceElement[] trace = info.getStackTrace();
+			System.out.println(" " + info.getThreadId() + ": \"" + info.getThreadName()
+					+ "\"\n   java.lang.Thread.State: " + info.getThreadState().toString());
+			for (StackTraceElement traceElement : trace) {
+				System.out.println("\tat " + traceElement);
+			}
 		}
 		System.out.flush();
 	}
@@ -485,6 +510,8 @@ public class VMDetailView {
 	 * 打印所有线程，只获取名称不获取stack，不造成停顿
 	 */
 	public void printAllThreads() throws IOException {
+		System.out.println("\n Thread Id and name for all live threads:");
+
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(tids);
 		for (ThreadInfo info : threadInfos) {
@@ -496,8 +523,10 @@ public class VMDetailView {
 			if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
 				continue;
 			}
-			System.out.println(" " + info.getThreadId() + "\t:" + threadName);
+			System.out.println(
+					" " + info.getThreadId() + "\t: \"" + threadName + "\" (" + info.getThreadState().toString() + ")");
 		}
+
 		if (threadNameFilter != null) {
 			System.out.println(" Thread name filter is:" + threadNameFilter);
 		}

@@ -52,6 +52,8 @@ public class InteractiveTask implements Runnable {
 	public void handleCommand(String command) throws Exception {
 		if (command.equals("t") || command.startsWith("t ")) {
 			printStacktrace(command);
+		} else if (command.equals("s")) {
+			printTopStack();
 		} else if (command.equals("a")) {
 			displayAllThreads();
 		} else if (command.equals("m")) {
@@ -99,7 +101,17 @@ public class InteractiveTask implements Runnable {
 		}
 	}
 
-	private void displayAllThreads() throws Exception {
+	private void printTopStack() throws IOException {
+		try {
+			app.preventFlush();
+			app.view.printTopStack();
+			waitForEnter();
+		} finally {
+			app.continueFlush();
+		}
+	}
+
+	private void displayAllThreads() throws IOException {
 		try {
 			app.preventFlush();
 			app.view.printAllThreads();
@@ -208,8 +220,9 @@ public class InteractiveTask implements Runnable {
 	}
 
 	private void printHelp() throws Exception {
-		tty.println(" t [tid]: print stack trace for the thread you choose");
-		tty.println(" a : list all thread's id and name");
+		tty.println(" t [tid]: print stack trace of the thread you choose");
+		tty.println(" s : print stack trace of top " + app.view.threadLimit + " threads");
+		tty.println(" a : list id and name of all threads");
 		tty.println(" m : change threads display mode and ordering");
 		tty.println(" i [num]: change flush interval seconds");
 		tty.println(" l [num]: change number of display threads");
