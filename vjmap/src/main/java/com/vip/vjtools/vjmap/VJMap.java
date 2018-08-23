@@ -67,8 +67,7 @@ public class VJMap {
 		boolean orderByName = false;
 		long minSize = -1;
 		int minAge = 3;
-
-		if (args.length != 2) {
+		if (!(args.length == 2 || args.length == 3)) {
 			printHelp();
 			return;
 		}
@@ -99,12 +98,24 @@ public class VJMap {
 			}
 		}
 
-		Integer pid = Integer.valueOf(args[1]);
+		Integer pid = null;
+		String executablePath = null;
+		String coredumpPath = null;
+		if(args.length == 2) {
+			pid = Integer.valueOf(args[1]);
+		} else {
+			executablePath = args[1];
+			coredumpPath = args[2];
+		}
 
 		HotSpotAgent agent = new HotSpotAgent();
 
 		try {
-			agent.attach(pid);
+			if(args.length == 2) {
+				agent.attach(pid);	
+			} else {
+				agent.attach(executablePath, coredumpPath);
+			}
 			long startTime = System.currentTimeMillis();
 			if (modeFlag.startsWith("-all")) {
 				runHeapVisitor(pid, orderByName, minSize);
