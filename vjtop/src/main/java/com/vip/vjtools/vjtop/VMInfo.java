@@ -15,6 +15,8 @@ import com.vip.vjtools.vjtop.util.Formats;
 import com.vip.vjtools.vjtop.util.Utils;
 
 import sun.management.counter.Counter;
+import sun.management.counter.LongCounter;
+import sun.management.counter.StringCounter;
 
 @SuppressWarnings("restriction")
 public class VMInfo {
@@ -91,20 +93,20 @@ public class VMInfo {
 	public Usage direct;
 	public Usage map;
 
-	private Counter threadLiveCounter;
-	private Counter threadDaemonCounter;
-	private Counter threadPeakCounter;
-	private Counter threadStartedCounter;
-	private Counter classUnloadCounter;
-	private Counter classLoadedCounter;
-	private Counter ygcCountCounter;
-	private Counter ygcTimeCounter;
-	private Counter fullGcCountCounter;
-	private Counter fullgcTimeCounter;
-	private Counter safepointCountCounter;
-	private Counter safepointTimeCounter;
-	private Counter safepointSyncTimeCounter;
-	private Counter currentGcCauseCounter;
+	private LongCounter threadLiveCounter;
+	private LongCounter threadDaemonCounter;
+	private LongCounter threadPeakCounter;
+	private LongCounter threadStartedCounter;
+	private LongCounter classUnloadCounter;
+	private LongCounter classLoadedCounter;
+	private LongCounter ygcCountCounter;
+	private LongCounter ygcTimeCounter;
+	private LongCounter fullGcCountCounter;
+	private LongCounter fullgcTimeCounter;
+	private LongCounter safepointCountCounter;
+	private LongCounter safepointTimeCounter;
+	private LongCounter safepointSyncTimeCounter;
+	private StringCounter currentGcCauseCounter;
 
 
 	public VMInfo(JmxClient jmxClient, String vmId) throws Exception {
@@ -160,7 +162,7 @@ public class VMInfo {
 		Map<String, Counter> perfCounters = null;
 		try {
 			perfData = PerfData.connect(Integer.parseInt(pid));
-			perfCounters = perfData.getCounters();
+			perfCounters = perfData.getAllCounters();
 			initPerfCounters(perfCounters);
 			perfDataSupport = true;
 		} catch (Throwable ignored) {
@@ -291,10 +293,10 @@ public class VMInfo {
 
 	private void updateThreads() {
 		if (perfDataSupport) {
-			threadActive = (Long) threadLiveCounter.getValue();
-			threadDaemon = (Long) threadDaemonCounter.getValue();
-			threadPeak = (Long) threadPeakCounter.getValue();
-			threadNew.update((Long) threadStartedCounter.getValue());
+			threadActive = threadLiveCounter.longValue();
+			threadDaemon = threadDaemonCounter.longValue();
+			threadPeak = threadPeakCounter.longValue();
+			threadNew.update(threadStartedCounter.longValue());
 		} else if (isJmxStateOk()) {
 			try {
 				threadActive = jmxClient.getThreadMXBean().getThreadCount();
@@ -310,8 +312,8 @@ public class VMInfo {
 	private void updateClassLoader() {
 		// 优先从perfData取值，注意此处loadedClasses 等于JMX的TotalLoadedClassCount
 		if (perfDataSupport) {
-			classUnLoaded = (long) classUnloadCounter.getValue();
-			classLoaded.update((long) classLoadedCounter.getValue() - classUnLoaded);
+			classUnLoaded = classUnloadCounter.longValue();
+			classLoaded.update(classLoadedCounter.longValue() - classUnLoaded);
 		} else if (isJmxStateOk()) {
 			try {
 				classUnLoaded = jmxClient.getClassLoadingMXBean().getUnloadedClassCount();
@@ -326,6 +328,7 @@ public class VMInfo {
 		if (!isJmxStateOk()) {
 			return;
 		}
+
 		try {
 			JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
 			eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
@@ -368,9 +371,9 @@ public class VMInfo {
 
 	private void updateGC() {
 		if (perfDataSupport) {
-			ygcCount.update((Long) ygcCountCounter.getValue());
+			ygcCount.update(ygcCountCounter.longValue());
 			ygcTimeMills.update(perfData.tickToMills(ygcTimeCounter));
-			fullgcCount.update((Long) fullGcCountCounter.getValue());
+			fullgcCount.update(fullGcCountCounter.longValue());
 			fullgcTimeMills.update(perfData.tickToMills(fullgcTimeCounter));
 		} else if (isJmxStateOk()) {
 			try {
@@ -388,7 +391,7 @@ public class VMInfo {
 		if (!perfDataSupport) {
 			return;
 		}
-		safepointCount.update((Long) safepointCountCounter.getValue());
+		safepointCount.update(safepointCountCounter.longValue());
 		safepointTimeMills.update(perfData.tickToMills(safepointTimeCounter));
 		safepointSyncTimeMills.update(perfData.tickToMills(safepointSyncTimeCounter));
 
@@ -400,23 +403,23 @@ public class VMInfo {
 	}
 
 	private void initPerfCounters(Map<String, Counter> perfCounters) {
-		threadLiveCounter = perfCounters.get("java.threads.live");
-		threadDaemonCounter = perfCounters.get("java.threads.daemon");
-		threadPeakCounter = perfCounters.get("java.threads.livePeak");
-		threadStartedCounter = perfCounters.get("java.threads.started");
+		threadLiveCounter = (LongCounter) perfCounters.get("java.threads.live");
+		threadDaemonCounter = (LongCounter) perfCounters.get("java.threads.daemon");
+		threadPeakCounter = (LongCounter) perfCounters.get("java.threads.livePeak");
+		threadStartedCounter = (LongCounter) perfCounters.get("java.threads.started");
 
-		classUnloadCounter = perfCounters.get("java.cls.unloadedClasses");
-		classLoadedCounter = perfCounters.get("java.cls.loadedClasses");
+		classUnloadCounter = (LongCounter) perfCounters.get("java.cls.unloadedClasses");
+		classLoadedCounter = (LongCounter) perfCounters.get("java.cls.loadedClasses");
 
-		ygcCountCounter = perfCounters.get("sun.gc.collector.0.invocations");
-		ygcTimeCounter = perfCounters.get("sun.gc.collector.0.time");
-		fullGcCountCounter = perfCounters.get("sun.gc.collector.1.invocations");
-		fullgcTimeCounter = perfCounters.get("sun.gc.collector.1.time");
+		ygcCountCounter = (LongCounter) perfCounters.get("sun.gc.collector.0.invocations");
+		ygcTimeCounter = (LongCounter) perfCounters.get("sun.gc.collector.0.time");
+		fullGcCountCounter = (LongCounter) perfCounters.get("sun.gc.collector.1.invocations");
+		fullgcTimeCounter = (LongCounter) perfCounters.get("sun.gc.collector.1.time");
 
-		safepointCountCounter = perfCounters.get("sun.rt.safepoints");
-		safepointTimeCounter = perfCounters.get("sun.rt.safepointTime");
-		safepointSyncTimeCounter = perfCounters.get("sun.rt.safepointSyncTime");
-		currentGcCauseCounter = perfCounters.get("sun.gc.cause");
+		safepointCountCounter = (LongCounter) perfCounters.get("sun.rt.safepoints");
+		safepointTimeCounter = (LongCounter) perfCounters.get("sun.rt.safepointTime");
+		safepointSyncTimeCounter = (LongCounter) perfCounters.get("sun.rt.safepointSyncTime");
+		currentGcCauseCounter = (StringCounter) perfCounters.get("sun.gc.cause");
 	}
 
 	private void handleJmxFetchDataError(Throwable e) {

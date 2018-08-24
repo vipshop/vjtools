@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import com.vip.vjtools.vjtop.util.Utils;
 
 import sun.management.counter.Counter;
+import sun.management.counter.LongCounter;
 import sun.management.counter.perf.PerfInstrumentation;
 import sun.misc.Perf;
 
@@ -51,7 +52,7 @@ public class PerfData {
 		return result;
 	}
 
-	public Map<String, Counter> getCounters() {
+	public Map<String, Counter> getAllCounters() {
 		return counters;
 	}
 
@@ -59,9 +60,9 @@ public class PerfData {
 		return counters.get(counterName);
 	}
 
-	public long tickToMills(Counter tickCounter) {
+	public long tickToMills(LongCounter tickCounter) {
 		if (tickCounter.getUnits() == sun.management.counter.Units.TICKS) {
-			return (long) ((nanosPerTick * (Long) tickCounter.getValue()) / Utils.NANOS_TO_MILLS);
+			return (long) ((nanosPerTick * tickCounter.longValue()) / Utils.NANOS_TO_MILLS);
 		} else {
 			throw new IllegalArgumentException(tickCounter.getName() + " is not a ticket counter");
 		}
