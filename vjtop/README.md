@@ -81,7 +81,7 @@
  PID: 191082 - 17:43:12 JVM: 1.7.0_79 USER: calvin UPTIME: 2d02h
  PROCESS: 685.00% cpu(28.54% of 24 core), 787 thread
  MEMORY: 6626m rss, 6711m peak, 0m swap | DISK: 0B read, 13mB write
- THREAD: 756 active, 749 daemon, 1212 peak, 0 new | CLASS: 15176 loaded, 161 unloaded, 0 new
+ THREAD: 756 live, 749 daemon, 1212 peak, 0 new | CLASS: 15176 loaded, 161 unloaded, 0 new
  HEAP: 630m/1638m eden, 5m/204m sur, 339m/2048m old
  NON-HEAP: 80m/256m/512m perm, 13m/13m/240m codeCache
  OFF-HEAP: 0m/0m direct(max=2048m), 0m/0m map(count=0), 756m threadStack
@@ -100,8 +100,8 @@
    9219 OSP-Server-Worker-4-15                                 RUNNABLE 21.56% 10.43%  0.90%  0.41%
    8426 OSP-Server-Worker-4-13                                 RUNNABLE 21.35% 10.42%  0.66%  0.31%
 
- Total cpu: 668.56%(user=473.25%, sys=195.31%), 526 threads use at lease 0.1% CPU
- Setting  : top 10 threads order by CPU, flush every 10s
+ Total  : 668.56% cpu(user=473.25%, sys=195.31%) by 526 atcive threads(which cpu>0.05%)
+ Setting: top 10 threads order by CPU, flush every 10s
  Input command (h for help):
 ```
 进程区数据解释:
