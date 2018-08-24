@@ -15,7 +15,7 @@
 
 1）Integer 24字节，而原子类型 int 4字节。
 
-2）包装类型每次赋予还需要额外创建对象，除非在缓存区(见Integer.IntegerCache与Long.LongCache)，Integer var = ?在缓存区间的赋值，会复用h缓存对象。默认缓存区间为-128到127，受启动参数的影响，如-XX:AutoBoxCacheMax=20000。
+2）包装类型每次赋值还需要额外创建对象，如Integer var = 200， 除非数值在缓存区间内(见Integer.IntegerCache与Long.LongCache)才会复用已缓存对象。默认缓存区间为-128到127，其中Integer的缓存区间还受启动参数的影响，如-XX:AutoBoxCacheMax=20000。
 
 3）包装类型还有==比较的陷阱（见规则3）
 
