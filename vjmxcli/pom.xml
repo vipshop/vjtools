@@ -6,7 +6,7 @@
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjmxcli</artifactId>
 	<name>vjmxcli</name>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.0.5</version>
 	<description>jmx command line client</description>
 
 	<properties>

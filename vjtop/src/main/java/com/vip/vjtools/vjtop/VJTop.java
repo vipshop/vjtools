@@ -20,7 +20,6 @@ public class VJTop {
 
 	public static final int DEFAULT_INTERVAL = 10;
 
-
 	public VMDetailView view;
 
 	private volatile Integer interval = DEFAULT_INTERVAL;

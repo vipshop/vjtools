@@ -26,25 +26,31 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用kil
 指令格式：
 ```bash
 ./vjmap.sh ${command} ${pid}
-./vjmap.sh ${command} ${path_to_java} ${path_to_coredump}
 ```
 
     
 ## 2.1 常用指令
+
+针对活着的进程，PID为进程号
 
 ```
 // 打印整个堆中对象的统计信息，按对象的total size排序:
 ./vjmap.sh -all PID > /tmp/histo.log
 
 // 推荐，打印老年代的对象统计信息，按对象的oldgen size排序，比-all快很多，暂时只支持CMS:
-./vjmap.sh -old PATH_TO_JAVA PATH_TO_COREDUMP > /tmp/histo-old.log
+./vjmap.sh -old PID > /tmp/histo-old.log
 
 // 推荐，打印Survivor区的对象统计信息，默认age>=3，可以 -sur:minage=x调整:
 ./vjmap.sh -sur PID > /tmp/histo-sur.log
 ```
 
-> 其中PID为目标java进程的进程号。
 
+针对CoreDump
+
+```
+./vjmap.sh -old ${path_to_java} ${path_to_coredump}
+
+```
 
 
 ## 2.2 过滤对象大小，不显示过小的对象:
