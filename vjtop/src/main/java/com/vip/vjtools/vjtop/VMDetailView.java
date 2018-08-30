@@ -284,7 +284,7 @@ public class VMDetailView {
 			Long tid = info.getThreadId();
 			String threadName = Formats.shortName(info.getThreadName(), getThreadNameWidth(), 20);
 			// 过滤threadName
-			if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
+			if (threadNameFilter != null && !threadName.toLowerCase().contains(threadNameFilter)) {
 				continue;
 			}
 			// 刷新间隔里，所使用的单核CPU比例
@@ -406,7 +406,7 @@ public class VMDetailView {
 			String threadName = Formats.shortName(info.getThreadName(), getThreadNameWidth(), 12);
 
 			// 过滤threadName
-			if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
+			if (threadNameFilter != null && !threadName.toLowerCase().contains(threadNameFilter)) {
 				continue;
 			}
 
@@ -522,7 +522,7 @@ public class VMDetailView {
 			}
 
 			String threadName = info.getThreadName();
-			if (threadNameFilter != null && !threadName.contains(threadNameFilter)) {
+			if (threadNameFilter != null && !threadName.toLowerCase().contains(threadNameFilter)) {
 				continue;
 			}
 			System.out.println(

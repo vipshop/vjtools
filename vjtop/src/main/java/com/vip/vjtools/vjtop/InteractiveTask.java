@@ -207,14 +207,11 @@ public class InteractiveTask implements Runnable {
 		if (threadNameFilter != null && threadNameFilter.trim().length() == 0) {
 			threadNameFilter = null;
 		}
-		if (threadNameFilter != app.view.threadNameFilter) {
-			app.view.threadNameFilter = threadNameFilter;
-			tty.println("  thread name filter change to " + threadNameFilter + " for next flush (" + app.nextFlushTime()
-					+ "s later)");
 
-		} else {
-			tty.println(" Nothing be changed");
-		}
+		app.view.threadNameFilter = threadNameFilter != null ? threadNameFilter.toLowerCase() : null;
+		tty.println("  thread name filter change to " + threadNameFilter + " for next flush (" + app.nextFlushTime()
+				+ "s later)");
+
 
 		app.continueFlush();
 	}
