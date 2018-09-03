@@ -28,18 +28,18 @@ public class ResourceUtilTest {
 
 		System.out.println(ResourceUtil.getResourcesQuietly("META-INF/MANIFEST.MF"));
 
-		assertThat(ResourceUtil.getResourcesQuietly("META-INF/MANIFEST.MF", ResourceUtilTest.class.getClassLoader()).size())
-				.isGreaterThan(1);
+		assertThat(ResourceUtil.getResourcesQuietly("META-INF/MANIFEST.MF", ResourceUtilTest.class.getClassLoader())
+				.size()).isGreaterThan(1);
 
 	}
 
 	@Test
-	public void resourceNameTest() throws IOException{
+	public void resourceNameTest() throws IOException {
 		JarFile guavaFile = new JarFile(FilePathUtil.getJarPath(Files.class));
 		assertThat(guavaFile.getEntry("META-INF/MANIFEST.MF")).isNotNull();
 		assertThat(guavaFile.getEntry("/META-INF/MANIFEST.MF")).isNull();
 		guavaFile.close();
 	}
-	
+
 
 }

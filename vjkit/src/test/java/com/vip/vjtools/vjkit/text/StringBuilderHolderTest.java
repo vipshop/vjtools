@@ -14,8 +14,9 @@ public class StringBuilderHolderTest {
 		final CyclicBarrier barrier = new CyclicBarrier(10);
 
 		Runnable runnable = new Runnable() {
-			
+
 			StringBuilderHolder holder = new StringBuilderHolder(512);
+
 			@Override
 			public void run() {
 				try {

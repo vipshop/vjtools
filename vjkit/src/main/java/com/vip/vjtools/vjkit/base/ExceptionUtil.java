@@ -93,7 +93,7 @@ public class ExceptionUtil {
 	 */
 	public static String stackTraceText(@NotNull Throwable t) {
 		StringBuilderWriter stringWriter = new StringBuilderWriter();
-		t.printStackTrace(new PrintWriter(stringWriter)); //NOSONAR
+		t.printStackTrace(new PrintWriter(stringWriter)); // NOSONAR
 		return stringWriter.toString();
 	}
 

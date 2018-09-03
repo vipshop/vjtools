@@ -7,49 +7,47 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 
+import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
+import com.vip.vjtools.vjtop.util.Formats;
+import com.vip.vjtools.vjtop.util.Utils;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
-/**
- * VJTop entry point class.
- *
- * - parses program arguments - selects console view - prints header - main "iteration loop"
- *
- * @author paru
- *
- */
 public class VJTop {
 
-	public static final String VERSION = "1.0.2";
+	public static final String VERSION = "1.0.5";
 
 	public static final int DEFAULT_INTERVAL = 10;
 
-	private static final String CLEAR_TERMINAL_ANSI_CMD = new String(
-			new byte[]{(byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48});
-
 	public VMDetailView view;
 
-	public volatile Integer interval = DEFAULT_INTERVAL;
+	private volatile Integer interval = DEFAULT_INTERVAL;
 
 	private volatile boolean needMoreInput = false;
 
 	private Thread mainThread;
-
+	private long sleepStartTime;
 	private int maxIterations = -1;
 
 	private static OptionParser createOptionParser() {
 		OptionParser parser = new OptionParser();
 		// commmon
-		parser.acceptsAll(Arrays.asList(new String[]{"help", "?", "h"}), "shows this help").forHelp();
-		parser.acceptsAll(Arrays.asList(new String[]{"n", "iteration"}),
+		parser.acceptsAll(Arrays.asList(new String[] { "help", "?", "h" }), "shows this help").forHelp();
+		parser.acceptsAll(Arrays.asList(new String[] { "n", "iteration" }),
 				"vjtop will exit after n output iterations  (defaults to unlimit)").withRequiredArg()
 				.ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"d", "interval"}),
+		parser.acceptsAll(Arrays.asList(new String[] { "i", "interval", "d" }),
 				"interval between each output iteration (defaults to 10s)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"w", "width"}),
+		parser.acceptsAll(Arrays.asList(new String[] { "w", "width" }),
 				"Number of columns for the console display (defaults to 100)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[]{"l", "limit"}),
+		parser.acceptsAll(Arrays.asList(new String[] { "l", "limit" }),
 				"Number of threads to display ( default to 10 threads)").withRequiredArg().ofType(Integer.class);
+		parser.acceptsAll(Arrays.asList(new String[] { "f", "filter" }), "Thread name filter ( no default)")
+				.withRequiredArg().ofType(String.class);
+
+		parser.acceptsAll(Arrays.asList(new String[] { "j", "jmxurl" }),
+				"JMX url like 127.0.0.1:7001 when VM attach is not work").withRequiredArg().ofType(String.class);
 
 		// detail mode
 		parser.accepts("cpu",
@@ -65,7 +63,6 @@ public class VJTop {
 
 	public static void main(String[] args) {
 		try {
-
 			// 1. create option parser
 			OptionParser parser = createOptionParser();
 			OptionSet optionSet = parser.parse(args);
@@ -75,27 +72,27 @@ public class VJTop {
 				System.exit(0);
 			}
 
-			// 2. create view
+			// 2. create vminfo
 			String pid = parsePid(parser, optionSet);
 
-			VMDetailView.DetailMode displayMode = parseDisplayMode(optionSet);
+			String jmxHostAndPort = null;
+			if (optionSet.hasArgument("jmxurl")) {
+				jmxHostAndPort = (String) optionSet.valueOf("jmxurl");
+			}
 
+			VMInfo vminfo = VMInfo.processNewVM(pid, jmxHostAndPort);
+			if (vminfo.state != VMInfoState.ATTACHED) {
+				System.out.println("\n" + Formats.RED_ANSI[0]
+						+ "ERROR: Could not attach to process, see the solution in README" + Formats.RED_ANSI[1]);
+				return;
+			}
+
+			// 3. create view
+			VMDetailView.DetailMode displayMode = parseDisplayMode(optionSet);
 			Integer width = null;
 			if (optionSet.hasArgument("width")) {
 				width = (Integer) optionSet.valueOf("width");
 			}
-
-			VMDetailView view = new VMDetailView(pid, displayMode, width);
-
-			if (optionSet.hasArgument("limit")) {
-				Integer limit = (Integer) optionSet.valueOf("limit");
-				view.threadLimit = limit;
-			}
-
-			// 3. create main application
-			VJTop app = new VJTop();
-			app.mainThread = Thread.currentThread();
-			app.view = view;
 
 			Integer interval = DEFAULT_INTERVAL;
 			if (optionSet.hasArgument("interval")) {
@@ -104,22 +101,88 @@ public class VJTop {
 					throw new IllegalArgumentException("Interval cannot be set below 1.0");
 				}
 			}
-			app.interval = interval;
+
+			VMDetailView view = new VMDetailView(vminfo, displayMode, width, interval);
+
+			if (optionSet.hasArgument("limit")) {
+				Integer limit = (Integer) optionSet.valueOf("limit");
+				view.threadLimit = limit;
+			}
+
+			if (optionSet.hasArgument("filter")) {
+				String filter = (String) optionSet.valueOf("filter");
+				view.threadNameFilter = filter;
+			}
+
+			// 4. create main application
+			VJTop app = new VJTop();
+			app.mainThread = Thread.currentThread();
+			app.view = view;
+			app.updateInterval(interval);
 
 			if (optionSet.hasArgument("n")) {
 				Integer iterations = (Integer) optionSet.valueOf("n");
 				app.maxIterations = iterations;
 			}
 
-			// 4. start thread to get user input
-			Thread interactiveThread = new Thread(new InteractiveTask(app));
-			interactiveThread.setDaemon(true);
-			interactiveThread.start();
+			// 5. start thread to get user input
+			if (app.maxIterations == -1) {
+				InteractiveTask task = new InteractiveTask(app);
+				if (task.inputEnabled()) {
+					view.displayCommandHints = true;
 
-			// 5. run views
+					Thread interactiveThread = new Thread(task, "InteractiveThread");
+					interactiveThread.setDaemon(true);
+					interactiveThread.start();
+				}
+			}
+
+			// 6. run app
 			app.run(view);
 		} catch (Exception e) {
-			e.printStackTrace(System.err);
+			e.printStackTrace(System.out);
+			System.out.flush();
+		}
+	}
+
+	private void run(VMDetailView view) throws Exception {
+		try {
+			// System.out 设为Buffered，需要使用System.out.flush刷新
+			System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(FileDescriptor.out)), false));
+
+			int iterations = 0;
+			while (!view.shouldExit()) {
+				waitForInput();
+
+				Formats.clearTerminal();
+
+				view.printView();
+
+				if (view.shouldExit()) {
+					break;
+				}
+
+				System.out.flush();
+
+				if (maxIterations > 0 && iterations >= maxIterations) {
+					break;
+				}
+
+				// 第一次最多只等待2秒
+				int sleepSeconds = (iterations == 0) ? Math.min(2, interval) : interval;
+
+				iterations++;
+				sleepStartTime = System.currentTimeMillis();
+				Utils.sleep(sleepSeconds * 1000);
+			}
+			System.out.println("");
+			System.out.flush();
+		} catch (NoClassDefFoundError e) {
+			e.printStackTrace(System.out);
+			System.out.println(Formats.RED_ANSI[0] + "ERROR: Some JDK classes cannot be found." + Formats.RED_ANSI[1]);
+			System.out.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
+			System.out.println("");
+			System.out.flush();
 		}
 	}
 
@@ -158,7 +221,7 @@ public class VJTop {
 
 	private static void printHelper(OptionParser parser) {
 		try {
-			System.out.println("vjtop - java monitoring for the command-line");
+			System.out.println("vjtop " + VERSION + " - java monitoring for the command-line");
 			System.out.println("Usage: vjtop.sh [options...] <PID>");
 			System.out.println("");
 			parser.printHelpOn(System.out);
@@ -167,62 +230,13 @@ public class VJTop {
 		}
 	}
 
-	private static void clearTerminal() {
-		if (System.getProperty("os.name").contains("Windows")) {
-			// hack
-			System.out.printf("%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n");
-		} else if (System.getProperty("vjtop.altClear") != null) {
-			System.out.print('\f');
-		} else {
-			System.out.print(CLEAR_TERMINAL_ANSI_CMD);
-		}
-	}
-
-	private void run(VMDetailView view) throws Exception {
-		try {
-			System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(FileDescriptor.out)), false));
-			int iterations = 0;
-			while (!view.shouldExit()) {
-
-				if (maxIterations > 1 || maxIterations == -1) {
-					waitForInput();
-					clearTerminal();
-				}
-
-				view.printView();
-
-				System.out.flush();
-
-				if (maxIterations > 0 && iterations >= maxIterations) {
-					break;
-				}
-
-				int sleepTime = interval;
-
-				// 第一次只等待1秒
-				if (iterations == 0) {
-					sleepTime = 1;
-				}
-
-				++iterations;
-
-				Utils.sleep((long) (sleepTime * 1000));
-			}
-		} catch (NoClassDefFoundError e) {
-			e.printStackTrace(System.err);
-
-			System.err.println("");
-			System.err.println("ERROR: Some JDK classes cannot be found.");
-			System.err.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
-			System.err.println("");
-		}
-	}
-
-
 	public void exit() {
 		view.exit();
 		mainThread.interrupt();
-		System.err.println(" Quit.");
+	}
+
+	public void interruptSleep() {
+		mainThread.interrupt();
 	}
 
 	public void preventFlush() {
@@ -239,4 +253,16 @@ public class VJTop {
 		}
 	}
 
+	public int nextFlushTime() {
+		return Math.max(0, interval - (int) ((System.currentTimeMillis() - sleepStartTime) / 1000));
+	}
+
+	public void updateInterval(int interval) {
+		this.interval = interval;
+		view.interval = interval;
+	}
+
+	public int getInterval() {
+		return interval;
+	}
 }

@@ -66,10 +66,10 @@ public class ClassUtilTest {
 
 	public void classPresent() {
 		assertThat(ClassLoaderUtil.isPresent("a.b.c", ClassLoaderUtil.getDefaultClassLoader())).isFalse();
-		assertThat(ClassLoaderUtil.isPresent("com.vip.vjtools.vjkit.reflect.ClassUtil", ClassLoaderUtil.getDefaultClassLoader()))
-				.isTrue();
+		assertThat(ClassLoaderUtil.isPresent("com.vip.vjtools.vjkit.reflect.ClassUtil",
+				ClassLoaderUtil.getDefaultClassLoader())).isTrue();
 	}
-	
+
 	/**
 	 * Unit test case of {@link com.vip.vjtools.vjkit.reflect.ClassUtil#isSubClassOrInterfaceOf(Class, Class)}
 	 */

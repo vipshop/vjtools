@@ -38,6 +38,18 @@ START()
      echo -e "The pid is ${PID}"
   fi
 
+  # try to find $JAVA_HOME if not set
+  if [ -z "$JAVA_HOME" ] ; then
+      JAVA_HOME=`readlink -f \`which java 2>/dev/null\` 2>/dev/null | \
+      sed 's/\jre\/bin\/java//' | sed 's/\/bin\/java//'`
+  fi
+
+  if [ ! -f "$JAVA_HOME/bin/jstack" ] ; then
+      echo -e "\033[31m\$JAVA_HOME not found. please export JAVA_HOME manually.\033[0m"
+      exit -1
+  fi
+
+
   # clean all history logs
   rm -rf ${LOGDIR}/*.log ${LOGDIR}/*jmap_dump_live-*.bin
   mkdir -p ${LOGDIR}
@@ -49,10 +61,9 @@ START()
   # jstack
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jstack."
   JSTACK_LOG=${LOGDIR}/jstack-${PID}-${DATE}.log
-  jstack -l $PID > ${JSTACK_LOG}
+  ${JAVA_HOME}/bin/jstack -l $PID > ${JSTACK_LOG}
   if [[ $? != 0 ]]; then
-    echo -e "\033[31mprocess jstack error, now exit.\033[0m"
-    exit -1
+    echo -e "\033[31mprocess jstack error.\033[0m"
   fi
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jstack."
   sleep ${SLEEP_TIME}
@@ -67,8 +78,7 @@ START()
     VJTOP_LOG=${LOGDIR}/vjtop-${PID}-${DATE}.log
     $VJTOP_SCRIPT -n 1 -d $VJTOP_DURATION $PID > ${VJTOP_LOG}
     if [[ $? != 0 ]]; then
-      echo -e "\033[31mprocess vjtop error, now exit.\033[0m"
-      exit -1
+      echo -e "\033[31mprocess vjtop error.\033[0m"
     fi
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process vjtop."
   else
@@ -76,20 +86,18 @@ START()
     # jinfo -flags $PID
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jinfo -flags."
     JINFO_FLAGS_LOG=${LOGDIR}/jinfo-flags-${PID}-${DATE}.log
-    jinfo -flags $PID 1>${JINFO_FLAGS_LOG} 2>&1
+    ${JAVA_HOME}/bin/jinfo -flags $PID 1>${JINFO_FLAGS_LOG} 2>&1
     if [[ $? != 0 ]]; then
-      echo -e "\033[31mprocess jinfo -flags error, now exit.\033[0m"
-      exit -1
+      echo -e "\033[31mprocess jinfo -flags error.\033[0m"
     fi
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jinfo -flags."
   
     #jmap -heap
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jmap -heap."
     JMAP_HEAP_LOG=${LOGDIR}/jmap_heap-${PID}-${DATE}.log
-    jmap -heap $PID > ${JMAP_HEAP_LOG}
+    ${JAVA_HOME}/bin/jmap -heap $PID > ${JMAP_HEAP_LOG}
     if [[ $? != 0 ]]; then
-      echo -e "\033[31mprocess jmap -heap error, now exit.\033[0m"
-      exit -1
+      echo -e "\033[31mprocess jmap -heap error.\033[0m"
     fi
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jmap -heap."
   fi
@@ -97,10 +105,9 @@ START()
   # jmap -histo
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jmap -histo."
   JMAP_HISTO_LOG=${LOGDIR}/jmap_histo-${PID}-${DATE}.log
-  jmap -histo $PID > ${JMAP_HISTO_LOG}
+  ${JAVA_HOME}/bin/jmap -histo $PID > ${JMAP_HISTO_LOG}
   if [[ $? != 0 ]]; then
-    echo -e "\033[31mprocess jmap -histo error, now exit.\033[0m"
-    exit -1
+    echo -e "\033[31mprocess jmap -histo error.\033[0m"
   fi
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jmap -histo."
   sleep ${SLEEP_TIME}
@@ -108,10 +115,9 @@ START()
   # jmap -histo:live
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jmap -histo:live."
   JMAP_HISTO_LIVE_LOG=${LOGDIR}/jmap_histo_live-${PID}-${DATE}.log
-  jmap -histo:live $PID > ${JMAP_HISTO_LIVE_LOG}
+  ${JAVA_HOME}/bin/jmap -histo:live $PID > ${JMAP_HISTO_LIVE_LOG}
   if [[ $? != 0 ]]; then
-    echo -e "\033[31mprocess jmap -histo:live error, now exit.\033[0m"
-    exit -1
+    echo -e "\033[31mprocess jmap -histo:live error.\033[0m"
   fi
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jmap -histo:live."
   sleep ${SLEEP_TIME}
@@ -120,10 +126,9 @@ START()
   if [[ $NEED_HEAP_DUMP == 1 ]]; then
     JMAP_DUMP_FILE=${LOGDIR}/jmap_dump_live-${PID}-${DATE}.bin
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process jmap -dump:live."
-    jmap -dump:live,format=b,file=${JMAP_DUMP_FILE} $PID
+    ${JAVA_HOME}/bin/jmap -dump:live,format=b,file=${JMAP_DUMP_FILE} $PID
     if [[ $? != 0 ]]; then
-      echo -e "\033[31mprocess jmap -dump:live error, now exit.\033[0m"
-      exit -1
+      echo -e "\033[31mprocess jmap -dump:live error.\033[0m"
     fi
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process jmap -dump:live."
      
@@ -140,8 +145,7 @@ START()
     # "\cp" means unalias cp, it can cover files without prompting
     \cp -rf $GCLOG ${LOGDIR}/
     if [[ $? != 0 ]]; then
-      echo -e "copy gc log error, now exit."
-      exit -1
+      echo -e "copy gc log error."
     fi
   fi
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') Finish to process gc log."
@@ -155,8 +159,7 @@ START()
     ZIP_FILE=${BASEDIR}/vjdump-${PID}-${DATE}.zip
     zip -j ${ZIP_FILE} ${LOGDIR}/*.log
     if [[ $? != 0 ]]; then
-      echo -e "\033[31mzip files error, exit.\033[0m"
-      exit -1
+      echo -e "\033[31mzip files error.\033[0m"
     else
       echo -e "zip files success, the zip file is \033[34m${ZIP_FILE}\033[0m"
     fi
@@ -168,8 +171,7 @@ START()
       ZIP_FILE_WITH_HEAP_DUMP=${BASEDIR}/vjdump-with-heap-${PID}-${DATE}.zip
       zip -j ${ZIP_FILE_WITH_HEAP_DUMP} ${LOGDIR}/*.log ${JMAP_DUMP_FILE}
       if [[ $? != 0 ]]; then
-        echo -e "\033[31mzip files which include dump file error, exit.\033[0m"
-        exit -1
+        echo -e "\033[31mzip files which include dump file error.\033[0m"
       else
         echo -e "zip files which include dump file success, the zip path is \033[34m${ZIP_FILE_WITH_HEAP_DUMP}\033[0m"
       fi

@@ -4,8 +4,8 @@
 
 将下列profile下载并导入IDE即可，导入后Profile名称为`vipshop2.0`：
 
-* [Eclipse Code Formatter Profile](https://raw.githubusercontent.com/vipshop/vjtools/master/standard/formatter/vipshop-code-conventions.xml)
-* [Intellij Code Formatter Profile](https://raw.githubusercontent.com/vipshop/vjtools/master/standard/formatter/vipshop-code-conventions-idea.xml)
+* [Eclipse Code Formatter Profile](https://raw.githubusercontent.com/vipshop/vjtools/master/standard/formatter/vjtools-code-conventions-eclipse.xml)
+* [Intellij Code Formatter Profile](https://raw.githubusercontent.com/vipshop/vjtools/master/standard/formatter/vjtools-code-conventions-idea.xml)
 
 因为Intellij导入Eclipse Profile存在问题，因此同时提供了两者的Profile。
 

@@ -22,7 +22,7 @@ Maven :
 <dependency>
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjkit</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.5</version>
 </dependency>
 ```
 

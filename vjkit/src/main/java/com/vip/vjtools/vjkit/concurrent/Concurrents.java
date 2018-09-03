@@ -3,6 +3,7 @@ package com.vip.vjtools.vjkit.concurrent;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.vip.vjtools.vjkit.concurrent.jsr166e.LongAdder;
@@ -41,17 +42,17 @@ public class Concurrents {
 	public static Semaphore nonFairSemaphore(int permits) {
 		return new Semaphore(permits);
 	}
-	
+
 	/**
 	 * 返回公平的信号量，先请求的线程先拿到信号量
 	 */
 	public static Semaphore fairSemaphore(int permits) {
-		return new Semaphore(permits,true);
+		return new Semaphore(permits, true);
 	}
 
 	/////////// 限流采样 //////
 	/**
-	 * 返回漏桶算法的RateLimiter
+	 * 返回令牌桶算法的RateLimiter
 	 * 
 	 * @permitsPerSecond 期望的QPS, RateLimiter将QPS平滑到毫秒级别上，但有蓄水的能力.
 	 */
@@ -66,5 +67,14 @@ public class Concurrents {
 	 */
 	public static Sampler sampler(double selectPercent) {
 		return Sampler.create(selectPercent);
+	}
+
+	/**
+	 * 返回时间间隔限制器.
+	 * @param interval 间隔时间
+	 * @param timeUnit 间隔时间单位
+	 */
+	public static TimeIntervalLimiter timeIntervalLimiter(long interval, TimeUnit timeUnit) {
+		return new TimeIntervalLimiter(interval, timeUnit);
 	}
 }

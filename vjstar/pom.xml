@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjstar</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.5</version>
 	<packaging>jar</packaging>
 	<name>vjstar</name>
 	<description>VIP's best practice libraries</description>

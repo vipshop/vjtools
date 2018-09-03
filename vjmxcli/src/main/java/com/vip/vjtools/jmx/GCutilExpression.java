@@ -78,7 +78,7 @@ public class GCutilExpression {
 				pollNameMapping.put(OLD, name);
 			} else if (lowerCaseName.contains(PERM) || lowerCaseName.contains(METASPACE)) {
 				pollNameMapping.put(PERM, name);
-			} else if(lowerCaseName.contains(COMPRESSED_CLASS_SPACE)) {
+			} else if (lowerCaseName.contains(COMPRESSED_CLASS_SPACE)) {
 				pollNameMapping.put(COMPRESSED_CLASS_SPACE, name);
 			}
 		}
@@ -103,7 +103,7 @@ public class GCutilExpression {
 		String poolName = MEM_POOL_PREFIX + pollNameMapping.get(PERM);
 		return usedPercentage(poolName);
 	}
-	
+
 	public String getCCS() throws Exception {
 		String poolName = MEM_POOL_PREFIX + pollNameMapping.get(COMPRESSED_CLASS_SPACE);
 		return usedPercentage(poolName);
@@ -134,12 +134,19 @@ public class GCutilExpression {
 	}
 
 	private String usedPercentage(String poolName) throws Exception {
-		CompositeDataSupport attribute = (CompositeDataSupport) mbsc.getAttribute(Client.getObjectName(poolName),
-				"Usage");
-		double max = Double.parseDouble(attribute.get("max").toString());
+		CompositeDataSupport usage = (CompositeDataSupport) mbsc.getAttribute(Client.getObjectName(poolName), "Usage");
+		double max = Double.parseDouble(usage.get("max").toString());
+
 		// 如果Max没有设置或GC算法原因没有max，则以committed为准
-		max = max < 0 ? Double.parseDouble(attribute.get("committed").toString()) : max;
-		double resultS = Double.parseDouble(attribute.get("used").toString()) / max * 100;
-		return max == 0.0d ? DF.format(max) : DF.format(resultS);
+		if (max < 0) {
+			max = Double.parseDouble(usage.get("committed").toString());
+		}
+
+		if (max > 0.0d) {
+			double used = Double.parseDouble(usage.get("used").toString()) / max * 100;
+			return DF.format(used);
+		} else {
+			return DF.format(0.0d);
+		}
 	}
 }

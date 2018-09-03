@@ -9,7 +9,7 @@
 因为每调度一次`java -jar vjmxclient.jar`，其实是创建了一个新的JVM，因此在vjmxcli.sh 加上了一系列JVM参数减少消耗。
 
 
-[Maven Central 下载](http://repo1.maven.org/maven2/com/vip/vjtools/vjmxcli/1.0.1/vjmxcli-1.0.1.zip)
+[Download vjmxcli-1.0.5.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmxcli/1.0.5/vjmxcli-1.0.5.zip)
 
 
 必须与目标JVM使用相同的JDK版本运行。

@@ -118,7 +118,7 @@ public class MapUtil {
 	 * @see com.google.common.collect.Maps#newHashMap(int)
 	 */
 	public static <K, V> HashMap<K, V> newHashMapWithCapacity(int expectedSize, float loadFactor) {
-		int finalSize = (int) ((double) expectedSize / loadFactor + 1.0F);
+		int finalSize = (int) (expectedSize / loadFactor + 1.0F);
 		return new HashMap<K, V>(finalSize, loadFactor);
 	}
 

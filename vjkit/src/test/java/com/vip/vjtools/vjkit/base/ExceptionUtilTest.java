@@ -64,12 +64,12 @@ public class ExceptionUtilTest {
 
 		InvocationTargetException ie = new InvocationTargetException(re);
 		assertThat(ExceptionUtil.unwrap(ie)).isSameAs(re);
-		
+
 		Exception e = new Exception("my exception");
 		ExecutionException ee2 = new ExecutionException(e);
-		try{
-		ExceptionUtil.unwrapAndUnchecked(ee2);
-		}catch (Throwable t) {
+		try {
+			ExceptionUtil.unwrapAndUnchecked(ee2);
+		} catch (Throwable t) {
 			assertThat(t).isInstanceOf(UncheckedException.class).hasCauseExactlyInstanceOf(Exception.class);
 		}
 	}
@@ -93,8 +93,9 @@ public class ExceptionUtilTest {
 		assertThat(ExceptionUtil.isCausedBy(runtimeException, IllegalStateException.class, IOException.class)).isTrue();
 		assertThat(ExceptionUtil.isCausedBy(runtimeException, Exception.class)).isTrue();
 		assertThat(ExceptionUtil.isCausedBy(runtimeException, IllegalAccessException.class)).isFalse();
-		
-		assertThat(ExceptionUtil.findCause(runtimeException, IllegalStateException.class)).isSameAs(illegalStateException);
+
+		assertThat(ExceptionUtil.findCause(runtimeException, IllegalStateException.class))
+				.isSameAs(illegalStateException);
 		assertThat(ExceptionUtil.findCause(runtimeException, IOException.class)).isSameAs(ioexception);
 		assertThat(ExceptionUtil.findCause(runtimeException, UncheckedException.class)).isNull();
 	}

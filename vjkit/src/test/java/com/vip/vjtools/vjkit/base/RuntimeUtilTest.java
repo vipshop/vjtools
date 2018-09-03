@@ -10,15 +10,15 @@ public class RuntimeUtilTest {
 		System.out.println("pid:" + RuntimeUtil.getPid());
 		assertThat(RuntimeUtil.getPid()).isNotEqualTo(-1);
 		System.out.println("vmargs:" + RuntimeUtil.getVmArguments());
-		RuntimeUtil.addShutdownHook(new Runnable(){
+		RuntimeUtil.addShutdownHook(new Runnable() {
 			@Override
 			public void run() {
 				System.out.println("systemShutdowning");
 			}
 		});
-		
+
 		assertThat(RuntimeUtil.getCores()).isGreaterThan(1);
-		
-		System.out.println("uptime"+RuntimeUtil.getUpTime());
+
+		System.out.println("uptime" + RuntimeUtil.getUpTime());
 	}
 }

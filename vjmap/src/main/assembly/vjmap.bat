@@ -8,7 +8,10 @@ echo WARNING!! STW(Stop-The-World) will be performed on your Java process, if th
 
 
 set DIR=%~dp0
-java -XX:AutoBoxCacheMax=20000 -classpath "%DIR%\vjmap.jar;%JAVA_HOME%\lib\sa-jdi.jar" com.vip.vjtools.vjmap.VJMap %*
+set JAVA_OPTS="-Xms512m -Xmx512m -Xmn400m -XX:+TieredCompilation -XX:+UseConcMarkSweepGC -Xverify:none -XX:AutoBoxCacheMax=20000"
+
+
+"%JAVA_HOME%\bin\java" %JAVA_OPTS% -classpath "%DIR%\vjmap.jar;%JAVA_HOME%\lib\sa-jdi.jar" com.vip.vjtools.vjmap.VJMap %*
 goto end
 
 :noJavaHome

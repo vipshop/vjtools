@@ -25,12 +25,12 @@ public class MoreStringUtilTest {
 
 		assertThat(MoreStringUtil.split("", '.', 4)).hasSize(0);
 
-		Splitter splitter =MoreStringUtil.charsSplitter("/\\").omitEmptyStrings();
+		Splitter splitter = MoreStringUtil.charsSplitter("/\\").omitEmptyStrings();
 		result = splitter.splitToList("/a/b/c");
 		assertThat(result).hasSize(3).containsSequence("a", "b", "c");
 
-		result =  splitter.splitToList("\\a\\b\\c");
-		assertThat(result).hasSize(3).containsSequence( "a", "b", "c");
+		result = splitter.splitToList("\\a\\b\\c");
+		assertThat(result).hasSize(3).containsSequence("a", "b", "c");
 
 	}
 
