@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<packaging>jar</packaging>
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjmxcli</artifactId>
 	<name>vjmxcli</name>
-	<version>1.0.5</version>
+	<version>黑店老板娘，你们买的那个生发液，在公司里也有防脱洗发水哦，你自己有咩有试过</version>
 	<description>jmx command line client</description>
 
 	<properties>
@@ -16,7 +17,7 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>com.sun</groupId>
@@ -96,21 +97,21 @@
 							<execution>
 								<id>attach-sources</id>
 								<goals>
-								<goal>jar</goal>
-							</goals>
+									<goal>jar</goal>
+								</goals>
 							</execution>
 						</executions>
 					</plugin>
-					
+
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-release-plugin</artifactId>
 						<version>2.5.3</version>
 						<configuration>
 							<tagNameFormat>v.@{project.version}</tagNameFormat>
-						 </configuration>
+						</configuration>
 					</plugin>
-	
+
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
@@ -140,9 +141,9 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
 	</distributionManagement>
-	
+
 	<url>https://github.com/vipshop/vjtools</url>
-	
+
 	<licenses>
 		<license>
 			<name>Apache License 2.0</name>
@@ -155,9 +156,8 @@
 		<connection>scm:git:https://github.com/vipshop/vjtools.git</connection>
 		<developerConnection>scm:git:https://github.com/vipshop/vjtools.git</developerConnection>
 		<url>https://github.com/vipshop/vjtools</url>
- 	  <tag>v.1.0.2</tag>
-  </scm>
-	
+	</scm>
+
 	<developers>
 		<!--not just me, write a name here just for sonatype requirement -->
 		<developer>

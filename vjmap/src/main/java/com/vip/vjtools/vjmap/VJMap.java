@@ -15,7 +15,7 @@ import sun.jvm.hotspot.runtime.VM;
 
 public class VJMap {
 
-	public static final String VERSION = "1.0.5";
+	public static final String VERSION = "1.0.6";
 
 	private static PrintStream tty = System.out;
 
@@ -101,7 +101,7 @@ public class VJMap {
 		Integer pid = null;
 		String executablePath = null;
 		String coredumpPath = null;
-		if(args.length == 2) {
+		if (args.length == 2) {
 			pid = Integer.valueOf(args[1]);
 		} else {
 			executablePath = args[1];
@@ -111,8 +111,8 @@ public class VJMap {
 		HotSpotAgent agent = new HotSpotAgent();
 
 		try {
-			if(args.length == 2) {
-				agent.attach(pid);	
+			if (args.length == 2) {
+				agent.attach(pid);
 			} else {
 				agent.attach(executablePath, coredumpPath);
 			}
