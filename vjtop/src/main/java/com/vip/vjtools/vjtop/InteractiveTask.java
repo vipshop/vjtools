@@ -4,7 +4,7 @@ import java.io.Console;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import com.vip.vjtools.vjtop.VMDetailView.DetailMode;
+import com.vip.vjtools.vjtop.VMDetailView.ThreadMode;
 
 /**
  * 与用户交互动态的控制器
@@ -121,21 +121,21 @@ public class InteractiveTask implements Runnable {
 
 		String mode = readLine(
 				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory, current "
-						+ app.view.mode + "): ");
-		DetailMode detailMode = DetailMode.parse(mode);
+						+ app.view.threadMode + "): ");
+		ThreadMode detailMode = ThreadMode.parse(mode);
 		if (detailMode == null) {
 			tty.println(" Wrong option for display mode(1-6)");
-		} else if (detailMode == app.view.mode) {
+		} else if (detailMode == app.view.threadMode) {
 			tty.println(" Nothing be changed");
 		} else {
-			if (app.view.mode.isCpuMode != detailMode.isCpuMode) {
+			if (app.view.threadMode.isCpuMode != detailMode.isCpuMode) {
 				app.view.switchCpuAndMemory();
-				app.view.mode = detailMode;
-				tty.println(" Display mode changed to " + app.view.mode + " for next flush");
+				app.view.threadMode = detailMode;
+				tty.println(" Display mode changed to " + app.view.threadMode + " for next flush");
 				app.interruptSleep();
 			} else {
-				app.view.mode = detailMode;
-				tty.println(" Display mode changed to " + app.view.mode + " for next flush(" + app.nextFlushTime()
+				app.view.threadMode = detailMode;
+				tty.println(" Display mode changed to " + app.view.threadMode + " for next flush(" + app.nextFlushTime()
 						+ "s later)");
 			}
 		}

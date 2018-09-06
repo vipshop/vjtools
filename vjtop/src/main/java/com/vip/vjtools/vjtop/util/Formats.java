@@ -15,14 +15,20 @@ public class Formats {
 	private static final long GB_SIZE = MB_SIZE * 1024;
 	private static final long TB_SIZE = GB_SIZE * 1024;
 
-	public static final String[] RED_ANSI = new String[] { "\033[31m\033[01m", "\033[0m" };
-	private static final String[] YELLOW_ANSI = new String[] { "\033[33m\033[01m", "\033[0m" };
+	public static String[] RED_ANSI = new String[] { "\033[31m\033[01m", "\033[0m" };
+	public static String[] YELLOW_ANSI = new String[] { "\033[33m\033[01m", "\033[0m" };
 	private static final String[] NORMAL_ANSI = new String[] { "", "" };
 	private static final String CLEAR_TERMINAL_ANSI_CMD = new String(
 			new byte[] { (byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48 });
 
-
 	public static boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.US).contains("windows");
+	private static boolean ansi = true;
+
+	public static void disableAnsi() {
+		ansi = false;
+		RED_ANSI = NORMAL_ANSI;
+		YELLOW_ANSI = NORMAL_ANSI;
+	}
 
 	public static String toMBWithColor(long bytes, LongWarning warning) {
 		String[] ansi = colorAnsi(bytes, warning);
@@ -134,7 +140,7 @@ public class Formats {
 	}
 
 	public static String[] colorAnsi(long value, LongWarning warning) {
-		if (isWindows || value < warning.yellow) {
+		if (isWindows || !ansi || value < warning.yellow) {
 			return NORMAL_ANSI;
 		} else if (value >= warning.red) {
 			return RED_ANSI;
@@ -144,7 +150,7 @@ public class Formats {
 	}
 
 	public static String[] colorAnsi(double value, DoubleWarning warning) {
-		if (isWindows || value < warning.yellow) {
+		if (isWindows || !ansi || value < warning.yellow) {
 			return NORMAL_ANSI;
 		} else if (value >= warning.red) {
 			return RED_ANSI;
@@ -250,7 +256,9 @@ public class Formats {
 	}
 
 	public static void clearTerminal() {
-		if (isWindows) {
+		if (!ansi) {
+
+		} else if (isWindows) {
 			System.out.printf("%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n");
 		} else {
 			System.out.print(CLEAR_TERMINAL_ANSI_CMD);

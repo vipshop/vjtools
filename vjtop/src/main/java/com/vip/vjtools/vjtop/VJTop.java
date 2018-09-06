@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-import com.vip.vjtools.vjtop.VMDetailView.DetailMode;
+import com.vip.vjtools.vjtop.VMDetailView.OutputFormat;
+import com.vip.vjtools.vjtop.VMDetailView.ThreadMode;
 import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
 import com.vip.vjtools.vjtop.util.Formats;
 import com.vip.vjtools.vjtop.util.Utils;
@@ -62,8 +63,8 @@ public class VJTop {
 				.withRequiredArg().ofType(Integer.class);
 
 		parser.acceptsAll(Arrays.asList(new String[] { "o", "output" }),
-				"output format: \n" + " console(default): console with warning and flush ascii code\n"
-						+ " cleanconsole: console without warning and flush ascii code\n"
+				"output format: \n" + " console(default): console with warning and flush ansi code\n"
+						+ " clean: console without warning and flush ansi code\n"
 						+ " text: plain text like /proc/status for 3rd tools\n")
 				.withRequiredArg().ofType(String.class);
 
@@ -102,7 +103,9 @@ public class VJTop {
 			}
 
 			// 3. create view
-			VMDetailView.DetailMode displayMode = parseDisplayMode(optionSet);
+			VMDetailView.ThreadMode threadMode = parseThreadMode(optionSet);
+			VMDetailView.OutputFormat format = parseOutputFormat(optionSet);
+
 			Integer width = null;
 			if (optionSet.hasArgument("width")) {
 				width = (Integer) optionSet.valueOf("width");
@@ -116,7 +119,7 @@ public class VJTop {
 				}
 			}
 
-			VMDetailView view = new VMDetailView(vminfo, displayMode, width, interval);
+			VMDetailView view = new VMDetailView(vminfo, format, threadMode, width, interval);
 
 			if (optionSet.hasArgument("limit")) {
 				Integer limit = (Integer) optionSet.valueOf("limit");
@@ -140,11 +143,10 @@ public class VJTop {
 			}
 
 			// 5. start thread to get user input
-			if (app.maxIterations == -1) {
+			if (app.maxIterations == -1 && format == OutputFormat.console) {
 				InteractiveTask task = new InteractiveTask(app);
 				if (task.inputEnabled()) {
 					view.displayCommandHints = true;
-
 					Thread interactiveThread = new Thread(task, "InteractiveThread");
 					interactiveThread.setDaemon(true);
 					interactiveThread.start();
@@ -196,13 +198,30 @@ public class VJTop {
 		}
 	}
 
-	private static VMDetailView.DetailMode parseDisplayMode(OptionSet optionSet) {
-		VMDetailView.DetailMode displayMode = VMDetailView.DetailMode.cpu;
+	private static VMDetailView.ThreadMode parseThreadMode(OptionSet optionSet) {
+		VMDetailView.ThreadMode threadMode = VMDetailView.ThreadMode.cpu;
 		if (optionSet.hasArgument("mode")) {
 			Integer mode = (Integer) optionSet.valueOf("mode");
-			displayMode = DetailMode.parse(mode.toString());
+			threadMode = ThreadMode.parse(mode.toString());
 		}
-		return displayMode;
+		return threadMode;
+	}
+
+	private static VMDetailView.OutputFormat parseOutputFormat(OptionSet optionSet) {
+		VMDetailView.OutputFormat outputFormat = VMDetailView.OutputFormat.console;
+		if (optionSet.hasArgument("output")) {
+			String format = (String) optionSet.valueOf("output");
+			if (format.equals("clean")) {
+				outputFormat = OutputFormat.cleanConsole;
+			} else if (format.equals("text")) {
+				outputFormat = OutputFormat.text;
+			}
+		}
+		// 同步是否支持ascii
+		if (!outputFormat.ansi) {
+			Formats.disableAnsi();
+		}
+		return outputFormat;
 	}
 
 	private static String parsePid(OptionParser parser, OptionSet optionSet) {

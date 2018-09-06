@@ -17,7 +17,8 @@ public class VMDetailView {
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
-	public DetailMode mode;
+	public ThreadMode threadMode;
+	public OutputFormat format;
 	public int threadLimit = 10;
 	public int interval;
 	public String threadNameFilter = null;
@@ -36,16 +37,19 @@ public class VMDetailView {
 	private boolean firstTime = true;
 	public boolean displayCommandHints = false;
 
-	public VMDetailView(VMInfo vmInfo, DetailMode mode, Integer width, Integer interval) throws Exception {
+	public VMDetailView(VMInfo vmInfo, OutputFormat format, ThreadMode mode, Integer width, Integer interval)
+			throws Exception {
 		this.vmInfo = vmInfo;
 		this.topThread = new TopThread(vmInfo);
 		this.warning = vmInfo.warningRule;
-		this.mode = mode;
+		this.threadMode = mode;
+		this.format = format;
 		this.interval = interval;
 		setWidth(width);
 	}
 
 	public void printView() throws Exception {
+
 		Formats.clearTerminal();
 
 		long iterationStartTime = 0;
@@ -75,10 +79,10 @@ public class VMDetailView {
 
 		// 打印线程级别内容
 		try {
-			if (mode.isCpuMode) {
-				printTopCpuThreads(mode);
+			if (threadMode.isCpuMode) {
+				printTopCpuThreads(threadMode);
 			} else {
-				printTopMemoryThreads(mode);
+				printTopMemoryThreads(threadMode);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -170,7 +174,7 @@ public class VMDetailView {
 		System.out.println("");
 	}
 
-	private void printTopCpuThreads(DetailMode mode) throws IOException {
+	private void printTopCpuThreads(ThreadMode mode) throws IOException {
 		if (!vmInfo.threadCpuTimeSupported) {
 			System.out.printf("%n -Thread CPU telemetries are not available on the monitored jvm/platform-%n");
 			return;
@@ -237,7 +241,7 @@ public class VMDetailView {
 				interval);
 	}
 
-	private void printTopMemoryThreads(DetailMode mode) throws IOException {
+	private void printTopMemoryThreads(ThreadMode mode) throws IOException {
 		if (!vmInfo.threadMemoryAllocatedSupported) {
 			System.out.printf(
 					"%n -Thread Memory Allocated telemetries are not available on the monitored jvm/platform-%n");
@@ -315,15 +319,21 @@ public class VMDetailView {
 	private void printWelcome() {
 		if (firstTime) {
 			if (!vmInfo.isLinux) {
-				System.out.printf("%n OS isn't linux, Process's MEMORY, THREAD, DISK data will be skipped.%n");
+				System.out.printf("%n" + Formats.YELLOW_ANSI[0]
+						+ " OS isn't linux, Process's MEMORY, THREAD, DISK data will be skipped."
+						+ Formats.YELLOW_ANSI[1] + "%n");
 			}
 
 			if (!vmInfo.ioDataSupport) {
-				System.out.printf("%n /proc/%s/io is not readable, Process's DISK data will be skipped.%n", vmInfo.pid);
+				System.out.printf("%n" + Formats.YELLOW_ANSI[0]
+						+ " /proc/%s/io is not readable, Process's DISK data will be skipped." + Formats.YELLOW_ANSI[1]
+						+ "%n", vmInfo.pid);
 			}
 
 			if (!vmInfo.perfDataSupport) {
-				System.out.printf("%n Perfdata doesn't support, SAFE-POINT data will be skipped.%n");
+				System.out.printf(
+						"%n" + Formats.YELLOW_ANSI[0] + " Perfdata doesn't support, SAFE-POINT data will be skipped."
+								+ Formats.YELLOW_ANSI[1] + "%n");
 			}
 
 			System.out.printf("%n VMARGS: %s%n%n", vmInfo.vmArgs);
@@ -443,16 +453,16 @@ public class VMDetailView {
 	}
 
 
-	public enum DetailMode {
+	public enum ThreadMode {
 		cpu(true), totalcpu(true), syscpu(true), totalsyscpu(true), memory(false), totalmemory(false);
 
 		public boolean isCpuMode;
 
-		private DetailMode(boolean isCpuMode) {
+		private ThreadMode(boolean isCpuMode) {
 			this.isCpuMode = isCpuMode;
 		}
 
-		public static DetailMode parse(String mode) {
+		public static ThreadMode parse(String mode) {
 			switch (mode) {
 				case "1":
 					return cpu;
@@ -470,5 +480,14 @@ public class VMDetailView {
 					return null;
 			}
 		}
+	}
+
+	public enum OutputFormat {
+		console(true), cleanConsole(false), text(false);
+		OutputFormat(boolean ansi) {
+			this.ansi = ansi;
+		}
+
+		public boolean ansi;
 	}
 }

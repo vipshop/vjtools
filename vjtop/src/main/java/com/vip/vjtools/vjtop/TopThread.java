@@ -3,7 +3,7 @@ package com.vip.vjtools.vjtop;
 import java.io.IOException;
 import java.lang.management.ThreadInfo;
 
-import com.vip.vjtools.vjtop.VMDetailView.DetailMode;
+import com.vip.vjtools.vjtop.VMDetailView.ThreadMode;
 import com.vip.vjtools.vjtop.util.LongObjectHashMap;
 import com.vip.vjtools.vjtop.util.LongObjectMap;
 import com.vip.vjtools.vjtop.util.Utils;
@@ -21,7 +21,7 @@ public class TopThread {
 		this.vmInfo = vmInfo;
 	}
 
-	public TopCpuResult topCpuThreads(DetailMode mode, int threadLimit) throws IOException {
+	public TopCpuResult topCpuThreads(ThreadMode mode, int threadLimit) throws IOException {
 
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 
@@ -83,16 +83,16 @@ public class TopThread {
 		}
 
 		// 按不同类型排序,过滤
-		if (mode == DetailMode.cpu) {
+		if (mode == ThreadMode.cpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadCpuDeltaTimes, threadLimit);
 			result.noteableThreads = result.threadCpuDeltaTimes.size();
-		} else if (mode == DetailMode.syscpu) {
+		} else if (mode == ThreadMode.syscpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadSysCpuDeltaTimes, threadLimit);
 			result.noteableThreads = result.threadSysCpuDeltaTimes.size();
-		} else if (mode == DetailMode.totalcpu) {
+		} else if (mode == ThreadMode.totalcpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadCpuTotalTimes, threadLimit);
 			result.noteableThreads = result.threadCpuTotalTimes.size();
-		} else if (mode == DetailMode.totalsyscpu) {
+		} else if (mode == ThreadMode.totalsyscpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadSysCpuTotalTimes, threadLimit);
 			result.noteableThreads = result.threadSysCpuTotalTimes.size();
 		} else {
@@ -112,7 +112,7 @@ public class TopThread {
 	}
 
 
-	public TopMemoryResult topMemoryThreads(DetailMode mode, int threadLimit) throws IOException {
+	public TopMemoryResult topMemoryThreads(ThreadMode mode, int threadLimit) throws IOException {
 		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
 		TopMemoryResult result = new TopMemoryResult();
 
@@ -153,7 +153,7 @@ public class TopThread {
 
 		// 线程排序
 		long[] topTidArray;
-		if (mode == DetailMode.memory) {
+		if (mode == ThreadMode.memory) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadMemoryDeltaBytesMap, threadLimit);
 			result.noteableThreads = result.threadMemoryDeltaBytesMap.size();
 		} else {
