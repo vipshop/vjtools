@@ -77,11 +77,6 @@ public class InteractiveTask implements Runnable {
 	}
 
 	private void printStacktrace(String command) throws IOException {
-		if (app.view.collectingData) {
-			tty.println(" Please wait for top threads displayed");
-			return;
-		}
-
 		app.preventFlush();
 		String pidStr;
 		if (command.length() == 1) {
@@ -134,7 +129,7 @@ public class InteractiveTask implements Runnable {
 			tty.println(" Nothing be changed");
 		} else {
 			if (app.view.mode.isCpuMode != detailMode.isCpuMode) {
-				app.view.cleanupThreadsHistory();
+				app.view.switchCpuAndMemory();
 				app.view.mode = detailMode;
 				tty.println(" Display mode changed to " + app.view.mode + " for next flush");
 				app.interruptSleep();

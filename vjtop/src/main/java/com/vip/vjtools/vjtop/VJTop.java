@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 
+import com.vip.vjtools.vjtop.VMDetailView.DetailMode;
 import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
 import com.vip.vjtools.vjtop.util.Formats;
 import com.vip.vjtools.vjtop.util.Utils;
@@ -50,13 +51,26 @@ public class VJTop {
 				"JMX url like 127.0.0.1:7001 when VM attach is not work").withRequiredArg().ofType(String.class);
 
 		// detail mode
-		parser.accepts("cpu",
-				"default mode in detail view, display thread cpu usage and sort by thread delta cpu time ");
-		parser.accepts("totalcpu", "display thread cpu usage and sort by total cpu time");
-		parser.accepts("syscpu", "display thread cpu usage and sort by delta syscpu time");
-		parser.accepts("totalsyscpu", "display thread cpu usage and sort by total syscpu time");
-		parser.accepts("memory", "display thread memory allocated and sort by delta");
-		parser.accepts("totalmemory", "display thread memory allocated and sort by total");
+		parser.acceptsAll(Arrays.asList(new String[] { "m", "mode" }),
+				"number of thread display mode: \n"
+						+ " 1.cpu(default): display thread cpu usage and sort by its delta cpu time\n"
+						+ " 2.syscpu: display thread cpu usage and sort by delta syscpu time\n"
+						+ " 3.total cpu: display thread cpu usage and sort by total cpu time\n"
+						+ " 4.total syscpu: display thread cpu usage and sort by total syscpu time\n"
+						+ " 5.memory: display thread memory allocated and sort by delta\n"
+						+ " 6.total memory: display thread memory allocated and sort by total")
+				.withRequiredArg().ofType(Integer.class);
+
+		parser.acceptsAll(Arrays.asList(new String[] { "o", "output" }),
+				"output format: \n" + " console(default): console with warning and flush ascii code\n"
+						+ " cleanconsole: console without warning and flush ascii code\n"
+						+ " text: plain text like /proc/status for 3rd tools\n")
+				.withRequiredArg().ofType(String.class);
+
+		parser.acceptsAll(Arrays.asList(new String[] { "c", "content" }),
+				"output format: \n"
+						+ " all(default): jvm info and theads info\n jvm: only jvm info\n thread: only thread info\n")
+				.withRequiredArg().ofType(String.class);
 
 		return parser;
 	}
@@ -153,11 +167,7 @@ public class VJTop {
 			int iterations = 0;
 			while (!view.shouldExit()) {
 				waitForInput();
-
-				Formats.clearTerminal();
-
 				view.printView();
-
 				if (view.shouldExit()) {
 					break;
 				}
@@ -173,7 +183,7 @@ public class VJTop {
 
 				iterations++;
 				sleepStartTime = System.currentTimeMillis();
-				Utils.sleep(sleepSeconds * 1000);
+				Utils.sleep(sleepSeconds * 1000L);
 			}
 			System.out.println("");
 			System.out.flush();
@@ -188,16 +198,9 @@ public class VJTop {
 
 	private static VMDetailView.DetailMode parseDisplayMode(OptionSet optionSet) {
 		VMDetailView.DetailMode displayMode = VMDetailView.DetailMode.cpu;
-		if (optionSet.has("memory")) {
-			displayMode = VMDetailView.DetailMode.memory;
-		} else if (optionSet.has("totalmemory")) {
-			displayMode = VMDetailView.DetailMode.totalmemory;
-		} else if (optionSet.has("totalcpu")) {
-			displayMode = VMDetailView.DetailMode.totalcpu;
-		} else if (optionSet.has("syscpu")) {
-			displayMode = VMDetailView.DetailMode.syscpu;
-		} else if (optionSet.has("totalsyscpu")) {
-			displayMode = VMDetailView.DetailMode.totalsyscpu;
+		if (optionSet.hasArgument("mode")) {
+			Integer mode = (Integer) optionSet.valueOf("mode");
+			displayMode = DetailMode.parse(mode.toString());
 		}
 		return displayMode;
 	}

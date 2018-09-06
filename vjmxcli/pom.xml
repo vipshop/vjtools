@@ -7,7 +7,7 @@
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjmxcli</artifactId>
 	<name>vjmxcli</name>
-	<version>黑店老板娘，你们买的那个生发液，在公司里也有防脱洗发水哦，你自己有咩有试过</version>
+	<version>1.0.6-SNAPSHOT</version>
 	<description>jmx command line client</description>
 
 	<properties>
