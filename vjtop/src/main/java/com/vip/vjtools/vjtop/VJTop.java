@@ -142,14 +142,27 @@ public class VJTop {
 				app.maxIterations = iterations;
 			}
 
-			// 5. start thread to get user input
+			// 5. console/cleanConsole mode start thread to get user input
 			if (app.maxIterations == -1 && format != OutputFormat.text) {
 				InteractiveTask task = new InteractiveTask(app);
+				// 如果后台运行，不接受用户输入，无需启动交互进程
 				if (task.inputEnabled()) {
 					view.displayCommandHints = true;
 					Thread interactiveThread = new Thread(task, "InteractiveThread");
 					interactiveThread.setDaemon(true);
 					interactiveThread.start();
+				} else {
+					format = OutputFormat.cleanConsole;
+				}
+			}
+
+			// 同步是否支持ascii
+			if (!format.ansi) {
+				Formats.disableAnsi();
+				if (format == OutputFormat.cleanConsole) {
+					Formats.setCleanClearTerminal();
+				} else {
+					Formats.setTextClearTerminal();
 				}
 			}
 
@@ -217,15 +230,7 @@ public class VJTop {
 				outputFormat = OutputFormat.text;
 			}
 		}
-		// 同步是否支持ascii
-		if (!outputFormat.ansi) {
-			Formats.disableAnsi();
-			if (outputFormat == OutputFormat.cleanConsole) {
-				Formats.setCleanClearTerminal();
-			} else {
-				Formats.setTextClearTerminal();
-			}
-		}
+
 		return outputFormat;
 	}
 
