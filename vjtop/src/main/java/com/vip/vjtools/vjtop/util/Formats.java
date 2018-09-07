@@ -15,14 +15,32 @@ public class Formats {
 	private static final long GB_SIZE = MB_SIZE * 1024;
 	private static final long TB_SIZE = GB_SIZE * 1024;
 
-	public static final String[] RED_ANSI = new String[] { "\033[31m\033[01m", "\033[0m" };
-	private static final String[] YELLOW_ANSI = new String[] { "\033[33m\033[01m", "\033[0m" };
+	private static String[] RED_ANSI = new String[] { "\033[31m\033[01m", "\033[0m" };
+	private static String[] YELLOW_ANSI = new String[] { "\033[33m\033[01m", "\033[0m" };
 	private static final String[] NORMAL_ANSI = new String[] { "", "" };
-	private static final String CLEAR_TERMINAL_ANSI_CMD = new String(
+	private static String CLEAR_TERMINAL_ANSI_CMD = new String(
 			new byte[] { (byte) 0x1b, (byte) 0x5b, (byte) 0x32, (byte) 0x4a, (byte) 0x1b, (byte) 0x5b, (byte) 0x48 });
 
-
 	public static boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.US).contains("windows");
+	{
+		if (isWindows) {
+			disableAnsi();
+			CLEAR_TERMINAL_ANSI_CMD = "%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n";
+		}
+	}
+
+	public static void disableAnsi() {
+		RED_ANSI = NORMAL_ANSI;
+		YELLOW_ANSI = NORMAL_ANSI;
+	}
+
+	public static void setCleanClearTerminal() {
+		CLEAR_TERMINAL_ANSI_CMD = "%n%n";
+	}
+
+	public static void setTextClearTerminal() {
+		CLEAR_TERMINAL_ANSI_CMD = "%n";
+	}
 
 	public static String toMBWithColor(long bytes, LongWarning warning) {
 		String[] ansi = colorAnsi(bytes, warning);
@@ -32,6 +50,14 @@ public class Formats {
 	public static String toColor(long value, LongWarning warning) {
 		String[] ansi = colorAnsi(value, warning);
 		return ansi[0] + value + ansi[1];
+	}
+
+	public static String red(String value) {
+		return RED_ANSI[0] + value + RED_ANSI[1];
+	}
+
+	public static String yellow(String value) {
+		return YELLOW_ANSI[0] + value + YELLOW_ANSI[1];
 	}
 
 	/**
@@ -134,7 +160,7 @@ public class Formats {
 	}
 
 	public static String[] colorAnsi(long value, LongWarning warning) {
-		if (isWindows || value < warning.yellow) {
+		if (value < warning.yellow) {
 			return NORMAL_ANSI;
 		} else if (value >= warning.red) {
 			return RED_ANSI;
@@ -144,7 +170,7 @@ public class Formats {
 	}
 
 	public static String[] colorAnsi(double value, DoubleWarning warning) {
-		if (isWindows || value < warning.yellow) {
+		if (value < warning.yellow) {
 			return NORMAL_ANSI;
 		} else if (value >= warning.red) {
 			return RED_ANSI;
@@ -250,10 +276,6 @@ public class Formats {
 	}
 
 	public static void clearTerminal() {
-		if (isWindows) {
-			System.out.printf("%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n%n");
-		} else {
-			System.out.print(CLEAR_TERMINAL_ANSI_CMD);
-		}
+		System.out.printf(CLEAR_TERMINAL_ANSI_CMD);
 	}
 }

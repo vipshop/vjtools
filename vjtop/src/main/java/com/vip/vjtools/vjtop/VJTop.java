@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 
+import com.vip.vjtools.vjtop.VMDetailView.OutputFormat;
+import com.vip.vjtools.vjtop.VMDetailView.ThreadMode;
 import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
 import com.vip.vjtools.vjtop.util.Formats;
 import com.vip.vjtools.vjtop.util.Utils;
@@ -16,7 +18,7 @@ import joptsimple.OptionSet;
 
 public class VJTop {
 
-	public static final String VERSION = "1.0.5";
+	public static final String VERSION = "1.0.6";
 
 	public static final int DEFAULT_INTERVAL = 10;
 
@@ -50,13 +52,26 @@ public class VJTop {
 				"JMX url like 127.0.0.1:7001 when VM attach is not work").withRequiredArg().ofType(String.class);
 
 		// detail mode
-		parser.accepts("cpu",
-				"default mode in detail view, display thread cpu usage and sort by thread delta cpu time ");
-		parser.accepts("totalcpu", "display thread cpu usage and sort by total cpu time");
-		parser.accepts("syscpu", "display thread cpu usage and sort by delta syscpu time");
-		parser.accepts("totalsyscpu", "display thread cpu usage and sort by total syscpu time");
-		parser.accepts("memory", "display thread memory allocated and sort by delta");
-		parser.accepts("totalmemory", "display thread memory allocated and sort by total");
+		parser.acceptsAll(Arrays.asList(new String[] { "m", "mode" }),
+				"number of thread display mode: \n"
+						+ " 1.cpu(default): display thread cpu usage and sort by its delta cpu time\n"
+						+ " 2.syscpu: display thread cpu usage and sort by delta syscpu time\n"
+						+ " 3.total cpu: display thread cpu usage and sort by total cpu time\n"
+						+ " 4.total syscpu: display thread cpu usage and sort by total syscpu time\n"
+						+ " 5.memory: display thread memory allocated and sort by delta\n"
+						+ " 6.total memory: display thread memory allocated and sort by total")
+				.withRequiredArg().ofType(Integer.class);
+
+		parser.acceptsAll(Arrays.asList(new String[] { "o", "output" }),
+				"output format: \n" + " console(default): console with warning and flush ansi code\n"
+						+ " clean: console without warning and flush ansi code\n"
+						+ " text: plain text like /proc/status for 3rd tools\n")
+				.withRequiredArg().ofType(String.class);
+
+		parser.acceptsAll(Arrays.asList(new String[] { "c", "content" }),
+				"output format: \n"
+						+ " all(default): jvm info and theads info\n jvm: only jvm info\n thread: only thread info\n")
+				.withRequiredArg().ofType(String.class);
 
 		return parser;
 	}
@@ -82,13 +97,15 @@ public class VJTop {
 
 			VMInfo vminfo = VMInfo.processNewVM(pid, jmxHostAndPort);
 			if (vminfo.state != VMInfoState.ATTACHED) {
-				System.out.println("\n" + Formats.RED_ANSI[0]
-						+ "ERROR: Could not attach to process, see the solution in README" + Formats.RED_ANSI[1]);
+				System.out
+						.println("\n" + Formats.red("ERROR: Could not attach to process, see the solution in README"));
 				return;
 			}
 
 			// 3. create view
-			VMDetailView.DetailMode displayMode = parseDisplayMode(optionSet);
+			VMDetailView.ThreadMode threadMode = parseThreadMode(optionSet);
+			VMDetailView.OutputFormat format = parseOutputFormat(optionSet);
+
 			Integer width = null;
 			if (optionSet.hasArgument("width")) {
 				width = (Integer) optionSet.valueOf("width");
@@ -102,7 +119,7 @@ public class VJTop {
 				}
 			}
 
-			VMDetailView view = new VMDetailView(vminfo, displayMode, width, interval);
+			VMDetailView view = new VMDetailView(vminfo, format, threadMode, width, interval);
 
 			if (optionSet.hasArgument("limit")) {
 				Integer limit = (Integer) optionSet.valueOf("limit");
@@ -125,15 +142,27 @@ public class VJTop {
 				app.maxIterations = iterations;
 			}
 
-			// 5. start thread to get user input
-			if (app.maxIterations == -1) {
+			// 5. console/cleanConsole mode start thread to get user input
+			if (app.maxIterations == -1 && format != OutputFormat.text) {
 				InteractiveTask task = new InteractiveTask(app);
+				// 如果后台运行，不接受用户输入，无需启动交互进程
 				if (task.inputEnabled()) {
 					view.displayCommandHints = true;
-
 					Thread interactiveThread = new Thread(task, "InteractiveThread");
 					interactiveThread.setDaemon(true);
 					interactiveThread.start();
+				} else {
+					format = OutputFormat.cleanConsole;
+				}
+			}
+
+			// 同步是否支持ascii
+			if (!format.ansi) {
+				Formats.disableAnsi();
+				if (format == OutputFormat.cleanConsole) {
+					Formats.setCleanClearTerminal();
+				} else {
+					Formats.setTextClearTerminal();
 				}
 			}
 
@@ -153,11 +182,7 @@ public class VJTop {
 			int iterations = 0;
 			while (!view.shouldExit()) {
 				waitForInput();
-
-				Formats.clearTerminal();
-
 				view.printView();
-
 				if (view.shouldExit()) {
 					break;
 				}
@@ -168,38 +193,45 @@ public class VJTop {
 					break;
 				}
 
-				// 第一次最多只等待2秒
-				int sleepSeconds = (iterations == 0) ? Math.min(2, interval) : interval;
+				// 第一次最多只等待3秒
+				int sleepSeconds = (iterations == 0) ? Math.min(3, interval) : interval;
 
 				iterations++;
 				sleepStartTime = System.currentTimeMillis();
-				Utils.sleep(sleepSeconds * 1000);
+				Utils.sleep(sleepSeconds * 1000L);
 			}
 			System.out.println("");
 			System.out.flush();
 		} catch (NoClassDefFoundError e) {
 			e.printStackTrace(System.out);
-			System.out.println(Formats.RED_ANSI[0] + "ERROR: Some JDK classes cannot be found." + Formats.RED_ANSI[1]);
+			System.out.println(Formats.red("ERROR: Some JDK classes cannot be found."));
 			System.out.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
 			System.out.println("");
 			System.out.flush();
 		}
 	}
 
-	private static VMDetailView.DetailMode parseDisplayMode(OptionSet optionSet) {
-		VMDetailView.DetailMode displayMode = VMDetailView.DetailMode.cpu;
-		if (optionSet.has("memory")) {
-			displayMode = VMDetailView.DetailMode.memory;
-		} else if (optionSet.has("totalmemory")) {
-			displayMode = VMDetailView.DetailMode.totalmemory;
-		} else if (optionSet.has("totalcpu")) {
-			displayMode = VMDetailView.DetailMode.totalcpu;
-		} else if (optionSet.has("syscpu")) {
-			displayMode = VMDetailView.DetailMode.syscpu;
-		} else if (optionSet.has("totalsyscpu")) {
-			displayMode = VMDetailView.DetailMode.totalsyscpu;
+	private static VMDetailView.ThreadMode parseThreadMode(OptionSet optionSet) {
+		VMDetailView.ThreadMode threadMode = VMDetailView.ThreadMode.cpu;
+		if (optionSet.hasArgument("mode")) {
+			Integer mode = (Integer) optionSet.valueOf("mode");
+			threadMode = ThreadMode.parse(mode.toString());
 		}
-		return displayMode;
+		return threadMode;
+	}
+
+	private static VMDetailView.OutputFormat parseOutputFormat(OptionSet optionSet) {
+		VMDetailView.OutputFormat outputFormat = VMDetailView.OutputFormat.console;
+		if (optionSet.hasArgument("output")) {
+			String format = (String) optionSet.valueOf("output");
+			if (format.equals("clean")) {
+				outputFormat = OutputFormat.cleanConsole;
+			} else if (format.equals("text")) {
+				outputFormat = OutputFormat.text;
+			}
+		}
+
+		return outputFormat;
 	}
 
 	private static String parsePid(OptionParser parser, OptionSet optionSet) {
