@@ -97,8 +97,8 @@ public class VJTop {
 
 			VMInfo vminfo = VMInfo.processNewVM(pid, jmxHostAndPort);
 			if (vminfo.state != VMInfoState.ATTACHED) {
-				System.out.println("\n" + Formats.RED_ANSI[0]
-						+ "ERROR: Could not attach to process, see the solution in README" + Formats.RED_ANSI[1]);
+				System.out
+						.println("\n" + Formats.red("ERROR: Could not attach to process, see the solution in README"));
 				return;
 			}
 
@@ -143,7 +143,7 @@ public class VJTop {
 			}
 
 			// 5. start thread to get user input
-			if (app.maxIterations == -1 && format == OutputFormat.console) {
+			if (app.maxIterations == -1 && format != OutputFormat.text) {
 				InteractiveTask task = new InteractiveTask(app);
 				if (task.inputEnabled()) {
 					view.displayCommandHints = true;
@@ -180,8 +180,8 @@ public class VJTop {
 					break;
 				}
 
-				// 第一次最多只等待2秒
-				int sleepSeconds = (iterations == 0) ? Math.min(2, interval) : interval;
+				// 第一次最多只等待3秒
+				int sleepSeconds = (iterations == 0) ? Math.min(3, interval) : interval;
 
 				iterations++;
 				sleepStartTime = System.currentTimeMillis();
@@ -191,7 +191,7 @@ public class VJTop {
 			System.out.flush();
 		} catch (NoClassDefFoundError e) {
 			e.printStackTrace(System.out);
-			System.out.println(Formats.RED_ANSI[0] + "ERROR: Some JDK classes cannot be found." + Formats.RED_ANSI[1]);
+			System.out.println(Formats.red("ERROR: Some JDK classes cannot be found."));
 			System.out.println("       Please check if the JAVA_HOME environment variable has been set to a JDK path.");
 			System.out.println("");
 			System.out.flush();
@@ -220,6 +220,11 @@ public class VJTop {
 		// 同步是否支持ascii
 		if (!outputFormat.ansi) {
 			Formats.disableAnsi();
+			if (outputFormat == OutputFormat.cleanConsole) {
+				Formats.setCleanClearTerminal();
+			} else {
+				Formats.setTextClearTerminal();
+			}
 		}
 		return outputFormat;
 	}

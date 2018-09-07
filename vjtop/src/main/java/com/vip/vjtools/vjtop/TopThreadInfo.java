@@ -8,7 +8,7 @@ import com.vip.vjtools.vjtop.util.LongObjectHashMap;
 import com.vip.vjtools.vjtop.util.LongObjectMap;
 import com.vip.vjtools.vjtop.util.Utils;
 
-public class TopThread {
+public class TopThreadInfo {
 	private VMInfo vmInfo;
 
 	private long[] topTidArray;
@@ -17,7 +17,7 @@ public class TopThread {
 	private LongObjectMap<Long> lastThreadSysCpuTotalTimes = new LongObjectHashMap<Long>();
 	private LongObjectMap<Long> lastThreadMemoryTotalBytes = new LongObjectHashMap<Long>();
 
-	public TopThread(VMInfo vmInfo) {
+	public TopThreadInfo(VMInfo vmInfo) {
 		this.vmInfo = vmInfo;
 	}
 
@@ -85,22 +85,18 @@ public class TopThread {
 		// 按不同类型排序,过滤
 		if (mode == ThreadMode.cpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadCpuDeltaTimes, threadLimit);
-			result.noteableThreads = result.threadCpuDeltaTimes.size();
+			result.activeThreads = result.threadCpuDeltaTimes.size();
 		} else if (mode == ThreadMode.syscpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadSysCpuDeltaTimes, threadLimit);
-			result.noteableThreads = result.threadSysCpuDeltaTimes.size();
+			result.activeThreads = result.threadSysCpuDeltaTimes.size();
 		} else if (mode == ThreadMode.totalcpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadCpuTotalTimes, threadLimit);
-			result.noteableThreads = result.threadCpuTotalTimes.size();
+			result.activeThreads = result.threadCpuTotalTimes.size();
 		} else if (mode == ThreadMode.totalsyscpu) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadSysCpuTotalTimes, threadLimit);
-			result.noteableThreads = result.threadSysCpuTotalTimes.size();
+			result.activeThreads = result.threadSysCpuTotalTimes.size();
 		} else {
 			throw new RuntimeException("unkown mode:" + mode);
-		}
-
-		if (result.noteableThreads == 0) {
-			System.out.printf("%n -Every thread use cpu lower than 0.05%%-%n");
 		}
 
 		// 获得threadInfo
@@ -155,14 +151,10 @@ public class TopThread {
 		long[] topTidArray;
 		if (mode == ThreadMode.memory) {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadMemoryDeltaBytesMap, threadLimit);
-			result.noteableThreads = result.threadMemoryDeltaBytesMap.size();
+			result.activeThreads = result.threadMemoryDeltaBytesMap.size();
 		} else {
 			topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadMemoryTotalBytesMap, threadLimit);
-			result.noteableThreads = result.threadMemoryTotalBytesMap.size();
-		}
-
-		if (result.noteableThreads == 0) {
-			System.out.printf("%n -Every thread allocate memory slower than 1k/s-%n");
+			result.activeThreads = result.threadMemoryTotalBytesMap.size();
 		}
 
 		result.threadInfos = vmInfo.getThreadMXBean().getThreadInfo(topTidArray);
@@ -184,7 +176,7 @@ public class TopThread {
 
 	public static class TopCpuResult {
 		public ThreadInfo[] threadInfos;
-		public long noteableThreads = 0;
+		public long activeThreads = 0;
 
 		public long deltaAllThreadCpu = 0;
 		public long deltaAllThreadSysCpu = 0;
@@ -199,7 +191,7 @@ public class TopThread {
 
 	public static class TopMemoryResult {
 		public ThreadInfo[] threadInfos;
-		public long noteableThreads = 0;
+		public long activeThreads = 0;
 
 		public long deltaAllThreadBytes = 0;
 		public long totalAllThreadBytes = 0;
