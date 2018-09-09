@@ -9,6 +9,7 @@
 	<properties>
 		<!-- change it to point to your sa-jdi.jar from your JDK -->
 		<sajdijar>${java.home}/../lib/sa-jdi.jar</sajdijar>
+		<toolsjar>${java.home}/../lib/tools.jar</toolsjar>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.7</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
@@ -22,6 +23,13 @@
 			<version>1.0</version>
 			<scope>system</scope>
 			<systemPath>${sajdijar}</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.sun</groupId>
+			<artifactId>tools</artifactId>
+			<version>${java.version}</version>
+			<scope>system</scope>
+			<systemPath>${toolsjar}</systemPath>
 		</dependency>
 	</dependencies>
 

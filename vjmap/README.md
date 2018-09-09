@@ -66,6 +66,12 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用kil
 ./vjmap.sh -all:minsize=1024,byname PID > /tmp/histo.log
 ```
 
+## 2.4 打印老年代中对象的统计信息，仅输出存活对象:
+
+```
+./vjmap.sh -old:live PID > /tmp/histo-old.log
+```
+
 # 3.输出示例
 
 
