@@ -5,12 +5,13 @@ import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Arrays;
 
+import com.vip.vjtools.vjtop.VMDetailView.ContentMode;
 import com.vip.vjtools.vjtop.VMDetailView.OutputFormat;
-import com.vip.vjtools.vjtop.VMDetailView.ThreadMode;
+import com.vip.vjtools.vjtop.VMDetailView.ThreadInfoMode;
 import com.vip.vjtools.vjtop.VMInfo.VMInfoState;
 import com.vip.vjtools.vjtop.util.Formats;
+import com.vip.vjtools.vjtop.util.OptionAdvanceParser;
 import com.vip.vjtools.vjtop.util.Utils;
 
 import joptsimple.OptionParser;
@@ -20,66 +21,19 @@ public class VJTop {
 
 	public static final String VERSION = "1.0.6";
 
-	public static final int DEFAULT_INTERVAL = 10;
-
 	public VMDetailView view;
-
-	private volatile Integer interval = DEFAULT_INTERVAL;
-
-	private volatile boolean needMoreInput = false;
-
 	private Thread mainThread;
-	private long sleepStartTime;
+
+	private Integer interval;
 	private int maxIterations = -1;
 
-	private static OptionParser createOptionParser() {
-		OptionParser parser = new OptionParser();
-		// commmon
-		parser.acceptsAll(Arrays.asList(new String[] { "help", "?", "h" }), "shows this help").forHelp();
-		parser.acceptsAll(Arrays.asList(new String[] { "n", "iteration" }),
-				"vjtop will exit after n output iterations  (defaults to unlimit)").withRequiredArg()
-				.ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "i", "interval", "d" }),
-				"interval between each output iteration (defaults to 10s)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "w", "width" }),
-				"Number of columns for the console display (defaults to 100)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "l", "limit" }),
-				"Number of threads to display ( default to 10 threads)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "f", "filter" }), "Thread name filter ( no default)")
-				.withRequiredArg().ofType(String.class);
-
-		parser.acceptsAll(Arrays.asList(new String[] { "j", "jmxurl" }),
-				"JMX url like 127.0.0.1:7001 when VM attach is not work").withRequiredArg().ofType(String.class);
-
-		// detail mode
-		parser.acceptsAll(Arrays.asList(new String[] { "m", "mode" }),
-				"number of thread display mode: \n"
-						+ " 1.cpu(default): display thread cpu usage and sort by its delta cpu time\n"
-						+ " 2.syscpu: display thread cpu usage and sort by delta syscpu time\n"
-						+ " 3.total cpu: display thread cpu usage and sort by total cpu time\n"
-						+ " 4.total syscpu: display thread cpu usage and sort by total syscpu time\n"
-						+ " 5.memory: display thread memory allocated and sort by delta\n"
-						+ " 6.total memory: display thread memory allocated and sort by total")
-				.withRequiredArg().ofType(Integer.class);
-
-		parser.acceptsAll(Arrays.asList(new String[] { "o", "output" }),
-				"output format: \n" + " console(default): console with warning and flush ansi code\n"
-						+ " clean: console without warning and flush ansi code\n"
-						+ " text: plain text like /proc/status for 3rd tools\n")
-				.withRequiredArg().ofType(String.class);
-
-		parser.acceptsAll(Arrays.asList(new String[] { "c", "content" }),
-				"output format: \n"
-						+ " all(default): jvm info and theads info\n jvm: only jvm info\n thread: only thread info\n")
-				.withRequiredArg().ofType(String.class);
-
-		return parser;
-	}
+	private volatile boolean needMoreInput = false;
+	private long sleepStartTime;
 
 	public static void main(String[] args) {
 		try {
 			// 1. create option parser
-			OptionParser parser = createOptionParser();
+			OptionParser parser = OptionAdvanceParser.createOptionParser();
 			OptionSet optionSet = parser.parse(args);
 
 			if (optionSet.has("help")) {
@@ -88,7 +42,7 @@ public class VJTop {
 			}
 
 			// 2. create vminfo
-			String pid = parsePid(parser, optionSet);
+			String pid = OptionAdvanceParser.parsePid(parser, optionSet);
 
 			String jmxHostAndPort = null;
 			if (optionSet.hasArgument("jmxurl")) {
@@ -103,23 +57,18 @@ public class VJTop {
 			}
 
 			// 3. create view
-			VMDetailView.ThreadMode threadMode = parseThreadMode(optionSet);
-			VMDetailView.OutputFormat format = parseOutputFormat(optionSet);
+			ThreadInfoMode threadInfoMode = OptionAdvanceParser.parseThreadInfoMode(optionSet);
+			OutputFormat format = OptionAdvanceParser.parseOutputFormat(optionSet);
+			ContentMode contentMode = OptionAdvanceParser.parseContentMode(optionSet);
 
 			Integer width = null;
 			if (optionSet.hasArgument("width")) {
 				width = (Integer) optionSet.valueOf("width");
 			}
 
-			Integer interval = DEFAULT_INTERVAL;
-			if (optionSet.hasArgument("interval")) {
-				interval = (Integer) (optionSet.valueOf("interval"));
-				if (interval < 1) {
-					throw new IllegalArgumentException("Interval cannot be set below 1.0");
-				}
-			}
+			Integer interval = OptionAdvanceParser.parseInterval(optionSet);
 
-			VMDetailView view = new VMDetailView(vminfo, format, threadMode, width, interval);
+			VMDetailView view = new VMDetailView(vminfo, format, contentMode, threadInfoMode, width, interval);
 
 			if (optionSet.hasArgument("limit")) {
 				Integer limit = (Integer) optionSet.valueOf("limit");
@@ -145,18 +94,19 @@ public class VJTop {
 			// 5. console/cleanConsole mode start thread to get user input
 			if (app.maxIterations == -1 && format != OutputFormat.text) {
 				InteractiveTask task = new InteractiveTask(app);
-				// 如果后台运行，不接受用户输入，无需启动交互进程
+				// 前台运行，接受用户输入时才启动交互进程
 				if (task.inputEnabled()) {
 					view.displayCommandHints = true;
 					Thread interactiveThread = new Thread(task, "InteractiveThread");
 					interactiveThread.setDaemon(true);
 					interactiveThread.start();
 				} else {
+					// 后台运行，输出重定向到文件时，转为没有ansi码的干净模式
 					format = OutputFormat.cleanConsole;
 				}
 			}
 
-			// 同步是否支持ascii
+			// 6. cleanConsole/text mode, 屏蔽ansi码
 			if (!format.ansi) {
 				Formats.disableAnsi();
 				if (format == OutputFormat.cleanConsole) {
@@ -166,7 +116,7 @@ public class VJTop {
 				}
 			}
 
-			// 6. run app
+			// 7. run app
 			app.run(view);
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
@@ -211,47 +161,7 @@ public class VJTop {
 		}
 	}
 
-	private static VMDetailView.ThreadMode parseThreadMode(OptionSet optionSet) {
-		VMDetailView.ThreadMode threadMode = VMDetailView.ThreadMode.cpu;
-		if (optionSet.hasArgument("mode")) {
-			Integer mode = (Integer) optionSet.valueOf("mode");
-			threadMode = ThreadMode.parse(mode.toString());
-		}
-		return threadMode;
-	}
-
-	private static VMDetailView.OutputFormat parseOutputFormat(OptionSet optionSet) {
-		VMDetailView.OutputFormat outputFormat = VMDetailView.OutputFormat.console;
-		if (optionSet.hasArgument("output")) {
-			String format = (String) optionSet.valueOf("output");
-			if (format.equals("clean")) {
-				outputFormat = OutputFormat.cleanConsole;
-			} else if (format.equals("text")) {
-				outputFormat = OutputFormat.text;
-			}
-		}
-
-		return outputFormat;
-	}
-
-	private static String parsePid(OptionParser parser, OptionSet optionSet) {
-		Integer pid = null;
-
-		// to support PID as non option argument
-		if (optionSet.nonOptionArguments().size() > 0) {
-			pid = Integer.valueOf((String) optionSet.nonOptionArguments().get(0));
-		}
-
-		if (pid == null) {
-			System.out.println("PID can't be empty !!!");
-			printHelper(parser);
-			System.exit(0);
-		}
-
-		return String.valueOf(pid);
-	}
-
-	private static void printHelper(OptionParser parser) {
+	public static void printHelper(OptionParser parser) {
 		try {
 			System.out.println("vjtop " + VERSION + " - java monitoring for the command-line");
 			System.out.println("Usage: vjtop.sh [options...] <PID>");
@@ -263,7 +173,7 @@ public class VJTop {
 	}
 
 	public void exit() {
-		view.exit();
+		view.shoulExit();
 		mainThread.interrupt();
 	}
 

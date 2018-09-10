@@ -3,10 +3,10 @@ package com.vip.vjtools.vjtop;
 import java.io.IOException;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
+import java.lang.management.ThreadInfo;
 import java.util.Locale;
 import java.util.Map;
 
-import com.sun.management.ThreadMXBean;
 import com.vip.vjtools.vjtop.data.PerfData;
 import com.vip.vjtools.vjtop.data.ProcFileData;
 import com.vip.vjtools.vjtop.data.jmx.JmxClient;
@@ -108,7 +108,6 @@ public class VMInfo {
 	private LongCounter safepointSyncTimeCounter;
 	private StringCounter currentGcCauseCounter;
 
-
 	public VMInfo(JmxClient jmxClient, String vmId) throws Exception {
 		this.jmxClient = jmxClient;
 		this.state = VMInfoState.ATTACHED;
@@ -201,13 +200,14 @@ public class VMInfo {
 	/**
 	 * Updates all jvm metrics to the most recent remote values
 	 */
-	public void update() {
+	public void update(boolean needJvmInfo) {
 		if (state == VMInfoState.ERROR_DURING_ATTACH || state == VMInfoState.DETACHED) {
 			return;
 		}
 
 		try {
 			int lastJmxErrorCount = jmxUpdateErrorCount;
+			// 将UPDTATE_ERROR重置开始新一轮循环
 			state = VMInfoState.ATTACHED;
 
 			// 清空JMX内部缓存
@@ -215,25 +215,28 @@ public class VMInfo {
 
 			updateUpTime();
 
-			if (isLinux) {
-				updateProcessStatus();
-				updateIO();
+			if (needJvmInfo) {
+				if (isLinux) {
+					updateProcessStatus();
+					updateIO();
+				}
+
+				updateCpu();
+				updateThreads();
+				updateClassLoader();
+				updateMemoryPool();
+				updateGC();
+				updateSafepoint();
 			}
 
-			updateCpu();
-			updateThreads();
-			updateClassLoader();
-			updateMemoryPool();
-			updateGC();
-			updateSafepoint();
-
 			// 无新异常，状态重新判定为正常
-			if (jmxUpdateErrorCount - lastJmxErrorCount == 0) {
+			if (jmxUpdateErrorCount == lastJmxErrorCount) {
 				jmxUpdateErrorCount = 0;
 			}
 		} catch (Throwable e) {
 			// 其他非JMX异常，直接退出
-			e.printStackTrace(System.out);
+			e.printStackTrace();
+			System.out.flush();
 			state = VMInfoState.DETACHED;
 		}
 	}
@@ -398,8 +401,32 @@ public class VMInfo {
 		currentGcCause = (String) currentGcCauseCounter.getValue();
 	}
 
-	public ThreadMXBean getThreadMXBean() throws IOException {
-		return jmxClient.getThreadMXBean();
+	public long[] getAllThreadIds() throws IOException {
+		return jmxClient.getThreadMXBean().getAllThreadIds();
+	}
+
+	public long[] getThreadCpuTime(long[] tids) throws IOException {
+		return jmxClient.getThreadMXBean().getThreadCpuTime(tids);
+	}
+
+	public long[] getThreadUserTime(long[] tids) throws IOException {
+		return jmxClient.getThreadMXBean().getThreadUserTime(tids);
+	}
+
+	public ThreadInfo[] getThreadInfo(long[] tids) throws IOException {
+		return jmxClient.getThreadMXBean().getThreadInfo(tids);
+	}
+
+	public ThreadInfo[] getThreadInfo(long[] tids, int maxDepth) throws IOException {
+		return jmxClient.getThreadMXBean().getThreadInfo(tids, maxDepth);
+	}
+
+	public ThreadInfo getThreadInfo(long tid, int maxDepth) throws IOException {
+		return jmxClient.getThreadMXBean().getThreadInfo(tid, maxDepth);
+	}
+
+	public long[] getThreadAllocatedBytes(long[] tids) throws IOException {
+		return jmxClient.getThreadMXBean().getThreadAllocatedBytes(tids);
 	}
 
 	private void initPerfCounters(Map<String, Counter> perfCounters) {
@@ -422,8 +449,10 @@ public class VMInfo {
 		currentGcCauseCounter = (StringCounter) perfCounters.get("sun.gc.cause");
 	}
 
-	private void handleJmxFetchDataError(Throwable e) {
-		e.printStackTrace(System.out);
+	public void handleJmxFetchDataError(Throwable e) {
+		System.out.println("");
+		e.printStackTrace();
+		System.out.flush();
 		jmxUpdateErrorCount++;
 
 		// 连续三次刷新周期JMX 获取数据失败则退出

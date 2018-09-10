@@ -4,7 +4,7 @@ import java.io.Console;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import com.vip.vjtools.vjtop.VMDetailView.ThreadMode;
+import com.vip.vjtools.vjtop.VMDetailView.ThreadInfoMode;
 
 /**
  * 与用户交互动态的控制器
@@ -121,21 +121,21 @@ public class InteractiveTask implements Runnable {
 
 		String mode = readLine(
 				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory, current "
-						+ app.view.threadMode + "): ");
-		ThreadMode detailMode = ThreadMode.parse(mode);
+						+ app.view.threadInfoMode + "): ");
+		ThreadInfoMode detailMode = ThreadInfoMode.parse(mode);
 		if (detailMode == null) {
 			tty.println(" Wrong option for display mode(1-6)");
-		} else if (detailMode == app.view.threadMode) {
+		} else if (detailMode == app.view.threadInfoMode) {
 			tty.println(" Nothing be changed");
 		} else {
-			if (app.view.threadMode.isCpuMode != detailMode.isCpuMode) {
+			if (app.view.threadInfoMode.isCpuMode != detailMode.isCpuMode) {
 				app.view.switchCpuAndMemory();
-				app.view.threadMode = detailMode;
-				tty.println(" Display mode changed to " + app.view.threadMode + " for next flush");
+				app.view.threadInfoMode = detailMode;
+				tty.println(" Display mode changed to " + app.view.threadInfoMode + " for next flush");
 				app.interruptSleep();
 			} else {
-				app.view.threadMode = detailMode;
-				tty.println(" Display mode changed to " + app.view.threadMode + " for next flush(" + app.nextFlushTime()
+				app.view.threadInfoMode = detailMode;
+				tty.println(" Display mode changed to " + app.view.threadInfoMode + " for next flush(" + app.nextFlushTime()
 						+ "s later)");
 			}
 		}
@@ -212,6 +212,7 @@ public class InteractiveTask implements Runnable {
 	}
 
 	private void printHelp() throws Exception {
+		app.preventFlush();
 		tty.println(" t [tid]: print stack trace of the thread you choose");
 		tty.println(" s : print stack trace of top " + app.view.threadLimit + " threads");
 		tty.println(" a : list id and name of all threads");
@@ -221,7 +222,6 @@ public class InteractiveTask implements Runnable {
 		tty.println(" f [name]: set thread name filter");
 		tty.println(" q : quit");
 		tty.println(" h : print help");
-		app.preventFlush();
 		waitForEnter();
 		app.continueFlush();
 	}
