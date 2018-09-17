@@ -175,7 +175,7 @@ stack.popAll(objects);
 
 **Rule 10. 【推荐】`List`, `List<?>` 与 `List<Object>`的选择**
 
-定义成`List`，会被IDE提示需要定义泛型。 如果实在无法确定泛型，就仓促定义成`List<?>`来蒙混过关的话，该list只能读，不能增改。定义成`List<Object>`呢，如规则10所述，`List<String>` 并不是`List<Object>`的子类，除非函数定义使用了通配符。
+定义成`List`，会被IDE提示需要定义泛型。 如果实在无法确定泛型，就仓促定义成`List<?>`来蒙混过关的话，该list只能读，不能增改。定义成`List<Object>`呢，如规则9所述，`List<String>` 并不是`List<Object>`的子类，除非函数定义使用了通配符。
 
 因此实在无法明确其泛型时，使用`List`也是可以的。
 
