@@ -1,4 +1,4 @@
-package com.vip.vjtools.vjkit.concurrent;
+package com.vip.vjtools.vjkit.concurrent.limiter;
 
 import org.apache.commons.lang3.Validate;
 

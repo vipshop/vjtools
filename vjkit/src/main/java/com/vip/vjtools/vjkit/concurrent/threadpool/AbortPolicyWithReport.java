@@ -20,7 +20,6 @@ public class AbortPolicyWithReport extends ThreadPoolExecutor.AbortPolicy {
 
 	private ThreadDumpper dummper = new ThreadDumpper();
 
-
 	public AbortPolicyWithReport(String threadName) {
 		this.threadName = threadName;
 	}

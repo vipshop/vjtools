@@ -1,4 +1,4 @@
-package com.vip.vjtools.vjkit.concurrent;
+package com.vip.vjtools.vjkit.concurrent.limiter;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;

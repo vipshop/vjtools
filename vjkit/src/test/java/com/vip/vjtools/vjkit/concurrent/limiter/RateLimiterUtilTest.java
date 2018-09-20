@@ -1,4 +1,4 @@
-package com.vip.vjtools.vjkit.concurrent;
+package com.vip.vjtools.vjkit.concurrent.limiter;
 
 import java.lang.reflect.Field;
 
@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.vip.vjtools.vjkit.concurrent.limiter.RateLimiterUtil;
 
 public class RateLimiterUtilTest {
 	@Test

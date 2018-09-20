@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vip.vjtools.vjkit.concurrent.limiter.TimeIntervalLimiter;
+
 /**
  * 由程序触发的ThreadDump，打印到日志中.
  * 
@@ -22,8 +24,6 @@ public class ThreadDumpper {
 
 	private static Logger logger = LoggerFactory.getLogger(ThreadDumpper.class);
 
-	private boolean enable = true; // 快速关闭该功能
-
 	private int maxStackLevel; // 打印StackTrace的最大深度
 
 	private TimeIntervalLimiter timeIntervalLimiter;
@@ -34,7 +34,6 @@ public class ThreadDumpper {
 
 	public ThreadDumpper(long leastIntervalMills, int maxStackLevel) {
 		this.maxStackLevel = maxStackLevel;
-
 		timeIntervalLimiter = new TimeIntervalLimiter(leastIntervalMills, TimeUnit.MILLISECONDS);
 	}
 
@@ -51,17 +50,13 @@ public class ThreadDumpper {
 	 * @param reasonMsg 发生ThreadDump的原因
 	 */
 	public void tryThreadDump(String reasonMsg) {
-		if (canDump()) {
+		if (timeIntervalLimiter.tryAcquire()) {
 			threadDump(reasonMsg);
 		}
 	}
 
-	public boolean canDump() {
-		return timeIntervalLimiter.tryAcquire();
-	}
-
 	/**
-	 * 强行打印ThreadDump
+	 * 强行打印ThreadDump，使用最轻量的采集方式，不打印锁信息
 	 */
 	public void threadDump(String reasonMsg) {
 		logger.info("Thread dump by ThreadDumpper" + (reasonMsg != null ? (" for " + reasonMsg) : ""));
@@ -98,7 +93,6 @@ public class ThreadDumpper {
 		return sb.toString();
 	}
 
-
 	/**
 	 * 打印ThreadDump的最小时间间隔，单位为秒，默认为0不限制.
 	 */
@@ -107,7 +101,7 @@ public class ThreadDumpper {
 	}
 
 	/**
-	 * 打印StackTrace的最大深度, 默认为8
+	 * 打印StackTrace的最大深度, 默认为8.
 	 */
 	public void setMaxStackLevel(int maxStackLevel) {
 		this.maxStackLevel = maxStackLevel;
