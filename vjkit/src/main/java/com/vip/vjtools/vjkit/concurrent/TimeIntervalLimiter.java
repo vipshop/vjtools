@@ -9,7 +9,6 @@ public class TimeIntervalLimiter {
 
 	private long windowSizeMillis;
 
-
 	public TimeIntervalLimiter(long interval, TimeUnit timeUnit) {
 		this.windowSizeMillis = timeUnit.toMillis(interval);
 	}

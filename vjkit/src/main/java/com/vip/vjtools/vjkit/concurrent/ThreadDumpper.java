@@ -41,8 +41,8 @@ public class ThreadDumpper {
 	/**
 	 * 符合条件则打印线程栈.
 	 */
-	public void threadDumpIfNeed() {
-		threadDumpIfNeed(null);
+	public void tryThreadDump() {
+		tryThreadDump(null);
 	}
 
 	/**
@@ -50,15 +50,20 @@ public class ThreadDumpper {
 	 * 
 	 * @param reasonMsg 发生ThreadDump的原因
 	 */
-	public void threadDumpIfNeed(String reasonMsg) {
-		if (!enable) {
-			return;
+	public void tryThreadDump(String reasonMsg) {
+		if (canDump()) {
+			threadDump(reasonMsg);
 		}
+	}
 
-		if (!timeIntervalLimiter.tryAcquire()) {
-			return;
-		}
+	public boolean canDump() {
+		return timeIntervalLimiter.tryAcquire();
+	}
 
+	/**
+	 * 强行打印ThreadDump
+	 */
+	public void threadDump(String reasonMsg) {
 		logger.info("Thread dump by ThreadDumpper" + (reasonMsg != null ? (" for " + reasonMsg) : ""));
 
 		Map<Thread, StackTraceElement[]> threads = Thread.getAllStackTraces();
@@ -71,7 +76,6 @@ public class ThreadDumpper {
 			dumpThreadInfo(entry.getKey(), entry.getValue(), sb);
 		}
 		logger.info(sb.toString());
-
 	}
 
 	/**
@@ -79,7 +83,7 @@ public class ThreadDumpper {
 	 */
 	private String dumpThreadInfo(Thread thread, StackTraceElement[] stackTrace, StringBuilder sb) {
 		sb.append('\"').append(thread.getName()).append("\" Id=").append(thread.getId()).append(' ')
-		.append(thread.getState());
+				.append(thread.getState());
 		sb.append('\n');
 		int i = 0;
 		for (; i < Math.min(maxStackLevel, stackTrace.length); i++) {
@@ -94,12 +98,6 @@ public class ThreadDumpper {
 		return sb.toString();
 	}
 
-	/**
-	 * 快速关闭打印
-	 */
-	public void setEnable(boolean enable) {
-		this.enable = enable;
-	}
 
 	/**
 	 * 打印ThreadDump的最小时间间隔，单位为秒，默认为0不限制.

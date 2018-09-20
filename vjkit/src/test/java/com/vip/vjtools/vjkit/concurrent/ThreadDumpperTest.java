@@ -1,6 +1,6 @@
 package com.vip.vjtools.vjkit.concurrent;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -38,27 +38,19 @@ public class ThreadDumpperTest {
 		countDownLatch.await();
 
 		ThreadDumpper dumpper = new ThreadDumpper();
-		dumpper.threadDumpIfNeed();
+		dumpper.tryThreadDump();
 
 		LogbackListAppender appender = new LogbackListAppender();
 		appender.addToLogger(ThreadDumpper.class);
 
-		// disable,不输出
-		dumpper.setEnable(false);
-		dumpper.threadDumpIfNeed();
-		assertThat(appender.getAllLogs()).hasSize(0);
-
 		// 设置最少间隔,不输出
-		dumpper.setEnable(true);
 		dumpper.setLeastInterval(1800);
 
-		dumpper.threadDumpIfNeed(); // 重置间隔会重置上一次写日志的时间,因此要调一次把新增的次数用完
+		dumpper.tryThreadDump(); // 重置间隔会重置上一次写日志的时间,因此要调一次把新增的次数用完
 
-		dumpper.threadDumpIfNeed();
+		dumpper.tryThreadDump();
 		assertThat(appender.getAllLogs()).hasSize(3);
-
 		executor.shutdownNow();
-
 	}
 
 }

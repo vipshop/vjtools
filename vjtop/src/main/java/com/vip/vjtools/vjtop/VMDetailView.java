@@ -545,7 +545,7 @@ public class VMDetailView {
 
 		}
 
-		System.out.println("total " + counter + " blocked threads");
+		System.out.println(" Total " + counter + " blocked threads");
 
 		if (threadNameFilter != null) {
 			System.out.println(" Thread name filter is:" + threadNameFilter);
