@@ -13,6 +13,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.junit.Test;
 
+import com.vip.vjtools.vjkit.collection.type.MoreQueues;
+
 public class QueueUtilTest {
 
 	@Test

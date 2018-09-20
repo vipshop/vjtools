@@ -1,10 +1,11 @@
-package com.vip.vjtools.vjkit.collection;
+package com.vip.vjtools.vjkit.collection.type;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Queue;
 
 import com.google.common.collect.EvictingQueue;
+import com.vip.vjtools.vjkit.collection.QueueUtil;
 
 /**
  * 特殊类型Queue:LIFO的Stack, LRU的Queue
