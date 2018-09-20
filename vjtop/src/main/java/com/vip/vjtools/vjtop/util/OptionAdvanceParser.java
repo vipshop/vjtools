@@ -86,7 +86,7 @@ public class OptionAdvanceParser {
 				.withRequiredArg().ofType(String.class);
 
 		parser.acceptsAll(Arrays.asList(new String[] { "j", "jmxurl" }),
-				"JMX url like 127.0.0.1:7001 when VM attach is not work").withRequiredArg().ofType(String.class);
+				"give JMX url like 127.0.0.1:7001 when VM attach doesn't work").withRequiredArg().ofType(String.class);
 
 		// detail mode
 		parser.acceptsAll(Arrays.asList(new String[] { "m", "mode" }),

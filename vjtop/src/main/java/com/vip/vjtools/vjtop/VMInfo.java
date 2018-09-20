@@ -417,25 +417,22 @@ public class VMInfo {
 		return jmxClient.getThreadMXBean().getThreadInfo(tids);
 	}
 
+	public ThreadInfo getThreadInfo(long tid, int maxDepth) throws IOException {
+		return jmxClient.getThreadMXBean().getThreadInfo(tid, maxDepth);
+	}
+
 	public ThreadInfo[] getThreadInfo(long[] tids, int maxDepth) throws IOException {
 		return jmxClient.getThreadMXBean().getThreadInfo(tids, maxDepth);
 	}
 
-	public ThreadInfo getThreadInfo(long tid, int maxDepth) throws IOException {
-		return jmxClient.getThreadMXBean().getThreadInfo(tid, maxDepth);
+	public ThreadInfo[] getAllThreadInfo() throws IOException {
+		return jmxClient.getThreadMXBean().dumpAllThreads(false, false);
 	}
 
 	public long[] getThreadAllocatedBytes(long[] tids) throws IOException {
 		return jmxClient.getThreadMXBean().getThreadAllocatedBytes(tids);
 	}
 
-	public ThreadInfo[] getBlockedThreadInfo() throws IOException {
-		return jmxClient.getThreadMXBean().dumpAllThreads(false, false);
-	}
-
-	public ThreadInfo[] getBlockedThreadInfo(boolean lockedMonitors, boolean lockedSynchronizers) throws IOException {
-		return jmxClient.getThreadMXBean().dumpAllThreads(lockedMonitors, lockedSynchronizers);
-	}
 
 	private void initPerfCounters(Map<String, Counter> perfCounters) {
 		threadLiveCounter = (LongCounter) perfCounters.get("java.threads.live");

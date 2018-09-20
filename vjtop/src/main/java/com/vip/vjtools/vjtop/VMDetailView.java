@@ -527,23 +527,25 @@ public class VMDetailView {
 	}
 
 	public void printBlockedThreads() throws IOException {
-		System.out.println(System.lineSeparator() + " Thread Id and name of all blocked threads:");
-
-		ThreadInfo[] threadInfos = vmInfo.getBlockedThreadInfo();
+		System.out.println(System.lineSeparator() + " Stack trace of blocked threads:");
+		int counter = 0;
+		ThreadInfo[] threadInfos = vmInfo.getAllThreadInfo();
 		for (ThreadInfo info : threadInfos) {
 			if (info == null) {
 				continue;
 			}
 
 			String threadName = info.getThreadName();
-			// I think thread state check could reduce filter check, so I check state first. Robin @ 2018.9.18
-			if (!Thread.State.BLOCKED.equals(info.getThreadState()) ||
-					(threadNameFilter != null && !threadName.toLowerCase().contains(threadNameFilter))) {
-				continue;
+
+			if (Thread.State.BLOCKED.equals(info.getThreadState())
+					&& (threadNameFilter == null || threadName.toLowerCase().contains(threadNameFilter))) {
+				printSingleThread(info);
+				counter++;
 			}
-			System.out.println(
-					" " + info.getThreadId() + "\t: \"" + threadName + "\" (" + info.getThreadState().toString() + ")");
+
 		}
+
+		System.out.println("total " + counter + " blocked threads");
 
 		if (threadNameFilter != null) {
 			System.out.println(" Thread name filter is:" + threadNameFilter);
