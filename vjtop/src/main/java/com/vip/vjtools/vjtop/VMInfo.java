@@ -429,6 +429,14 @@ public class VMInfo {
 		return jmxClient.getThreadMXBean().getThreadAllocatedBytes(tids);
 	}
 
+	public ThreadInfo[] getBlockedThreadInfo() throws IOException {
+		return jmxClient.getThreadMXBean().dumpAllThreads(false, false);
+	}
+
+	public ThreadInfo[] getBlockedThreadInfo(boolean lockedMonitors, boolean lockedSynchronizers) throws IOException {
+		return jmxClient.getThreadMXBean().dumpAllThreads(lockedMonitors, lockedSynchronizers);
+	}
+
 	private void initPerfCounters(Map<String, Counter> perfCounters) {
 		threadLiveCounter = (LongCounter) perfCounters.get("java.threads.live");
 		threadDaemonCounter = (LongCounter) perfCounters.get("java.threads.daemon");

@@ -503,7 +503,7 @@ public class VMDetailView {
 	 * 打印所有线程，只获取名称不获取stack，不造成停顿
 	 */
 	public void printAllThreads() throws IOException {
-		System.out.println(System.lineSeparator() + " Thread Id and name for all live threads:");
+		System.out.println(System.lineSeparator() + " Thread Id and name of all live threads:");
 
 		long tids[] = vmInfo.getAllThreadIds();
 		ThreadInfo[] threadInfos = vmInfo.getThreadInfo(tids);
@@ -525,6 +525,32 @@ public class VMDetailView {
 		}
 		System.out.flush();
 	}
+
+	public void printBlockedThreads() throws IOException {
+		System.out.println(System.lineSeparator() + " Thread Id and name of all blocked threads:");
+
+		ThreadInfo[] threadInfos = vmInfo.getBlockedThreadInfo();
+		for (ThreadInfo info : threadInfos) {
+			if (info == null) {
+				continue;
+			}
+
+			String threadName = info.getThreadName();
+			// I think thread state check could reduce filter check, so I check state first. Robin @ 2018.9.18
+			if (!Thread.State.BLOCKED.equals(info.getThreadState()) ||
+					(threadNameFilter != null && !threadName.toLowerCase().contains(threadNameFilter))) {
+				continue;
+			}
+			System.out.println(
+					" " + info.getThreadId() + "\t: \"" + threadName + "\" (" + info.getThreadState().toString() + ")");
+		}
+
+		if (threadNameFilter != null) {
+			System.out.println(" Thread name filter is:" + threadNameFilter);
+		}
+		System.out.flush();
+	}
+
 
 	public void switchCpuAndMemory() {
 		topThreadInfo.cleanupThreadsHistory();
