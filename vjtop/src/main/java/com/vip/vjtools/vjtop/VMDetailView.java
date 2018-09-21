@@ -508,7 +508,7 @@ public class VMDetailView {
 		}
 
 		if (info.getLockName() != null) {
-			sb.append(" blocked on " + info.getLockName());
+			sb.append(" on " + info.getLockName());
 		}
 		if (info.getLockOwnerName() != null) {
 			sb.append(" owned by " + info.getLockOwnerId() + ":\"" + info.getLockOwnerName() + "\"");
@@ -524,10 +524,6 @@ public class VMDetailView {
 
 		for (StackTraceElement traceElement : trace) {
 			sb.append("\tat ").append(traceElement).append("\n");
-		}
-
-		if (info.getLockOwnerId() != -1) {
-			sb.append(" blocked by thread:" + info.getLockOwnerId() + ":" + info.getLockOwnerName() + "\n");
 		}
 
 		System.out.print(sb.toString());
