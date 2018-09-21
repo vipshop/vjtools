@@ -43,6 +43,10 @@ jstat有时候会不可使用，比如目标JVM使用-Djava.tmp.dir 重定义了
 //间隔5秒连续输出
 ./vjmxcli.sh - 127.0.0.1:7001 gcutil 5
 
+// 以pid连入，间隔5秒连续输出
+./vjmxcli.sh - 98583 gcutil 5
+
+
 ```
 JDK7 示例输出
 

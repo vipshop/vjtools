@@ -376,14 +376,20 @@ public class VMInfo {
 		if (perfDataSupport) {
 			ygcCount.update(ygcCountCounter.longValue());
 			ygcTimeMills.update(perfData.tickToMills(ygcTimeCounter));
-			fullgcCount.update(fullGcCountCounter.longValue());
-			fullgcTimeMills.update(perfData.tickToMills(fullgcTimeCounter));
+			if (fullGcCountCounter != null) {
+				fullgcCount.update(fullGcCountCounter.longValue());
+				fullgcTimeMills.update(perfData.tickToMills(fullgcTimeCounter));
+			}
 		} else if (isJmxStateOk()) {
 			try {
 				ygcCount.update(jmxClient.getGarbageCollectorManager().getYoungCollector().getCollectionCount());
 				ygcTimeMills.update(jmxClient.getGarbageCollectorManager().getYoungCollector().getCollectionTime());
-				fullgcCount.update(jmxClient.getGarbageCollectorManager().getFullCollector().getCollectionCount());
-				fullgcTimeMills.update(jmxClient.getGarbageCollectorManager().getFullCollector().getCollectionTime());
+
+				if (jmxClient.getGarbageCollectorManager().getFullCollector() != null) {
+					fullgcCount.update(jmxClient.getGarbageCollectorManager().getFullCollector().getCollectionCount());
+					fullgcTimeMills
+							.update(jmxClient.getGarbageCollectorManager().getFullCollector().getCollectionTime());
+				}
 			} catch (Exception e) {
 				handleJmxFetchDataError(e);
 			}

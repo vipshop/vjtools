@@ -170,7 +170,7 @@ public class InteractiveTask implements Runnable {
 			int interval = Integer.parseInt(intervalStr);
 			if (interval != app.getInterval()) {
 				app.updateInterval(interval);
-				tty.println("Flush interval change to " + interval + " seconds");
+				tty.println(" Flush interval change to " + interval + " seconds");
 				app.interruptSleep();
 			} else {
 				tty.println(" Nothing be changed");
@@ -218,9 +218,8 @@ public class InteractiveTask implements Runnable {
 		}
 
 		app.view.threadNameFilter = threadNameFilter != null ? threadNameFilter.toLowerCase() : null;
-		tty.println("  thread name filter change to " + threadNameFilter + " for next flush (" + app.nextFlushTime()
+		tty.println(" Thread name filter change to " + threadNameFilter + " for next flush (" + app.nextFlushTime()
 				+ "s later)");
-
 
 		app.continueFlush();
 	}
@@ -231,10 +230,12 @@ public class InteractiveTask implements Runnable {
 		tty.println(" t : print stack trace of top " + app.view.threadLimit + " threads");
 		tty.println(" b : print stack trace of blocked threads");
 		tty.println(" a : list id and name of all threads");
+		tty.println(" -------------------------------------");
 		tty.println(" m : change threads display mode and ordering");
 		tty.println(" i [num]: change flush interval seconds");
 		tty.println(" l [num]: change number of display threads");
 		tty.println(" f [name]: set thread name filter");
+		tty.println(" -------------------------------------");
 		tty.println(" q : quit");
 		tty.println(" h : print help");
 		waitForEnter();

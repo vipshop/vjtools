@@ -45,19 +45,18 @@ public class GCutilExpression {
 	private void mappingCollctors() throws Exception {
 		Set<ObjectInstance> beans = mbsc.queryMBeans(Client.getObjectName(GARBAGE_COLLECTORS), null);
 
-		A: for (ObjectInstance collector : beans) {
+		for (ObjectInstance collector : beans) {
 			ObjectName collectorName = collector.getObjectName();
-			// 获得这个Collector负责的Memory Pool Name
-			String[] memoryPoolNames = (String[]) mbsc.getAttribute(collectorName, MEMORY_POOL_ATTRIBUTE);
-
-			for (String poolName : memoryPoolNames) {
-				if (poolName.toLowerCase().contains(OLD) || poolName.toLowerCase().contains(TENURED)) {
-					FGC_COLLECTOR = collectorName;
-					continue A;
-				}
+			String gcName = (String) getAttribute(collectorName, "Name");
+			if ("Copy".equals(gcName) || "PS Scavenge".equals(gcName) || "ParNew".equals(gcName)
+					|| "G1 Young Generation".equals(gcName)) {
+				YGC_COLLECTOR = collectorName;
+			} else if ("MarkSweepCompact".equals(gcName) || "PS MarkSweep".equals(gcName)
+					|| "ConcurrentMarkSweep".equals(gcName) || "G1 Old Generation".equals(gcName)) {
+				FGC_COLLECTOR = collectorName;
+			} else {
+				YGC_COLLECTOR = collectorName;
 			}
-			// 如果此收集器负责的分区没有Old，则是YGC_COLLECTOR
-			YGC_COLLECTOR = collectorName;
 		}
 	}
 
