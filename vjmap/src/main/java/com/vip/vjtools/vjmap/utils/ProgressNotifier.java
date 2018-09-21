@@ -2,20 +2,20 @@ package com.vip.vjtools.vjmap.utils;
 
 import java.io.PrintStream;
 
-public class ProgressNodifier {
-	public long notificationSize;
+public class ProgressNotifier {
+	public long nextNotificationSize;
 	public long processingSize;
 
 	private int processingPercent;
-	private long chunkSize;
+	private long onePercentSize;
 	private long totalSize;
 
 	private PrintStream tty = System.out;
 
-	public ProgressNodifier(long totalSize) {
+	public ProgressNotifier(long totalSize) {
 		this.totalSize = totalSize;
-		chunkSize = totalSize / 100;
-		notificationSize = chunkSize;
+		onePercentSize = totalSize / 100;
+		nextNotificationSize = onePercentSize;
 		processingPercent = 0;
 		processingSize = 0;
 	}
@@ -28,8 +28,8 @@ public class ProgressNodifier {
 	public void printProgress() {
 		tty.print(".");
 		processingPercent++;
-		notificationSize += chunkSize;
-		if (processingPercent % 20 == 0) {
+		nextNotificationSize += onePercentSize;
+		if (processingPercent % 10 == 0) {
 			tty.print("\n" + processingPercent + "%:");
 		}
 	}

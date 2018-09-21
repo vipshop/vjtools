@@ -1,7 +1,7 @@
 package com.vip.vjtools.vjkit.reflect;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

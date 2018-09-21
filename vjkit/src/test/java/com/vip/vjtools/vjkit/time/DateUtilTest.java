@@ -1,11 +1,10 @@
 package com.vip.vjtools.vjkit.time;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Date;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import org.junit.Test;
 
 public class DateUtilTest {
 
