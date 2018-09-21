@@ -28,7 +28,7 @@ execute `kill -18 <PID_OF_TARGET_APP>` TWICE to awaken the target app.
 ## 2.1 Commands
 
 ```
-// Prints object stats of all the heap, ordered by their respective size in total.
+// Prints object stats of all gens, ordered by their respective size in total.
 ./vjmap.sh -all PID > /tmp/histo.log
 
 // Prints oldgen object stats, ordered by size in OldGen. Only CMS is supported for this option. 
@@ -68,6 +68,12 @@ for the CMS oldgen
 ./vjmap.sh -old:minsize=1024,byname PID > /tmp/histo-old.log
 
 ./vjmap.sh -sur:minsize=1024,byname PID > /tmp/histo-sur.log
+```
+
+## 2.4 Prints object stats of old gen, live objects only:
+
+```
+./vjmap.sh -old:live PID > /tmp/histo-old.log
 ```
 
 # 3.Outputs

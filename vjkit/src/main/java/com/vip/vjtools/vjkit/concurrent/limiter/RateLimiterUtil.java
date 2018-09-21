@@ -1,4 +1,4 @@
-package com.vip.vjtools.vjkit.concurrent;
+package com.vip.vjtools.vjkit.concurrent.limiter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -9,10 +9,10 @@ import com.google.common.util.concurrent.RateLimiter;
 public class RateLimiterUtil {
 
 	/**
-	 * 一个用来定制RateLimiter的方法。默认装满token
+	 * 一个用来定制RateLimiter的方法，默认一开始就桶里就装满token。
 	 * 
-	 * @param permitsPerSecond 每秒允许的请求书，可看成QPS
-	 * @param maxBurstSeconds 最大的突发缓冲时间。用来应对突发流量。Guava的实现默认是1s。permitsPerSecond * maxBurstSeconds的数量，就是闲置时预留的缓冲token数量
+	 * @param permitsPerSecond 每秒允许的请求数，可看成QPS。
+	 * @param maxBurstSeconds 可看成桶的容量，Guava中最大的突发流量缓冲时间，默认是1s, permitsPerSecond * maxBurstSeconds，就是闲置时累积的缓冲token最大值。
 	 */
 	public static RateLimiter create(double permitsPerSecond, double maxBurstSeconds)
 			throws ReflectiveOperationException {

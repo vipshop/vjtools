@@ -1,8 +1,6 @@
-package com.vip.vjtools.vjkit.collection;
+package com.vip.vjtools.vjkit.collection.type;
 
 import java.util.Comparator;
-
-import com.vip.vjtools.vjkit.collection.type.SortedArrayList;
 
 /**
  * 特殊的List类型

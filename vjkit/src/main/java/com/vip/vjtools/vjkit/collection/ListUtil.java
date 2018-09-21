@@ -260,6 +260,15 @@ public class ListUtil {
 	}
 
 	/**
+	 * 随机乱序，使用传入的Random.
+	 * 
+	 * @see java.util.Collections#shuffle(List, Random)
+	 */
+	public static void shuffle(List<?> list, Random rnd) {
+		Collections.shuffle(list, rnd);
+	}
+
+	/**
 	 * 返回一个倒转顺序访问的List，仅仅是一个倒序的View，不会实际多生成一个List
 	 * 
 	 * @see com.google.common.collect.Lists#reverse(List)
@@ -267,14 +276,13 @@ public class ListUtil {
 	public static <T> List<T> reverse(final List<T> list) {
 		return Lists.reverse(list);
 	}
+	///////////////// from guava的函数 ///////////////////
 
 	/**
-	 * 随机乱序，使用传入的Random.
-	 * 
-	 * @see java.util.Collections#shuffle(List, Random)
+	 * List分页函数
 	 */
-	public static void shuffle(List<?> list, Random rnd) {
-		Collections.shuffle(list, rnd);
+	public static <T> List<List<T>> partition(List<T> list, int size) {
+		return Lists.partition(list, size);
 	}
 
 	///////////////// 集合运算 ///////////////////

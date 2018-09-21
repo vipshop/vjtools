@@ -35,7 +35,6 @@ public class Utils {
 		return topTidArray;
 	}
 
-
 	/**
 	 * calculates a "load", given on two deltas
 	 */
@@ -44,13 +43,6 @@ public class Utils {
 			return 0.0;
 		}
 		return deltaCpuTime * 100d / deltaUptime;
-	}
-
-	public static void sleep(long mills) {
-		try {
-			Thread.sleep(mills);
-		} catch (InterruptedException e) {
-		}
 	}
 
 	/**
@@ -63,4 +55,19 @@ public class Utils {
 		return deltaCpuTime * 100d / factor / deltaUptime;
 	}
 
+	public static double calcMemoryUtilization(Long threadBytes, long totalBytes) {
+		if (threadBytes == null || totalBytes == 0) {
+			return 0;
+		}
+
+		return (threadBytes * 100d) / totalBytes;// 这里因为最后单位是百分比%，所以bytes除以totalBytes以后要乘以100，才可以再加上单位%
+	}
+
+
+	public static void sleep(long mills) {
+		try {
+			Thread.sleep(mills);
+		} catch (InterruptedException e) {
+		}
+	}
 }

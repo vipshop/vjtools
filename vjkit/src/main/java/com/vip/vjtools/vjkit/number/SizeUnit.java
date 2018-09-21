@@ -1,8 +1,9 @@
 package com.vip.vjtools.vjkit.number;
 
 /**
- * Representation of basic size units，just like TimeUnit.<br/>
- * Usage example:<br/>
+ * Representation of basic size units，just like TimeUnit.
+ * 
+ * Usage example:
  * assertTrue(SizeUnit.BYTES.toMegaBytes(1024 * 1024) == 1.0);<br/>
  * assertTrue(SizeUnit.GIGABYTES.toBytes(1) == 1024.0 * 1024.0 * 1024.0);
  */

@@ -1,4 +1,4 @@
-package com.vip.vjtools.vjkit.collection;
+package com.vip.vjtools.vjkit.collection.type;
 
 import java.util.Comparator;
 import java.util.HashMap;

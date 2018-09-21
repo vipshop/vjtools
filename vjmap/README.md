@@ -15,18 +15,31 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 [Download vjmap-1.0.5.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.5/vjmap-1.0.5.zip) (from Maven Central)
 
+# 2.1 注意事项
+
 注意：vjmap在执行过程中，会完全停止应用一段时间，必须摘流量执行！！！！
 
-必须与目标JVM使用相同的JDK版本运行，需要root权限 (sudo -E vjmap.sh ...，)
+1. JAVA_HOME定义
+
+vjmap使用的java为JAVA_HOME/bin/java, 必须与目标应用的JVM使用相同的JDK版本。
+
+vjmap需要依赖JAVA_HOME/lib/sa-jdi.jar
+
+JAVA_HOME的定位，通过读取环境变量JAVA_HOME，如果没有定义，则尝试通过"which java"定位java从而获得相对路径。
+
+2. 权限说明
+ 
+需要root权限 (sudo -E vjmap.sh ...，)，权限与jmap -heap pid相同.
+
+如果无法联通进程时，可尝试使用jstack -F pid, jmap -heap pid 结果。
 
 如果在容器中运行，需要打开ptrace权限。
 
-vjmap的运行需要一段时间，如果中途需要停止执行，请使用kill vjmap的PID，让vjmap从目标进程退出。如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID，重新唤醒目标java进程。
+3. 意外停止
 
-指令格式：
-```bash
-./vjmap.sh ${command} ${pid}
-```
+vjmap的运行需要一段时间，如果中途需要停止执行，请使用ctrl＋c，或者kill vjmap的PID，让vjmap从目标进程退出。
+
+如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID，重新唤醒目标java进程。
 
     
 ## 2.1 常用指令
@@ -45,15 +58,22 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用kil
 ```
 
 
-针对CoreDump
+针对CoreDump文件
 
 ```
 ./vjmap.sh -old ${path_to_java} ${path_to_coredump}
 
 ```
 
+## 2.2 仅输出存活的对象
 
-## 2.2 过滤对象大小，不显示过小的对象:
+原理为正式统计前先执行一次full gc
+
+```
+./vjmap.sh -old:live PID > /tmp/histo-old－live.log
+```
+
+## 2.3 过滤对象大小，不显示过小的对象:
 
 ```
 // 按对象的oldgen size进行过滤，只打印OldGen占用超过1K的数据
@@ -65,6 +85,8 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用kil
 ```
 ./vjmap.sh -all:minsize=1024,byname PID > /tmp/histo.log
 ```
+
+
 
 # 3.输出示例
 
@@ -90,7 +112,7 @@ Heap traversal took 1.3 seconds.
 假设，OldGen地址范围是"0xfbd4c000" ～ "0xfce94050"
 
 ```
-SELECT * FROM INSTANCEOF java.lang.Object t WHERE toHex(t.@objectAddress) >= "0xfbd4c000"
+SELECT * FROM INSTANCEOF java.lang.Object t WHERE toHex(t.@objectAddress) <= "0xfce94050" AND toHex(t.@objectAddress) >= "0xfbd4c000"
 ```
 
 注意，MAT要在偏好设置中 勾选 "Keep unreachable object"
@@ -99,7 +121,9 @@ SELECT * FROM INSTANCEOF java.lang.Object t WHERE toHex(t.@objectAddress) >= "0x
 
 第一种方式是在启动参数增加 -XX:+PrintHeapAtGC，每次GC都打印地址
 
-第二种方式是使用vjmap的命令，在-old, -sur, -address 中，都会打印出区间的地址
+第二种方式是使用vjmap的命令，在-old, -sur, -address 中，都会打印出该区间的地址
+
+第三种方式，使用vjmap的address命令，快速打印各代地址，不会造成过长时间停顿
 
 ```
 ./vjmap.sh -address PID
@@ -123,7 +147,7 @@ free-list-space[ 0x0000000123aa0000 , 0x0000000139000000 ) space capacity = 3579
 ./vjmap.sh -class PID
 ``` 
 
-since 1.0.2, 为了兼容JDK8，不再打印Class所在的Jar包
+为了兼容JDK8，不再打印Class所在的Jar包
 
 
 

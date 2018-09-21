@@ -1,11 +1,12 @@
-package com.vip.vjtools.vjkit.concurrent;
+package com.vip.vjtools.vjkit.concurrent.limiter;
 
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
-import com.vip.vjtools.vjkit.concurrent.Sampler.AlwaysSampler;
-import com.vip.vjtools.vjkit.concurrent.Sampler.NeverSampler;
+import com.vip.vjtools.vjkit.concurrent.limiter.Sampler;
+import com.vip.vjtools.vjkit.concurrent.limiter.Sampler.AlwaysSampler;
+import com.vip.vjtools.vjkit.concurrent.limiter.Sampler.NeverSampler;
 
 public class SamplerTest {
 

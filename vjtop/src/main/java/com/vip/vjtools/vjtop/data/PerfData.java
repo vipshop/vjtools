@@ -21,9 +21,9 @@ public class PerfData {
 
 	private final Map<String, Counter> counters;
 
-	public static PerfData connect(long pid) {
+	public static PerfData connect(int pid) {
 		try {
-			return new PerfData((int) pid);
+			return new PerfData(pid);
 		} catch (ThreadDeath e) {
 			throw e;
 		} catch (OutOfMemoryError e) {

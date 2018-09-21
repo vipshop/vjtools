@@ -1,4 +1,4 @@
-package com.vip.vjtools.vjkit.concurrent;
+package com.vip.vjtools.vjkit.concurrent.type;
 
 import static org.assertj.core.api.Assertions.*;
 

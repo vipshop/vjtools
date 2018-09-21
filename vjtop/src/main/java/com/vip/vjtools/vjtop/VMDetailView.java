@@ -17,8 +17,10 @@ public class VMDetailView {
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
-	public ThreadMode threadMode;
-	public OutputFormat format;
+	public ThreadInfoMode threadInfoMode;
+	private ContentMode contentMode;
+	private OutputFormat format;
+
 	public int threadLimit = 10;
 	public int interval;
 	public String threadNameFilter = null;
@@ -37,13 +39,16 @@ public class VMDetailView {
 	private boolean firstTime = true;
 	public boolean displayCommandHints = false;
 
-	public VMDetailView(VMInfo vmInfo, OutputFormat format, ThreadMode mode, Integer width, Integer interval)
-			throws Exception {
+	public VMDetailView(VMInfo vmInfo, OutputFormat format, ContentMode contentMode, ThreadInfoMode threadInfoMode,
+			Integer width, Integer interval) throws Exception {
 		this.vmInfo = vmInfo;
 		this.topThreadInfo = new TopThreadInfo(vmInfo);
 		this.warning = vmInfo.warningRule;
-		this.threadMode = mode;
+
+		this.contentMode = contentMode;
+		this.threadInfoMode = threadInfoMode;
 		this.format = format;
+
 		this.interval = interval;
 		setWidth(width);
 	}
@@ -61,19 +66,20 @@ public class VMDetailView {
 					.getProcessCpuTime();
 		}
 
-		vmInfo.update();
+		vmInfo.update(contentMode == ContentMode.all || contentMode == ContentMode.jvm);
 
 		if (!checkState()) {
 			return;
 		}
 
 		// 打印进程级别内容
-		if (format == OutputFormat.text) {
-			printJvmInfoAsText();
-		} else {
-			printJvmInfoAsConsole();
+		if (contentMode == ContentMode.all || contentMode == ContentMode.jvm) {
+			if (format == OutputFormat.text) {
+				printJvmInfoAsText();
+			} else {
+				printJvmInfoAsConsole();
+			}
 		}
-
 
 		// JMX更新失败，不打印后续一定需要JMX获取的数据
 		if (!vmInfo.isJmxStateOk()) {
@@ -81,18 +87,19 @@ public class VMDetailView {
 			return;
 		}
 
-		// 打印线程级别内容
-		try {
-			if (threadMode.isCpuMode) {
-				printTopCpuThreads(threadMode, format != OutputFormat.text);
-			} else {
-				printTopMemoryThreads(threadMode, format != OutputFormat.text);
+		// 打印繁忙线程级别内容
+		if (contentMode == ContentMode.all || contentMode == ContentMode.thread) {
+			try {
+				if (threadInfoMode.isCpuMode) {
+					printTopCpuThreads(threadInfoMode, format != OutputFormat.text);
+				} else {
+					printTopMemoryThreads(threadInfoMode, format != OutputFormat.text);
+				}
+			} catch (Exception e) {
+				System.out.println("");
+				e.printStackTrace();
+				System.out.println(Formats.red("ERROR: Exception happen when fetch thread information via JMX"));
 			}
-		} catch (Exception e) {
-			System.out.println(System.lineSeparator()
-					+ Formats.red("ERROR: Exception happen when fetch thread information via JMX"));
-			e.printStackTrace();
-
 		}
 
 		// 打印vjtop自身消耗
@@ -108,14 +115,14 @@ public class VMDetailView {
 	private boolean checkState() {
 		if (vmInfo.state != VMInfo.VMInfoState.ATTACHED && vmInfo.state != VMInfo.VMInfoState.ATTACHED_UPDATE_ERROR) {
 			System.out.println(System.lineSeparator() + Formats.red("ERROR: Could not attach to process, exit now."));
-			exit();
+			shoulExit();
 			return false;
 		}
 		return true;
 	}
 
 	private void printJvmInfoAsConsole() {
-		System.out.printf(" PID: %s - %8tT JVM: %s USER: %s UPTIME: %s%n", vmInfo.pid, new Date(), vmInfo.jvmVersion,
+		System.out.printf(" %8tT - PID: %s JVM: %s USER: %s UPTIME: %s%n", new Date(), vmInfo.pid, vmInfo.jvmVersion,
 				vmInfo.osUser, Formats.toTimeUnit(vmInfo.upTimeMills.current));
 
 		String[] cpuLoadAnsi = Formats.colorAnsi(vmInfo.cpuLoad, warning.cpu);
@@ -231,7 +238,7 @@ public class VMDetailView {
 		}
 	}
 
-	private void printTopCpuThreads(ThreadMode mode, boolean console) throws IOException {
+	private void printTopCpuThreads(ThreadInfoMode mode, boolean console) throws IOException {
 		if (!vmInfo.threadCpuTimeSupported) {
 			if (console) {
 				System.out.printf("%n -Thread CPU telemetries are not available on the monitored jvm/platform-%n");
@@ -322,7 +329,7 @@ public class VMDetailView {
 		}
 	}
 
-	private void printTopMemoryThreads(ThreadMode mode, boolean console) throws IOException {
+	private void printTopMemoryThreads(ThreadInfoMode mode, boolean console) throws IOException {
 		if (!vmInfo.threadMemoryAllocatedSupported) {
 			if (console) {
 				System.out.printf(
@@ -371,14 +378,17 @@ public class VMDetailView {
 			if (console) {
 				System.out.printf(dataFormat, tid, threadName, Formats.leftStr(info.getThreadState().toString(), 10),
 						Formats.toFixLengthSizeUnit(allocationRate),
-						getMemoryUtilization(result.threadMemoryDeltaBytesMap.get(tid), result.deltaAllThreadBytes),
+						Utils.calcMemoryUtilization(result.threadMemoryDeltaBytesMap.get(tid),
+								result.deltaAllThreadBytes),
 						Formats.toFixLengthSizeUnit(result.threadMemoryTotalBytesMap.get(tid)),
-						getMemoryUtilization(result.threadMemoryTotalBytesMap.get(tid), result.totalAllThreadBytes));
+						Utils.calcMemoryUtilization(result.threadMemoryTotalBytesMap.get(tid),
+								result.totalAllThreadBytes));
 			} else {
 				System.out.printf(dataFormatAsText, tid, threadName, info.getThreadState().toString(), allocationRate,
-						getMemoryUtilization(result.threadMemoryDeltaBytesMap.get(tid), result.deltaAllThreadBytes),
-						result.threadMemoryTotalBytesMap.get(tid),
-						getMemoryUtilization(result.threadMemoryTotalBytesMap.get(tid), result.totalAllThreadBytes));
+						Utils.calcMemoryUtilization(result.threadMemoryDeltaBytesMap.get(tid),
+								result.deltaAllThreadBytes),
+						result.threadMemoryTotalBytesMap.get(tid), Utils.calcMemoryUtilization(
+								result.threadMemoryTotalBytesMap.get(tid), result.totalAllThreadBytes));
 			}
 		}
 
@@ -397,30 +407,8 @@ public class VMDetailView {
 		}
 	}
 
-	private static double getMemoryUtilization(Long threadBytes, long totalBytes) {
-		if (threadBytes == null || totalBytes == 0) {
-			return 0;
-		}
-
-		return (threadBytes * 100d) / totalBytes;// 这里因为最后单位是百分比%，所以bytes除以totalBytes以后要乘以100，才可以再加上单位%
-	}
-
-	public void printIterationCost(long iterationStartTime, long iterationStartCpu) {
-		long currentCpu = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getProcessCpuTime();
-		long deltaIterationTime = System.currentTimeMillis() - iterationStartTime;
-
-		long deltaIterationCpuTime = (currentCpu - iterationStartCpu) / Utils.NANOS_TO_MILLS;
-		long deltaOtherCpuTime = (iterationStartCpu - lastCpu) / Utils.NANOS_TO_MILLS;
-		long deltaTotalCpuTime = deltaIterationCpuTime + deltaOtherCpuTime;
-		lastCpu = currentCpu;
-
-		System.out.printf(" Cost %5.2f%% cpu in %dms, other is %dms, total is %dms%n",
-				deltaIterationCpuTime * 100d / deltaIterationTime, deltaIterationTime, deltaOtherCpuTime,
-				deltaTotalCpuTime);
-	}
-
 	private void printWelcome() {
-		if (firstTime) {
+		if (firstTime && contentMode != ContentMode.thread) {
 			if (!vmInfo.isLinux) {
 				System.out.printf(
 						"%n" + Formats.yellow(" OS isn't linux, Process's MEMORY, THREAD, DISK data will be skipped.")
@@ -456,13 +444,27 @@ public class VMDetailView {
 		}
 	}
 
+	private void printIterationCost(long iterationStartTime, long iterationStartCpu) {
+		long currentCpu = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getProcessCpuTime();
+		long deltaIterationTime = System.currentTimeMillis() - iterationStartTime;
+
+		long deltaIterationCpuTime = (currentCpu - iterationStartCpu) / Utils.NANOS_TO_MILLS;
+		long deltaOtherCpuTime = (iterationStartCpu - lastCpu) / Utils.NANOS_TO_MILLS;
+		long deltaTotalCpuTime = deltaIterationCpuTime + deltaOtherCpuTime;
+		lastCpu = currentCpu;
+
+		System.out.printf(" Cost %5.2f%% cpu in %dms, other is %dms, total is %dms%n",
+				deltaIterationCpuTime * 100d / deltaIterationTime, deltaIterationTime, deltaOtherCpuTime,
+				deltaTotalCpuTime);
+	}
+
 	/**
-	 * 打印单条线程的stack strace，不造成停顿
+	 * 打印单条线程的stack strace，会造成停顿，但比获取全部线程的stack trace停顿少
 	 */
 	public void printStack(long tid) throws IOException {
 		System.out.printf("%n Stack trace of thread %d:%n", tid);
 
-		ThreadInfo info = vmInfo.getThreadMXBean().getThreadInfo(tid, 20);
+		ThreadInfo info = vmInfo.getThreadInfo(tid, 20);
 		if (info == null) {
 			System.err.println(" TID not exist:" + tid);
 			return;
@@ -472,7 +474,7 @@ public class VMDetailView {
 	}
 
 	/**
-	 * 打印单条线程的stack strace，不造成停顿
+	 * 打印所有活跃线程的stack strace，会造成停顿，但比获取全部线程的stack trace停顿少
 	 */
 	public void printTopStack() throws IOException {
 		System.out.printf("%n Stack trace of top %d threads:%n", threadLimit);
@@ -501,10 +503,10 @@ public class VMDetailView {
 	 * 打印所有线程，只获取名称不获取stack，不造成停顿
 	 */
 	public void printAllThreads() throws IOException {
-		System.out.println(System.lineSeparator() + " Thread Id and name for all live threads:");
+		System.out.println(System.lineSeparator() + " Thread Id and name of all live threads:");
 
-		long tids[] = vmInfo.getThreadMXBean().getAllThreadIds();
-		ThreadInfo[] threadInfos = vmInfo.getThreadMXBean().getThreadInfo(tids);
+		long tids[] = vmInfo.getAllThreadIds();
+		ThreadInfo[] threadInfos = vmInfo.getThreadInfo(tids);
 		for (ThreadInfo info : threadInfos) {
 			if (info == null) {
 				continue;
@@ -517,6 +519,33 @@ public class VMDetailView {
 			System.out.println(
 					" " + info.getThreadId() + "\t: \"" + threadName + "\" (" + info.getThreadState().toString() + ")");
 		}
+
+		if (threadNameFilter != null) {
+			System.out.println(" Thread name filter is:" + threadNameFilter);
+		}
+		System.out.flush();
+	}
+
+	public void printBlockedThreads() throws IOException {
+		System.out.println(System.lineSeparator() + " Stack trace of blocked threads:");
+		int counter = 0;
+		ThreadInfo[] threadInfos = vmInfo.getAllThreadInfo();
+		for (ThreadInfo info : threadInfos) {
+			if (info == null) {
+				continue;
+			}
+
+			String threadName = info.getThreadName();
+
+			if (Thread.State.BLOCKED.equals(info.getThreadState())
+					&& (threadNameFilter == null || threadName.toLowerCase().contains(threadNameFilter))) {
+				printSingleThread(info);
+				counter++;
+			}
+
+		}
+
+		System.out.println(" Total " + counter + " blocked threads");
 
 		if (threadNameFilter != null) {
 			System.out.println(" Thread name filter is:" + threadNameFilter);
@@ -537,7 +566,7 @@ public class VMDetailView {
 	/**
 	 * Requests the disposal of this view - it should be called again.
 	 */
-	public void exit() {
+	public void shoulExit() {
 		shouldExit = true;
 	}
 
@@ -555,17 +584,16 @@ public class VMDetailView {
 		return this.width - 48;
 	}
 
-
-	public enum ThreadMode {
+	public enum ThreadInfoMode {
 		cpu(true), totalcpu(true), syscpu(true), totalsyscpu(true), memory(false), totalmemory(false);
 
 		public boolean isCpuMode;
 
-		private ThreadMode(boolean isCpuMode) {
+		private ThreadInfoMode(boolean isCpuMode) {
 			this.isCpuMode = isCpuMode;
 		}
 
-		public static ThreadMode parse(String mode) {
+		public static ThreadInfoMode parse(String mode) {
 			switch (mode) {
 				case "1":
 					return cpu;
@@ -592,5 +620,9 @@ public class VMDetailView {
 		}
 
 		public boolean ansi;
+	}
+
+	public enum ContentMode {
+		all, jvm, thread
 	}
 }

@@ -1,8 +1,11 @@
 package com.vip.vjtools.vjmap;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
 
+import com.sun.tools.attach.VirtualMachine;
 import com.vip.vjtools.vjmap.oops.GenAddressAccessor;
 import com.vip.vjtools.vjmap.oops.HeapHistogramVisitor;
 import com.vip.vjtools.vjmap.oops.LoadedClassAccessor;
@@ -12,6 +15,7 @@ import com.vip.vjtools.vjmap.oops.SurvivorAccessor;
 import sun.jvm.hotspot.HotSpotAgent;
 import sun.jvm.hotspot.oops.ObjectHeap;
 import sun.jvm.hotspot.runtime.VM;
+import sun.tools.attach.HotSpotVirtualMachine;;
 
 public class VJMap {
 
@@ -67,6 +71,8 @@ public class VJMap {
 		boolean orderByName = false;
 		long minSize = -1;
 		int minAge = 3;
+		boolean live = false;
+		// boolean dead = false;
 		if (!(args.length == 2 || args.length == 3)) {
 			printHelp();
 			return;
@@ -94,6 +100,8 @@ public class VJMap {
 						return;
 					}
 					minAge = Integer.parseInt(values[1]);
+				}  else if (addtionalFlag.toLowerCase().startsWith("live")) {
+					live = true;
 				}
 			}
 		}
@@ -108,8 +116,16 @@ public class VJMap {
 			coredumpPath = args[2];
 		}
 
+		if(live) {
+			if(pid == null) {
+				tty.println("only a running vm can be attached when live option is on");
+				return;
+			}
+			triggerGc(pid);
+		}
+		
 		HotSpotAgent agent = new HotSpotAgent();
-
+		
 		try {
 			if (args.length == 2) {
 				agent.attach(pid);
@@ -149,6 +165,40 @@ public class VJMap {
 		}
 	}
 
+	/**
+	 * Trigger a remote gc using HotSpotVirtualMachine, inspired by jcmd's source code.
+	 * 
+	 * @param pid
+	 */
+	private static void triggerGc(Integer pid) {
+		VirtualMachine vm = null;
+		try {
+			vm = VirtualMachine.attach(String.valueOf(pid));
+			HotSpotVirtualMachine hvm = (HotSpotVirtualMachine) vm;
+			try (InputStream in = hvm.executeJCmd("GC.run");) {
+				byte b[] = new byte[256];
+				int n;
+				do {
+					n = in.read(b);
+					if (n > 0) {
+						String s = new String(b, 0, n, "UTF-8");
+						tty.print(s);
+					}
+				} while (n > 0);
+				tty.println();
+			}
+		} catch (Exception e) {
+			tty.println(e.getMessage());
+		} finally {
+			if (vm != null) {
+				try {
+					vm.detach();
+				} catch (IOException e) {
+					tty.println(e.getMessage());
+				}
+			}
+		}
+	}
 
 	private static void printHelp() {
 		int leftLength = "-all:minsize=1024,byname".length();
@@ -163,6 +213,7 @@ public class VJMap {
 				"print all gens histogram, total size>=1024, order by class name");
 
 		tty.printf(format, "-old", "print oldgen histogram, order by oldgen size");
+		tty.printf(format, "-old:live", "print oldgen histogram, live objects only");
 		tty.printf(format, "-old:minsize=1024", "print oldgen histogram, oldgen size>=1024");
 		tty.printf(format, "-old:minsize=1024,byname",
 				"print oldgen histogram, oldgen size>=1024, order by class name");

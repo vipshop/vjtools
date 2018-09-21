@@ -7,6 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.vip.vjtools.vjkit.concurrent.jsr166e.LongAdder;
+import com.vip.vjtools.vjkit.concurrent.limiter.RateLimiterUtil;
+import com.vip.vjtools.vjkit.concurrent.limiter.Sampler;
+import com.vip.vjtools.vjkit.concurrent.limiter.TimeIntervalLimiter;
 
 /**
  * 并发常用工具类
@@ -52,12 +55,23 @@ public class Concurrents {
 
 	/////////// 限流采样 //////
 	/**
-	 * 返回令牌桶算法的RateLimiter
+	 * 返回令牌桶算法的RateLimiter默认版，默认令牌桶大小等于期望的QPS，且刚启动时桶为空。
 	 * 
-	 * @permitsPerSecond 期望的QPS, RateLimiter将QPS平滑到毫秒级别上，但有蓄水的能力.
+	 * @permitsPerSecond 每秒允许的请求数，可看成QPS，同时将QPS平滑到毫秒级别上，请求到达速度不平滑时依赖缓冲能力.
 	 */
 	public static RateLimiter rateLimiter(int permitsPerSecond) {
 		return RateLimiter.create(permitsPerSecond);
+	}
+
+	/**
+	 * 返回令牌桶算法的RateLimiter定制版，可定制令牌桶的大小，且刚启动时桶已装满。
+	 * 
+	 * @param permitsPerSecond 每秒允许的请求数，可看成QPS，同时将QPS平滑到毫秒级别上，请求到达速度不平滑时依赖缓冲能力.
+	 * @param maxBurstSeconds 可看成桶的容量，Guava中最大的突发流量缓冲时间，默认是1s, permitsPerSecond * maxBurstSeconds，就是闲时能累积的缓冲token最大数量。
+	 */
+	public static RateLimiter rateLimiter(int permitsPerSecond, int maxBurstSeconds)
+			throws ReflectiveOperationException {
+		return RateLimiterUtil.create(permitsPerSecond, maxBurstSeconds);
 	}
 
 	/**

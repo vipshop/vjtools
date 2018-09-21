@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Ordering;
 import com.vip.vjtools.vjkit.collection.MapUtil.ValueCreator;
+import com.vip.vjtools.vjkit.collection.type.MoreMaps;
 
 public class MapUtilTest {
 

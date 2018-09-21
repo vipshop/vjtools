@@ -1,10 +1,13 @@
-package com.vip.vjtools.vjkit.concurrent;
+package com.vip.vjtools.vjkit.concurrent.limiter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
+
+import com.vip.vjtools.vjkit.concurrent.Concurrents;
+import com.vip.vjtools.vjkit.concurrent.limiter.TimeIntervalLimiter;
 
 public class TimeIntervalLimiterTest {
 

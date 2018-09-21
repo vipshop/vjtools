@@ -1,10 +1,12 @@
-package com.vip.vjtools.vjkit.concurrent;
+package com.vip.vjtools.vjkit.concurrent.type;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
 import org.junit.Test;
 
+import com.vip.vjtools.vjkit.concurrent.Concurrents;
+import com.vip.vjtools.vjkit.concurrent.ThreadUtil;
 import com.vip.vjtools.vjkit.concurrent.type.ThreadLocalContext;
 import com.vip.vjtools.vjkit.number.RandomUtil;
 
