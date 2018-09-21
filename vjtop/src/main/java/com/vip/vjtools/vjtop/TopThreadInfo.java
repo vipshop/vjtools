@@ -27,7 +27,6 @@ public class TopThreadInfo {
 		try {
 			long tids[] = vmInfo.getAllThreadIds();
 
-
 			int mapSize = tids.length * 2;
 			result.threadCpuTotalTimes = new LongObjectHashMap<>(mapSize);
 			result.threadCpuDeltaTimes = new LongObjectHashMap<>(mapSize);

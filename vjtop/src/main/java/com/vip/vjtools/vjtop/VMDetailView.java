@@ -13,7 +13,6 @@ import com.vip.vjtools.vjtop.util.Utils;
 
 @SuppressWarnings("restriction")
 public class VMDetailView {
-
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
@@ -51,6 +50,10 @@ public class VMDetailView {
 
 		this.interval = interval;
 		setWidth(width);
+
+		if (contentMode == ContentMode.all || contentMode == ContentMode.thread) {
+			vmInfo.initThreadInfoAbility();
+		}
 	}
 
 	public void printView() throws Exception {
@@ -491,11 +494,25 @@ public class VMDetailView {
 
 	public StackTraceElement[] printSingleThread(ThreadInfo info) {
 		StackTraceElement[] trace = info.getStackTrace();
-		System.out.println(" " + info.getThreadId() + ": \"" + info.getThreadName() + "\"" + System.lineSeparator()
-				+ "   java.lang.Thread.State: " + info.getThreadState().toString());
+		String blockedMsg;
+		if (vmInfo.threadContentionMonitoringSupported) {
+			blockedMsg = " (blocked:" + info.getBlockedCount() + "/" + info.getBlockedTime() + "ms, wait:"
+					+ info.getWaitedCount() + "/" + info.getWaitedTime() + "ms)";
+		} else {
+			blockedMsg = " (blocked:" + info.getBlockedCount() + ",wait:" + info.getWaitedCount() + ")";
+		}
+
+		System.out.println(" " + info.getThreadId() + ": \"" + info.getThreadName() + "\"" + blockedMsg
+				+ System.lineSeparator() + "   java.lang.Thread.State: " + info.getThreadState().toString());
+
 		for (StackTraceElement traceElement : trace) {
 			System.out.println("\tat " + traceElement);
 		}
+
+		if (info.getLockOwnerId() != -1) {
+			System.out.println(" blocked by thread:" + info.getLockOwnerId() + ":" + info.getLockOwnerName());
+		}
+
 		return trace;
 	}
 
@@ -542,7 +559,6 @@ public class VMDetailView {
 				printSingleThread(info);
 				counter++;
 			}
-
 		}
 
 		System.out.println(" Total " + counter + " blocked threads");
