@@ -1,6 +1,7 @@
 package com.vip.vjtools.vjtop;
 
 import java.io.IOException;
+import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.util.Date;
@@ -501,27 +502,29 @@ public class VMDetailView {
 		if (vmInfo.threadContentionMonitoringSupported) {
 			sb.append(" (blocked:").append(info.getBlockedCount()).append("/").append(info.getBlockedTime())
 					.append("ms, wait:").append(info.getWaitedCount()).append("/").append(info.getWaitedTime())
-					.append("ms)");
+					.append("ms");
 		} else {
-			sb.append(" (blocked:").append(info.getBlockedCount()).append(",wait:").append(info.getWaitedCount())
-					.append(")");
+			sb.append(" (blocked:").append(info.getBlockedCount()).append(" times, wait:").append(info.getWaitedCount())
+					.append(" times");
 		}
 
-		if (info.getLockName() != null) {
-			sb.append(" on " + info.getLockName());
+		if (info.isSuspended()) {
+			sb.append(" ,suspended");
+		}
+		if (info.isInNative()) {
+			sb.append(" ,in native");
+		}
+		sb.append(")\n");
+
+		sb.append("   java.lang.Thread.State: " + info.getThreadState().toString());
+		LockInfo lockInfo = info.getLockInfo();
+		if (lockInfo != null) {
+			sb.append("(on " + lockInfo + ")");
 		}
 		if (info.getLockOwnerName() != null) {
 			sb.append(" owned by " + info.getLockOwnerId() + ":\"" + info.getLockOwnerName() + "\"");
 		}
-		if (info.isSuspended()) {
-			sb.append(" (suspended)");
-		}
-		if (info.isInNative()) {
-			sb.append(" (in native)");
-		}
-		sb.append('\n');
-		sb.append("\n   java.lang.Thread.State: " + info.getThreadState().toString()).append("\n");
-
+		sb.append("\n");
 		for (StackTraceElement traceElement : trace) {
 			sb.append("\tat ").append(traceElement).append("\n");
 		}
