@@ -13,7 +13,7 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 # 2.使用说明
 
-[Download vjmap-1.0.5.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.5/vjmap-1.0.5.zip) (from Maven Central)
+[Download vjmap-1.0.6.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.6/vjmap-1.0.6.zip) (from Maven Central)
 
 # 2.1 注意事项
 
@@ -31,18 +31,13 @@ JAVA_HOME的定位，通过读取环境变量JAVA_HOME，如果没有定义，�
  
 需要root权限 (sudo -E vjmap.sh ...，)，权限与jmap -heap pid相同.
 
-如果无法联通进程时，可尝试使用jstack -F pid, jmap -heap pid 结果。
+如果无法联通进程时，可尝试执行jstack -F pid, jmap -heap pid 自行比对。
 
 如果在容器中运行，需要打开ptrace权限。
 
-3. 意外停止
-
-vjmap的运行需要一段时间，如果中途需要停止执行，请使用ctrl＋c，或者kill vjmap的PID，让vjmap从目标进程退出。
-
-如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID，重新唤醒目标java进程。
 
     
-## 2.1 常用指令
+## 2.2 常用指令
 
 针对活着的进程，PID为进程号
 
@@ -65,7 +60,7 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用ctr
 
 ```
 
-## 2.2 仅输出存活的对象
+## 2.3 仅输出存活的对象
 
 原理为正式统计前先执行一次full gc
 
@@ -73,20 +68,32 @@ vjmap的运行需要一段时间，如果中途需要停止执行，请使用ctr
 ./vjmap.sh -old:live PID > /tmp/histo-old－live.log
 ```
 
-## 2.3 过滤对象大小，不显示过小的对象:
+## 2.4 过滤对象大小，不显示过小的对象:
 
 ```
 // 按对象的oldgen size进行过滤，只打印OldGen占用超过1K的数据
 ./vjmap.sh -old:minsize=1024 PID > /tmp/histo-old.log
 ```
 
-## 2.3 按class name排序，配合大小过滤， 生成用于两次结果比较的报表:
+## 2.5 按class name排序，配合大小过滤， 生成用于两次结果比较的报表:
 
 ```
 ./vjmap.sh -all:minsize=1024,byname PID > /tmp/histo.log
 ```
 
 
+## 2.6 其他注意事项
+
+
+1. 意外停止
+
+vjmap的运行需要一段时间，如果中途需要停止执行，请使用ctrl＋c，或者kill vjmap的PID，让vjmap从目标进程退出。
+
+如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID，重新唤醒目标java进程。
+
+2. OldGen碎片
+
+如果很久没都有进行过CMS GC or Full GC，OldGen将有非常非常多的Live Regions，执行 -all 和 -old 时将非常缓慢，比如 -all的第一步Get Live Regions就会非常缓慢，如非要故意观察死对象的场景，此时可尝试先触发一次full gc， 如使用vjmap -all:live, 或 jmap -histo:live 或 jcmd GC.run 等。
 
 # 3.输出示例
 

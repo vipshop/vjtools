@@ -5,7 +5,7 @@
 
 各位看官看着是好的，烦请“Star”。
 
-[1.0.5 VJTop黄金2版](https://github.com/vipshop/vjtools/releases/tag/v.1.0.5) - 2018.8.24
+[1.0.6 中秋国庆版](https://github.com/vipshop/vjtools/releases/tag/v.1.0.6) - 2018.9.24
 
 ## Java Standard
 
