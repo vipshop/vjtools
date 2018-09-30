@@ -1,17 +1,11 @@
 package com.vip.vjtools.vjkit.concurrent.threadpool;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
+import com.vip.vjtools.vjkit.concurrent.threadpool.QueuableCachedThreadPool.ControllableQueue;
 import org.junit.Test;
 
-import com.vip.vjtools.vjkit.concurrent.threadpool.QueuableCachedThreadPool.ControllableQueue;
+import java.util.concurrent.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThreadPoolBuilderTest {
 
@@ -124,12 +118,12 @@ public class ThreadPoolBuilderTest {
 		assertThat(singlePool.getQueue()).isInstanceOf(ControllableQueue.class);
 		singlePool.shutdown();
 
-		ThreadPoolExecutor sizeablePool = ThreadPoolBuilder.queuableCachedPool().setMinSize(10).setMaxSize(100)
+		ThreadPoolExecutor sizeAblePool = ThreadPoolBuilder.queuableCachedPool().setMinSize(10).setMaxSize(100)
 				.setKeepAliveSecs(20).build();
-		assertThat(sizeablePool.getCorePoolSize()).isEqualTo(10);
-		assertThat(sizeablePool.getMaximumPoolSize()).isEqualTo(100);
-		assertThat(sizeablePool.getKeepAliveTime(TimeUnit.SECONDS)).isEqualTo(20);
-		sizeablePool.shutdown();
+		assertThat(sizeAblePool.getCorePoolSize()).isEqualTo(10);
+		assertThat(sizeAblePool.getMaximumPoolSize()).isEqualTo(100);
+		assertThat(sizeAblePool.getKeepAliveTime(TimeUnit.SECONDS)).isEqualTo(20);
+		sizeAblePool.shutdown();
 
 		ThreadPoolExecutor fixPoolWithNamePrefix = ThreadPoolBuilder.queuableCachedPool()
 				.setThreadNamePrefix("queuableCachedPool").build();
