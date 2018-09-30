@@ -89,7 +89,7 @@ JAVA_HOME的定位，通过读取环境变量JAVA_HOME，如果没有定义，�
 
 vjmap的运行需要一段时间，如果中途需要停止执行，请使用ctrl＋c，或者kill vjmap的PID，让vjmap从目标进程退出。
 
-如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID，重新唤醒目标java进程。
+如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -SIGCONT $目标进程PID，重新唤醒目标java进程。
 
 2. OldGen碎片
 
