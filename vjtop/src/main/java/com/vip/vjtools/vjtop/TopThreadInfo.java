@@ -12,9 +12,9 @@ public class TopThreadInfo {
 	private VMInfo vmInfo;
 	private long[] topTidArray;
 
-	private LongObjectMap<Long> lastThreadCpuTotalTimes = new LongObjectHashMap<Long>();
-	private LongObjectMap<Long> lastThreadSysCpuTotalTimes = new LongObjectHashMap<Long>();
-	private LongObjectMap<Long> lastThreadMemoryTotalBytes = new LongObjectHashMap<Long>();
+	private LongObjectMap<Long> lastThreadCpuTotalTimes = new LongObjectHashMap<>();
+	private LongObjectMap<Long> lastThreadSysCpuTotalTimes = new LongObjectHashMap<>();
+	private LongObjectMap<Long> lastThreadMemoryTotalBytes = new LongObjectHashMap<>();
 
 	public TopThreadInfo(VMInfo vmInfo) throws Exception {
 		this.vmInfo = vmInfo;
@@ -27,9 +27,8 @@ public class TopThreadInfo {
 		try {
 			long tids[] = vmInfo.getAllThreadIds();
 
-
 			int mapSize = tids.length * 2;
-			result.threadCpuTotalTimes = new LongObjectHashMap<Long>(mapSize);
+			result.threadCpuTotalTimes = new LongObjectHashMap<>(mapSize);
 			result.threadCpuDeltaTimes = new LongObjectHashMap<>(mapSize);
 			result.threadSysCpuTotalTimes = new LongObjectHashMap<>(mapSize);
 			result.threadSysCpuDeltaTimes = new LongObjectHashMap<>(mapSize);
@@ -119,8 +118,8 @@ public class TopThreadInfo {
 			long tids[] = vmInfo.getAllThreadIds();
 
 			int mapSize = tids.length * 2;
-			result.threadMemoryTotalBytesMap = new LongObjectHashMap<Long>(mapSize);
-			result.threadMemoryDeltaBytesMap = new LongObjectHashMap<Long>(mapSize);
+			result.threadMemoryTotalBytesMap = new LongObjectHashMap<>(mapSize);
+			result.threadMemoryDeltaBytesMap = new LongObjectHashMap<>(mapSize);
 
 			// 批量获取内存分配
 			long[] threadMemoryTotalBytesArray = vmInfo.getThreadAllocatedBytes(tids);

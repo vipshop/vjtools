@@ -46,6 +46,7 @@ public class VMInfo {
 	public boolean processDataSupport = true;
 	public boolean threadCpuTimeSupported;
 	public boolean threadMemoryAllocatedSupported;
+	public boolean threadContentionMonitoringSupported;
 
 	public WarningRule warningRule = new WarningRule();
 
@@ -187,15 +188,17 @@ public class VMInfo {
 				.parseLong(jmxClient.getHotSpotDiagnosticMXBean().getVMOption("MaxDirectMemorySize").getValue());
 		maxDirectMemorySize = maxDirectMemorySize == 0 ? -1 : maxDirectMemorySize;
 
-		threadCpuTimeSupported = jmxClient.getThreadMXBean().isThreadCpuTimeSupported();
-		threadMemoryAllocatedSupported = jmxClient.getThreadMXBean().isThreadAllocatedMemorySupported();
-
 		processors = jmxClient.getOperatingSystemMXBean().getAvailableProcessors();
 		warningRule.updateProcessor(processors);
 
 		isLinux = System.getProperty("os.name").toLowerCase(Locale.US).contains("linux");
 	}
 
+	public void initThreadInfoAbility() throws IOException {
+		threadCpuTimeSupported = jmxClient.getThreadMXBean().isThreadCpuTimeSupported();
+		threadMemoryAllocatedSupported = jmxClient.getThreadMXBean().isThreadAllocatedMemorySupported();
+		threadContentionMonitoringSupported = jmxClient.getThreadMXBean().isThreadContentionMonitoringEnabled();
+	}
 
 	/**
 	 * Updates all jvm metrics to the most recent remote values
@@ -438,7 +441,6 @@ public class VMInfo {
 	public long[] getThreadAllocatedBytes(long[] tids) throws IOException {
 		return jmxClient.getThreadMXBean().getThreadAllocatedBytes(tids);
 	}
-
 
 	private void initPerfCounters(Map<String, Counter> perfCounters) {
 		threadLiveCounter = (LongCounter) perfCounters.get("java.threads.live");

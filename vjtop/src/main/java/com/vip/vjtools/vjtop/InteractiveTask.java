@@ -13,6 +13,7 @@ public class InteractiveTask implements Runnable {
 	private VJTop app;
 	private Console console;
 	private PrintStream tty;
+	private String inputWhenWaitForEnter;
 
 	public InteractiveTask(VJTop app) {
 		this.app = app;
@@ -34,9 +35,15 @@ public class InteractiveTask implements Runnable {
 
 		while (true) {
 			try {
-				String command = readLine("");
-				if (command == null) {
-					break;
+				String command;
+				if (inputWhenWaitForEnter != null && inputWhenWaitForEnter.length() > 0) {
+					command = inputWhenWaitForEnter;
+					inputWhenWaitForEnter = null;
+				} else {
+					command = readLine("");
+					if (command == null) {
+						break;
+					}
 				}
 
 				handleCommand(command.toLowerCase());
@@ -128,7 +135,6 @@ public class InteractiveTask implements Runnable {
 			app.continueFlush();
 		}
 	}
-
 
 	private void changeDisplayMode() {
 		app.preventFlush();
@@ -230,12 +236,12 @@ public class InteractiveTask implements Runnable {
 		tty.println(" t : print stack trace of top " + app.view.threadLimit + " threads");
 		tty.println(" b : print stack trace of blocked threads");
 		tty.println(" a : list id and name of all threads");
-		tty.println(" -------------------------------------");
+		tty.println(" ---------------");
 		tty.println(" m : change threads display mode and ordering");
 		tty.println(" i [num]: change flush interval seconds");
 		tty.println(" l [num]: change number of display threads");
 		tty.println(" f [name]: set thread name filter");
-		tty.println(" -------------------------------------");
+		tty.println(" ---------------");
 		tty.println(" q : quit");
 		tty.println(" h : print help");
 		waitForEnter();
@@ -243,12 +249,11 @@ public class InteractiveTask implements Runnable {
 	}
 
 	private void waitForEnter() {
-		readLine(" Please hit <ENTER> to continue...");
+		inputWhenWaitForEnter = readLine(" Please hit <ENTER> to continue...");
 	}
 
 	private String readLine(String hints) {
 		String result = console.readLine(hints);
-
 		if (result != null) {
 			return result.trim();
 		}

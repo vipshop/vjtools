@@ -3,7 +3,6 @@
 .project
 .settings/
 
-
 # Intellij project files
 *.iml
 .idea/
@@ -16,4 +15,4 @@ vip-java-standard.md
 release.sh
 vjmap/vjmap/
 vjtop/vjtop/
-release.properties
+vjmxcli/vjmxcli

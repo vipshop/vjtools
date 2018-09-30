@@ -43,7 +43,7 @@ public class PerfData {
 	}
 
 	private Map<String, Counter> buildAllCounters() {
-		Map<String, Counter> result = new HashMap<String, Counter>(512);
+		Map<String, Counter> result = new HashMap<>(512);
 
 		for (Counter c : instr.getAllCounters()) {
 			result.put(c.getName(), c);

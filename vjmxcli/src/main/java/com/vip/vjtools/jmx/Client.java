@@ -355,7 +355,7 @@ public class Client {
 			final String[] command, final boolean oneBeanOnly) throws Exception {
 		Object[] result = null;
 		Set beans = mbsc.queryMBeans(objName, null);
-		if (beans.size() == 0) {
+		if (beans.isEmpty()) {
 			// No bean found. Check if we are to create a bean?
 			if (command.length == 1 && notEmpty(command[0]) && command[0].startsWith(CREATE_CMD_PREFIX)) {
 				String className = command[0].substring(CREATE_CMD_PREFIX.length());
@@ -474,7 +474,7 @@ public class Client {
 			result = buffer;
 		} else if (result instanceof AttributeList) {
 			AttributeList list = (AttributeList) result;
-			if (list.size() <= 0) {
+			if (list.isEmpty()) {
 				result = null;
 			} else {
 				StringBuffer buffer = new StringBuffer("\n");
@@ -730,6 +730,7 @@ public class Client {
 			super();
 		}
 
+		@Override
 		public synchronized String format(LogRecord record) {
 			this.buffer.setLength(0);
 			this.date.setTime(record.getMillis());

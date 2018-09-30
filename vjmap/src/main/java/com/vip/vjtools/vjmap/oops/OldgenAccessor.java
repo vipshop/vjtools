@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.vip.vjtools.vjmap.ClassStats;
-import com.vip.vjtools.vjmap.utils.ProgressNodifier;
+import com.vip.vjtools.vjmap.utils.ProgressNotifier;
 
 import sun.jvm.hotspot.debugger.Address;
 import sun.jvm.hotspot.gc_interface.CollectedHeap;
@@ -31,15 +31,13 @@ import sun.jvm.hotspot.runtime.VMObjectFactory;
 public class OldgenAccessor {
 
 	private PrintStream tty = System.out;
-	private ProgressNodifier progressNodifier;
-
 	private Address cur;
 	private Address regionStart;
 	private int liveRegions = 0;
 
 	public List<ClassStats> caculateHistogram() {
 
-		HashMap<Klass, ClassStats> classStatsMap = new HashMap<Klass, ClassStats>(2048, 0.2f);
+		HashMap<Klass, ClassStats> classStatsMap = new HashMap<>(2048, 0.2f);
 
 		ObjectHeap objectHeap = HeapUtils.getObjectHeap();
 		CollectedHeap heap = checkHeapType();
@@ -53,8 +51,8 @@ public class OldgenAccessor {
 
 		printGenSummary(cmsGen);
 
-		progressNodifier = new ProgressNodifier(cmsGen.used());
-		progressNodifier.printHead();
+		ProgressNotifier progressNotifier = new ProgressNotifier(cmsGen.used());
+		progressNotifier.printHead();
 
 		final long addressSize = VM.getVM().getAddressSize();
 
@@ -81,9 +79,9 @@ public class OldgenAccessor {
 				stats.oldCount++;
 				stats.oldSize += objectSize;
 
-				progressNodifier.processingSize += objectSize;
-				if (progressNodifier.processingSize > progressNodifier.notificationSize) {
-					progressNodifier.printProgress();
+				progressNotifier.processingSize += objectSize;
+				if (progressNotifier.processingSize > progressNotifier.nextNotificationSize) {
+					progressNotifier.printProgress();
 				}
 
 				cur = cur.addOffsetTo(CompactibleFreeListSpace.adjustObjectSizeInBytes(objectSize));

@@ -72,24 +72,24 @@ public class OptionAdvanceParser {
 	public static OptionParser createOptionParser() {
 		OptionParser parser = new OptionParser();
 		// commmon
-		parser.acceptsAll(Arrays.asList(new String[] { "help", "?", "h" }), "shows this help").forHelp();
-		parser.acceptsAll(Arrays.asList(new String[] { "n", "iteration" }),
+		parser.acceptsAll(Arrays.asList("help", "?", "h"), "shows this help").forHelp();
+		parser.acceptsAll(Arrays.asList("n", "iteration"),
 				"vjtop will exit after n output iterations  (defaults to unlimit)").withRequiredArg()
 				.ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "i", "interval", "d" }),
+		parser.acceptsAll(Arrays.asList("i", "interval", "d"),
 				"interval between each output iteration (defaults to 10s)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "w", "width" }),
-				"Number of columns for the console display (defaults to 100)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "l", "limit" }),
-				"Number of threads to display ( default to 10 threads)").withRequiredArg().ofType(Integer.class);
-		parser.acceptsAll(Arrays.asList(new String[] { "f", "filter" }), "Thread name filter ( no default)")
+		parser.acceptsAll(Arrays.asList("w", "width"), "Number of columns for the console display (defaults to 100)")
+				.withRequiredArg().ofType(Integer.class);
+		parser.acceptsAll(Arrays.asList("l", "limit"), "Number of threads to display ( default to 10 threads)")
+				.withRequiredArg().ofType(Integer.class);
+		parser.acceptsAll(Arrays.asList("f", "filter"), "Thread name filter ( no default)").withRequiredArg()
+				.ofType(String.class);
+
+		parser.acceptsAll(Arrays.asList("j", "jmxurl"), "give JMX url like 127.0.0.1:7001 when VM attach doesn't work")
 				.withRequiredArg().ofType(String.class);
 
-		parser.acceptsAll(Arrays.asList(new String[] { "j", "jmxurl" }),
-				"give JMX url like 127.0.0.1:7001 when VM attach doesn't work").withRequiredArg().ofType(String.class);
-
 		// detail mode
-		parser.acceptsAll(Arrays.asList(new String[] { "m", "mode" }),
+		parser.acceptsAll(Arrays.asList("m", "mode"),
 				"number of thread display mode: \n"
 						+ " 1.cpu(default): display thread cpu usage and sort by its delta cpu time\n"
 						+ " 2.syscpu: display thread cpu usage and sort by delta syscpu time\n"
@@ -99,13 +99,13 @@ public class OptionAdvanceParser {
 						+ " 6.total memory: display thread memory allocated and sort by total")
 				.withRequiredArg().ofType(Integer.class);
 
-		parser.acceptsAll(Arrays.asList(new String[] { "o", "output" }),
+		parser.acceptsAll(Arrays.asList("o", "output"),
 				"output format: \n" + " console(default): console with warning and flush ansi code\n"
 						+ " clean: console without warning and flush ansi code\n"
 						+ " text: plain text like /proc/status for 3rd tools\n")
 				.withRequiredArg().ofType(String.class);
 
-		parser.acceptsAll(Arrays.asList(new String[] { "c", "content" }),
+		parser.acceptsAll(Arrays.asList("c", "content"),
 				"output format: \n"
 						+ " all(default): jvm info and theads info\n jvm: only jvm info\n thread: only thread info\n")
 				.withRequiredArg().ofType(String.class);

@@ -1,6 +1,7 @@
 package com.vip.vjtools.vjtop;
 
 import java.io.IOException;
+import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.util.Date;
@@ -13,7 +14,6 @@ import com.vip.vjtools.vjtop.util.Utils;
 
 @SuppressWarnings("restriction")
 public class VMDetailView {
-
 	private static final int DEFAULT_WIDTH = 100;
 	private static final int MIN_WIDTH = 80;
 
@@ -51,6 +51,10 @@ public class VMDetailView {
 
 		this.interval = interval;
 		setWidth(width);
+
+		if (contentMode == ContentMode.all || contentMode == ContentMode.thread) {
+			vmInfo.initThreadInfoAbility();
+		}
 	}
 
 	public void printView() throws Exception {
@@ -114,7 +118,7 @@ public class VMDetailView {
 
 	private boolean checkState() {
 		if (vmInfo.state != VMInfo.VMInfoState.ATTACHED && vmInfo.state != VMInfo.VMInfoState.ATTACHED_UPDATE_ERROR) {
-			System.out.println(System.lineSeparator() + Formats.red("ERROR: Could not attach to process, exit now."));
+			System.out.println("\n" + Formats.red("ERROR: Could not attach to process, exit now."));
 			shoulExit();
 			return false;
 		}
@@ -436,7 +440,7 @@ public class VMDetailView {
 
 	private void printJmxError() {
 		if (!vmInfo.currentGcCause.equals("No GC")) {
-			System.out.println(System.lineSeparator() + Formats.red(
+			System.out.println("\n" + Formats.red(
 					"ERROR: Could not fetch data via JMX - Process is doing GC, cause is " + vmInfo.currentGcCause));
 		} else {
 			System.out.println(
@@ -491,11 +495,42 @@ public class VMDetailView {
 
 	public StackTraceElement[] printSingleThread(ThreadInfo info) {
 		StackTraceElement[] trace = info.getStackTrace();
-		System.out.println(" " + info.getThreadId() + ": \"" + info.getThreadName() + "\"" + System.lineSeparator()
-				+ "   java.lang.Thread.State: " + info.getThreadState().toString());
-		for (StackTraceElement traceElement : trace) {
-			System.out.println("\tat " + traceElement);
+		StringBuilder sb = new StringBuilder(512);
+
+		sb.append(" ").append(info.getThreadId()).append(": \"").append(info.getThreadName()).append("\"");
+
+		if (vmInfo.threadContentionMonitoringSupported) {
+			sb.append(" (blocked:").append(info.getBlockedCount()).append("/").append(info.getBlockedTime())
+					.append("ms, wait:").append(info.getWaitedCount()).append("/").append(info.getWaitedTime())
+					.append("ms");
+		} else {
+			sb.append(" (blocked:").append(info.getBlockedCount()).append(" times, wait:").append(info.getWaitedCount())
+					.append(" times");
 		}
+
+		if (info.isSuspended()) {
+			sb.append(" ,suspended");
+		}
+		if (info.isInNative()) {
+			sb.append(" ,in native");
+		}
+		sb.append(")\n");
+
+		sb.append("   java.lang.Thread.State: " + info.getThreadState().toString());
+		LockInfo lockInfo = info.getLockInfo();
+		if (lockInfo != null) {
+			sb.append("(on " + lockInfo + ")");
+		}
+		if (info.getLockOwnerName() != null) {
+			sb.append(" owned by " + info.getLockOwnerId() + ":\"" + info.getLockOwnerName() + "\"");
+		}
+		sb.append("\n");
+		for (StackTraceElement traceElement : trace) {
+			sb.append("\tat ").append(traceElement).append("\n");
+		}
+
+		System.out.print(sb.toString());
+
 		return trace;
 	}
 
@@ -503,7 +538,7 @@ public class VMDetailView {
 	 * 打印所有线程，只获取名称不获取stack，不造成停顿
 	 */
 	public void printAllThreads() throws IOException {
-		System.out.println(System.lineSeparator() + " Thread Id and name of all live threads:");
+		System.out.println("\n Thread Id and name of all live threads:");
 
 		long tids[] = vmInfo.getAllThreadIds();
 		ThreadInfo[] threadInfos = vmInfo.getThreadInfo(tids);
@@ -527,7 +562,7 @@ public class VMDetailView {
 	}
 
 	public void printBlockedThreads() throws IOException {
-		System.out.println(System.lineSeparator() + " Stack trace of blocked threads:");
+		System.out.println("\n Stack trace of blocked threads:");
 		int counter = 0;
 		ThreadInfo[] threadInfos = vmInfo.getAllThreadInfo();
 		for (ThreadInfo info : threadInfos) {
@@ -542,7 +577,6 @@ public class VMDetailView {
 				printSingleThread(info);
 				counter++;
 			}
-
 		}
 
 		System.out.println(" Total " + counter + " blocked threads");

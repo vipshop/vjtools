@@ -23,16 +23,15 @@
 10. [异常处理](standard/chapter10.md)
 11. [日志规约](standard/chapter11.md)
 12. [其他设计](standard/chapter12.md)
-13. [阿里手册的增补与删减记录](standard/ali.md)
 
 
-注意： 如需全文pdf版，请下载源码，在docs/standard/目录运行merge.sh生成，阅读时的章节跳转使用pdf阅读器的左侧书签。
+注意： 如需全文pdf版，请下载源码，在docs/standard/目录运行merge.sh生成。
 
 ## 3. 规范落地
 
-规则落地主要依靠代码格式化模版与[Sonar代码规则检查](https://www.sonarqube.org/)。
+规则落地主要依靠代码格式模版与[Sonar代码规则检查](https://www.sonarqube.org/)。
 
-其中Sonar规则不尽如人意的地方，我们进行了定制。
+其中Sonar规则不如人意的地方，我们进行了定制。
 
 * [Eclipse/Intellij 格式模板](https://github.com/vipshop/vjtools/tree/master/standard/formatter)
 * [Sonar 规则修改示例](https://github.com/vipshop/vjtools/tree/master/standard/sonar-vj)
@@ -42,8 +41,9 @@
 * [《Clean Code》](https://book.douban.com/subject/4199741/)
 * [《Effective Java 2nd》](https://book.douban.com/subject/3360807/)
 * [《SEI CERT Oracle Coding Standard for Java》(在线版)](https://www.securecoding.cert.org/confluence/display/java/SEI+CERT+Oracle+Coding+Standard+for+Java)
-* [Sonar代码检查规则](https://rules.sonarsource.com/java/)
+* [Sonar Java Rules](https://rules.sonarsource.com/java/)
 
 ## 5. 定制记录
 
 * [《唯品会Java开发手册》－与阿里手册的比较文学I](http://calvin1978.blogcn.com/?p=1771)
+* [阿里手册的增补与删减记录](standard/ali.md)

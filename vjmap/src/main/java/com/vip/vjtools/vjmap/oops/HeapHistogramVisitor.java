@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.vip.vjtools.vjmap.ClassStats;
-import com.vip.vjtools.vjmap.utils.ProgressNodifier;
+import com.vip.vjtools.vjmap.utils.ProgressNotifier;
 
 import sun.jvm.hotspot.debugger.OopHandle;
 import sun.jvm.hotspot.gc_implementation.parallelScavenge.PSOldGen;
@@ -38,10 +38,10 @@ public class HeapHistogramVisitor implements HeapVisitor {
 	private boolean isCms;
 
 	private HashMap<Klass, ClassStats> classStatsMap;
-	private ProgressNodifier progressNodifier;
+	private ProgressNotifier progressNodifier;
 
 	public HeapHistogramVisitor() {
-		classStatsMap = new HashMap<Klass, ClassStats>(2048, 0.2f);
+		classStatsMap = new HashMap<>(2048, 0.2f);
 
 		heap = HeapUtils.getHeap();
 		if (HeapUtils.isCMSGC(heap)) {
@@ -73,7 +73,7 @@ public class HeapHistogramVisitor implements HeapVisitor {
 
 		// 每完成1％ 打印一个，每完成10% 打印百分比提示
 		progressNodifier.processingSize += objSize;
-		if (progressNodifier.processingSize > progressNodifier.notificationSize) {
+		if (progressNodifier.processingSize > progressNodifier.nextNotificationSize) {
 			progressNodifier.printProgress();
 		}
 
@@ -83,7 +83,7 @@ public class HeapHistogramVisitor implements HeapVisitor {
 
 	@Override
 	public void prologue(long size) {
-		progressNodifier = new ProgressNodifier(size);
+		progressNodifier = new ProgressNotifier(size);
 		progressNodifier.printHead();
 	}
 
