@@ -331,7 +331,7 @@ JVM信息告警规则
 
 1. JDK版本错误或tools.jar不存在
 
-vjtop使用的java为JAVA_HOME/bin/java, 必须与目标应用的JVM使用相同的JDK版本。
+vjtop使用的java为JAVA_HOME/bin/java, 需要JDK7及以上，但"不要求"与目标应用的JVM使用相同的JDK版本。
 
 vjtop需要依赖JAVA_HOME/lib/tools.jar
 

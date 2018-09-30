@@ -21,7 +21,7 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 1. JAVA_HOME定义
 
-vjmap使用的java为JAVA_HOME/bin/java, 必须与目标应用的JVM使用相同的JDK版本。
+vjmap使用的java为JAVA_HOME/bin/java, 需要至少JDK7，且与目标应用的JVM使用相同的JDK大版本。
 
 vjmap需要依赖JAVA_HOME/lib/sa-jdi.jar
 
