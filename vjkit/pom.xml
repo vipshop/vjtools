@@ -4,18 +4,6 @@
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjkit</artifactId>
 	<version>1.0.7-SNAPSHOT</version>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>8</source>
-					<target>8</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 	<packaging>jar</packaging>
 	<name>vjkit</name>
 	<description>VIP's core java libraries</description>
