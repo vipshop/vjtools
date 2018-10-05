@@ -21,7 +21,7 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 1. JAVA_HOME定义
 
-vjmap使用的java为JAVA_HOME/bin/java, 必须与目标应用的JVM使用相同的JDK版本。
+vjmap使用的java为JAVA_HOME/bin/java, 需要至少JDK7，且与目标应用的JVM使用相同的JDK大版本。
 
 vjmap需要依赖JAVA_HOME/lib/sa-jdi.jar
 
@@ -89,7 +89,7 @@ JAVA_HOME的定位，通过读取环境变量JAVA_HOME，如果没有定义，�
 
 vjmap的运行需要一段时间，如果中途需要停止执行，请使用ctrl＋c，或者kill vjmap的PID，让vjmap从目标进程退出。
 
-如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -18 目标进程PID，重新唤醒目标java进程。
+如果错用了kill -9 ，目标java进程会保持在阻塞状态不再工作，此时必须执行两次 kill -SIGCONT $目标进程PID，重新唤醒目标java进程。
 
 2. OldGen碎片
 
