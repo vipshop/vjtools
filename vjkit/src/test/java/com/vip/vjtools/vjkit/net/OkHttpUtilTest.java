@@ -48,14 +48,6 @@ public class OkHttpUtilTest {
         assertThat(result.getCode()).isEqualTo(200);
     }
 
-    @Test
-    public void doPostJson() throws IOException {
-        String apiUrl = "http://127.0.0.1:8080/hello/test";
-        //为了和httpClientUtil统一，统一封装成HttpResult
-        HttpResult httpResult = OkHttpUtil.doPostJson(apiUrl, null);
-        assertThat(httpResult).isNotNull();
-    }
-
     /**
      * OKHttp 有连接池吗？为每个单用户创建一个，这点优于apache httpclient this(5, 5, TimeUnit.MINUTES);高并发下建议，使用一个连接池 简单测试与apache httpclient
      * 连接池性能相当 > apache httpclient没有使用连接池

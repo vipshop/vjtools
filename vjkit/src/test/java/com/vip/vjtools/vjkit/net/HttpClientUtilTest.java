@@ -165,10 +165,4 @@ public class HttpClientUtilTest {
         assertThat(result.getCode()).isEqualTo(200);
     }
 
-    @Test
-    public void doPostJson() throws Exception {
-        String apiUrl = "http://127.0.0.1:8080/hello/test";
-        System.out.println(HttpClientUtil.doPostJson(apiUrl,null));
-    }
-
 }
