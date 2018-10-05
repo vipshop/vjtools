@@ -33,7 +33,7 @@ public class HttpClientUtilTest {
     @Test
     public void doGet() throws Exception {
         String url = "http://www.baidu.com";
-        HttpClientResult result = HttpClientUtil.doGet(url);
+        HttpResult result = HttpClientUtil.doGet(url);
         //System.out.println(JsonMapper.INSTANCE.toJson(result));
         assertThat(result.getCode()).isEqualTo(200);
         System.out.println(result.getContent());
@@ -160,9 +160,15 @@ public class HttpClientUtilTest {
     @Test
     public void doPost() throws Exception {
         String payUrl = "https://api.mch.weixin.qq.com/pay/unifiedorder";
-        HttpClientResult result = HttpClientUtil.doPost(payUrl);
+        HttpResult result = HttpClientUtil.doPost(payUrl);
         //System.out.println(result);
         assertThat(result.getCode()).isEqualTo(200);
+    }
+
+    @Test
+    public void doPostJson() throws Exception {
+        String apiUrl = "http://127.0.0.1:8080/hello/test";
+        System.out.println(HttpClientUtil.doPostJson(apiUrl,null));
     }
 
 }

@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 封装httpClient响应结果
  */
-public class HttpClientResult implements Serializable {
+public class HttpResult implements Serializable {
 
     private static final long serialVersionUID = 2168152194164783950L;
 
@@ -19,18 +19,18 @@ public class HttpClientResult implements Serializable {
      */
     private String content;
 
-    public HttpClientResult() {
+    public HttpResult() {
     }
 
-    public HttpClientResult(int code) {
+    public HttpResult(int code) {
         this.code = code;
     }
 
-    public HttpClientResult(String content) {
+    public HttpResult(String content) {
         this.content = content;
     }
 
-    public HttpClientResult(int code, String content) {
+    public HttpResult(int code, String content) {
         this.code = code;
         this.content = content;
     }
@@ -53,7 +53,7 @@ public class HttpClientResult implements Serializable {
 
     @Override
     public String toString() {
-        return "HttpClientResult [code=" + code + ", content=" + content + "]";
+        return "HttpResult [code=" + code + ", content=" + content + "]";
     }
 
 }
