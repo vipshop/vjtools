@@ -6,7 +6,6 @@ import org.apache.commons.lang3.Validate;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -79,7 +78,7 @@ public class OkHttpUtil {
      * @throws IOException io异常
      */
     public static HttpResult doPost(String url, Map<String, String> params) throws IOException {
-        if (Objects.isNull(params)){
+        if (params == null){
             params = new HashMap<>();
         }
         return doPost(client, url, params);
