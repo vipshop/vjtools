@@ -137,7 +137,7 @@ public class DateUtilTest {
 	public void setDay() {
 		Date date = new Date(116, 10, 1, 10, 10, 1);
 		Date expectedDate = new Date(116, 10, 3);
-		Date expectedDate2 = new Date(116, 11, 1);
+		Date expectedDate2 = new Date(116, 10, 1);
 		Date expectedDate3 = new Date(117, 10, 1);
 		Date expectedDate4 = new Date(116, 10, 1, 9, 10, 1);
 		Date expectedDate5 = new Date(116, 10, 1, 10, 9, 1);

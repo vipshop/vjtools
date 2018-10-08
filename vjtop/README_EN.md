@@ -1,5 +1,7 @@
 # VJtop 
- 
+
+Out of date...
+
 VJtop is a JVM monitoring tool to provide a dynamic real-time view of the busiest ten threads, which plays the similar role of the "top" command for viewing the host operation system.
 
 # 1. Introduction
@@ -15,11 +17,9 @@ VJtop is built as NON stop-the-world and is considered ready for production diag
 
 # 2. Getting Started
 
-## 2.1 How to build
+## 2.1 How to run
 
-[download from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.0/vjtop-1.0.0.zip)
-
-Set JAVA_HOME environment variable to your JDK directory.
+[Download vjtop－1.0.4.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.4/vjtop-1.0.4.zip)(from Maven Central)
 
 Run the following command under **the same user who started the target process**.
 

@@ -32,7 +32,6 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -52,24 +51,19 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import com.sun.management.GarbageCollectorMXBean;
+import com.sun.management.HotSpotDiagnosticMXBean;
 import com.sun.management.OperatingSystemMXBean;
 import com.sun.management.ThreadMXBean;
-import com.sun.tools.attach.AgentInitializationException;
-import com.sun.tools.attach.AgentLoadException;
-import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 
 @SuppressWarnings("restriction")
 public class JmxClient {
 	private static final String LOCAL_CONNECTOR_ADDRESS_PROP = "com.sun.management.jmxremote.localConnectorAddress";
 
-	private boolean connected = false;
 	private boolean hasPlatformMXBeans = false;
 
 	private String pid;
 
-	private JMXServiceURL jmxUrl = null;
 	private MBeanServerConnection mbsc = null;
 	private SnapshotMBeanServerConnection server = null;
 	private JMXConnector jmxc = null;
@@ -77,18 +71,14 @@ public class JmxClient {
 	private ClassLoadingMXBean classLoadingMBean = null;
 	private OperatingSystemMXBean operatingSystemMBean = null;
 	private RuntimeMXBean runtimeMBean = null;
+	private HotSpotDiagnosticMXBean hotSpotDiagnosticMXBean = null;
 	private ThreadMXBean threadMBean = null;
-	private GarbageCollectorMXBean fullGarbageCollectorMXBean = null;
-	private GarbageCollectorMXBean youngGarbageCollectorMXBean = null;
+
+	private JmxGarbageCollectorManager garbageCollectorManager = null;
 	private JmxMemoryPoolManager memoryPoolManager = null;
 	private JmxBufferPoolManager bufferPoolManager = null;
 
-	public JmxClient(String pid) throws IOException {
-		this.pid = pid;
-	}
-
-	public boolean isConnected() {
-		return this.connected;
+	public JmxClient() throws IOException {
 	}
 
 	public void flush() {
@@ -97,22 +87,25 @@ public class JmxClient {
 		}
 	}
 
-	public void connect() throws Exception {
-		try {
-			tryConnect();
-			connected = true;
-		} catch (Exception e) {
-			connected = false;
-			throw e;
+	public void connect(String pid, String jmxHostAndPort) throws Exception {
+		this.pid = pid;
+
+		if (jmxHostAndPort != null) {
+			JMXServiceURL jmxUrl = new JMXServiceURL(
+					"service:jmx:rmi://" + jmxHostAndPort + "/jndi/rmi://" + jmxHostAndPort + "/jmxrmi");
+			Map credentials = new HashMap(1);
+			String[] creds = new String[] { null, null };
+			credentials.put(JMXConnector.CREDENTIALS, creds);
+
+			this.jmxc = JMXConnectorFactory.connect(jmxUrl, credentials);
+		} else {
+			// 如果jmx agent未启动，主动attach进JVM后加载
+			String address = attachToGetConnectorAddress();
+
+			JMXServiceURL jmxUrl = new JMXServiceURL(address);
+			this.jmxc = JMXConnectorFactory.connect(jmxUrl);// NOSONAR
 		}
-	}
 
-	private void tryConnect() throws IOException {
-		// 如果jmx agent未启动，主动attach进JVM后加载
-		String address = getConnectorAddress();
-
-		this.jmxUrl = new JMXServiceURL(address);
-		this.jmxc = JMXConnectorFactory.connect(jmxUrl);// NOSONAR
 		this.mbsc = jmxc.getMBeanServerConnection();
 		this.server = Snapshot.newSnapshot(mbsc);
 
@@ -153,13 +146,6 @@ public class JmxClient {
 		return classLoadingMBean;
 	}
 
-	public synchronized JmxMemoryPoolManager getMemoryPoolManager() throws IOException {
-		if (hasPlatformMXBeans && memoryPoolManager == null) {
-			memoryPoolManager = new JmxMemoryPoolManager(server);
-		}
-		return memoryPoolManager;
-	}
-
 	public synchronized RuntimeMXBean getRuntimeMXBean() throws IOException {
 		if (hasPlatformMXBeans && runtimeMBean == null) {
 			runtimeMBean = ManagementFactory.newPlatformMXBeanProxy(server, ManagementFactory.RUNTIME_MXBEAN_NAME,
@@ -176,11 +162,27 @@ public class JmxClient {
 		return operatingSystemMBean;
 	}
 
-	public synchronized GarbageCollectorMXBean getFullCollector() throws IOException {
-		if (fullGarbageCollectorMXBean == null) {
-			initGarbageCollector();
+	public synchronized HotSpotDiagnosticMXBean getHotSpotDiagnosticMXBean() throws IOException {
+		if (hasPlatformMXBeans && hotSpotDiagnosticMXBean == null) {
+			hotSpotDiagnosticMXBean = ManagementFactory.newPlatformMXBeanProxy(server,
+					"com.sun.management:type=HotSpotDiagnostic", HotSpotDiagnosticMXBean.class);
 		}
-		return fullGarbageCollectorMXBean;
+		return hotSpotDiagnosticMXBean;
+	}
+
+	public synchronized ThreadMXBean getThreadMXBean() throws IOException {
+		if (hasPlatformMXBeans && threadMBean == null) {
+			threadMBean = JMX.newMXBeanProxy(server, createBeanName(ManagementFactory.THREAD_MXBEAN_NAME),
+					ThreadMXBean.class);
+		}
+		return threadMBean;
+	}
+
+	public synchronized JmxMemoryPoolManager getMemoryPoolManager() throws IOException {
+		if (hasPlatformMXBeans && memoryPoolManager == null) {
+			memoryPoolManager = new JmxMemoryPoolManager(server);
+		}
+		return memoryPoolManager;
 	}
 
 	public synchronized JmxBufferPoolManager getBufferPoolManager() throws IOException {
@@ -191,39 +193,11 @@ public class JmxClient {
 		return bufferPoolManager;
 	}
 
-	public synchronized GarbageCollectorMXBean getYoungCollector() throws IOException {
-		if (hasPlatformMXBeans && youngGarbageCollectorMXBean == null) {
-			initGarbageCollector();
+	public synchronized JmxGarbageCollectorManager getGarbageCollectorManager() throws IOException {
+		if (hasPlatformMXBeans && garbageCollectorManager == null) {
+			garbageCollectorManager = new JmxGarbageCollectorManager(server);
 		}
-		return youngGarbageCollectorMXBean;
-	}
-
-	private synchronized void initGarbageCollector() throws IOException {
-		if (fullGarbageCollectorMXBean != null || youngGarbageCollectorMXBean != null) {
-			return;
-		}
-
-		List<GarbageCollectorMXBean> garbageCollectorMXBeans = ManagementFactory.getPlatformMXBeans(server,
-				GarbageCollectorMXBean.class);
-		A: for (GarbageCollectorMXBean gcollector : garbageCollectorMXBeans) {
-			String[] memoryPoolNames = gcollector.getMemoryPoolNames();
-			for (String poolName : memoryPoolNames) {
-				if (poolName.toLowerCase().contains(JmxMemoryPoolManager.OLD)
-						|| poolName.toLowerCase().contains(JmxMemoryPoolManager.TENURED)) {
-					fullGarbageCollectorMXBean = gcollector;
-					continue A;
-				}
-			}
-			youngGarbageCollectorMXBean = gcollector;
-		}
-	}
-
-	public synchronized ThreadMXBean getThreadMXBean() throws IOException {
-		if (hasPlatformMXBeans && threadMBean == null) {
-			threadMBean = JMX.newMXBeanProxy(server, createBeanName(ManagementFactory.THREAD_MXBEAN_NAME),
-					ThreadMXBean.class);
-		}
-		return threadMBean;
+		return garbageCollectorManager;
 	}
 
 	private ObjectName createBeanName(String beanName) {
@@ -236,7 +210,7 @@ public class JmxClient {
 
 	@Override
 	public String toString() {
-		return pid;
+		return "JMX Client for PID:" + pid;
 	}
 
 	/**
@@ -244,20 +218,13 @@ public class JmxClient {
 	 * 并向JMXClient提供连接地址地址样例：service:jmx:rmi://127.0
 	 * .0.1/stub/rO0ABXN9AAAAAQAl...
 	 */
-	public String getConnectorAddress() throws IOException {
+	public String attachToGetConnectorAddress() throws Exception {
 		VirtualMachine vm = null;
+
 		// 1. attach vm
+		vm = VirtualMachine.attach(pid);
 
 		try {
-			vm = VirtualMachine.attach(pid);
-		} catch (AttachNotSupportedException x) {
-			IOException ioe = new IOException(x.getMessage());
-			ioe.initCause(x);
-			throw ioe;
-		}
-
-		try {
-
 			// 2. 检查smartAgent是否已启动
 			Properties agentProps = vm.getAgentProperties();
 			String address = (String) agentProps.get(LOCAL_CONNECTOR_ADDRESS_PROP);
@@ -284,17 +251,7 @@ public class JmxClient {
 			}
 
 			agentPath = f.getCanonicalPath();
-			try {
-				vm.loadAgent(agentPath, "com.sun.management.jmxremote");
-			} catch (AgentLoadException x) {
-				IOException ioe = new IOException(x.getMessage());
-				ioe.initCause(x);
-				throw ioe;
-			} catch (AgentInitializationException x) {
-				IOException ioe = new IOException(x.getMessage());
-				ioe.initCause(x);
-				throw ioe;
-			}
+			vm.loadAgent(agentPath, "com.sun.management.jmxremote");
 
 			// 4. 再次获取connector address
 			agentProps = vm.getAgentProperties();
@@ -398,8 +355,8 @@ public class JmxClient {
 			return conn.getAttribute(objName, attrName);
 		}
 
-		private AttributeList getAttributes(ObjectName objName, String[] attrNames) throws InstanceNotFoundException,
-				ReflectionException, IOException {
+		private AttributeList getAttributes(ObjectName objName, String[] attrNames)
+				throws InstanceNotFoundException, ReflectionException, IOException {
 			final NameValueMap values = getCachedAttributes(objName, new TreeSet<String>(Arrays.asList(attrNames)));
 			final AttributeList list = new AttributeList();
 			for (String attrName : attrNames) {
@@ -437,5 +394,4 @@ public class JmxClient {
 			return new HashMap<K, V>();
 		}
 	}
-
 }

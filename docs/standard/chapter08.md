@@ -12,7 +12,7 @@
 
 HashMap/HashSet的初始值还要考虑加载因子:
 
-为了降低哈希冲突的概率(Key的哈希值按数组大小取模后，如果落在同一个数组下标上，将组成一条需要遍历的Entry链)，默认当HashMap中的键值对达到数组大小的75%时，即会触发扩容。因此，如果预估容量是100，即需要设定`100/0.75＝134`的数组大小。vjkit的MapUtil的Map创建函数封装了该计算。
+为了降低哈希冲突的概率(Key的哈希值按数组大小取模后，如果落在同一个数组下标上，将组成一条需要遍历的Entry链)，默认当HashMap中的键值对达到数组大小的75%时，即会触发扩容。因此，如果预估容量是100，即需要设定`100/0.75 +1＝135`的数组大小。vjkit的MapUtil的Map创建函数封装了该计算。
 
 如果希望加快Key查找的时间，还可以进一步降低加载因子，加大初始大小，以降低哈希冲突的概率。
 
@@ -175,7 +175,7 @@ stack.popAll(objects);
 
 **Rule 10. 【推荐】`List`, `List<?>` 与 `List<Object>`的选择**
 
-定义成`List`，会被IDE提示需要定义泛型。 如果实在无法确定泛型，就仓促定义成`List<?>`来蒙混过关的话，该list只能读，不能增改。定义成`List<Object>`呢，如规则10所述，`List<String>` 并不是`List<Object>`的子类，除非函数定义使用了通配符。
+定义成`List`，会被IDE提示需要定义泛型。 如果实在无法确定泛型，就仓促定义成`List<?>`来蒙混过关的话，该list只能读，不能增改。定义成`List<Object>`呢，如规则9所述，`List<String>` 并不是`List<Object>`的子类，除非函数定义使用了通配符。
 
 因此实在无法明确其泛型时，使用`List`也是可以的。
 
@@ -207,10 +207,20 @@ String[] array = list.toArray(new String[list.size()]); //RIGHT，但list.size()
 
 
 // array -> list
-List list = Arrays.asList(array); //WRONG
-List list = new ArrayList(array); //RIGHT
+//非原始类型数组，且List不能再扩展
+List list = Arrays.asList(array); 
+
+//非原始类型数组， 但希望List能再扩展
+List list = new ArrayList(array.length);
+Collections.addAll(list, array);
+
+//原始类型数组，JDK8
+List myList = Arrays.stream(intArray).boxed().collect(Collectors.toList());
+
+//原始类型数组，JDK7则要自己写个循环来加入了
 ```
-Arrays.asList(array)，如果array是原始类型数组如int[]，会把整个array当作List的一个元素，String[] 或 Foo[]则无此问题，安全起见统一不使用。
+Arrays.asList(array)，如果array是原始类型数组如int[]，会把整个array当作List的一个元素，String[] 或 Foo[]则无此问题。
+Collections.addAll()实际是循环加入元素，性能相对较低，同样会把int[]认作一个元素。
 
 * Facebook-Contrib: Correctness - Impossible downcast of toArray() result
 * Facebook-Contrib: Correctness - Method calls Array.asList on an array of primitive values

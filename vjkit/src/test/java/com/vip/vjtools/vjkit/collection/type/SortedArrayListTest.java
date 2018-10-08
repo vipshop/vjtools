@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 
 import com.google.common.collect.Ordering;
-import com.vip.vjtools.vjkit.collection.MoreLists;
 import com.vip.vjtools.vjkit.collection.ListUtil;
 
 public class SortedArrayListTest {

@@ -32,8 +32,9 @@ public class RandomUtil {
 		return ThreadLocalRandom.current();
 	}
 
+
 	/**
-	 * 使用性能更好的SHA1PRNG, Tomcat的sessionId生成也用此算法.
+	 * SecureRandom使用性能更好的SHA1PRNG, Tomcat的sessionId生成也用此算法.
 	 * 
 	 * 但JDK7中，需要在启动参数加入 -Djava.security=file:/dev/./urandom （中间那个点很重要）
 	 * 
@@ -221,7 +222,7 @@ public class RandomUtil {
 		Validate.isTrue(max >= min, "Start value must be smaller or equal to end value.");
 		MoreValidate.nonNegative("min", min);
 
-		if (Double.compare(min ,max)==0) {
+		if (Double.compare(min, max) == 0) {
 			return min;
 		}
 

@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Ordering;
 import com.vip.vjtools.vjkit.collection.MapUtil.ValueCreator;
+import com.vip.vjtools.vjkit.collection.type.MoreMaps;
 
 public class MapUtilTest {
 
@@ -208,18 +209,13 @@ public class MapUtilTest {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
+			if (this == obj) return true;
+			if (obj == null) return false;
+			if (getClass() != obj.getClass()) return false;
 			MyBean other = (MyBean) obj;
 			if (name == null) {
-				if (other.name != null)
-					return false;
-			} else if (!name.equals(other.name))
-				return false;
+				if (other.name != null) return false;
+			} else if (!name.equals(other.name)) return false;
 			return true;
 		}
 

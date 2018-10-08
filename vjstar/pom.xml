@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjstar</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>vjstar</name>
 	<description>VIP's best practice libraries</description>
@@ -190,6 +190,15 @@
 			<id>dehuizheng</id>
 			<name>Dehui Zheng</name>
 			<email>dehui.zheng at vipshop.com</email>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>+8</timezone>
+		</developer>
+		<developer>
+			<id>lixuanbin</id>
+			<name>Xuanbin.Li</name>
+			<email>ben04.li at vipshop.com</email>
 			<roles>
 				<role>developer</role>
 			</roles>

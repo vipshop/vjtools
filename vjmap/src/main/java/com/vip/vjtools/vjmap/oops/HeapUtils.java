@@ -1,6 +1,5 @@
 package com.vip.vjtools.vjmap.oops;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +18,6 @@ import sun.jvm.hotspot.oops.ObjectHeap;
 import sun.jvm.hotspot.runtime.VM;
 
 public class HeapUtils {
-	private static final int PROCERSSING_DOT_SIZE = 50000;
-
-	private static int processingObject;
 
 	public static CollectedHeap getHeap() {
 		return VM.getVM().getUniverse().heap();
@@ -56,7 +52,7 @@ public class HeapUtils {
 	}
 
 	public static List<ClassStats> getClassStatsList(HashMap<Klass, ClassStats> classStatsMap) {
-		List<ClassStats> list = new ArrayList<ClassStats>(classStatsMap.size());
+		List<ClassStats> list = new ArrayList<>(classStatsMap.size());
 		list.addAll(classStatsMap.values());
 		return list;
 	}
@@ -69,6 +65,4 @@ public class HeapUtils {
 		}
 		return stats;
 	}
-
-
 }

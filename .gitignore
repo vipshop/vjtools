@@ -1,10 +1,18 @@
+# Eclipse project files
+.classpath
 .project
 .settings/
-.classpath
+
+# Intellij project files
+*.iml
+.idea/
+
+# Otherse
 *.log
 target/
+
 vip-java-standard.md
 release.sh
 vjmap/vjmap/
 vjtop/vjtop/
-release.properties
+vjmxcli/vjmxcli

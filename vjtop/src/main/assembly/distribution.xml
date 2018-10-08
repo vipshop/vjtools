@@ -6,7 +6,9 @@
 	<formats>
 		<format>zip</format>
 	</formats>
+	
 	<baseDirectory>${project.artifactId}</baseDirectory>
+	
 	<files>
 		<file>
 			<source>src/main/assembly/vjtop.bat</source>

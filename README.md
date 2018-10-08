@@ -1,12 +1,11 @@
-# VJTools
+![VJTools](/docs/images/logo.jpg) [![Build Status](https://travis-ci.org/vipshop/vjtools.svg?branch=master)](https://travis-ci.org/vipshop/vjtools) 
 
-[![GitHub release](https://img.shields.io/github/release/vipshop/vjtools.svg)](https://github.com/vipshop/vjtools/releases)
-[![Build Status](https://travis-ci.org/vipshop/vjtools.svg?branch=master)](https://travis-ci.org/vipshop/vjtools) 
 
 主力于Java的唯品会，关于Java的一些小家底。 
 
-各位看官看着是好的，烦请拨冗“Star”。
+各位看官看着是好的，烦请“Star”。
 
+[1.0.6 中秋国庆版](https://github.com/vipshop/vjtools/releases/tag/v.1.0.6) - 2018.9.24
 
 ## Java Standard
 
@@ -22,20 +21,23 @@
 | Project | Description |
 | -------- | -------- |
 | [vjkit](/vjkit) | 关于文本，集合，并发等基础功能的核心类库 |
-| [vjstar](/vjstar) | 关于服务化应用的性能、可用性的最佳实践 |
-| [vjlab](/vjlab) | 实验性质的类库 |
+| [vjstar](/vjstar) | 关于后端应用的性能、可用性的最佳实践 |
 
 
 ## Java Tools
 
 | Project | Description | Manual |
 | -------- | -------- | -------- |
-| [vjmap](/vjmap)  | JMAP的分代打印版 |[Chinese](/vjmap/README.md), [English](/vjmap/README_EN.md)|
-| [vjtop](/vjtop)  | 打印JVM概况及繁忙线程 | [Chinese](/vjtop/README.md), [English](/vjtop/README_EN.md)|
+| [vjtop](/vjtop)  | 观察JVM进程指标及其繁忙线程 | [Chinese](/vjtop/README.md)|
+| [vjmap](/vjmap)  | JMAP的分代打印版 |[Chinese](/vjmap/README.md)|
 | [vjdump](/vjdump)  | 线上紧急收集JVM数据脚本 | [Chinese](/vjdump/README.md), [English](/vjdump/README_EN.md)|
 | [vjmxcli](/vjmxcli)  | JMX 查看工具 | [Chinese](/vjmxcli/README.md)|
 
-其他常用问题排查及性能调优工具: [btrace](https://github.com/btraceio/btrace)，[greys](https://github.com/oldmanpushcart/greys-anatomy)，[async-profiler](https://github.com/jvm-profiling-tools/async-profiler)
+视频：[《VJTools如何利用佛性技术玩转JVM》](http://kai.vkaijiang.com/product/course?courseID=120897)
+
+文档：[《入门科普，围绕JVM的各种外挂技术》](https://mp.weixin.qq.com/s/cwU2rLOuwock048rKBz3ew)
+
+其他直接使用的工具，见[常用工具](docs/other/othertools.md)
 
 
 ## Contributing

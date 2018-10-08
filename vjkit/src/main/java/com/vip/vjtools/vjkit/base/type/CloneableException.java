@@ -14,8 +14,8 @@ import com.vip.vjtools.vjkit.base.ExceptionUtil;
 public class CloneableException extends Exception implements Cloneable {
 
 	private static final long serialVersionUID = -6270471689928560417L;
-	
-	protected String message; //NOSONAR
+
+	protected String message; // NOSONAR
 
 	public CloneableException() {
 		super((Throwable) null);
@@ -32,7 +32,7 @@ public class CloneableException extends Exception implements Cloneable {
 	}
 
 	@Override
-	public CloneableException clone() { //NOSONAR
+	public CloneableException clone() { // NOSONAR
 		try {
 			return (CloneableException) super.clone();
 		} catch (CloneNotSupportedException e) {// NOSONAR

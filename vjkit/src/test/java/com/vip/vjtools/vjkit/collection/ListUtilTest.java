@@ -93,7 +93,7 @@ public class ListUtilTest {
 		assertThat(ListUtil.getLast(list3)).isEqualTo("a");
 
 		assertThat(ListUtil.getFirst(list1)).isNull();
-		assertThat(ListUtil.getFirst(null)).isNull();
+		assertThat((List<String>) ListUtil.getFirst(null)).isNull();
 	}
 
 	@Test
@@ -130,7 +130,6 @@ public class ListUtilTest {
 		assertThat(list8).hasSize(7).containsExactly("i", "g", "e", "d", "c", "b", "a");
 	}
 
-	
 
 	@Test
 	public void collectionCalc() {

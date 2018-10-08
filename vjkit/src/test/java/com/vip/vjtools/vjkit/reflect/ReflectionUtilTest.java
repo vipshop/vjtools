@@ -16,15 +16,15 @@ public class ReflectionUtilTest {
 	public void getAndSetFieldValue() {
 		TestBean bean = new TestBean();
 		// 无需getter函数, 直接读取privateField
-		assertThat(ReflectionUtil.getFieldValue(bean, "privateField")).isEqualTo(1);
+		assertThat((int) ReflectionUtil.getFieldValue(bean, "privateField")).isEqualTo(1);
 
 		// 先尝试getter函数, 然后直接读取privateField
-		assertThat(ReflectionUtil.getProperty(bean, "privateField")).isEqualTo(1);
+		assertThat((int) ReflectionUtil.getProperty(bean, "privateField")).isEqualTo(1);
 
 		// 绕过将publicField+1的getter函数,直接读取publicField的原始值
-		assertThat(ReflectionUtil.getFieldValue(bean, "publicField")).isEqualTo(1);
+		assertThat((int) ReflectionUtil.getFieldValue(bean, "publicField")).isEqualTo(1);
 		// 先尝试getter函数, 成功则补不直接读取publicField
-		assertThat(ReflectionUtil.getProperty(bean, "publicField")).isEqualTo(2);
+		assertThat((int) ReflectionUtil.getProperty(bean, "publicField")).isEqualTo(2);
 
 		bean = new TestBean();
 		// 无需setter函数, 直接设置privateField
@@ -57,7 +57,7 @@ public class ReflectionUtilTest {
 	@Test
 	public void invokeGetterAndSetter() {
 		TestBean bean = new TestBean();
-		assertThat(ReflectionUtil.invokeGetter(bean, "publicField")).isEqualTo(bean.inspectPublicField() + 1);
+		assertThat((int) ReflectionUtil.invokeGetter(bean, "publicField")).isEqualTo(bean.inspectPublicField() + 1);
 
 		bean = new TestBean();
 		// 通过setter的函数将+1
@@ -69,32 +69,32 @@ public class ReflectionUtilTest {
 	public void invokeMethod() {
 		TestBean bean = new TestBean();
 		// 使用函数名+参数类型的匹配, 支持传参数
-		assertThat(ReflectionUtil.invokeMethod(bean, "privateMethod", new Object[] { "calvin" }))
+		assertThat((String) ReflectionUtil.invokeMethod(bean, "privateMethod", new Object[] { "calvin" }))
 				.isEqualTo("hello calvin");
 
 		// 使用函数名+参数类型的匹配
-		assertThat(ReflectionUtil.invokeMethod(bean, "privateMethod", new Object[] { "calvin" },
+		assertThat((String) ReflectionUtil.invokeMethod(bean, "privateMethod", new Object[] { "calvin" },
 				new Class[] { String.class })).isEqualTo("hello calvin");
 
 		// 仅匹配函数名
-		assertThat(ReflectionUtil.invokeMethodByName(bean, "privateMethod", new Object[] { "calvin" }))
+		assertThat((String) ReflectionUtil.invokeMethodByName(bean, "privateMethod", new Object[] { "calvin" }))
 				.isEqualTo("hello calvin");
 
 		// 各种类型
-		assertThat(ReflectionUtil.invokeMethod(bean, "intType", new Object[] { 1 }, new Class[] { int.class }))
+		assertThat((int) ReflectionUtil.invokeMethod(bean, "intType", new Object[] { 1 }, new Class[] { int.class }))
 				.isEqualTo(1);
 
-		assertThat(ReflectionUtil.invokeMethod(bean, "integerType", new Object[] { 1 }, new Class[] { Integer.class }))
-				.isEqualTo(1);
+		assertThat((int) ReflectionUtil.invokeMethod(bean, "integerType", new Object[] { 1 },
+				new Class[] { Integer.class })).isEqualTo(1);
 
-		assertThat(ReflectionUtil.invokeMethod(bean, "listType", new Object[] { ListUtil.newArrayList("1", "2") },
+		assertThat((int) ReflectionUtil.invokeMethod(bean, "listType", new Object[] { ListUtil.newArrayList("1", "2") },
 				new Class[] { List.class })).isEqualTo(2);
 
-		assertThat(ReflectionUtil.invokeMethod(bean, "intType", 1)).isEqualTo(1);
+		assertThat((int) ReflectionUtil.invokeMethod(bean, "intType", 1)).isEqualTo(1);
 
-		assertThat(ReflectionUtil.invokeMethod(bean, "integerType", 1)).isEqualTo(1);
+		assertThat((int) ReflectionUtil.invokeMethod(bean, "integerType", 1)).isEqualTo(1);
 
-		assertThat(ReflectionUtil.invokeMethod(bean, "listType", ListUtil.newArrayList("1", "2"))).isEqualTo(2);
+		assertThat((int) ReflectionUtil.invokeMethod(bean, "listType", ListUtil.newArrayList("1", "2"))).isEqualTo(2);
 
 		// 函数名错
 		try {

@@ -1,8 +1,6 @@
 package com.vip.vjtools.jmx;
 
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServerConnection;
@@ -12,29 +10,25 @@ import javax.management.openmbean.CompositeDataSupport;
 
 public class GCutilExpression {
 
-	private static final String EDEN = "eden";
-	private static final String SURVIVOR = "survivor";
-	private static final String OLD = "old";
-	private static final String TENURED = "tenured"; // 并行GC算法老生代的名称
-	private static final String PERM = "perm";
-	private static final String METASPACE = "metaspace";// JDK8永久代名称
-	public static final String COMPRESSED_CLASS_SPACE = "compressed class space";
-
-	private static final DecimalFormat DF = new DecimalFormat("0.00");
-
+	// MBean Name
 	private static final String GARBAGE_COLLECTORS = "java.lang:type=GarbageCollector,name=*";
 	private static final String MEM_POOL_PREFIX = "java.lang:type=MemoryPool,name=";
 
-	// Collectors的三个属性
-	private static final String MEMORY_POOL_ATTRIBUTE = "MemoryPoolNames";
+	// Collector的Attribute Name
 	private static final String COLLECTION_TIME_ATTRIBUTE = "CollectionTime";
 	private static final String COLLECTION_COUNT_ATTRIBUTE = "CollectionCount";
 
-	private ObjectName YGC_COLLECTOR;
-	private ObjectName FGC_COLLECTOR;
-	private Map<String, String> pollNameMapping;
+	private static final DecimalFormat DF = new DecimalFormat("0.00");
 
 	private MBeanServerConnection mbsc;
+
+	private ObjectName ygcCollector;
+	private ObjectName fgcCollector;
+	private ObjectName eden;
+	private ObjectName old;
+	private ObjectName sur;
+	private ObjectName perm;
+	private ObjectName ccs;
 
 	public GCutilExpression(MBeanServerConnection mbsc) throws Exception {
 		this.mbsc = mbsc;
@@ -45,101 +39,107 @@ public class GCutilExpression {
 	private void mappingCollctors() throws Exception {
 		Set<ObjectInstance> beans = mbsc.queryMBeans(Client.getObjectName(GARBAGE_COLLECTORS), null);
 
-		A: for (ObjectInstance collector : beans) {
-			ObjectName collectorName = collector.getObjectName();
-			// 获得这个Collector负责的Memory Pool Name
-			String[] memoryPoolNames = (String[]) mbsc.getAttribute(collectorName, MEMORY_POOL_ATTRIBUTE);
-
-			for (String poolName : memoryPoolNames) {
-				if (poolName.toLowerCase().contains(OLD) || poolName.toLowerCase().contains(TENURED)) {
-					FGC_COLLECTOR = collectorName;
-					continue A;
-				}
+		for (ObjectInstance collector : beans) {
+			ObjectName collectorObjName = collector.getObjectName();
+			String collectorName = getAttribute(collectorObjName, "Name");
+			if ("Copy".equals(collectorName) || "PS Scavenge".equals(collectorName) || "ParNew".equals(collectorName)
+					|| "G1 Young Generation".equals(collectorName)) {
+				ygcCollector = collectorObjName;
+			} else if ("MarkSweepCompact".equals(collectorName) || "PS MarkSweep".equals(collectorName)
+					|| "ConcurrentMarkSweep".equals(collectorName) || "G1 Old Generation".equals(collectorName)) {
+				fgcCollector = collectorObjName;
+			} else {
+				ygcCollector = collectorObjName;
 			}
-			// 如果此收集器负责的分区没有Old，则是YGC_COLLECTOR
-			YGC_COLLECTOR = collectorName;
 		}
 	}
 
 	private void mappingPools() throws Exception {
-		// full gc的collector，下属的memoryPool包括所有需要GC的Pool(Code Reserve等则不在此列)
 		Set<ObjectInstance> beans = mbsc.queryMBeans(Client.getObjectName(MEM_POOL_PREFIX + "*"), null);
-		pollNameMapping = new HashMap<String, String>();
-		for (ObjectInstance collector : beans) {
-			ObjectName collectorName = collector.getObjectName();
-			String name = (String) getAttribute(collectorName, "Name");
-			name = name.trim();
-			String lowerCaseName = name.toLowerCase();
-			if (lowerCaseName.contains(SURVIVOR)) {
-				pollNameMapping.put(SURVIVOR, name);
-			} else if (lowerCaseName.contains(EDEN)) {
-				pollNameMapping.put(EDEN, name);
-			} else if (lowerCaseName.contains(OLD) || lowerCaseName.contains(TENURED)) {
-				pollNameMapping.put(OLD, name);
-			} else if (lowerCaseName.contains(PERM) || lowerCaseName.contains(METASPACE)) {
-				pollNameMapping.put(PERM, name);
-			} else if(lowerCaseName.contains(COMPRESSED_CLASS_SPACE)) {
-				pollNameMapping.put(COMPRESSED_CLASS_SPACE, name);
+		for (ObjectInstance pool : beans) {
+			ObjectName poolObjName = pool.getObjectName();
+			String poolName = getAttribute(poolObjName, "Name");
+			poolName = poolName.trim().toLowerCase();
+			if (poolName.contains("eden")) {
+				eden = poolObjName;
+			} else if (poolName.contains("survivor")) {
+				sur = poolObjName;
+			} else if (poolName.contains("old") || poolName.contains("tenured")) {
+				old = poolObjName;
+			} else if (poolName.contains("perm") || poolName.contains("metaspace")) {
+				perm = poolObjName;
+			} else if (poolName.contains("compressed class space")) {
+				ccs = poolObjName;
 			}
 		}
 	}
 
 	public String getE() throws Exception {
-		String poolName = MEM_POOL_PREFIX + pollNameMapping.get(EDEN);
-		return usedPercentage(poolName);
+		return usedPercentage(eden);
 	}
 
 	public String getS() throws Exception {
-		String poolName = MEM_POOL_PREFIX + pollNameMapping.get(SURVIVOR);
-		return usedPercentage(poolName);
+		return usedPercentage(sur);
 	}
 
 	public String getO() throws Exception {
-		String poolName = MEM_POOL_PREFIX + pollNameMapping.get(OLD);
-		return usedPercentage(poolName);
+		return usedPercentage(old);
 	}
 
 	public String getP() throws Exception {
-		String poolName = MEM_POOL_PREFIX + pollNameMapping.get(PERM);
-		return usedPercentage(poolName);
+		return usedPercentage(perm);
 	}
-	
+
 	public String getCCS() throws Exception {
-		String poolName = MEM_POOL_PREFIX + pollNameMapping.get(COMPRESSED_CLASS_SPACE);
-		return usedPercentage(poolName);
+		return usedPercentage(ccs);
 	}
 
 	public Object getYGC() throws Exception {
-		return getAttribute(YGC_COLLECTOR, COLLECTION_COUNT_ATTRIBUTE);
+		return getAttribute(ygcCollector, COLLECTION_COUNT_ATTRIBUTE);
 	}
 
 	public Double getYGCT() throws Exception {
-		return Double.parseDouble(getAttribute(YGC_COLLECTOR, COLLECTION_TIME_ATTRIBUTE).toString()) / 1000;
+		return Double.parseDouble(getAttribute(ygcCollector, COLLECTION_TIME_ATTRIBUTE).toString()) / 1000;
 	}
 
 	public Object getFGC() throws Exception {
-		return getAttribute(FGC_COLLECTOR, COLLECTION_COUNT_ATTRIBUTE);
+		return getAttribute(fgcCollector, COLLECTION_COUNT_ATTRIBUTE);
 	}
 
 	public Double getFGCT() throws Exception {
-		return Double.parseDouble(getAttribute(FGC_COLLECTOR, COLLECTION_TIME_ATTRIBUTE).toString()) / 1000;
+		return Double.parseDouble(getAttribute(fgcCollector, COLLECTION_TIME_ATTRIBUTE).toString()) / 1000;
 	}
 
 	public Object getGCT() throws Exception {
 		return getFGCT() + getYGCT();
 	}
 
-	private Object getAttribute(ObjectName beanName, String attributeName) throws Exception {
-		return mbsc.getAttribute(beanName, attributeName);
+	private <T> T getAttribute(ObjectName beanName, String attributeName) throws Exception {
+		if (beanName != null) {
+			return (T) mbsc.getAttribute(beanName, attributeName);
+		} else {
+			return null;
+		}
 	}
 
-	private String usedPercentage(String poolName) throws Exception {
-		CompositeDataSupport attribute = (CompositeDataSupport) mbsc.getAttribute(Client.getObjectName(poolName),
-				"Usage");
-		double max = Double.parseDouble(attribute.get("max").toString());
+	private String usedPercentage(ObjectName poolObjectName) throws Exception {
+		if (poolObjectName == null) {
+			return DF.format(0.0d);
+		}
+
+		CompositeDataSupport usage = getAttribute(poolObjectName, "Usage");
+		double max = Double.parseDouble(usage.get("max").toString());
+
 		// 如果Max没有设置或GC算法原因没有max，则以committed为准
-		max = max < 0 ? Double.parseDouble(attribute.get("committed").toString()) : max;
-		double resultS = Double.parseDouble(attribute.get("used").toString()) / max * 100;
-		return max == 0.0d ? DF.format(max) : DF.format(resultS);
+		if (max < 0) {
+			max = Double.parseDouble(usage.get("committed").toString());
+		}
+
+		if (max > 0.0d) {
+			double used = Double.parseDouble(usage.get("used").toString()) / max * 100;
+			return DF.format(used);
+		} else {
+			return DF.format(0.0d);
+		}
 	}
 }

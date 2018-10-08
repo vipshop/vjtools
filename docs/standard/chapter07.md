@@ -15,7 +15,7 @@
 
 1）Integer 24字节，而原子类型 int 4字节。
 
-2）包装类型每次赋予还需要额外创建对象，除非在缓存区(见Integer.IntegerCache与Long.LongCache)，Integer var = ?在缓存区间的赋值，会复用h缓存对象。默认缓存区间为-127到128，受启动参数的影响，如-XX:AutoBoxCacheMax=20000。
+2）包装类型每次赋值还需要额外创建对象，如Integer var = 200， 除非数值在缓存区间内(见Integer.IntegerCache与Long.LongCache)才会复用已缓存对象。默认缓存区间为-128到127，其中Integer的缓存区间还受启动参数的影响，如-XX:AutoBoxCacheMax=20000。
 
 3）包装类型还有==比较的陷阱（见规则3）
 
@@ -65,7 +65,7 @@ int i = intObject;
 
 **3.1【强制】 所有包装类对象之间值的比较，全部使用equals方法比较**
       
-\==判断对象是否同一个。Integer var = ?在缓存区间的赋值（见规则1），会复用已有对象，因此这个区间内的Integer使用 \==进行判断可通过，但是区间之外的所有数据，则会在堆上新产生，不会通过。因此如果用\== 来比较数值，很可能在小的测试数据中通过，而到了生产环境才出问题。
+\==判断对象是否同一个。Integer var = ?在缓存区间的赋值（见规则1），会复用已有对象，因此这个区间内的Integer使用==进行判断可通过，但是区间之外的所有数据，则会在堆上新产生，不会通过。因此如果用\== 来比较数值，很可能在小的测试数据中通过，而到了生产环境才出问题。
 
 
 **3.2【强制】 BigDecimal需要使用compareTo()**
@@ -178,7 +178,7 @@ double d2 = 1.03d - 0.42d; //结果是0.6100000000000001
   
 ```java
 //WRONG
-public String MONDAY = "SPRING";
+public String MONDAY = "MONDAY";
 public int MONDAY_SEQ = 1;
 
 //RIGHT

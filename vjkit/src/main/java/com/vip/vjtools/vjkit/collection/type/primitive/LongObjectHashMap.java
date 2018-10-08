@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import com.vip.vjtools.vjkit.number.MathUtil;
-
 /**
  * 移植Netty 4.1.6的Key为原子类型的集合类, 在数据结构上与HashMap不一样，空间占用与读写性能俱比原来更优.
  * 
@@ -87,7 +85,7 @@ public class LongObjectHashMap<V> implements LongObjectMap<V> {
 		this.loadFactor = loadFactor;
 
 		// Adjust the initial capacity if necessary.
-		int capacity = MathUtil.nextPowerOfTwo(initialCapacity);
+		int capacity = safeFindNextPositivePowerOfTwo(initialCapacity);
 		mask = capacity - 1;
 
 		// Allocate the arrays.
@@ -189,7 +187,7 @@ public class LongObjectHashMap<V> implements LongObjectMap<V> {
 
 	@Override
 	public void clear() {
-		Arrays.fill(keys, (long) 0);
+		Arrays.fill(keys, 0);
 		Arrays.fill(values, null);
 		size = 0;
 	}
@@ -329,7 +327,7 @@ public class LongObjectHashMap<V> implements LongObjectMap<V> {
 	}
 
 	private long objectToKey(Object key) {
-		return (long) ((Long) key).longValue();
+		return ((Long) key).longValue();
 	}
 
 	/**
@@ -718,5 +716,14 @@ public class LongObjectHashMap<V> implements LongObjectMap<V> {
 				throw new IllegalStateException("The map entry has been removed");
 			}
 		}
+	}
+
+	public static int safeFindNextPositivePowerOfTwo(final int value) {
+		return value <= 0 ? 1 : value >= 0x40000000 ? 0x40000000 : findNextPositivePowerOfTwo(value);
+	}
+
+	public static int findNextPositivePowerOfTwo(final int value) {
+		assert value > Integer.MIN_VALUE && value < 0x40000000;
+		return 1 << (32 - Integer.numberOfLeadingZeros(value - 1));
 	}
 }

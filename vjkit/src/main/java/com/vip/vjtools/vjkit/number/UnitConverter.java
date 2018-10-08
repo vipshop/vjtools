@@ -58,21 +58,21 @@ public class UnitConverter {
 		char unit = unitStr.toLowerCase().charAt(0);
 
 		switch (unit) {
-		case 's':
-			return number * MILLIS_PER_SECOND;
-		case 'm':
-			// if it's an m, could be 'minutes' or 'millis'. default minutes
-			if (unitStr.length() >= 2 && unitStr.charAt(1) == 's') {
-				return number;
-			}
+			case 's':
+				return number * MILLIS_PER_SECOND;
+			case 'm':
+				// if it's an m, could be 'minutes' or 'millis'. default minutes
+				if (unitStr.length() >= 2 && unitStr.charAt(1) == 's') {
+					return number;
+				}
 
-			return number * MILLIS_PER_MINUTE;
-		case 'h':
-			return number * MILLIS_PER_HOUR;
-		case 'd':
-			return number * MILLIS_PER_DAY;
-		default:
-			throw new IllegalArgumentException("unknown time unit :" + unit);
+				return number * MILLIS_PER_MINUTE;
+			case 'h':
+				return number * MILLIS_PER_HOUR;
+			case 'd':
+				return number * MILLIS_PER_DAY;
+			default:
+				throw new IllegalArgumentException("unknown time unit :" + unit);
 		}
 	}
 
@@ -94,18 +94,18 @@ public class UnitConverter {
 				char unit = unitStr.toLowerCase().charAt(0);
 
 				switch (unit) {
-				case 'b':
-					return number;
-				case 'k':
-					return number * K;
-				case 'm':
-					return number * M;
-				case 'g':
-					return number * G;
-				case 't':
-					return number * T;
-				default:
-					throw new IllegalArgumentException("unknown size unit :" + unit);
+					case 'b':
+						return number;
+					case 'k':
+						return number * K;
+					case 'm':
+						return number * M;
+					case 'g':
+						return number * G;
+					case 't':
+						return number * T;
+					default:
+						throw new IllegalArgumentException("unknown size unit :" + unit);
 				}
 			} else {
 				return number;

@@ -4,7 +4,7 @@
 
 	<groupId>com.vip.vjtools</groupId>
 	<artifactId>vjtop</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.7-SNAPSHOT</version>
 	<name>vjtop</name>
 	<description>Linux top-like JVM info and busy threads monitoring tools</description>
 
@@ -165,7 +165,7 @@
 		<connection>scm:git:https://github.com/vipshop/vjtools.git</connection>
 		<developerConnection>scm:git:https://github.com/vipshop/vjtools.git</developerConnection>
 		<url>https://github.com/vipshop/vjtools</url>
-	  <tag>v.1.0.1</tag>
+	  <tag>v.1.0.2</tag>
   </scm>
 
 	<developers>

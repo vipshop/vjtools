@@ -13,7 +13,7 @@ survivor objects.
 
 # 2. Getting Started
 
-[download from Maven Central](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.0/vjmap-1.0.0.zip)
+[download vjmap-1.0.4.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.4/vjmap-1.0.4.zip)(from Maven Central)
 
 **[Important]**: VJMap DOES cause stop-of-the-world of the target app. Make sure the target app is isolated from user 
 access before you start using VJMap in production.
@@ -28,7 +28,7 @@ execute `kill -18 <PID_OF_TARGET_APP>` TWICE to awaken the target app.
 ## 2.1 Commands
 
 ```
-// Prints object stats of all the heap, ordered by their respective size in total.
+// Prints object stats of all gens, ordered by their respective size in total.
 ./vjmap.sh -all PID > /tmp/histo.log
 
 // Prints oldgen object stats, ordered by size in OldGen. Only CMS is supported for this option. 
@@ -68,6 +68,12 @@ for the CMS oldgen
 ./vjmap.sh -old:minsize=1024,byname PID > /tmp/histo-old.log
 
 ./vjmap.sh -sur:minsize=1024,byname PID > /tmp/histo-sur.log
+```
+
+## 2.4 Prints object stats of old gen, live objects only:
+
+```
+./vjmap.sh -old:live PID > /tmp/histo-old.log
 ```
 
 # 3.Outputs

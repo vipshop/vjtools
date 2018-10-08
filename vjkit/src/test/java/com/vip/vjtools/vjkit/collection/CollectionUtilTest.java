@@ -47,9 +47,9 @@ public class CollectionUtilTest {
 		assertThat(CollectionUtil.getLast(set2)).isEqualTo("a");
 
 		assertThat(CollectionUtil.getFirst(list1)).isNull();
-		assertThat(CollectionUtil.getFirst(null)).isNull();
+		assertThat((List<String>) CollectionUtil.getFirst(null)).isNull();
 		assertThat(CollectionUtil.getLast(list1)).isNull();
-		assertThat(CollectionUtil.getLast(null)).isNull();
+		assertThat((List<String>) CollectionUtil.getLast(null)).isNull();
 	}
 
 	@Test

@@ -1,23 +1,24 @@
-#!/bin/sh
-# vjtop - java monitoring for the command-line 
-# launch script
-#
-# author: Markus Kolb
-# 
-DIR=$( cd $(dirname $0) ; pwd -P )
-
 if [ -z "$JAVA_HOME" ] ; then
-        JAVA_HOME=`readlink -f \`which java 2>/dev/null\` 2>/dev/null | \
-        sed 's/\/bin\/java//'`
+	echo "JAVA_HOME env doesn't exist, try to find the location of java"
+    JAVA_HOME=`readlink -f \`which java 2>/dev/null\` 2>/dev/null | \
+    sed 's/\jre\/bin\/java//' | sed 's/\/bin\/java//'`
+fi
+
+if [ ! -d "$JAVA_HOME" ] ; then
+	echo "Please set JAVA_HOME env before run this script"
+	exit 1
 fi
 
 TOOLSJAR="$JAVA_HOME/lib/tools.jar"
 
 if [ ! -f "$TOOLSJAR" ] ; then
-        echo "$JAVA_HOME seems to be no JDK!" >&2
-        exit 1
+    echo "$TOOLSJAR doesn't exist" >&2
+    exit 1
 fi
 
-"$JAVA_HOME"/bin/java -Xmx512m -XX:+UseSerialGC -XX:-TieredCompilation -XX:CICompilerCount=2 -XX:AutoBoxCacheMax=20000 -cp "$DIR/vjtop.jar:$TOOLSJAR" \
-com.vip.vjtools.vjtop.VJTop "$@"
+DIR=$( cd $(dirname $0) ; pwd -P )
+JAVA_OPTS="-Xms256m -Xmx256m -XX:NewRatio=1 -Xss256k -XX:+UseSerialGC -XX:CICompilerCount=2 -Xverify:none -XX:AutoBoxCacheMax=20000"
+
+"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$DIR/vjtop.jar:$TOOLSJAR" com.vip.vjtools.vjtop.VJTop "$@"
+
 exit $?

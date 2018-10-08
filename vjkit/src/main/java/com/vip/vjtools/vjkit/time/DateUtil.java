@@ -146,10 +146,13 @@ public class DateUtil {
 	}
 
 	/**
-	 * 设置月份, 0-11.
+	 * 设置月份, 1-12.
 	 */
 	public static Date setMonths(@NotNull final Date date, int amount) {
-		return DateUtils.setMonths(date, amount);
+		if (amount < 1 || amount > 12) {
+			throw new IllegalArgumentException("monthOfYear must be in the range[ 1, 12]");
+		}
+		return DateUtils.setMonths(date, amount - 1);
 	}
 
 	/**

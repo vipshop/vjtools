@@ -39,9 +39,9 @@ public class CachingDateFormatter {
 
 		if (timestamp != cached.timestamp) {
 			final CachedTime newCachedTime = new CachedTime(timestamp, fastDateFormat.format(timestampMillis));
-			//尝试放入cachedTime
+			// 尝试放入cachedTime
 			cachedTime.compareAndSet(cached, newCachedTime);
-			//与log4j2做法不同，无论是否放入成功，都使用自己的值
+			// 与log4j2做法不同，无论是否放入成功，都使用自己的值
 			cached = newCachedTime;
 		}
 
