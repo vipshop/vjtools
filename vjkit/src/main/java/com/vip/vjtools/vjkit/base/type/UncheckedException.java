@@ -1,7 +1,7 @@
 package com.vip.vjtools.vjkit.base.type;
 
 /**
- * CheckedException的wrapper.
+ * UncheckedException的wrapper.
  * 
  * 返回Message时, 将返回内层Exception的Message.
  */
