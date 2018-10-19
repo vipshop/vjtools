@@ -540,4 +540,20 @@ public class FileUtil {
 	public static String getFileExtension(String fullName) {
 		return com.google.common.io.Files.getFileExtension(fullName);
 	}
+
+	/**
+	 * 根据文件路径创建文件，如果目录不存在，则创建目录
+	 * 如：/apps/data/logs/20181019/app.log,则会判断/apps/data/logs/20181019/是否存在，不存在则创建
+	 *
+	 * @param filePath
+	 */
+	public static File forceTouch(String filePath) throws IOException {
+		File file = new File(filePath);
+		String path = file.getPath().substring(0, file.getPath().lastIndexOf(File.separatorChar));
+		if (!isDirExists(path)) {
+			makesureDirExists(path);
+		}
+		FileUtil.touch(filePath);
+		return file;
+	}
 }

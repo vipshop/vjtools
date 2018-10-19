@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
+
 public class NumberUtilTest {
 
 	@Test
@@ -191,5 +193,17 @@ public class NumberUtilTest {
 		assertThat(NumberUtil.to2DigitString(23.112d)).isEqualTo("23.11");
 		assertThat(NumberUtil.to2DigitString(23.116d)).isEqualTo("23.12");
 
+	}
+
+	@Test
+	public void amountConvertTest(){
+		//金额分转换成元
+		assertThat(NumberUtil.fen2yuan(100).doubleValue()).isEqualTo(new BigDecimal(1.00d).doubleValue());
+		assertThat(NumberUtil.fen2yuan("100").doubleValue()).isEqualTo(new BigDecimal(1.00d).doubleValue());
+		assertThat(NumberUtil.fen2yuan(BigDecimal.valueOf(100d)).doubleValue()).isEqualTo(new BigDecimal(1.00d).doubleValue());
+
+		//金额元转换成分
+		assertThat(NumberUtil.yuan2fen(BigDecimal.valueOf(1d)).doubleValue()).isEqualTo(new BigDecimal(100d).doubleValue());
+		assertThat(NumberUtil.yuan2fen(1L).doubleValue()).isEqualTo(new BigDecimal(100d).doubleValue());
 	}
 }
