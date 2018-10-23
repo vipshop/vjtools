@@ -3,10 +3,12 @@ package com.vip.vjtools.vjkit.security;
 import com.vip.vjtools.vjkit.enums.KeyPairAlgorithms;
 import com.vip.vjtools.vjkit.enums.SignAlgorithm;
 import com.vip.vjtools.vjkit.text.EncodeUtil;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 
 import java.nio.charset.Charset;
 import java.security.KeyPair;
+import java.security.Security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,6 +20,7 @@ public class SignUtilTest {
 
 	@Test
 	public void rsaSignTest() throws Exception {
+		Security.addProvider(new BouncyCastleProvider());
 		//随机产生rsa秘钥对，长度为512、1024、2048、
 		KeyPair keyPair = KeyUtil.generateKeyPair(KeyPairAlgorithms.RSA, 1024);
 
@@ -32,6 +35,7 @@ public class SignUtilTest {
 
 	@Test
 	public void dsaSignTest() throws Exception {
+		Security.addProvider(new BouncyCastleProvider());
 		//随机产生Dsa秘钥对，长度为512、1024、
 		KeyPair keyPair = KeyUtil.generateKeyPair(KeyPairAlgorithms.DSA, 1024);
 
@@ -46,6 +50,7 @@ public class SignUtilTest {
 
 	@Test
 	public void ecSignTest() throws Exception {
+		Security.addProvider(new BouncyCastleProvider());
 		//椭圆曲线数字签名算法 随机产生ec秘钥对，长度为112-571 默认长度256
 		KeyPair keyPair = KeyUtil.generateKeyPair(KeyPairAlgorithms.EC, 256);
 
@@ -60,6 +65,7 @@ public class SignUtilTest {
 
 	@Test
 	public void rsaSignTest2() throws Exception {
+		Security.addProvider(new BouncyCastleProvider());
 		//随机产生rsa秘钥对，长度为512、1024、2048、
 		KeyPair keyPair = KeyUtil.generateKeyPair(KeyPairAlgorithms.RSA, 1024);
 
@@ -74,6 +80,8 @@ public class SignUtilTest {
 
 	@Test
 	public void ecSignTest2() throws Exception {
+		Security.addProvider(new BouncyCastleProvider());
+
 		//椭圆曲线数字签名算法 随机产生ec秘钥对，长度为112-571 默认长度256
 		KeyPair keyPair = KeyUtil.generateKeyPair(KeyPairAlgorithms.EC, 256);
 

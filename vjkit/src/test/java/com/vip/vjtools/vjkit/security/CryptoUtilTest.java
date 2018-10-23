@@ -95,7 +95,7 @@ public class CryptoUtilTest {
 
 	@Test
 	public void rcTest() throws UnsupportedEncodingException, NoSuchAlgorithmException {
-
+		Security.addProvider(new BouncyCastleProvider());
 		byte[] input = "rc test".getBytes("UTF-8");
 		byte[] key = KeyUtil.generateKey(60, KeyGeneratorType.RC4);
 		byte[] output = CryptoUtil.rc4Encrypt(input, key, CipherAlgorithms.RC4);
