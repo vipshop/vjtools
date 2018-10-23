@@ -1,7 +1,8 @@
 package com.vip.vjtools.vjkit.security;
 
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
+import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 
 import javax.crypto.Cipher;
@@ -12,6 +13,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.vip.vjtools.vjkit.base.ExceptionUtil;
+import com.vip.vjtools.vjkit.enums.CipherAlgorithms;
+import com.vip.vjtools.vjkit.enums.SecretKeyType;
 import com.vip.vjtools.vjkit.number.RandomUtil;
 import com.vip.vjtools.vjkit.text.Charsets;
 
@@ -181,11 +184,402 @@ public class CryptoUtil {
 	}
 
 	/**
-	 * 生成随机向量,默认大小为cipher.getBlockSize(), 16字节.
+	 * 生成AES随机向量,默认大小为cipher.getBlockSize(), 16字节.
 	 */
 	public static byte[] generateIV() {
 		byte[] bytes = new byte[DEFAULT_IVSIZE];
 		random.nextBytes(bytes);
 		return bytes;
 	}
+
+	/**
+	 * 生成DES随机向量,默认大小为cipher.getBlockSize(), 8字节.
+	 */
+	public static byte[] generateDesIV() {
+		byte[] bytes = new byte[8];
+		random.nextBytes(bytes);
+		return bytes;
+	}
+
+	/**
+	 * 加密或解密无编码的原始字节数组, 返回无编码的字节数组结果.
+	 *
+	 * @param input 原始字节数组
+	 * @param key 符合SecretKeyType要求的密钥
+	 * @param mode Cipher.ENCRYPT_MODE 或 Cipher.DECRYPT_MODE
+	 */
+	private static byte[] doFinal(byte[] input, byte[] key, int mode,SecretKeyType secretKeyType,CipherAlgorithms encrptAlgorithms) {
+		try {
+			SecretKey secretKey = new SecretKeySpec(key, secretKeyType.name());
+			Cipher cipher = Cipher.getInstance(encrptAlgorithms.getValue());
+			cipher.init(mode, secretKey);
+			return cipher.doFinal(input);
+		} catch (GeneralSecurityException e) {
+			throw ExceptionUtil.unchecked(e);
+		}
+	}
+
+	/**
+	 * 加密或解密无编码的原始字节数组, 返回无编码的字节数组结果.
+	 *
+	 * @param input 原始字节数组
+	 * @param key 符合SecretKeyType要求的密钥
+	 * @param iv 初始向量
+	 * @param mode Cipher.ENCRYPT_MODE 或 Cipher.DECRYPT_MODE
+	 */
+	private static byte[] doFinal(byte[] input, byte[] key, byte[] iv, int mode,SecretKeyType secretKeyType,CipherAlgorithms encrptAlgorithms) {
+		try {
+			SecretKey secretKey = new SecretKeySpec(key, secretKeyType.name());
+			IvParameterSpec ivSpec = new IvParameterSpec(iv);
+			Cipher cipher = Cipher.getInstance(encrptAlgorithms.getValue());
+			cipher.init(mode, secretKey, ivSpec);
+			return cipher.doFinal(input);
+		} catch (GeneralSecurityException e) {
+			throw ExceptionUtil.unchecked(e);
+		}
+	}
+
+
+	/**
+	 * des加密
+	 * @param input 原始字节数组
+	 * @param key des秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] desEncrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.ENCRYPT_MODE,SecretKeyType.DES,algorithms);
+	}
+
+
+	/**
+	 * des解密
+	 * @param input 密文数组
+	 * @param key des秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] desDecrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.DECRYPT_MODE,SecretKeyType.DES,algorithms);
+	}
+
+
+	/**
+	 * des加密
+	 * @param input 原始字节数组
+	 * @param key des秘钥
+	 * @param iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] desEncrypt(byte[] input, byte[] key, byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.ENCRYPT_MODE,SecretKeyType.DES,algorithms);
+	}
+
+
+	/**
+	 * des解密
+	 * @param input 密文数组
+	 * @param key des秘钥
+	 *  @param iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] desDecrypt(byte[] input, byte[] key, byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.DECRYPT_MODE,SecretKeyType.DES,algorithms);
+	}
+
+
+	/**
+	 * aes加密
+	 * @param input 原始字节数组
+	 * @param key aes秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] aesEncrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.ENCRYPT_MODE,SecretKeyType.AES,algorithms);
+	}
+
+
+	/**
+	 * aes解密
+	 * @param input 密文数组
+	 * @param key aes秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] aesDecrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.DECRYPT_MODE,SecretKeyType.AES,algorithms);
+	}
+
+
+	/**
+	 * aes加密
+	 * @param input 原始字节数组
+	 * @param key aes秘钥
+	 * @param iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] aesEncrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.ENCRYPT_MODE,SecretKeyType.AES,algorithms);
+	}
+
+
+	/**
+	 * aes解密
+	 * @param input 密文数组
+	 * @param key aes秘钥
+	 * @param iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] aesDecrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.DECRYPT_MODE,SecretKeyType.AES,algorithms);
+	}
+
+
+	/**
+	 * des3加密
+	 * @param input 原始字节数组
+	 * @param key des3秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] des3Encrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.ENCRYPT_MODE,SecretKeyType.DESede,algorithms);
+	}
+
+
+	/**
+	 * des3解密
+	 * @param input 密文数组
+	 * @param key des3秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] des3Decrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.DECRYPT_MODE,SecretKeyType.DESede,algorithms);
+	}
+
+
+	/**
+	 * des3加密
+	 * @param input 原始字节数组
+	 * @param key des3秘钥
+	 * @param iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] des3Encrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.ENCRYPT_MODE,SecretKeyType.DESede,algorithms);
+	}
+
+
+	/**
+	 * des3解密
+	 * @param input 密文数组
+	 * @param key des3秘钥
+	 * @param  iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] des3Decrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.DECRYPT_MODE,SecretKeyType.DESede,algorithms);
+	}
+
+
+	/**
+	 * rc2加密
+	 * @param input 原始字节数组
+	 * @param key rc2秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] rc2Encrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.ENCRYPT_MODE,SecretKeyType.RC2,algorithms);
+	}
+
+
+	/**
+	 * rc2解密
+	 * @param input 密文数组
+	 * @param key rc2秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] rc2Decrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.DECRYPT_MODE,SecretKeyType.RC2,algorithms);
+	}
+
+
+	/**
+	 * rc2加密
+	 * @param input 原始字节数组
+	 * @param key rc2秘钥
+	 * @param iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] rc2Encrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.ENCRYPT_MODE,SecretKeyType.RC2,algorithms);
+	}
+
+
+	/**
+	 * rc2解密
+	 * @param input 密文数组
+	 * @param key rc2秘钥
+	 * @param  iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] rc2Decrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.DECRYPT_MODE,SecretKeyType.RC2,algorithms);
+	}
+
+	/**
+	 * rc4加密
+	 * @param input 原始字节数组
+	 * @param key rc4秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] rc4Encrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.ENCRYPT_MODE,SecretKeyType.RC4,algorithms);
+	}
+
+
+	/**
+	 * rc4解密
+	 * @param input 密文数组
+	 * @param key rc4秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] rc4Decrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		return doFinal(input,key,Cipher.DECRYPT_MODE,SecretKeyType.RC4,algorithms);
+	}
+
+
+	/**
+	 * rc4加密
+	 * @param input 原始字节数组
+	 * @param key rc4秘钥
+	 * @param iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] rc4Encrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.ENCRYPT_MODE,SecretKeyType.RC4,algorithms);
+	}
+
+
+	/**
+	 * rc4解密
+	 * @param input 密文数组
+	 * @param key rc4秘钥
+	 * @param  iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] rc4Decrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		return doFinal(input,key,iv,Cipher.DECRYPT_MODE,SecretKeyType.RC4,algorithms);
+	}
+
+	/**
+	 * rsa加密
+	 * @param input 原始字节数组
+	 * @param key rsa 公开秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] rsaEncrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		try {
+			// 转换公钥材料
+			// 实例化密钥工厂
+			KeyFactory keyFactory = KeyFactory.getInstance(SecretKeyType.RSA.name());
+			// 初始化公钥
+			// 密钥材料转换
+			X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(key);
+			// 产生公钥
+			PublicKey pubKey = keyFactory.generatePublic(x509KeySpec);
+			Cipher cipher = Cipher.getInstance(algorithms.getValue());
+			cipher.init(Cipher.ENCRYPT_MODE, pubKey);
+			return cipher.doFinal(input);
+		} catch (GeneralSecurityException e) {
+			throw ExceptionUtil.unchecked(e);
+		}
+	}
+
+
+	/**
+	 * rsa解密
+	 * @param input 密文数组
+	 * @param key rsa 私钥秘钥
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] rsaDecrypt(byte[] input, byte[] key,CipherAlgorithms algorithms){
+		try {
+			PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(key);
+			KeyFactory keyFactory = KeyFactory.getInstance(SecretKeyType.RSA.name());
+			Key privateKey = keyFactory.generatePrivate(pkcs8KeySpec);
+			Cipher cipher = Cipher.getInstance(algorithms.getValue());
+			cipher.init(Cipher.DECRYPT_MODE, privateKey);
+			return cipher.doFinal(input);
+		} catch (GeneralSecurityException e) {
+			throw ExceptionUtil.unchecked(e);
+		}
+	}
+
+	/**
+	 * rsa加密
+	 * @param input 原始字节数组
+	 * @param key rsa 公开秘钥
+	 * @param iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] rsaEncrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		try {
+			// 转换公钥材料
+			// 实例化密钥工厂
+			KeyFactory keyFactory = KeyFactory.getInstance(SecretKeyType.RSA.name());
+			// 初始化公钥
+			// 密钥材料转换
+			X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(key);
+			// 产生公钥
+			PublicKey pubKey = keyFactory.generatePublic(x509KeySpec);
+			Cipher cipher = Cipher.getInstance(algorithms.getValue());
+			cipher.init(Cipher.ENCRYPT_MODE, pubKey,new IvParameterSpec(iv));
+			return cipher.doFinal(input);
+		} catch (GeneralSecurityException e) {
+			throw ExceptionUtil.unchecked(e);
+		}
+	}
+
+
+	/**
+	 * rsa解密
+	 * @param input 密文数组
+	 * @param key rsa 私钥秘钥
+	 * @param iv 初始向量
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] rsaDecrypt(byte[] input, byte[] key,byte[] iv,CipherAlgorithms algorithms){
+		try {
+			PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(key);
+			KeyFactory keyFactory = KeyFactory.getInstance(SecretKeyType.RSA.name());
+			Key privateKey = keyFactory.generatePrivate(pkcs8KeySpec);
+			Cipher cipher = Cipher.getInstance(algorithms.getValue());
+			cipher.init(Cipher.DECRYPT_MODE, privateKey,new IvParameterSpec(iv));
+			return cipher.doFinal(input);
+		} catch (GeneralSecurityException e) {
+			throw ExceptionUtil.unchecked(e);
+		}
+	}
+
 }
