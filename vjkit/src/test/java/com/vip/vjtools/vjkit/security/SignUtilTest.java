@@ -57,4 +57,33 @@ public class SignUtilTest {
 		boolean isValid = SignUtil.verify(keyPair.getPublic(),signBytes,msgBytes, SignAlgorithm.SHA512withECDSA);
 		assertThat(isValid);
 	}
+
+	@Test
+	public void rsaSignTest2() throws Exception {
+		//随机产生rsa秘钥对，长度为512、1024、2048、
+		KeyPair keyPair = KeyUtil.generateKeyPair(KeyPairAlgorithms.RSA, 1024);
+
+		//签名
+		byte[] msgBytes = "test".getBytes(Charset.forName("UTF-8"));
+		byte[] signBytes = SignUtil.sign(msgBytes,keyPair.getPrivate().getEncoded(), SignAlgorithm.MD2withRSA);
+		System.out.println(EncodeUtil.encodeHex(signBytes));
+		//验证签名
+		boolean isValid = SignUtil.verify(msgBytes,keyPair.getPublic().getEncoded(),signBytes, SignAlgorithm.MD2withRSA);
+		assertThat(isValid);
+	}
+
+	@Test
+	public void ecSignTest2() throws Exception {
+		//椭圆曲线数字签名算法 随机产生ec秘钥对，长度为112-571 默认长度256
+		KeyPair keyPair = KeyUtil.generateKeyPair(KeyPairAlgorithms.EC, 256);
+
+		//签名
+		byte[] msgBytes = "test".getBytes(Charset.forName("UTF-8"));
+		byte[] signBytes = SignUtil.sign(msgBytes,keyPair.getPrivate().getEncoded(), SignAlgorithm.SHA512withECDSA);
+		System.out.println(EncodeUtil.encodeHex(signBytes));
+		//验证签名
+		boolean isValid = SignUtil.verify(msgBytes,keyPair.getPublic().getEncoded(),signBytes, SignAlgorithm.SHA512withECDSA);
+		assertThat(isValid);
+	}
+
 }

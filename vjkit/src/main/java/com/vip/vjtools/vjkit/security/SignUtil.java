@@ -2,6 +2,7 @@ package com.vip.vjtools.vjkit.security;
 
 import com.vip.vjtools.vjkit.enums.KeyFactoryAlgorithms;
 import com.vip.vjtools.vjkit.enums.SignAlgorithm;
+import org.apache.commons.lang3.StringUtils;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -115,7 +116,8 @@ public class SignUtil {
 	 */
 	public static KeyFactoryAlgorithms convert2KeyAlgorithm(SignAlgorithm signAlgorithm){
 		KeyFactoryAlgorithms keyFactoryAlgorithms = null;
-		switch (signAlgorithm.name()){
+		String algoritm = StringUtils.substring(signAlgorithm.name(),signAlgorithm.name().indexOf("with") + 4,signAlgorithm.name().length());
+		switch (algoritm){
 			case "RSA":
 				keyFactoryAlgorithms = KeyFactoryAlgorithms.RSA;
 				break;
