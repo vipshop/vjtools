@@ -5,15 +5,15 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.vip.vjtools.vjkit.base.ExceptionUtil;
 import com.vip.vjtools.vjkit.enums.CipherAlgorithms;
+import com.vip.vjtools.vjkit.enums.KeyGeneratorType;
 import com.vip.vjtools.vjkit.enums.SecretKeyType;
 import com.vip.vjtools.vjkit.number.RandomUtil;
 import com.vip.vjtools.vjkit.text.Charsets;
@@ -582,4 +582,86 @@ public class CryptoUtil {
 		}
 	}
 
+	/**
+	 * pbe加密
+	 * @param input 原始字节数组
+	 * @param password pbe 字符串秘钥 可以任意长度
+	 * @param salt 盐 Salt must be 8 bytes long
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 加密结果
+	 */
+	public static byte[] pbeEncrypt(byte[] input, String password,byte[] salt,CipherAlgorithms algorithms){
+		try {
+			PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray());
+			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algorithms.getValue());
+			SecretKey secretKey = keyFactory.generateSecret(keySpec);
+			PBEParameterSpec paramSpec = new PBEParameterSpec(salt, 100);//100:iterationCount - the iteration count.
+			Cipher cipher = Cipher.getInstance(algorithms.getValue());
+			cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
+			return cipher.doFinal(input);
+		} catch (GeneralSecurityException e) {
+			throw ExceptionUtil.unchecked(e);
+		}
+	}
+
+
+	/**
+	 * pbe解密
+	 * @param input 密文数组
+	 * @param password pbe 字符串秘钥 可以任意长度
+	 * @param salt 盐值 Salt must be 8 bytes long
+	 * @param algorithms 可选不同的加密工作模式/填充模式，具体见CipherAlgorithms枚举
+	 * @return byte[] 解密后明文结果
+	 */
+	public static byte[] pbeDecrypt(byte[] input, String password,byte[] salt,CipherAlgorithms algorithms){
+		try {
+			PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray());
+			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algorithms.getValue());
+			SecretKey secretKey = keyFactory.generateSecret(keySpec);
+			PBEParameterSpec paramSpec = new PBEParameterSpec(salt, 100);//100:iterationCount - the iteration count.
+			Cipher cipher = Cipher.getInstance(algorithms.getValue());
+			cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+			return cipher.doFinal(input);
+		} catch (GeneralSecurityException e) {
+			throw ExceptionUtil.unchecked(e);
+		}
+	}
+
+
+	/**
+	 * DiffieHellman算法加密
+	 * @param input 加密原文
+	 * @param publicKey 对方公钥
+	 * @param privateKey 我方私钥
+	 * @param keyAlgorithms 生成的对称秘钥算法：仅支持 DES/DESede/AES
+	 * @return byte[] 密文
+	 * @throws Exception
+	 */
+	public static byte[] dhEncrypt(byte[] input,PublicKey publicKey,PrivateKey privateKey,KeyGeneratorType keyAlgorithms)
+			throws Exception {
+		SecretKey secretKey = KeyUtil.generateKey(publicKey, privateKey, keyAlgorithms);
+		// 数据解密
+		Cipher cipher = Cipher.getInstance(secretKey.getAlgorithm());
+		cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+		return cipher.doFinal(input);
+	}
+
+
+	/**
+	 * DiffieHellman算法解密
+	 * @param input 加密密文
+	 * @param publicKey 对方公钥
+	 * @param privateKey 我方私钥
+	 * @param keyAlgorithms 生成的对称秘钥算法：仅支持 DES/DESede/AES
+	 * @return byte[] 解密明文
+	 * @throws Exception
+	 */
+	public static byte[] dhDencrypt(byte[] input,PublicKey publicKey,PrivateKey privateKey,KeyGeneratorType keyAlgorithms)
+			throws Exception {
+		SecretKey secretKey = KeyUtil.generateKey(publicKey, privateKey, keyAlgorithms);
+		// 数据解密
+		Cipher cipher = Cipher.getInstance(secretKey.getAlgorithm());
+		cipher.init(Cipher.DECRYPT_MODE, secretKey);
+		return cipher.doFinal(input);
+	}
 }

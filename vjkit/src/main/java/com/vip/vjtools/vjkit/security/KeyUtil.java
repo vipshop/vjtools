@@ -9,6 +9,7 @@ import com.vip.vjtools.vjkit.enums.KeyPairAlgorithms;
 import com.vip.vjtools.vjkit.enums.KeyStoreType;
 import com.vip.vjtools.vjkit.io.IOUtil;
 
+import javax.crypto.KeyAgreement;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.*;
@@ -16,8 +17,10 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 
@@ -271,6 +274,24 @@ public class KeyUtil {
 
 	}
 
+
+	/**
+	 * 产生非对称秘钥对
+	 * @param algorithms 非对称秘钥算法
+	 * @param parameterSpec  cryptographic parameters
+	 * @return
+	 * @throws Exception
+	 */
+	public static KeyPair generateKeyPair(KeyPairAlgorithms algorithms, AlgorithmParameterSpec parameterSpec) throws Exception {
+		//获得对象 KeyPairGenerator
+		KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(algorithms.name());
+		keyPairGen.initialize(parameterSpec);
+		//通过对象 KeyPairGenerator 获取对象KeyPair
+		KeyPair keyPair = keyPairGen.generateKeyPair();
+		return keyPair;
+
+	}
+
 	/**
 	 * rc Key length for ARCFOUR must be between 40 and 1024 bits
 	 * 生成对称密钥,可选长度
@@ -281,6 +302,26 @@ public class KeyUtil {
 		keyGenerator.init(keysize);
 		SecretKey secretKey = keyGenerator.generateKey();
 		return secretKey.getEncoded();
+	}
+
+	/**
+	 * 生成DiffieHellman算法本地对称秘钥
+	 * @param publicKey 公钥
+	 * @param privateKey 私钥
+	 * @param secretAlgorithms 指定生成的对称秘钥算法 可以是DES /DESede/ AES等等
+	 * @throws Exception
+	 */
+	public static SecretKey generateKey(PublicKey publicKey,PrivateKey privateKey,KeyGeneratorType secretAlgorithms)
+			throws Exception {
+		System.setProperty("jdk.crypto.KeyAgreement.legacyKDF","true");
+		KeyFactory keyFactory = KeyFactory.getInstance(KeyFactoryAlgorithms.DiffieHellman.name());
+		KeyAgreement keyAgree = KeyAgreement.getInstance(keyFactory
+				.getAlgorithm());
+		keyAgree.init(privateKey);
+		keyAgree.doPhase(publicKey, true);
+		// 生成本地密钥
+		SecretKey secretKey = keyAgree.generateSecret(secretAlgorithms.name());
+		return secretKey;
 	}
 
 	/**

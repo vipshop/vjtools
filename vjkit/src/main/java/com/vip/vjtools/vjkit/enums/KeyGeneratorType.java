@@ -14,7 +14,7 @@ public enum KeyGeneratorType {
 	HmacSHA512,
 	HmacMD5,
 	Blowfish,
-	ARCFOUR,
+//	ARCFOUR,
 	AES,
 	DES,
 	DESede;

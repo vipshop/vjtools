@@ -4,8 +4,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.vip.vjtools.vjkit.enums.KeyGeneratorType;
 import com.vip.vjtools.vjkit.enums.KeyPairAlgorithms;
+import com.vip.vjtools.vjkit.text.EncodeUtil;
 import org.junit.Test;
 
+import javax.crypto.SecretKey;
+import javax.crypto.interfaces.DHPublicKey;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -66,6 +69,18 @@ public class KeyUtilTest {
 		assertThat(keyPair.getPrivate()).isNotNull();
 		assertThat(keyPair.getPublic()).isNotNull();
 
+		KeyPair keyPair2 = KeyUtil.generateKeyPair(KeyPairAlgorithms.DiffieHellman,
+				((DHPublicKey) keyPair.getPublic()).getParams());
+
+		System.out.println(EncodeUtil.encodeBase64(keyPair2.getPrivate().getEncoded()));
+		System.out.println(EncodeUtil.encodeBase64(keyPair2.getPublic().getEncoded()));
+
+//		System.setProperty("jdk.crypto.KeyAgreement.legacyKDF","true");
+
+		SecretKey sceret = KeyUtil.generateKey(keyPair.getPublic(), keyPair2.getPrivate(), KeyGeneratorType.AES);
+
+		System.out.println(sceret.getAlgorithm());
+		System.out.println(EncodeUtil.encodeBase64(sceret.getEncoded()));
 	}
 
 }

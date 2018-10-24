@@ -11,11 +11,14 @@ import org.junit.Test;
 
 import com.vip.vjtools.vjkit.text.EncodeUtil;
 
+import javax.crypto.SecretKey;
+import javax.crypto.interfaces.DHPublicKey;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.Arrays;
+import java.util.Random;
 
 
 public class CryptoUtilTest {
@@ -185,4 +188,70 @@ public class CryptoUtilTest {
 		assertThat(StringUtils.trimToEmpty(new String(output)).getBytes("UTF-8")).isEqualTo(input);
 
 	}
+
+	@Test
+	public void pebTest() throws UnsupportedEncodingException {
+		Security.addProvider(new BouncyCastleProvider());
+		byte[] input = "PEB test".getBytes("UTF-8");
+		String passwd = "1";
+		byte[] salt = new byte[8];
+		Random random = new Random();
+		random.nextBytes(salt);
+
+		//加密
+		byte[] output = CryptoUtil.pbeEncrypt(input, passwd, salt, CipherAlgorithms.PBEWithSHAAndTwofish_CBC);
+		System.out.println(EncodeUtil.encodeHex(output));
+
+		//解密
+		output = CryptoUtil.pbeDecrypt(output,passwd,salt,CipherAlgorithms.PBEWithSHAAndTwofish_CBC);
+		System.out.println(new String(output));
+		assertThat(output).isEqualTo(input);
+	}
+
+
+
+	@Test
+	public void dhTest() throws Exception {
+		//DiffieHellman算法加密
+		Security.addProvider(new BouncyCastleProvider());
+		byte[] input = "DiffieHellman test".getBytes("UTF-8");
+
+		//生成甲方秘钥对
+		KeyPair keyPair = KeyUtil.generateKeyPair(KeyPairAlgorithms.DiffieHellman, 512);
+		//根据甲方公钥生成乙方秘钥对
+		KeyPair keyPair2 = KeyUtil.generateKeyPair(KeyPairAlgorithms.DiffieHellman,
+				((DHPublicKey) keyPair.getPublic()).getParams());
+		//加密
+		byte[] output = CryptoUtil.dhEncrypt(input, keyPair.getPublic(), keyPair2.getPrivate(),KeyGeneratorType.AES);
+		System.out.println(EncodeUtil.encodeHex(output));
+
+		//解密
+		output = CryptoUtil.dhDencrypt(output, keyPair2.getPublic(), keyPair.getPrivate(), KeyGeneratorType.AES);
+		System.out.println(new String(output));
+		assertThat(output).isEqualTo(input);
+
+
+		//----------------------DiffieHellman加密方式2
+
+		//使用甲方公钥和乙方私钥生成的秘钥
+		SecretKey secretKey = KeyUtil.generateKey( keyPair.getPublic(), keyPair2.getPrivate(), KeyGeneratorType.AES);
+		//使用乙方公钥和甲方方私钥生成的秘钥
+		SecretKey secretKey2 = KeyUtil.generateKey( keyPair2.getPublic(), keyPair.getPrivate(), KeyGeneratorType.AES);
+		//双方生成的秘钥应该要相同
+		assertThat(secretKey2.getEncoded()).isEqualTo(secretKey.getEncoded());
+
+		System.out.println(EncodeUtil.encodeHex(secretKey.getEncoded()));
+		System.out.println(EncodeUtil.encodeHex(secretKey2.getEncoded()));
+
+		//加密
+		output = CryptoUtil.aesEncrypt(input, secretKey.getEncoded(), CipherAlgorithms.AES_ECB_ISO10126Padding);
+		System.out.println(EncodeUtil.encodeHex(output));
+
+		//解密
+		output = CryptoUtil.aesDecrypt(output, secretKey2.getEncoded(), CipherAlgorithms.AES_ECB_ISO10126Padding);
+		System.out.println(new String(output));
+		assertThat(output).isEqualTo(input);
+	}
+
+
 }
