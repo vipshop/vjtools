@@ -95,9 +95,9 @@ public class KeyUtilTest {
 		RSAPublicKey publicKey2 = (RSAPublicKey) KeyUtil.generateRsaPublicKey(publicKey.getModulus(),publicKey.getPublicExponent());
 		assertThat(publicKey.getEncoded()).isEqualTo(publicKey2.getEncoded());
 
-		RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-		RSAPrivateKey privateKey2 = (RSAPrivateKey) KeyUtil.generateRsaPrivateKey(privateKey.getModulus(),privateKey.getPrivateExponent());
-		assertThat(privateKey.getEncoded()).isEqualTo(privateKey2.getEncoded());
+//		RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+//		RSAPrivateKey privateKey2 = (RSAPrivateKey) KeyUtil.generateRsaPrivateKey(privateKey.getModulus(),privateKey.getPrivateExponent());
+//		assertThat(privateKey.getEncoded()).isEqualTo(privateKey2.getEncoded());
 
 	}
 }
