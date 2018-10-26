@@ -1,46 +1,46 @@
 package com.vip.vjtools.vjkit.enums;
 
 /**
- * ����ģʽ
+ * 加密模式 
  * @author haven.zhang
  */
 public enum EncryptedMode {
 
 	/**
-	 * ���뱾ģʽ��Electronic Codebook Book (ECB) ÿһ�鶼ʹ����ͬ����Կ���м���
+	 * 电码本模式（Electronic Codebook Book (ECB) 每一块都使用相同的秘钥进行加密
 	 */
 	ECB,
 	/**
-	 * �����������ģʽ��Cipher Block Chaining (CBC)�� �ڵ�һ��������Ҫʹ�ó�ʼ������IV
-	 * ÿ�����Ŀ�����ǰһ�����Ŀ���������ٽ��м���
+	 * 密码分组链接模式（Cipher Block Chaining (CBC)） 在第一个块中需要使用初始化向量IV
+	 * 每个明文块先与前一个密文块进行异或后，再进行加密
 	 */
 	CBC,
 	/**
-	 * �����������ӣ�PCBC��Propagating cipher-block chaining�����Ϊ������������ӣ�Plaintext cipher-block chaining��
+	 * 填充密码块链接（PCBC，Propagating cipher-block chaining）或称为明文密码块链接（Plaintext cipher-block chaining）
 	 */
 	PCBC,
 	/**
-	 * ������ģʽ��Counter (CTR)��
+	 * 计算器模式（Counter (CTR)）
 	 */
 	CTR,
 
 	/**
-	 * ���뷴��ģʽ��Cipher FeedBack (CFB)��
-	 * CFB�ļ��ܹ�����Ϊ�����֣�
-	 * 1.��һǰ�μ��ܵõ��������ټ��ܣ�
-	 * 2.����1�����ܵõ��������뵱ǰ�ε��������
+	 * 密码反馈模式（Cipher FeedBack (CFB)）
+	 * CFB的加密工作分为两部分：
+	 * 1.将一前段加密得到的密文再加密；
+	 * 2.将第1步加密得到的数据与当前段的明文异或。
 	 */
 	CFB,
 	/**
-	 * �� CFB һ��������ʹ�� 8 λģʽ�����Ƽ���
+	 * 和 CFB 一样，但是使用 8 位模式（不推荐）
 	 */
 	CFB8,
 	/**
-	 * �������ģʽ��Output FeedBack (OFB)��
+	 * 输出反馈模式（Output FeedBack (OFB)）
 	 */
 	OFB,
 	/**
-	 * �� OFB һ��������ʹ�� 8 λģʽ�����Ƽ���
+	 * 和 OFB 一样，但是使用 8 位模式（不推荐）
 	 */
 	OFB8;
 }

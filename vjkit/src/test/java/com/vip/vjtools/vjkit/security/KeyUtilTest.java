@@ -9,8 +9,11 @@ import org.junit.Test;
 
 import javax.crypto.SecretKey;
 import javax.crypto.interfaces.DHPublicKey;
+import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -83,4 +86,18 @@ public class KeyUtilTest {
 		System.out.println(EncodeUtil.encodeBase64(sceret.getEncoded()));
 	}
 
+	@Test
+	public void genreatePairKeyTest() throws Exception {
+		KeyPair keyPair = KeyUtil.generateKeyPair(KeyPairAlgorithms.RSA, 512);
+
+		//根据 mdululus publicExponent 生成公钥
+		RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+		RSAPublicKey publicKey2 = (RSAPublicKey) KeyUtil.generateRsaPublicKey(publicKey.getModulus(),publicKey.getPublicExponent());
+		assertThat(publicKey.getEncoded()).isEqualTo(publicKey2.getEncoded());
+
+		RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+		RSAPrivateKey privateKey2 = (RSAPrivateKey) KeyUtil.generateRsaPrivateKey(privateKey.getModulus(),privateKey.getPrivateExponent());
+		assertThat(privateKey.getEncoded()).isEqualTo(privateKey2.getEncoded());
+
+	}
 }

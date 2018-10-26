@@ -1,7 +1,7 @@
 package com.vip.vjtools.vjkit.enums;
 
 /**
- * Ç©ÃûËã·¨Ã¶¾Ù
+ * ç­¾åç®—æ³•æšä¸¾
  * @author haven.zhang
  */
 public enum SignAlgorithm {

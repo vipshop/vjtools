@@ -13,33 +13,33 @@ import javax.crypto.KeyAgreement;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.*;
+import java.math.BigInteger;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.*;
 import java.util.Arrays;
 import java.util.Enumeration;
 
 
 /**
- * ÃØÔ¿¹ÜÀíÏà¹Ø¹¤¾ßÀà
- *
+ * ç§˜é’¥ç®¡ç†ç›¸å…³å·¥å…·ç±»
+ * å¦‚æœé‡åˆ°æŸäº›ç®—æ³•ä¸æ”¯æŒçš„æ—¶å€™ï¼Œè¯·å¼•å…¥bouncycastle mavené…ç½®
+ * å¹¶åœ¨åˆå§‹åŒ–æ—¶åŠ å…¥BCä½œä¸ºå®‰å…¨æä¾›è€… Security.addProvider(new BouncyCastleProvider());
  * @author haven.zhang
  */
 public class KeyUtil {
 	/**
-	 * x.509Ö¤Êé
+	 * x.509è¯ä¹¦
 	 */
 	private static final String CERTIFICATE_TYPE = "X.509";
 
 
 	/**
-	 * ´Óx.509Ö¤ÊéÎÄ¼şÖĞ¶ÁÈ¡¹«Ô¿
+	 * ä»x.509è¯ä¹¦æ–‡ä»¶ä¸­è¯»å–å…¬é’¥
 	 * @param certFilePath
-	 * @return PublicKey ¹«Ô¿¶ÔÏó
+	 * @return PublicKey å…¬é’¥å¯¹è±¡
 	 * @throws Exception
 	 */
 	public static PublicKey readPubKey(String certFilePath) throws Exception {
@@ -53,16 +53,16 @@ public class KeyUtil {
 			X509Certificate x509cert = (X509Certificate) cf.generateCertificate(bin);
 			pubkey = x509cert.getPublicKey();
 		} finally {
-			IOUtil.closeQuietly(fileStream);
 			IOUtil.closeQuietly(bin);
+			IOUtil.closeQuietly(fileStream);
 		}
 		return pubkey;
 	}
 
 
 	/**
-	 * ¶ÁÈ¡Ö¤Êé¹«Ô¿
-	 * @param certfile x.509¹«Ô¿Ö¤ÊéÁ÷
+	 * è¯»å–è¯ä¹¦å…¬é’¥
+	 * @param certfile x.509å…¬é’¥è¯ä¹¦æµ
 	 * @return
 	 * @throws Exception
 	 */
@@ -77,9 +77,9 @@ public class KeyUtil {
 
 
 	/**
-	 * ¶ÁÈ¡¹«Ô¿
+	 * è¯»å–å…¬é’¥
 	 * @param keyStore
-	 * @param alias Ö¤Êé±ğÃû
+	 * @param alias è¯ä¹¦åˆ«å
 	 * @return
 	 * @throws Exception
 	 */
@@ -91,7 +91,7 @@ public class KeyUtil {
 	}
 
 	/**
-	 * ¶ÁÈ¡Ë½Ô¿
+	 * è¯»å–ç§é’¥
 	 * @param keyStore
 	 * @param alias
 	 * @param password
@@ -104,10 +104,10 @@ public class KeyUtil {
 	}
 
 	/**
-	 * ´ÓkeystoreÎÄ¼şÖĞ¼ÓÔØË½Ô¿
-	 * @param keystoreFile ÎÄ¼şÂ·¾¶
-	 * @param passWord keystore·ÃÎÊÃÜÂë
-	 * @return PrivateKey Ë½Ô¿¶ÔÏó
+	 * ä»keystoreæ–‡ä»¶ä¸­åŠ è½½ç§é’¥
+	 * @param keystoreFile æ–‡ä»¶è·¯å¾„
+	 * @param passWord keystoreè®¿é—®å¯†ç 
+	 * @return PrivateKey ç§é’¥å¯¹è±¡
 	 * @throws Exception
 	 */
 	public static PrivateKey readPrivKey(String keystoreFile, String passWord) throws Exception {
@@ -131,17 +131,17 @@ public class KeyUtil {
 				}
 			}
 		} finally {
-			IOUtil.closeQuietly(fileInputStream);
 			IOUtil.closeQuietly(bin);
+			IOUtil.closeQuietly(fileInputStream);
 		}
 		return prikey;
 	}
 
 	/**
-	 * ´ÓkeystoreÎÄ¼şÁ÷ÖĞ¼ÓÔØË½Ô¿
-	 * @param inputStream ÎÄ¼şÁ÷
-	 * @param passWord keystore·ÃÎÊÃÜÂë
-	 * @return PrivateKey Ë½Ô¿¶ÔÏó
+	 * ä»keystoreæ–‡ä»¶æµä¸­åŠ è½½ç§é’¥
+	 * @param inputStream æ–‡ä»¶æµ
+	 * @param passWord keystoreè®¿é—®å¯†ç 
+	 * @return PrivateKey ç§é’¥å¯¹è±¡
 	 * @throws Exception
 	 */
 	public static PrivateKey readPrivKey(InputStream inputStream, String passWord) throws Exception {
@@ -151,7 +151,7 @@ public class KeyUtil {
 		Enumeration myEnum = ks.aliases();
 		String keyAlias = null;
 		// keyAlias = (String) myEnum.nextElement();
-			/* IBM JDK±ØĞëÊ¹ÓÃWhileÑ­»·È¡×îºóÒ»¸ö±ğÃû£¬²ÅÄÜµÃµ½¸öÈËË½Ô¿±ğÃû */
+			/* IBM JDKå¿…é¡»ä½¿ç”¨Whileå¾ªç¯å–æœ€åä¸€ä¸ªåˆ«åï¼Œæ‰èƒ½å¾—åˆ°ä¸ªäººç§é’¥åˆ«å */
 		while (myEnum.hasMoreElements()) {
 			keyAlias = (String) myEnum.nextElement();
 			// System.out.println("keyAlias==" + keyAlias);
@@ -165,10 +165,10 @@ public class KeyUtil {
 
 
 	/**
-	 * ´ÓkeystoreÎÄ¼şÖĞ¶ÁÈ¡¹«Ë½Ô¿
-	 * @param keystoreFile
-	 * @param passWord
-	 * @return
+	 * ä»pkcs12æ ¼å¼çš„å¯†é’¥åº“keystoreæ–‡ä»¶ä¸­è¯»å–å…¬ç§é’¥å¯†é’¥å¯¹
+	 * @param keystoreFile å¯†é’¥åº“æ–‡ä»¶ï¼Œå¦‚ï¼šxxx.pfx /xxx.p12
+	 * @param passWord å¯†é’¥åº“è®¿é—®å¯†ç 
+	 * @return KeyPair
 	 * @throws Exception
 	 */
 	public static KeyPair readKeyPair(String keystoreFile, final String passWord) throws Exception {
@@ -184,7 +184,7 @@ public class KeyUtil {
 			Enumeration myEnum = ks.aliases();
 			String keyAlias = null;
 			// keyAlias = (String) myEnum.nextElement();
-			/* IBM JDK±ØĞëÊ¹ÓÃWhileÑ­»·È¡×îºóÒ»¸ö±ğÃû£¬²ÅÄÜµÃµ½¸öÈËË½Ô¿±ğÃû */
+			/* IBM JDKå¿…é¡»ä½¿ç”¨Whileå¾ªç¯å–æœ€åä¸€ä¸ªåˆ«åï¼Œæ‰èƒ½å¾—åˆ°ä¸ªäººç§é’¥åˆ«å */
 			while (myEnum.hasMoreElements()) {
 				keyAlias = (String) myEnum.nextElement();
 				if (ks.isKeyEntry(keyAlias)) {
@@ -194,47 +194,47 @@ public class KeyUtil {
 				}
 			}
 		} finally {
-			IOUtil.closeQuietly(fileInputStream);
 			IOUtil.closeQuietly(bin);
+			IOUtil.closeQuietly(fileInputStream);
 		}
 		return keyPair;
 	}
 
 
 	/**
-	 * ´ÓË½Ô¿½ÚÊı×é×ª»»ÎªPrivateKey¶ÔÏó
-	 * @param keyBytes  ½ÚÊı×éË½Ô¿
-	 * @param algorithm ÃØÔ¿Ëã·¨
-	 * @return PrivateKey Ë½Ô¿¶ÔÏó
+	 * ä»ç§é’¥èŠ‚æ•°ç»„è½¬æ¢ä¸ºPrivateKeyå¯¹è±¡
+	 * @param keyBytes  èŠ‚æ•°ç»„ç§é’¥
+	 * @param algorithm ç§˜é’¥ç®—æ³•
+	 * @return PrivateKey ç§é’¥å¯¹è±¡
 	 * @throws Exception
 	 */
 	public static PrivateKey getPrivateKey(byte[] keyBytes, KeyFactoryAlgorithms algorithm) throws Exception {
 		PrivateKey priKey = null;
-		// È¡µÃË½Ô¿
+		// å–å¾—ç§é’¥
 		PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
 		KeyFactory keyFactory = KeyFactory.getInstance(algorithm.name());
-		// Éú³ÉË½Ô¿
+		// ç”Ÿæˆç§é’¥
 		priKey = keyFactory.generatePrivate(pkcs8KeySpec);
 		return priKey;
 	}
 
 	/**
-	 * ´Ó¹«Ô¿×Ö½ÚÊı×é×ª»»ÎªPublicKey¶ÔÏó
-	 * @param keyBytes ¹«Ô¿½ÚÊı×é
-	 * @param algorithm ÃØÔ¿Ëã·¨
+	 * ä»å…¬é’¥å­—èŠ‚æ•°ç»„è½¬æ¢ä¸ºPublicKeyå¯¹è±¡
+	 * @param keyBytes å…¬é’¥èŠ‚æ•°ç»„
+	 * @param algorithm ç§˜é’¥ç®—æ³•
 	 * @return
 	 * @throws Exception
 	 */
 	public static PublicKey getPublicKey(byte[] keyBytes, KeyFactoryAlgorithms algorithm) throws Exception {
 		PublicKey pubKey = null;
 
-		// ×ª»»¹«Ô¿²ÄÁÏ
-		// ÊµÀı»¯ÃÜÔ¿¹¤³§
+		// è½¬æ¢å…¬é’¥ææ–™
+		// å®ä¾‹åŒ–å¯†é’¥å·¥å‚
 		KeyFactory keyFactory = KeyFactory.getInstance(algorithm.name());
-		// ³õÊ¼»¯¹«Ô¿
-		// ÃÜÔ¿²ÄÁÏ×ª»»
+		// åˆå§‹åŒ–å…¬é’¥
+		// å¯†é’¥ææ–™è½¬æ¢
 		X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-		// ²úÉú¹«Ô¿
+		// äº§ç”Ÿå…¬é’¥
 		pubKey = keyFactory.generatePublic(x509KeySpec);
 
 		return pubKey;
@@ -242,7 +242,7 @@ public class KeyUtil {
 
 
 	/**
-	 * »ñÈ¡¹«Ë½Ô¿¶Ô
+	 * è·å–å…¬ç§é’¥å¯¹
 	 * @param keyStore
 	 * @param alias
 	 * @param password
@@ -258,17 +258,17 @@ public class KeyUtil {
 
 
 	/**
-	 * ²úÉú·Ç¶Ô³ÆÃØÔ¿¶Ô
+	 * äº§ç”Ÿéå¯¹ç§°ç§˜é’¥å¯¹
 	 * @param algorithms
 	 * @param keyLen
 	 * @return
 	 * @throws Exception
 	 */
 	public static KeyPair generateKeyPair(KeyPairAlgorithms algorithms, int keyLen) throws Exception {
-		//»ñµÃ¶ÔÏó KeyPairGenerator
+		//è·å¾—å¯¹è±¡ KeyPairGenerator
 		KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(algorithms.name());
 		keyPairGen.initialize(keyLen);
-		//Í¨¹ı¶ÔÏó KeyPairGenerator »ñÈ¡¶ÔÏóKeyPair
+		//é€šè¿‡å¯¹è±¡ KeyPairGenerator è·å–å¯¹è±¡KeyPair
 		KeyPair keyPair = keyPairGen.generateKeyPair();
 		return keyPair;
 
@@ -276,17 +276,17 @@ public class KeyUtil {
 
 
 	/**
-	 * ²úÉú·Ç¶Ô³ÆÃØÔ¿¶Ô
-	 * @param algorithms ·Ç¶Ô³ÆÃØÔ¿Ëã·¨
+	 * äº§ç”Ÿéå¯¹ç§°ç§˜é’¥å¯¹
+	 * @param algorithms éå¯¹ç§°ç§˜é’¥ç®—æ³•
 	 * @param parameterSpec  cryptographic parameters
 	 * @return
 	 * @throws Exception
 	 */
 	public static KeyPair generateKeyPair(KeyPairAlgorithms algorithms, AlgorithmParameterSpec parameterSpec) throws Exception {
-		//»ñµÃ¶ÔÏó KeyPairGenerator
+		//è·å¾—å¯¹è±¡ KeyPairGenerator
 		KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(algorithms.name());
 		keyPairGen.initialize(parameterSpec);
-		//Í¨¹ı¶ÔÏó KeyPairGenerator »ñÈ¡¶ÔÏóKeyPair
+		//é€šè¿‡å¯¹è±¡ KeyPairGenerator è·å–å¯¹è±¡KeyPair
 		KeyPair keyPair = keyPairGen.generateKeyPair();
 		return keyPair;
 
@@ -294,8 +294,8 @@ public class KeyUtil {
 
 	/**
 	 * rc Key length for ARCFOUR must be between 40 and 1024 bits
-	 * Éú³É¶Ô³ÆÃÜÔ¿,¿ÉÑ¡³¤¶È
-	 * ¿ÉÑ¡Ëã·¨¼û£ºKeyGeneratorType
+	 * ç”Ÿæˆå¯¹ç§°å¯†é’¥,å¯é€‰é•¿åº¦
+	 * å¯é€‰ç®—æ³•è§ï¼šKeyGeneratorType
 	 */
 	public static byte[] generateKey(int keysize, KeyGeneratorType type) throws NoSuchAlgorithmException {
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(type.name());
@@ -305,10 +305,10 @@ public class KeyUtil {
 	}
 
 	/**
-	 * Éú³ÉDiffieHellmanËã·¨±¾µØ¶Ô³ÆÃØÔ¿
-	 * @param publicKey ¹«Ô¿
-	 * @param privateKey Ë½Ô¿
-	 * @param secretAlgorithms Ö¸¶¨Éú³ÉµÄ¶Ô³ÆÃØÔ¿Ëã·¨ ¿ÉÒÔÊÇDES /DESede/ AESµÈµÈ
+	 * ç”ŸæˆDiffieHellmanç®—æ³•æœ¬åœ°å¯¹ç§°ç§˜é’¥
+	 * @param publicKey å…¬é’¥
+	 * @param privateKey ç§é’¥
+	 * @param secretAlgorithms æŒ‡å®šç”Ÿæˆçš„å¯¹ç§°ç§˜é’¥ç®—æ³• å¯ä»¥æ˜¯DES /DESede/ AESç­‰ç­‰
 	 * @throws Exception
 	 */
 	public static SecretKey generateKey(PublicKey publicKey,PrivateKey privateKey,KeyGeneratorType secretAlgorithms)
@@ -319,26 +319,94 @@ public class KeyUtil {
 				.getAlgorithm());
 		keyAgree.init(privateKey);
 		keyAgree.doPhase(publicKey, true);
-		// Éú³É±¾µØÃÜÔ¿
+		// ç”Ÿæˆæœ¬åœ°å¯†é’¥
 		SecretKey secretKey = keyAgree.generateSecret(secretAlgorithms.name());
 		return secretKey;
 	}
 
 	/**
-	 * Éú³ÉdesËã·¨µÄÃØÔ¿£¬³¤¶ÈÎª8¸ö×Ö½Ú
+	 * ç”Ÿæˆdesç®—æ³•çš„ç§˜é’¥ï¼Œé•¿åº¦ä¸º8ä¸ªå­—èŠ‚
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 */
 	public static byte[] generateDesKey() throws NoSuchAlgorithmException {
-		return generateKey(56,KeyGeneratorType.DES);
+		return generateKey(56, KeyGeneratorType.DES);
 	}
 
 	/**
-	 * Éú³Édes3Ëã·¨µÄÃØÔ¿£¬³¤¶ÈÎª24¸ö×Ö½Ú
+	 * ç”Ÿæˆdes3ç®—æ³•çš„ç§˜é’¥ï¼Œé•¿åº¦ä¸º24ä¸ªå­—èŠ‚
 	 * @return
 	 * @throws NoSuchAlgorithmException
 	 */
 	public static byte[] generateDes3Key() throws NoSuchAlgorithmException {
 		return generateKey(168,KeyGeneratorType.DESede);
+	}
+
+	/**
+	 * ç”ŸæˆRSA å…¬é’¥
+	 * @param modulus the modulus
+	 * @param publicExponent the public exponent
+	 * @return
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static PublicKey generateRsaPublicKey(BigInteger modulus, BigInteger publicExponent) throws
+			InvalidKeySpecException, NoSuchAlgorithmException {
+		RSAPublicKeySpec rsaSpec = new RSAPublicKeySpec(modulus, publicExponent);
+		KeyFactory kf = KeyFactory.getInstance(KeyPairAlgorithms.RSA.name());
+		PublicKey publicKey = kf.generatePublic(rsaSpec);
+		return publicKey;
+	}
+
+	/**
+	 * ç”ŸæˆDSA å…¬é’¥
+	 * @param y the public key.
+	 * @param p the prime.
+	 * @param q the sub-prime.
+	 * @param g the base.
+	 * @return PublicKey
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static PublicKey generateDsaPublicKey(BigInteger y, BigInteger p, BigInteger q,BigInteger g) throws
+			InvalidKeySpecException, NoSuchAlgorithmException {
+		DSAPublicKeySpec rsaSpec = new DSAPublicKeySpec(y, p,q,g);
+		KeyFactory kf = KeyFactory.getInstance(KeyPairAlgorithms.DSA.name());
+		PublicKey publicKey = kf.generatePublic(rsaSpec);
+		return publicKey;
+	}
+
+	/**
+	 * ç”ŸæˆRSAç§é’¥
+	 * @param modulus the modulus
+	 * @param privateExponent  the private exponent
+	 * @return PrivateKey
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static PrivateKey generateRsaPrivateKey(BigInteger modulus, BigInteger privateExponent)
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		RSAPrivateKeySpec rsaSpec = new RSAPrivateKeySpec(modulus, privateExponent);
+		KeyFactory kf = KeyFactory.getInstance(KeyPairAlgorithms.RSA.name());
+		PrivateKey prikey = kf.generatePrivate(rsaSpec);
+		return prikey;
+	}
+
+	/**
+	 * ç”ŸæˆDSAç§é’¥
+	 * @param x the private key.
+	 * @param p the prime.
+	 * @param q the sub-prime.
+	 * @param g the base.
+	 * @return PrivateKey
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static PrivateKey generateDsaPrivateKey(BigInteger x, BigInteger p, BigInteger q,BigInteger g)
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		DSAPrivateKeySpec rsaSpec = new DSAPrivateKeySpec(x, p,q,g);
+		KeyFactory kf = KeyFactory.getInstance(KeyPairAlgorithms.RSA.name());
+		PrivateKey prikey = kf.generatePrivate(rsaSpec);
+		return prikey;
 	}
 }

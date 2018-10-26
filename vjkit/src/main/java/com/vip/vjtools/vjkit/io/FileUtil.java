@@ -1,11 +1,6 @@
 package com.vip.vjtools.vjkit.io;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -555,5 +550,23 @@ public class FileUtil {
 		}
 		FileUtil.touch(filePath);
 		return file;
+	}
+
+	/**
+	 * 写入字节数组到文件
+	 * @param file
+	 * @param data
+	 * @throws IOException
+	 */
+	public static void writeByteArrayToFile(File file, byte[] data) throws IOException {
+		OutputStream out = null;
+
+		try {
+			out = asOututStream(file);
+			out.write(data);
+		} finally {
+			IOUtil.closeQuietly(out);
+		}
+
 	}
 }

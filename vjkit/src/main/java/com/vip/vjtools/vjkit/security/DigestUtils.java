@@ -1,6 +1,7 @@
 package com.vip.vjtools.vjkit.security;
 
 import com.vip.vjtools.vjkit.base.annotation.NotNull;
+import com.vip.vjtools.vjkit.enums.HmacAlgorithmType;
 import org.bouncycastle.crypto.digests.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
@@ -12,413 +13,392 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Security;
 
 /**
- * ÏûÏ¢ÕªÒª×é¼ş
- * ×¢Òâ: ĞèÒª²Î¿¼±¾Ä£¿éµÄPOMÎÄ¼ş£¬ÏÔÊ½ÒıÓÃbouncycastle.
+ * æ¶ˆæ¯æ‘˜è¦ç»„ä»¶
+ * æ³¨æ„: éœ€è¦å‚è€ƒæœ¬æ¨¡å—çš„POMæ–‡ä»¶ï¼Œæ˜¾å¼å¼•ç”¨bouncycastle.
+ * å¹¶åœ¨åˆå§‹åŒ–æ—¶åŠ å…¥BCä½œä¸ºå®‰å…¨æä¾›è€… Security.addProvider(new BouncyCastleProvider());
  * @author haven.zhang
  * */
 public class DigestUtils {
 
-	/**
-	 * Ëã·¨ÀàĞÍ
-	 */
-	enum HmacAlgorithmType {
-		/**
-		 * HmacSHA1ÕªÒªËã·¨
-		 */
-		HMAC_SHA1("HmacSHA1"),
-		HMAC_SHA224("HmacSHA224"),
-		HMAC_SHA256("HmacSHA256"),
-		HMAC_SHA384("HmacSHA384"),
-		HMAC_SHA512("HmacSHA512"),
-		HMAC_MD2("HmacMD2"),
-		HMAC_MD4("HmacMD4"),
-		HMAC_MD5("HmacMD5");
-		String value;
-
-		HmacAlgorithmType(String value) {
-			this.value = value;
-		}
-	}
 
 	/**
-	 * Éú³ÉHmacMD5µÄÃÜÔ¿
-	 * @return byte[] ÃÜÔ¿
+	 * ç”ŸæˆHmacMD5çš„å¯†é’¥
+	 * @return byte[] å¯†é’¥
 	 *
 	 * */
 	public static byte[] generateHmacMD5Key() throws Exception {
-		//¼ÓÈëBouncyCastleProviderµÄÖ§³Ö
+		//åŠ å…¥BouncyCastleProviderçš„æ”¯æŒ
 		Security.addProvider(new BouncyCastleProvider());
-		//³õÊ¼»¯KeyGenerator
+		//åˆå§‹åŒ–KeyGenerator
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(HmacAlgorithmType.HMAC_MD5.value);
-		//²úÉúÃÜÔ¿
+		//äº§ç”Ÿå¯†é’¥
 		SecretKey secretKey = keyGenerator.generateKey();
-		//»ñÈ¡ÃÜÔ¿
+		//è·å–å¯†é’¥
 		return secretKey.getEncoded();
 	}
 
 	/**
-	 * HmacMD5ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacMD5æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static byte[] hmacMD5(byte[] data, byte[] key) throws Exception {
-		//¼ÓÈëBouncyCastleProviderµÄÖ§³Ö
+		//åŠ å…¥BouncyCastleProviderçš„æ”¯æŒ
 		Security.addProvider(new BouncyCastleProvider());
-		//»¹Ô­ÃÜÔ¿£¬ÒòÎªÃÜÔ¿ÊÇÒÔbyteĞÎÊ½ÎªÏûÏ¢´«µİËã·¨ËùÓµÓĞ
+		//è¿˜åŸå¯†é’¥ï¼Œå› ä¸ºå¯†é’¥æ˜¯ä»¥byteå½¢å¼ä¸ºæ¶ˆæ¯ä¼ é€’ç®—æ³•æ‰€æ‹¥æœ‰
 		SecretKey secretKey = new SecretKeySpec(key, HmacAlgorithmType.HMAC_MD5.value);
-		//ÊµÀı»¯Mac
+		//å®ä¾‹åŒ–Mac
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
-		//³õÊ¼»¯Mac
+		//åˆå§‹åŒ–Mac
 		mac.init(secretKey);
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		return mac.doFinal(data);
 	}
 
 	/**
-	 * HmacMD5HexÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÏûÏ¢ÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return String ÏûÏ¢ÕªÒª Ê®Áù½øÖÆ×Ö·û´®
+	 * HmacMD5Hexæ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ¶ˆæ¯æ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return String æ¶ˆæ¯æ‘˜è¦ åå…­è¿›åˆ¶å­—ç¬¦ä¸²
 	 * */
 	public static String hmacMD5Hex(byte[] data, byte[] key) throws Exception {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = hmacMD5(data, key);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 
 	/**
-	 * ²úÉúHmacSHA1µÄÃÜÔ¿
-	 * @return byte[] ÃÜÔ¿
+	 * äº§ç”ŸHmacSHA1çš„å¯†é’¥
+	 * @return byte[] å¯†é’¥
 	 *
 	 * */
 	public static byte[] generateHmacSHAKey() throws Exception {
-		//³õÊ¼»¯KeyGenerator
+		//åˆå§‹åŒ–KeyGenerator
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(HmacAlgorithmType.HMAC_SHA1.value);
-		//²úÉúÃÜÔ¿
+		//äº§ç”Ÿå¯†é’¥
 		SecretKey secretKey = keyGenerator.generateKey();
-		//»ñÈ¡ÃÜÔ¿
+		//è·å–å¯†é’¥
 		return secretKey.getEncoded();
 	}
 
 	/**
-	 * HmacSHA1ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacSHA1æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static byte[] hmacSHA(byte[] data, byte[] key) throws Exception {
-		//»¹Ô­ÃÜÔ¿£¬ÒòÎªÃÜÔ¿ÊÇÒÔbyteĞÎÊ½ÎªÏûÏ¢´«µİËã·¨ËùÓµÓĞ
+		//è¿˜åŸå¯†é’¥ï¼Œå› ä¸ºå¯†é’¥æ˜¯ä»¥byteå½¢å¼ä¸ºæ¶ˆæ¯ä¼ é€’ç®—æ³•æ‰€æ‹¥æœ‰
 		SecretKey secretKey = new SecretKeySpec(key, HmacAlgorithmType.HMAC_SHA1.value);
-		//ÊµÀı»¯Mac
+		//å®ä¾‹åŒ–Mac
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
-		//³õÊ¼»¯Mac
+		//åˆå§‹åŒ–Mac
 		mac.init(secretKey);
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		return mac.doFinal(data);
 	}
 
 	/**
-	 * HmacSHA1ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return String ÏûÏ¢ÕªÒª Ê®Áù½øÖÆ×Ö·û´®
+	 * HmacSHA1æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return String æ¶ˆæ¯æ‘˜è¦ åå…­è¿›åˆ¶å­—ç¬¦ä¸²
 	 * */
 	public static String hmacSHAHex(byte[] data, byte[] key) throws Exception {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = hmacSHA(data, key);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * ³õÊ¼»¯HmacSHA256µÄÃÜÔ¿
-	 * @return byte[] ÃÜÔ¿
+	 * åˆå§‹åŒ–HmacSHA256çš„å¯†é’¥
+	 * @return byte[] å¯†é’¥
 	 *
 	 * */
 	public static byte[] generateHmacSHA256Key() throws Exception {
 		Security.addProvider(new BouncyCastleProvider());
-		//³õÊ¼»¯KeyGenerator
+		//åˆå§‹åŒ–KeyGenerator
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(HmacAlgorithmType.HMAC_SHA256.value);
-		//²úÉúÃÜÔ¿
+		//äº§ç”Ÿå¯†é’¥
 		SecretKey secretKey = keyGenerator.generateKey();
-		//»ñÈ¡ÃÜÔ¿
+		//è·å–å¯†é’¥
 		return secretKey.getEncoded();
 	}
 
 	/**
-	 * HmacSHA256ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacSHA256æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static byte[] hmacSHA256(byte[] data, byte[] key) throws Exception {
-		//¼ÓÈëBouncyCastleProviderµÄÖ§³Ö
+		//åŠ å…¥BouncyCastleProviderçš„æ”¯æŒ
 		Security.addProvider(new BouncyCastleProvider());
-		//»¹Ô­ÃÜÔ¿£¬ÒòÎªÃÜÔ¿ÊÇÒÔbyteĞÎÊ½ÎªÏûÏ¢´«µİËã·¨ËùÓµÓĞ
+		//è¿˜åŸå¯†é’¥ï¼Œå› ä¸ºå¯†é’¥æ˜¯ä»¥byteå½¢å¼ä¸ºæ¶ˆæ¯ä¼ é€’ç®—æ³•æ‰€æ‹¥æœ‰
 		SecretKey secretKey = new SecretKeySpec(key, HmacAlgorithmType.HMAC_SHA256.value);
-		//ÊµÀı»¯Mac
+		//å®ä¾‹åŒ–Mac
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
-		//³õÊ¼»¯Mac
+		//åˆå§‹åŒ–Mac
 		mac.init(secretKey);
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		return mac.doFinal(data);
 	}
 
 	/**
-	 * HmacSHA256ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return String ÏûÏ¢ÕªÒª Ê®Áù½øÖÆ×Ö·û´®
+	 * HmacSHA256æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return String æ¶ˆæ¯æ‘˜è¦ åå…­è¿›åˆ¶å­—ç¬¦ä¸²
 	 * */
 	public static String hmacSHA256Hex(byte[] data, byte[] key) throws Exception {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = hmacSHA256(data, key);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * ³õÊ¼»¯HmacSHA384µÄÃÜÔ¿
-	 * @return byte[] ÃÜÔ¿
+	 * åˆå§‹åŒ–HmacSHA384çš„å¯†é’¥
+	 * @return byte[] å¯†é’¥
 	 *
 	 * */
 	public static byte[] generateHmacSHA384Key() throws Exception {
 		Security.addProvider(new BouncyCastleProvider());
-		//³õÊ¼»¯KeyGenerator
+		//åˆå§‹åŒ–KeyGenerator
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(HmacAlgorithmType.HMAC_SHA384.value);
-		//²úÉúÃÜÔ¿
+		//äº§ç”Ÿå¯†é’¥
 		SecretKey secretKey = keyGenerator.generateKey();
-		//»ñÈ¡ÃÜÔ¿
+		//è·å–å¯†é’¥
 		return secretKey.getEncoded();
 	}
 
 	/**
-	 * HmacSHA384ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacSHA384æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static byte[] hmacSHA384(byte[] data, byte[] key) throws Exception {
 		Security.addProvider(new BouncyCastleProvider());
-		//»¹Ô­ÃÜÔ¿£¬ÒòÎªÃÜÔ¿ÊÇÒÔbyteĞÎÊ½ÎªÏûÏ¢´«µİËã·¨ËùÓµÓĞ
+		//è¿˜åŸå¯†é’¥ï¼Œå› ä¸ºå¯†é’¥æ˜¯ä»¥byteå½¢å¼ä¸ºæ¶ˆæ¯ä¼ é€’ç®—æ³•æ‰€æ‹¥æœ‰
 		SecretKey secretKey = new SecretKeySpec(key, HmacAlgorithmType.HMAC_SHA384.value);
-		//ÊµÀı»¯Mac
+		//å®ä¾‹åŒ–Mac
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
-		//³õÊ¼»¯Mac
+		//åˆå§‹åŒ–Mac
 		mac.init(secretKey);
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		return mac.doFinal(data);
 	}
 
 	/**
-	 * HmacSHA384ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return String ÏûÏ¢ÕªÒª Ê®Áù½øÖÆ×Ö·û´®
+	 * HmacSHA384æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return String æ¶ˆæ¯æ‘˜è¦ åå…­è¿›åˆ¶å­—ç¬¦ä¸²
 	 * */
 	public static String hmacSHA384Hex(byte[] data, byte[] key) throws Exception {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = hmacSHA384(data, key);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * ³õÊ¼»¯HmacSHA512µÄÃÜÔ¿
-	 * @return byte[] ÃÜÔ¿
-	 *
+	 * åˆå§‹åŒ–HmacSHA512çš„å¯†é’¥
+	 * @return byte[] å¯†é’¥
 	 * */
 	public static byte[] generateHmacSHA512Key() throws Exception {
-		//³õÊ¼»¯KeyGenerator
+		//åˆå§‹åŒ–KeyGenerator
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(HmacAlgorithmType.HMAC_SHA512.value);
-		//²úÉúÃÜÔ¿
+		//äº§ç”Ÿå¯†é’¥
 		SecretKey secretKey = keyGenerator.generateKey();
-		//»ñÈ¡ÃÜÔ¿
+		//è·å–å¯†é’¥
 		return secretKey.getEncoded();
 	}
 
 	/**
-	 * HmacSHA512ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacSHA512æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static byte[] hmacSHA512(byte[] data, byte[] key) throws Exception {
-		//»¹Ô­ÃÜÔ¿£¬ÒòÎªÃÜÔ¿ÊÇÒÔbyteĞÎÊ½ÎªÏûÏ¢´«µİËã·¨ËùÓµÓĞ
+		//è¿˜åŸå¯†é’¥ï¼Œå› ä¸ºå¯†é’¥æ˜¯ä»¥byteå½¢å¼ä¸ºæ¶ˆæ¯ä¼ é€’ç®—æ³•æ‰€æ‹¥æœ‰
 		SecretKey secretKey = new SecretKeySpec(key, HmacAlgorithmType.HMAC_SHA512.value);
-		//ÊµÀı»¯Mac
+		//å®ä¾‹åŒ–Mac
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
-		//³õÊ¼»¯Mac
+		//åˆå§‹åŒ–Mac
 		mac.init(secretKey);
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		return mac.doFinal(data);
 	}
 
 	/**
-	 * HmacSHA512ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return String ÏûÏ¢ÕªÒª Ê®Áù½øÖÆ×Ö·û´®
+	 * HmacSHA512æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return String æ¶ˆæ¯æ‘˜è¦ åå…­è¿›åˆ¶å­—ç¬¦ä¸²
 	 * */
 	public static String hmacSHA512Hex(byte[] data, byte[] key) throws Exception {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = hmacSHA512(data, key);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * ³õÊ¼»¯HmacMD2µÄÃÜÔ¿
-	 * @return byte[] ÃÜÔ¿
+	 * åˆå§‹åŒ–HmacMD2çš„å¯†é’¥
+	 * @return byte[] å¯†é’¥
 	 * */
 	public static byte[] generateHmacMD2Key() throws Exception {
 
-		//¼ÓÈëBouncyCastleProviderµÄÖ§³Ö
+		//åŠ å…¥BouncyCastleProviderçš„æ”¯æŒ
 		Security.addProvider(new BouncyCastleProvider());
-		//³õÊ¼»¯KeyGenerator
+		//åˆå§‹åŒ–KeyGenerator
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(HmacAlgorithmType.HMAC_MD2.value);
-		//²úÉúÃÜÔ¿
+		//äº§ç”Ÿå¯†é’¥
 		SecretKey secretKey = keyGenerator.generateKey();
-		//»ñÈ¡ÃÜÔ¿
+		//è·å–å¯†é’¥
 		return secretKey.getEncoded();
 	}
 
 	/**
-	 * HmacMD2ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacMD2æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static byte[] hmacMD2(byte[] data, byte[] key) throws Exception {
-		//¼ÓÈëBouncyCastleProviderµÄÖ§³Ö
+		//åŠ å…¥BouncyCastleProviderçš„æ”¯æŒ
 		Security.addProvider(new BouncyCastleProvider());
-		//»¹Ô­ÃÜÔ¿£¬ÒòÎªÃÜÔ¿ÊÇÒÔbyteĞÎÊ½ÎªÏûÏ¢´«µİËã·¨ËùÓµÓĞ
+		//è¿˜åŸå¯†é’¥ï¼Œå› ä¸ºå¯†é’¥æ˜¯ä»¥byteå½¢å¼ä¸ºæ¶ˆæ¯ä¼ é€’ç®—æ³•æ‰€æ‹¥æœ‰
 		SecretKey secretKey = new SecretKeySpec(key, HmacAlgorithmType.HMAC_MD2.value);
-		//ÊµÀı»¯Mac
+		//å®ä¾‹åŒ–Mac
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
-		//³õÊ¼»¯Mac
+		//åˆå§‹åŒ–Mac
 		mac.init(secretKey);
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		return mac.doFinal(data);
 	}
 
 	/**
-	 * HmacMD2ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return String ÏûÏ¢ÕªÒª Ê®Áù½øÖÆ×Ö·û´®
+	 * HmacMD2æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return String æ¶ˆæ¯æ‘˜è¦ åå…­è¿›åˆ¶å­—ç¬¦ä¸²
 	 * */
 	public static String hmacMD2Hex(byte[] data, byte[] key) throws Exception {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = hmacMD2(data, key);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 
 	/**
-	 * ³õÊ¼»¯HmacMD2µÄÃÜÔ¿
-	 * @return byte[] ÃÜÔ¿
+	 * åˆå§‹åŒ–HmacMD2çš„å¯†é’¥
+	 * @return byte[] å¯†é’¥
 	 * */
 	public static byte[] generateHmacMD4Key() throws Exception {
 
-		//¼ÓÈëBouncyCastleProviderµÄÖ§³Ö
+		//åŠ å…¥BouncyCastleProviderçš„æ”¯æŒ
 		Security.addProvider(new BouncyCastleProvider());
-		//³õÊ¼»¯KeyGenerator
+		//åˆå§‹åŒ–KeyGenerator
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(HmacAlgorithmType.HMAC_MD4.value);
-		//²úÉúÃÜÔ¿
+		//äº§ç”Ÿå¯†é’¥
 		SecretKey secretKey = keyGenerator.generateKey();
-		//»ñÈ¡ÃÜÔ¿
+		//è·å–å¯†é’¥
 		return secretKey.getEncoded();
 	}
 
 	/**
-	 * HmacMD4ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacMD4æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static byte[] hmacMD4(byte[] data, byte[] key) throws Exception {
-		//¼ÓÈëBouncyCastleProviderµÄÖ§³Ö
+		//åŠ å…¥BouncyCastleProviderçš„æ”¯æŒ
 		Security.addProvider(new BouncyCastleProvider());
-		//»¹Ô­ÃÜÔ¿£¬ÒòÎªÃÜÔ¿ÊÇÒÔbyteĞÎÊ½ÎªÏûÏ¢´«µİËã·¨ËùÓµÓĞ
+		//è¿˜åŸå¯†é’¥ï¼Œå› ä¸ºå¯†é’¥æ˜¯ä»¥byteå½¢å¼ä¸ºæ¶ˆæ¯ä¼ é€’ç®—æ³•æ‰€æ‹¥æœ‰
 		SecretKey secretKey = new SecretKeySpec(key, HmacAlgorithmType.HMAC_MD4.value);
-		//ÊµÀı»¯Mac
+		//å®ä¾‹åŒ–Mac
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
-		//³õÊ¼»¯Mac
+		//åˆå§‹åŒ–Mac
 		mac.init(secretKey);
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		return mac.doFinal(data);
 	}
 
 	/**
-	 * HmacMD4HexÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÏûÏ¢ÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacMD4Hexæ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ¶ˆæ¯æ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static String hmacMD4Hex(byte[] data, byte[] key) throws Exception {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = hmacMD4(data, key);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * ³õÊ¼»¯HmacSHA224µÄÃÜÔ¿
-	 * @return byte[] ÃÜÔ¿
+	 * åˆå§‹åŒ–HmacSHA224çš„å¯†é’¥
+	 * @return byte[] å¯†é’¥
 	 * */
 	public static byte[] generateHmacSHA224Key() throws Exception {
 
-		//¼ÓÈëBouncyCastleProviderµÄÖ§³Ö
+		//åŠ å…¥BouncyCastleProviderçš„æ”¯æŒ
 		Security.addProvider(new BouncyCastleProvider());
-		//³õÊ¼»¯KeyGenerator
+		//åˆå§‹åŒ–KeyGenerator
 		KeyGenerator keyGenerator = KeyGenerator.getInstance(HmacAlgorithmType.HMAC_SHA224.value);
-		//²úÉúÃÜÔ¿
+		//äº§ç”Ÿå¯†é’¥
 		SecretKey secretKey = keyGenerator.generateKey();
-		//»ñÈ¡ÃÜÔ¿
+		//è·å–å¯†é’¥
 		return secretKey.getEncoded();
 	}
 
 	/**
-	 * HmacSHA224ÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacSHA224æ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static byte[] hmacSHA224(byte[] data, byte[] key) throws Exception {
-		//¼ÓÈëBouncyCastleProviderµÄÖ§³Ö
+		//åŠ å…¥BouncyCastleProviderçš„æ”¯æŒ
 		Security.addProvider(new BouncyCastleProvider());
-		//»¹Ô­ÃÜÔ¿£¬ÒòÎªÃÜÔ¿ÊÇÒÔbyteĞÎÊ½ÎªÏûÏ¢´«µİËã·¨ËùÓµÓĞ
+		//è¿˜åŸå¯†é’¥ï¼Œå› ä¸ºå¯†é’¥æ˜¯ä»¥byteå½¢å¼ä¸ºæ¶ˆæ¯ä¼ é€’ç®—æ³•æ‰€æ‹¥æœ‰
 		SecretKey secretKey = new SecretKeySpec(key, HmacAlgorithmType.HMAC_SHA224.value);
-		//ÊµÀı»¯Mac
+		//å®ä¾‹åŒ–Mac
 		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
-		//³õÊ¼»¯Mac
+		//åˆå§‹åŒ–Mac
 		mac.init(secretKey);
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		return mac.doFinal(data);
 	}
 
 	/**
-	 * HmacSHA224HexÏûÏ¢ÕªÒª
-	 * @param data ´ı×öÏûÏ¢ÕªÒª´¦ÀíµÄÊı¾İ
-	 * @param key ÃÜÔ¿
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * HmacSHA224Hexæ¶ˆæ¯æ‘˜è¦
+	 * @param data å¾…åšæ¶ˆæ¯æ‘˜è¦å¤„ç†çš„æ•°æ®
+	 * @param key å¯†é’¥
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 * */
 	public static String hmacSHA224Hex(byte[] data, byte[] key) throws Exception {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = hmacSHA224(data, key);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * sha224 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * sha224 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static byte[] sha224(@NotNull byte[] data) {
 		SHA224Digest dis244 = new SHA224Digest();
@@ -429,21 +409,21 @@ public class DigestUtils {
 	}
 
 	/**
-	 * sha224 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return String ÏûÏ¢ÕªÒª
+	 * sha224 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return String æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static String sha224Hex(@NotNull byte[] data) {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = sha224(data);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * sha256 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * sha256 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static byte[] sha256(@NotNull byte[] data) {
 		SHA256Digest dis256 = new SHA256Digest();
@@ -454,21 +434,21 @@ public class DigestUtils {
 	}
 
 	/**
-	 * sha256 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return String ÏûÏ¢ÕªÒª
+	 * sha256 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return String æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static String sha256Hex(@NotNull byte[] data) {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = sha256(data);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * sha384 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * sha384 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static byte[] sha384(@NotNull byte[] data) {
 		SHA384Digest dis384 = new SHA384Digest();
@@ -479,21 +459,21 @@ public class DigestUtils {
 	}
 
 	/**
-	 * sha384 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return String ÏûÏ¢ÕªÒª
+	 * sha384 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return String æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static String sha384Hex(@NotNull byte[] data) {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = sha384(data);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * sha512 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * sha512 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static byte[] sha512(@NotNull byte[] data) {
 		SHA512Digest dis512 = new SHA512Digest();
@@ -504,21 +484,21 @@ public class DigestUtils {
 	}
 
 	/**
-	 * sha512 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return String ÏûÏ¢ÕªÒª
+	 * sha512 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return String æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static String sha512Hex(@NotNull byte[] data) {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = sha512(data);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * sha1 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * sha1 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static byte[] sha1(@NotNull byte[] data) {
 		SHA1Digest dis1 = new SHA1Digest();
@@ -529,21 +509,21 @@ public class DigestUtils {
 	}
 
 	/**
-	 * sha1 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return String ÏûÏ¢ÕªÒª
+	 * sha1 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return String æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static String sha1Hex(@NotNull byte[] data) {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = sha1(data);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * md2 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * md2 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static byte[] md2(@NotNull byte[] data) {
 		MD2Digest md2 = new MD2Digest();
@@ -554,21 +534,21 @@ public class DigestUtils {
 	}
 
 	/**
-	 * md2 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return String ÏûÏ¢ÕªÒª
+	 * md2 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return String æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static String md2Hex(@NotNull byte[] data) {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = md2(data);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * md4 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * md4 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static byte[] md4(@NotNull byte[] data) {
 		MD4Digest md4 = new MD4Digest();
@@ -579,21 +559,21 @@ public class DigestUtils {
 	}
 
 	/**
-	 * md4 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return String ÏûÏ¢ÕªÒª
+	 * md4 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return String æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static String md4Hex(@NotNull byte[] data) {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = md4(data);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 
 	/**
-	 * md5 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return byte[] ÏûÏ¢ÕªÒª
+	 * md5 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return byte[] æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static byte[] md5(@NotNull byte[] data) {
 		MD5Digest md5 = new MD5Digest();
@@ -604,14 +584,14 @@ public class DigestUtils {
 	}
 
 	/**
-	 * md5 ÕªÒª¼ÆËã
-	 * @param data
-	 * @return String ÏûÏ¢ÕªÒª
+	 * md5 æ‘˜è¦è®¡ç®—
+	 * @param data è®¡ç®—åŸæ–‡
+	 * @return String æ¶ˆæ¯æ‘˜è¦
 	 */
 	public static String md5Hex(@NotNull byte[] data) {
-		//Ö´ĞĞÏûÏ¢ÕªÒª´¦Àí
+		//æ‰§è¡Œæ¶ˆæ¯æ‘˜è¦å¤„ç†
 		byte[] b = md5(data);
-		//×öÊ®Áù½øÖÆ×ª»»
+		//åšåå…­è¿›åˆ¶è½¬æ¢
 		return new String(Hex.encode(b));
 	}
 }
