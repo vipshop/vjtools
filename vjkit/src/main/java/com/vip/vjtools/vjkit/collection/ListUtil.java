@@ -3,10 +3,12 @@ package com.vip.vjtools.vjkit.collection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.collect.Lists;
@@ -63,9 +65,10 @@ public class ListUtil {
 	///////////////// from Guava的构造函数///////////////////
 	/**
 	 * 根据等号左边的类型，构造类型正确的ArrayList.
-	 * 
-	 * @see com.google.common.collect.Lists#newArrayList()
+	 *
+	 * @deprecated JDK7开始已经简化 
 	 */
+	@Deprecated
 	public static <T> ArrayList<T> newArrayList() {
 		return new ArrayList<T>();
 	}
@@ -100,8 +103,9 @@ public class ListUtil {
 	/**
 	 * 根据等号左边的类型，构造类型正确的LinkedList.
 	 * 
-	 * @see com.google.common.collect.Lists#newLinkedList()
+	 * @deprecated JDK7开始已经简化 
 	 */
+	@Deprecated
 	public static <T> LinkedList<T> newLinkedList() {
 		return new LinkedList<T>();
 	}
@@ -118,8 +122,9 @@ public class ListUtil {
 	/**
 	 * 根据等号左边的类型，构造类型正确的CopyOnWriteArrayList.
 	 * 
-	 * @see com.google.common.collect.Lists#newCopyOnWriteArrayList()
+	 * @deprecated JDK7开始已经简化 
 	 */
+	@Deprecated
 	public static <T> CopyOnWriteArrayList<T> newCopyOnWriteArrayList() {
 		return new CopyOnWriteArrayList<T>();
 	}
@@ -284,6 +289,50 @@ public class ListUtil {
 	public static <T> List<List<T>> partition(List<T> list, int size) {
 		return Lists.partition(list, size);
 	}
+
+	///////////////// 其他处理函数 ///////////////
+
+	/**
+	 * 清理掉List中的Null对象
+	 */
+	public static <T> void notNullList(List<T> list) {
+		if (isEmpty(list)) {
+			return;
+		}
+
+		Iterator<T> ite = list.iterator();
+		while (ite.hasNext()) {
+			T obj = ite.next();
+			// 清理掉null的集合
+			if (null == obj) {
+				ite.remove();
+			}
+		}
+	}
+
+	public static <T> void uniqueNotNullList(List<T> list) {
+		if (isEmpty(list)) {
+			return;
+		}
+		Iterator<T> ite = list.iterator();
+		Set<T> set = new HashSet<>((int) (list.size() / 0.75F + 1.0F));
+
+		while (ite.hasNext()) {
+			T obj = ite.next();
+			// 清理掉null的集合
+			if (null == obj) {
+				ite.remove();
+				continue;
+			}
+			// 清理掉重复的集合
+			if (set.contains(obj)) {
+				ite.remove();
+				continue;
+			}
+			set.add(obj);
+		}
+	}
+
 
 	///////////////// 集合运算 ///////////////////
 
