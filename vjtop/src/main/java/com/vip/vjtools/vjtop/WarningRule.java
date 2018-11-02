@@ -5,11 +5,11 @@ import com.vip.vjtools.vjtop.util.Formats;
 public class WarningRule {
 
 	public DoubleWarning cpu = new DoubleWarning(50d, 70d);
-	public DoubleWarning syscpu = new DoubleWarning(30d, 50d);
+
 	public LongWarning swap = new LongWarning(1, 1);
 	public LongWarning thread = new LongWarning();
 	public LongWarning newThread = new LongWarning();
-	public LongWarning io = new LongWarning(30 * Formats.MB_SIZE, 100 * Formats.MB_SIZE);
+	public LongWarning io = new LongWarning(100 * Formats.MB_SIZE, Long.MAX_VALUE);
 
 	public LongWarning loadClass = new LongWarning(80000, 150000);
 	public LongWarning newClass = new LongWarning(1, Long.MAX_VALUE);
