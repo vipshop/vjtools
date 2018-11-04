@@ -61,7 +61,7 @@ public class SurvivorAccessor {
 		// 记录分年龄统计
 		long[] ageSize = new long[50];
 		int[] ageCount = new int[50];
-		int maxAge = minAge;
+		int maxAge = 1;
 
 		// 遍历Survivor区
 		OopHandle handle = fromBottom.addOffsetToAsOopHandle(0);
@@ -107,7 +107,7 @@ public class SurvivorAccessor {
 
 		tty.printf("%n#age    #count  #bytes%n");
 
-		for (int i = 1; i <= maxAge; i++) {
+		for (int i = 0; i <= maxAge; i++) {
 			tty.printf("%3d: %9d %7s%n", i, ageCount[i], FormatUtils.toFloatUnit(ageSize[i]));
 		}
 

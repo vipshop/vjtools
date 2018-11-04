@@ -262,7 +262,7 @@ public class VMDetailView {
 
 		// 打印线程view的页头
 		String titleFormat = "%n %6s %-" + getThreadNameWidth() + "s %10s %6s %6s %6s %6s%n";
-		String dataFormat = " %6d %-" + getThreadNameWidth() + "s %10s %s%5.2f%%%s %s%5.2f%%%s %5.2f%% %5.2f%%%n";
+		String dataFormat = " %6d %-" + getThreadNameWidth() + "s %10s %5.2f%% %5.2f%% %5.2f%% %5.2f%%%n";
 		String dataFormatAsText = "thread-%d:%s %s %.2f %.2f %.2f %.2f%n";
 		if (console) {
 			System.out.printf(titleFormat, "TID", "NAME  ", "STATE", "CPU", "SYSCPU", " TOTAL", "TOLSYS");
@@ -297,13 +297,9 @@ public class VMDetailView {
 					1);
 
 			if (console) {
-				String[] cpuAnsi = Formats.colorAnsi(cpu, warning.cpu);
-
-				String[] syscpuAnsi = Formats.colorAnsi(syscpu, warning.syscpu);
 
 				System.out.printf(dataFormat, tid, threadName, Formats.leftStr(info.getThreadState().toString(), 10),
-						cpuAnsi[0], cpu, cpuAnsi[1], syscpuAnsi[0], syscpu, syscpuAnsi[1], totalcpuPercent,
-						totalsysPercent);
+						cpu, syscpu, totalcpuPercent, totalsysPercent);
 			} else {
 				System.out.printf(dataFormatAsText, tid, threadName, info.getThreadState().toString(), cpu, syscpu,
 						totalcpuPercent, totalsysPercent);
