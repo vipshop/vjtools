@@ -65,14 +65,14 @@ vjtop运行所需权限与jstak相同，必须与目标JVM使用相同的JDK版�
 // 按时间区间内，线程占用的CPU排序，默认显示前10的线程，默认每10秒打印一次
 ./vjtop.sh <PID>
 
-// 按线程从启动以来的总占用CPU来排序
-./vjtop.sh --totalcpu <PID>
-
 // 按时间区间内，线程占用的SYS CPU排序
-./vjtop.sh --syscpu <PID>
+./vjtop.sh -m 2 <PID>
+
+// 按线程从启动以来的总占用CPU来排序
+./vjtop.sh -m 3 <PID>
 
 // 按线程从启动以来的总SYS CPU排序
-./vjtop.sh --totalsyscpu <PID>
+./vjtop.sh -m 4 <PID>
 ```
 
 ### 2.3.2 输出示例：
@@ -142,10 +142,10 @@ vjtop运行所需权限与jstak相同，必须与目标JVM使用相同的JDK版�
 
 ```
 // 线程分配内存的速度排序，默认显示前10的线程，默认每10秒打印一次
-./vjtop.sh --memory <PID>
+./vjtop.sh -m 5 <PID>
 
 // 按线程的总内存分配而不是打印间隔内的内存分配来排序
-./vjtop.sh --totalmemory <PID>
+./vjtop.sh -m 6 <PID>
 ```
 
 ### 2.4.2 输出示例
@@ -223,6 +223,9 @@ vjtop运行所需权限与jstak相同，必须与目标JVM使用相同的JDK版�
 ```
 
 4. 打印所有线程的TID和线程名
+
+不引入暂停
+
 ```
 Thread Id and name of all live threads:
  16	: "JMX server connection timeout 16" (TIMED_WAITING)
@@ -283,6 +286,9 @@ Thread Id and name of all live threads:
 // 打印20次后退出
 ./vjtop.sh -n 20 <PID>
 
+// 显示前100的线程（默认10）
+./vjtop.sh -l 100 <PID>
+
 // 不带变色与换页控制码的console模式，适合不支持控制码的终端。在Windows及输出到文件时将默认使用次此模式(1.0.6)
 ./vjtop.sh -o clean <PID>
 
@@ -301,8 +307,6 @@ Thread Id and name of all live threads:
 // 只显示线程名包含worker字样的线程，在热点线程与实时交互打印线程时都会过滤（1.0.6版开始忽略大小写）
 ./vjtop.sh -f worker <PID>
 
-// 显示前20的线程（默认10）
-./vjtop.sh -l 20 <PID>
 
 // 更宽的120字节的屏幕 （默认100）
 ./vjtop.sh -w 120 <PID> > /tmp/vjtop.log

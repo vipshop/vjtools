@@ -623,22 +623,11 @@ public class VMDetailView {
 			this.isCpuMode = isCpuMode;
 		}
 
-		public static ThreadInfoMode parse(String mode) {
-			switch (mode) {
-				case "1":
-					return cpu;
-				case "2":
-					return syscpu;
-				case "3":
-					return totalcpu;
-				case "4":
-					return totalsyscpu;
-				case "5":
-					return memory;
-				case "6":
-					return totalmemory;
-				default:
-					return null;
+		public static ThreadInfoMode parse(String value) {
+			try {
+				return ThreadInfoMode.valueOf(value);
+			} catch (IllegalArgumentException e) {
+				return null;
 			}
 		}
 	}

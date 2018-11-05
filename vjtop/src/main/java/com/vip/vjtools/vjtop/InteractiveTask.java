@@ -139,12 +139,11 @@ public class InteractiveTask implements Runnable {
 	private void changeDisplayMode() {
 		app.preventFlush();
 
-		String mode = readLine(
-				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory, current "
-						+ app.view.threadInfoMode + "): ");
-		ThreadInfoMode detailMode = ThreadInfoMode.parse(mode);
+		String mode = readLine(" Input Display Mode(cpu, syscpu, totalcpu, totalsyscpu, memory, totalmemory, current "
+				+ app.view.threadInfoMode + "): ");
+		ThreadInfoMode detailMode = ThreadInfoMode.valueOf(mode);
 		if (detailMode == null) {
-			tty.println(" Wrong option for display mode(1-6)");
+			tty.println(" Wrong option for display mode");
 		} else if (detailMode == app.view.threadInfoMode) {
 			tty.println(" Nothing be changed");
 		} else {
