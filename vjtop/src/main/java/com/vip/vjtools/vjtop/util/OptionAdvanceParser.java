@@ -65,10 +65,6 @@ public class OptionAdvanceParser {
 		if (optionSet.hasArgument("mode")) {
 			String mode = (String) optionSet.valueOf("mode");
 			threadInfoMode = ThreadInfoMode.parse(mode);
-			if (threadInfoMode == null) {
-				throw new IllegalArgumentException(
-						"wrong option of thread info mode(cpu,syscpu,totalcpu,totalsyscpu,memory,totalmemory)");
-			}
 		}
 		return threadInfoMode;
 	}
