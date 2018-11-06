@@ -97,7 +97,7 @@ public class InteractiveTask implements Runnable {
 
 		try {
 			long pid = Long.parseLong(pidStr);
-			app.view.printStack(pid);
+			app.view.threadPrinter.printStack(pid);
 			waitForEnter();
 		} catch (NumberFormatException e) {
 			tty.println(" Wrong number format for pid");
@@ -109,7 +109,7 @@ public class InteractiveTask implements Runnable {
 	private void printTopThreadsStack() throws IOException {
 		try {
 			app.preventFlush();
-			app.view.printTopStack();
+			app.view.threadPrinter.printTopStack();
 			waitForEnter();
 		} finally {
 			app.continueFlush();
@@ -119,7 +119,7 @@ public class InteractiveTask implements Runnable {
 	private void printAllThreadsName() throws IOException {
 		try {
 			app.preventFlush();
-			app.view.printAllThreads();
+			app.view.threadPrinter.printAllThreads();
 			waitForEnter();
 		} finally {
 			app.continueFlush();
@@ -129,7 +129,7 @@ public class InteractiveTask implements Runnable {
 	private void printBlockedThreadsStack() throws IOException {
 		try {
 			app.preventFlush();
-			app.view.printBlockedThreads();
+			app.view.threadPrinter.printBlockedThreads();
 			waitForEnter();
 		} finally {
 			app.continueFlush();

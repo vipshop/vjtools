@@ -106,7 +106,7 @@ public class OptionAdvanceParser {
 				.withRequiredArg().ofType(String.class);
 
 		parser.acceptsAll(Arrays.asList("c", "content"),
-				"output format: \n"
+				"output content: \n"
 						+ " all(default): jvm info and theads info\n jvm: only jvm info\n thread: only thread info\n")
 				.withRequiredArg().ofType(String.class);
 
