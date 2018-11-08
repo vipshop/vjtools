@@ -29,7 +29,6 @@ public class InteractiveTask implements Runnable {
 	public void run() {
 		// background执行时，console为Null
 		if (console == null) {
-
 			return;
 		}
 

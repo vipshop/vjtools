@@ -1,6 +1,7 @@
 package com.vip.vjtools.vjtop;
 
 import java.io.IOException;
+import java.lang.Thread.State;
 import java.lang.management.LockInfo;
 import java.lang.management.ThreadInfo;
 
@@ -91,6 +92,8 @@ public class ThreadPrinter {
 	 * 打印所有线程，只获取名称不获取stack，不造成停顿
 	 */
 	public void printAllThreads() throws IOException {
+		int[] stateCounter = new int[6];
+
 		System.out.println("\n Thread Id and name of all live threads:");
 
 		long tids[] = view.vmInfo.getAllThreadIds();
@@ -106,7 +109,14 @@ public class ThreadPrinter {
 			}
 			System.out.println(
 					" " + info.getThreadId() + "\t: \"" + threadName + "\" (" + info.getThreadState().toString() + ")");
+			stateCounter[info.getThreadState().ordinal()]++;
 		}
+
+		StringBuilder statesSummary = new StringBuilder(" Summary: ");
+		for (State state : State.values()) {
+			statesSummary.append(state.toString()).append(':').append(stateCounter[state.ordinal()]).append("  ");
+		}
+		System.out.println(statesSummary.append("\n").toString());
 
 		if (view.threadNameFilter != null) {
 			System.out.println(" Thread name filter is:" + view.threadNameFilter);
