@@ -28,7 +28,7 @@ public class SurvivorAccessor {
 
 	private PrintStream tty = System.out;
 
-	public List<ClassStats> caculateHistogram(int minAge) {
+	public List<ClassStats> caculateHistogram(int excactAge, int minAge) {
 		HashMap<Klass, ClassStats> classStatsMap = new HashMap<>(2048, 0.2f);
 		CollectedHeap heap = HeapUtils.getHeap();
 		ObjectHeap objectHeap = HeapUtils.getObjectHeap();
@@ -96,7 +96,13 @@ public class SurvivorAccessor {
 				maxAge = age;
 			}
 
-			if (age < minAge) {
+			// 如果设定了精确匹配age
+			if (excactAge != -1) {
+				if (age != excactAge) {
+					continue;
+				}
+			} else if (age < minAge) {
+				// 否则判断age>=minAge
 				continue;
 			}
 

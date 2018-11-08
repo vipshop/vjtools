@@ -37,11 +37,11 @@ public class VJMap {
 		resultPrinter.printAllGens(tty, list, orderByName, minSize);
 	}
 
-	public static void runSurviorAccessor(int minAge, boolean orderByName, long minSize) {
+	public static void runSurviorAccessor(int age, int minAge, boolean orderByName, long minSize) {
 		SurvivorAccessor accessor = new SurvivorAccessor();
 
 		tty.println("Iterating over survivor area. This may take a while...");
-		List<ClassStats> list = accessor.caculateHistogram(minAge);
+		List<ClassStats> list = accessor.caculateHistogram(age, minAge);
 
 		ResultPrinter resultPrinter = new ResultPrinter();
 		resultPrinter.printSurvivor(tty, list, orderByName, minSize, minAge);
@@ -70,7 +70,8 @@ public class VJMap {
 	public static void main(String[] args) {
 		boolean orderByName = false;
 		long minSize = -1;
-		int minAge = 3;
+		int minAge = 2;
+		int age = -1;
 		boolean live = false;
 		// boolean dead = false;
 		if (!(args.length == 2 || args.length == 3)) {
@@ -100,7 +101,14 @@ public class VJMap {
 						return;
 					}
 					minAge = Integer.parseInt(values[1]);
-				}  else if (addtionalFlag.toLowerCase().startsWith("live")) {
+				} else if (addtionalFlag.toLowerCase().startsWith("age")) {
+					String[] values = addtionalFlag.split("=");
+					if (values.length == 1) {
+						tty.println("parameter " + addtionalFlag + " is wrong");
+						return;
+					}
+					age = Integer.parseInt(values[1]);
+				} else if (addtionalFlag.toLowerCase().startsWith("live")) {
 					live = true;
 				}
 			}
@@ -116,16 +124,16 @@ public class VJMap {
 			coredumpPath = args[2];
 		}
 
-		if(live) {
-			if(pid == null) {
+		if (live) {
+			if (pid == null) {
 				tty.println("only a running vm can be attached when live option is on");
 				return;
 			}
 			triggerGc(pid);
 		}
-		
+
 		HotSpotAgent agent = new HotSpotAgent();
-		
+
 		try {
 			if (args.length == 2) {
 				agent.attach(pid);
@@ -136,7 +144,7 @@ public class VJMap {
 			if (modeFlag.startsWith("-all")) {
 				runHeapVisitor(pid, orderByName, minSize);
 			} else if (modeFlag.startsWith("-sur")) {
-				runSurviorAccessor(minAge, orderByName, minSize);
+				runSurviorAccessor(age, minAge, orderByName, minSize);
 			} else if (modeFlag.startsWith("-old")) {
 				runOldGenAccessor(orderByName, minSize);
 			} else if (modeFlag.startsWith("-address")) {
@@ -218,8 +226,9 @@ public class VJMap {
 		tty.printf(format, "-old:minsize=1024,byname",
 				"print oldgen histogram, oldgen size>=1024, order by class name");
 
-		tty.printf(format, "-sur", "print survivor histogram, age>=3");
-		tty.printf(format, "-sur:minage=4", "print survivor histogram, age>=4");
+		tty.printf(format, "-sur", "print survivor histogram, age>=2");
+		tty.printf(format, "-sur:age=4", "print survivor histogram, age==4");
+		tty.printf(format, "-sur:minage=4", "print survivor histogram, age>=4, default is 2");
 		tty.printf(format, "-sur:minsize=1024,byname",
 				"print survivor histogram, age>=3, survivor size>=1024, order by class name");
 		tty.printf(format, "-address", "print address for all gens");
