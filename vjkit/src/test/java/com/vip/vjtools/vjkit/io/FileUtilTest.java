@@ -253,4 +253,11 @@ public class FileUtilTest {
 		assertThat(FileUtil.isDirExists(dir.toString())).isTrue();
 		assertThat(FileUtil.isDirExists(dir.toFile())).isTrue();
 	}
+
+	@Test
+	public void forceTouchTest() throws IOException {
+		
+//		File file =FileUtil.forceTouch("/apps/test/logs/xxxx23/test.log");
+//		assertThat(FileUtil.isDirExists(new File(file.getParent()))).isTrue();
+	}
 }

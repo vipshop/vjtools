@@ -1,5 +1,9 @@
 package com.vip.vjtools.vjkit.number;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
@@ -329,5 +333,138 @@ public class NumberUtil {
 			return (int) x;
 		}
 		throw new IllegalArgumentException("Int " + x + " out of range");
+	}
+
+	/**
+	 * 人民币金额单位转换，分转换成元，例如：100 => 1
+	 * 取两位小数,四舍五入
+	 * @param num
+	 * @return
+	 */
+	public static BigDecimal fen2yuan(BigDecimal num) {
+		return num.divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * 人民币金额单位转换，分转换成元，例如：100 => 1
+	 * 取两位小数,四舍五入
+	 * @param num
+	 * @return
+	 */
+	public static BigDecimal fen2yuan(long num) {
+		return fen2yuan(new BigDecimal(num));
+	}
+
+	/**
+	 * 人民币金额单位转换，分转换成元，例如：100 => 1
+	 * 取两位小数,四舍五入
+	 * @param num
+	 * @return
+	 */
+	public static BigDecimal fen2yuan(String num) {
+		if (StringUtils.isEmpty(num)) {
+			num = "0";
+		}
+		return fen2yuan(new BigDecimal(num));
+	}
+
+	/**
+	 * 人民币金额单位转换，元转换成分，例如：1 => 100
+	 * @param y
+	 * @return
+	 */
+	public static BigDecimal yuan2fen(String y) {
+		return new BigDecimal(Math.round(new BigDecimal(y).multiply(new BigDecimal(100)).doubleValue()));
+	}
+
+	/**
+	 * 人民币金额单位转换，元转换成分，例如：1 => 100
+	 * @param y
+	 * @return
+	 */
+	public static BigDecimal yuan2fen(double y) {
+		return yuan2fen(String.valueOf(y));
+	}
+
+	/**
+	 * 人民币金额单位转换，元转换成分，例如：1 => 100
+	 * @param y
+	 * @return
+	 */
+	public static BigDecimal yuan2fen(BigDecimal y) {
+		if (y != null) {
+			return yuan2fen(y.toString());
+		} else {
+			return new BigDecimal(0);
+		}
+	}
+
+	/**
+	 * 格式化金额，例如：1=>1.00
+	 * 输出字符串
+	 * @param number
+	 * @return
+	 */
+	public static String formatNumber(BigDecimal number) {
+		return formatNumber(number.doubleValue());
+	}
+
+	/**
+	 * 格式化金额，例如：1=>1.00
+	 * 输出字符串
+	 * 默认格式：00.0
+	 * @param number
+	 * @return
+	 */
+	public static String formatNumber(double number) {
+		DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance();
+		df.applyPattern("0.00");
+		return df.format(number);
+	}
+
+	/**
+	 * 格式化金额，例如：1=>1.00
+	 * 输出字符串
+	 * 例如：pattern 等于 #,##0.00，输入： 33999999932.3333d 输出：33,999,999,932.33
+	 * @param number 金额
+	 * @param pattern 输出字符串金额格式 ，如：#,##0.00
+	 * @return
+	 */
+	public static String formatNumber(BigDecimal number, String pattern) {
+		return formatNumber(number.doubleValue(), pattern);
+	}
+
+	/**
+	 * 格式化金额，例如：1=>1.00
+	 * 输出字符串
+	 * 例如：pattern 等于 #,##0.00，输入： 33999999932.3333d 输出：33,999,999,932.33
+	 * @param number 金额
+	 * @param pattern 输出字符串金额格式 ，如：#,##0.00
+	 * @return
+	 */
+	public static String formatNumber(double number, String pattern) {
+		DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance();
+		if (StringUtils.isEmpty(pattern)) {
+			pattern = "#,##0.00";
+		}
+		df.applyPattern(pattern);
+		return df.format(number);
+	}
+
+	/**
+	 * 格式化金额，例如：1=>1.00
+	 * 输出字符串
+	 * 例如：pattern 等于 #,##0.00，输入： 33999999932.3333d 输出：33,999,999,932.33
+	 * @param numberStr 金额字符串，如：33,999,999,932.33
+	 * @param pattern 输出字符串金额格式 ，如：#,##0.00
+	 * @return
+	 */
+	public static BigDecimal parseString(String numberStr, String pattern) throws ParseException {
+		DecimalFormat df = (DecimalFormat) DecimalFormat.getInstance();
+		if (StringUtils.isEmpty(pattern)) {
+			pattern = "#,##0.00";
+		}
+		df.applyPattern(pattern);
+		return new BigDecimal(df.parse(numberStr).doubleValue());
 	}
 }

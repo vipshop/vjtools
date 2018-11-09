@@ -1,13 +1,6 @@
 package com.vip.vjtools.vjkit.io;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -141,5 +134,15 @@ public class IOUtil {
 
 	public static BufferedReader toBufferedReader(final Reader reader) {
 		return reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader);
+	}
+
+	/**
+	 * 字符串转换成输入流
+	 * @param input 输入字符串
+	 * @return InputStream 输入流
+	 */
+	public static InputStream toInputStream(String input) {
+		byte[] bytes = input.getBytes();
+		return new ByteArrayInputStream(bytes);
 	}
 }

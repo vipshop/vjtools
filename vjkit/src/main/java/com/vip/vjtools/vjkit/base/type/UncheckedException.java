@@ -12,6 +12,9 @@ public class UncheckedException extends RuntimeException {
 	public UncheckedException(Throwable wrapped) {
 		super(wrapped);
 	}
+	public UncheckedException(String message) {
+		super(message);
+	}
 
 	@Override
 	public String getMessage() {
