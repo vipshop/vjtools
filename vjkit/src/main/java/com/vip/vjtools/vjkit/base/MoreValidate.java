@@ -10,7 +10,7 @@ import com.vip.vjtools.vjkit.base.annotation.Nullable;
  * 目前主要参考 {@code com.google.common.math.MathPreconditions} , 补充数字为正数或非负数的校验
  * 
  */
-public class MoreValidate {
+public class MoreValidate extends org.apache.commons.lang3.Validate {
 
 	/**
 	 * 校验为正数则返回该数字，否则抛出异常.

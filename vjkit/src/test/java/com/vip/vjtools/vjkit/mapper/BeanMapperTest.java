@@ -3,11 +3,11 @@ package com.vip.vjtools.vjkit.mapper;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
 import com.vip.vjtools.vjkit.collection.ListUtil;
-import com.vip.vjtools.vjkit.mapper.BeanMapper;
 
 public class BeanMapperTest {
 
@@ -57,6 +57,18 @@ public class BeanMapperTest {
 		assertThat(studentVo.getTeacher().getName()).isEqualTo("li4");
 		assertThat(studentVo.getCourse()).containsExactly("chinese", "english");
 
+	}
+
+	@Test
+	public void copy2Map() {
+		Teacher teacher = new Teacher("zhang");
+		Map map = BeanMapper.map(teacher, Map.class);
+		assertThat(map).containsKeys("name").containsValues("zhang");
+
+		Student student = new Student("zhang3", 20, new Teacher("li4"), ListUtil.newArrayList("chinese", "english"));
+		Map mapStu = BeanMapper.map(student, Map.class);
+		assertThat(mapStu.containsKey("teacher"));
+		assertThat(mapStu.get("teacher")).hasFieldOrProperty("name");
 	}
 
 	public static class Student {

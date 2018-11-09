@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
-public class BeanUtilTest {
+public class BooleanUtilTest {
 
 	@Test
 	public void test() {

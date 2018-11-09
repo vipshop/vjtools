@@ -107,6 +107,7 @@ public class JsonMapperTest {
 		String nullBeanString = JsonMapper.INSTANCE.toJson(nullBean);
 		assertThat(nullBeanString).isEqualTo("null");
 
+
 		// Empty List
 		List<String> emptyList = Lists.newArrayList();
 		String emptyListString = JsonMapper.INSTANCE.toJson(emptyList);
@@ -120,6 +121,14 @@ public class JsonMapperTest {
 
 		nullBeanResult = JsonMapper.INSTANCE.fromJson("null", TestBean.class);
 		assertThat(nullBeanResult).isNull();
+
+		nullBeanResult = JsonMapper.INSTANCE.fromJson("", TestBean.class);
+		assertThat(nullBeanResult).isNull();
+
+		nullBeanResult = JsonMapper.INSTANCE.fromJson("{}", TestBean.class);
+		assertThat(nullBeanResult).isNotNull();
+		assertThat(nullBeanResult.getDefaultValue()).isEqualTo("hello");
+
 
 		// Null/Empty String for List
 		List nullListResult = JsonMapper.INSTANCE.fromJson(null, List.class);
