@@ -11,15 +11,15 @@ public class PerformanceUtilsTest {
 
 	@Test
 	public void test() throws InterruptedException {
-		PerformanceUtils.start();
-		PerformanceUtils.start("test");
+		PerformanceUtil.start();
+		PerformanceUtil.start("test");
 		Thread.sleep(1000L);// NOSONAR
-		System.out.println(Thread.currentThread().getName() + " time cost: " + PerformanceUtils.duration() + "ms");
-		PerformanceUtils.end();
-		PerformanceUtils.warn(logger, 0L);
-		PerformanceUtils.end("test");
-		System.out.println(Thread.currentThread().getName() + " time cost: " + PerformanceUtils.duration() + "ms");
-		PerformanceUtils.warn(logger, "test", 0L);
+		System.out.println(Thread.currentThread().getName() + " time cost: " + PerformanceUtil.duration() + "ms");
+		PerformanceUtil.end();
+		PerformanceUtil.warn(logger, 0L);
+		PerformanceUtil.end("test");
+		System.out.println(Thread.currentThread().getName() + " time cost: " + PerformanceUtil.duration() + "ms");
+		PerformanceUtil.warn(logger, "test", 0L);
 	}
 	
 }
