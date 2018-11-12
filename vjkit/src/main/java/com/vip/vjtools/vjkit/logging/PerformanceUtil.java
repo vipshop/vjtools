@@ -36,10 +36,17 @@ public class PerformanceUtil {
 	}
 
 	/**
+	 * 返回开始到现在的时间
+	 */
+	public static long duration() {
+		return localTimer.get().duration();
+	}
+
+	/**
 	 * 记录结束时间
 	 */
 	public static long end() {
-		long duration = localTimer.get().end();
+		long duration = localTimer.get().duration();
 		localTimer.remove();
 		return duration;
 	}
@@ -52,10 +59,17 @@ public class PerformanceUtil {
 	}
 
 	/**
+	 * 记录特定Timer的开始时间
+	 */
+	public static long duration(String key) {
+		return getTimer(key).duration();
+	}
+
+	/**
 	 * 记录特定Timer结束时间，返回耗时
 	 */
 	public static long end(String key) {
-		long duration = getTimer(key).end();
+		long duration = getTimer(key).duration();
 		localTimerMap.get().remove(key);
 		return duration;
 	}
@@ -178,7 +192,7 @@ public class PerformanceUtil {
 			start = System.currentTimeMillis();
 		}
 
-		public long end() {
+		public long duration() {
 			return System.currentTimeMillis() - start;
 		}
 	}
