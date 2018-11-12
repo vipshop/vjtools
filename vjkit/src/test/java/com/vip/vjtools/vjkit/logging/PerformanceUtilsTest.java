@@ -19,7 +19,7 @@ public class PerformanceUtilsTest {
 		PerformanceUtil.warn(logger, 0L);
 		PerformanceUtil.end("test");
 		System.out.println(Thread.currentThread().getName() + " time cost: " + PerformanceUtil.duration() + "ms");
-		PerformanceUtil.warn(logger, "test", 0L);
+		PerformanceUtil.slowLog(logger, "test", 0L);
 	}
 	
 }

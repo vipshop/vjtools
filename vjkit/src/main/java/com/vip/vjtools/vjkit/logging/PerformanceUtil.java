@@ -38,22 +38,10 @@ public class PerformanceUtil {
 	/**
 	 * 记录结束时间
 	 */
-	public static void end() {
-		localTimer.get().end();
-	}
-
-	/**
-	 * 计算耗时
-	 */
-	public static long duration() {
-		return localTimer.get().duration();
-	}
-
-	/**
-	 * 清除ThreadLocal Timer
-	 */
-	public static void remove() {
+	public static long end() {
+		long duration = localTimer.get().end();
 		localTimer.remove();
+		return duration;
 	}
 
 	/**
@@ -64,24 +52,12 @@ public class PerformanceUtil {
 	}
 
 	/**
-	 * 记录特定Timer结束时间
+	 * 记录特定Timer结束时间，返回耗时
 	 */
-	public static void end(String key) {
-		getTimer(key).end();
-	}
-
-	/**
-	 * 计算特定Timer耗时
-	 */
-	public static long duration(String key) {
-		return getTimer(key).duration();
-	}
-
-	/**
-	 * 清除特定ThreadLocal Timer
-	 */
-	public static void remove(String key) {
+	public static long end(String key) {
+		long duration = getTimer(key).end();
 		localTimerMap.get().remove(key);
+		return duration;
 	}
 
 	/**
@@ -92,15 +68,16 @@ public class PerformanceUtil {
 		localTimerMap.remove();
 	}
 
+
 	/**
 	 * 当处理时间超过预定的阈值时发出警告信息
-	 * @param logger 写日志的logger
+	 * @param logger
+	 * @param key
 	 * @param threshold 阈值（单位：ms）
 	 */
-	public static void warn(Logger logger, long threshold) {
-		long duration = duration();
+	public static void slowLog(Logger logger, long duration, long threshold) {
 		if (duration > threshold) {
-			logger.warn("[Performance Warning] use {}ms， slow than {}ms", duration, threshold);
+			logger.warn("[Performance Warning]  use {}ms, slow than {}ms", duration, threshold);
 		}
 	}
 
@@ -110,10 +87,9 @@ public class PerformanceUtil {
 	 * @param key
 	 * @param threshold 阈值（单位：ms）
 	 */
-	public static void warn(Logger logger, String key, long threshold) {
-		long duration = duration(key);
+	public static void slowLog(Logger logger, String key, long duration, long threshold) {
 		if (duration > threshold) {
-			logger.warn("[Performance Warning] task {} use {}ms， slow than {}ms", key, duration, threshold);
+			logger.warn("[Performance Warning] task {} use {}ms, slow than {}ms", key, duration, threshold);
 		}
 	}
 
@@ -124,10 +100,9 @@ public class PerformanceUtil {
 	 * @param threshold 阈值（单位：ms）
 	 * @param context 需要记录的context信息，如请求的json等
 	 */
-	public static void warn(Logger logger, long threshold, String context) {
-		long duration = duration();
+	public static void slowLog(Logger logger, long duration, long threshold, String context) {
 		if (duration > threshold) {
-			logger.warn("[Performance Warning] use {}ms， slow than {}ms, context={}", duration, threshold, context);
+			logger.warn("[Performance Warning] use {}ms, slow than {}ms, context={}", duration, threshold, context);
 		}
 	}
 
@@ -138,36 +113,30 @@ public class PerformanceUtil {
 	 * @param threshold 阈值（单位：ms）
 	 * @param context 需要记录的context信息，如请求的json等
 	 */
-	public static void warn(Logger logger, String key, long threshold, String context) {
-		long duration = duration(key);
+	public static void slowLog(Logger logger, String key, long duration, long threshold, String context) {
 		if (duration > threshold) {
-			logger.warn("[Performance Warning] task {} use {}ms， slow than {}ms, contxt={}", key, duration, threshold,
+			logger.warn("[Performance Warning] task {} use {}ms, slow than {}ms, contxt={}", key, duration, threshold,
 					context);
 		}
 	}
-
 
 	/**
 	 * 记录结束时间并当处理时间超过预定的阈值时发出警告信息，最后清除
 	 * @param logger
 	 * @param threshold 阈值（单位：ms）
 	 */
-	public static void endWithWarnAndRemove(Logger logger, long threshold) {
-		end();
-		warn(logger, threshold);
-		remove();
+	public static void endWithSlowLog(Logger logger, long threshold) {
+		slowLog(logger, end(), threshold);
 	}
 
 	/**
 	 * 记录结束时间并当处理时间超过预定的阈值时发出警告信息，最后清除
-	 * @param log
+	 * @param logger
 	 * @param key
 	 * @param threshold 阈值（单位：ms）
 	 */
-	public static void endWithWarnAndRemove(Logger logger, String key, long threshold) {
-		end(key);
-		warn(logger, key, threshold);
-		remove(key);
+	public static void endWithSlowLog(Logger logger, String key, long threshold) {
+		slowLog(logger, key, end(key), threshold);
 	}
 
 	/**
@@ -176,10 +145,8 @@ public class PerformanceUtil {
 	 * @param threshold 阈值（单位：ms）
 	 * @param context 需要记录的context信息，如请求的json等
 	 */
-	public static void endWithWarnAndRemove(Logger logger, long threshold, String context) {
-		end();
-		warn(logger, threshold, context);
-		remove();
+	public static void endWithSlowLog(Logger logger, long threshold, String context) {
+		slowLog(logger, end(), threshold, context);
 	}
 
 	/**
@@ -189,10 +156,8 @@ public class PerformanceUtil {
 	 * @param threshold 阈值（单位：ms）
 	*  @param context 需要记录的context信息，如请求的json等
 	 */
-	public static void endWithWarnAndRemove(Logger logger, String key, long threshold, String context) {
-		end(key);
-		warn(logger, key, threshold, context);
-		remove(key);
+	public static void endWithSlowLog(Logger logger, String key, long threshold, String context) {
+		slowLog(logger, key, end(key), threshold, context);
 	}
 
 	private static Timer getTimer(String key) {
@@ -206,20 +171,15 @@ public class PerformanceUtil {
 	}
 
 
-	private static class Timer {
+	static class Timer {
 		private long start;
-		private long end;
 
 		public void start() {
 			start = System.currentTimeMillis();
 		}
 
-		public void end() {
-			end = System.currentTimeMillis();
-		}
-
-		public long duration() {
-			return end - start;
+		public long end() {
+			return System.currentTimeMillis() - start;
 		}
 	}
 }
