@@ -118,14 +118,14 @@ public class MoneyUtil {
 	/**
 	 * 格式化金额，当pattern为空时，pattern默认为#,##0.00
 	 */
-	public static String formatNumber(BigDecimal number, String pattern) {
-		return formatNumber(number.doubleValue(), pattern);
+	public static String format(BigDecimal number, String pattern) {
+		return format(number.doubleValue(), pattern);
 	}
 
 	/**
 	 * 格式化金额，当pattern为空时，pattern默认为#,##0.00
 	 */
-	public static String formatNumber(double number, String pattern) {
+	public static String format(double number, String pattern) {
 		DecimalFormat df = null;
 		if (StringUtils.isEmpty(pattern)) {
 			df = PRETTY_FORMAT.get();
