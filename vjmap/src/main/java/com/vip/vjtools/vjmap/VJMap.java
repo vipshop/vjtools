@@ -44,7 +44,7 @@ public class VJMap {
 		List<ClassStats> list = accessor.caculateHistogram(age, minAge);
 
 		ResultPrinter resultPrinter = new ResultPrinter();
-		resultPrinter.printSurvivor(tty, list, orderByName, minSize, minAge);
+		resultPrinter.printSurvivor(tty, list, orderByName, minSize, age, minAge);
 	}
 
 	public static void runOldGenAccessor(boolean orderByName, long minSize) {
