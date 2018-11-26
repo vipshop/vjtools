@@ -18,6 +18,9 @@ public class JmxBufferPoolManager {
 
 		List<BufferPoolMXBean> bufferPoolMXBeans = ManagementFactory.getPlatformMXBeans(connection,
 				BufferPoolMXBean.class);
+		if (bufferPoolMXBeans == null) {
+			return;
+		}
 
 		for (BufferPoolMXBean bufferPool : bufferPoolMXBeans) {
 			String name = bufferPool.getName().toLowerCase().trim();
@@ -29,11 +32,23 @@ public class JmxBufferPoolManager {
 		}
 	}
 
-	public BufferPoolMXBean getDirectBufferPool() {
-		return directBufferPool;
+	public long getDirectBufferPoolUsed() {
+		return directBufferPool != null ? directBufferPool.getMemoryUsed() : 0;
 	}
 
-	public BufferPoolMXBean getMappedBufferPool() {
-		return mappedBufferPool;
+	public long getDirectBufferPoolCapacity() {
+		return directBufferPool != null ? directBufferPool.getTotalCapacity() : 0;
+	}
+
+	public long getMappedBufferPoolUsed() {
+		return mappedBufferPool != null ? mappedBufferPool.getMemoryUsed() : 0;
+	}
+
+	public long getMappedBufferPoolCapacity() {
+		return mappedBufferPool != null ? mappedBufferPool.getTotalCapacity() : 0;
+	}
+
+	public long getMappedBufferPoolCount() {
+		return mappedBufferPool != null ? mappedBufferPool.getCount() : 0;
 	}
 }
