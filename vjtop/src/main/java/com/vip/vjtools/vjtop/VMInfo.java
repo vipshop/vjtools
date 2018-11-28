@@ -368,7 +368,7 @@ public class VMInfo {
 			// 取巧用法，将count 放入无用的max中。
 			long mapUsed = jmxClient.getBufferPoolManager().getMappedBufferPoolUsed();
 			map = new Usage(mapUsed, jmxClient.getBufferPoolManager().getMappedBufferPoolCapacity(),
-					mapUsed == 0 ? 0 : jmxClient.getBufferPoolManager().getMappedBufferPool().getCount());
+					mapUsed == 0 ? 0 : jmxClient.getBufferPoolManager().getMappedBufferPoolCount());
 
 		} catch (Exception e) {
 			handleJmxFetchDataError(e);
