@@ -13,7 +13,7 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 # 2.使用说明
 
-[Download vjmap-1.0.6.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.6/vjmap-1.0.6.zip) (from Maven Central)
+[Download vjmap-1.0.7.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.7/vjmap-1.0.7.zip) (from Maven Central)
 
 # 2.1 注意事项
 
@@ -48,8 +48,14 @@ JAVA_HOME的定位，通过读取环境变量JAVA_HOME，如果没有定义，�
 // 推荐，打印老年代的对象统计信息，按对象的oldgen size排序，比-all快很多，暂时只支持CMS:
 ./vjmap.sh -old PID > /tmp/histo-old.log
 
-// 推荐，打印Survivor区的对象统计信息，默认age>=3，可以 -sur:minage=x调整:
+// 推荐，打印Survivor区的对象统计信息，默认age>=3
 ./vjmap.sh -sur PID > /tmp/histo-sur.log
+
+// 推荐，打印Survivor区的对象统计信息，查看age>=4的对象
+./vjmap.sh -sur:minage=4 PID > /tmp/histo-sur.log
+
+// 推荐，打印Survivor区的对象统计信息，单独查看age＝4的对象:
+./vjmap.sh -sur:age=4 PID > /tmp/histo-sur.log
 ```
 
 
