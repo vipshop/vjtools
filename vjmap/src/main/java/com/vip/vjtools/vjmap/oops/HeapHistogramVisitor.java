@@ -70,7 +70,7 @@ public class HeapHistogramVisitor implements HeapVisitor {
 
 		updateWith(classStats, objSize, place);
 
-		// 每完成1％ 打印一个，每完成10% 打印百分比提示
+		// 每完成1％ 打印一个.，每完成10% 打印百分比提示
 		progressNodifier.processingSize += objSize;
 		if (progressNodifier.processingSize > progressNodifier.nextNotificationSize) {
 			progressNodifier.printProgress();

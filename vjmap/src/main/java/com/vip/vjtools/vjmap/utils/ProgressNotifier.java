@@ -12,6 +12,8 @@ public class ProgressNotifier {
 
 	private PrintStream tty = System.out;
 
+	private TimeController timeController = new TimeController();
+
 	public ProgressNotifier(long totalSize) {
 		this.totalSize = totalSize;
 		onePercentSize = totalSize / 100;
@@ -26,6 +28,7 @@ public class ProgressNotifier {
 	}
 
 	public void printProgress() {
+		timeController.checkTimedOut();
 		tty.print(".");
 		processingPercent++;
 		nextNotificationSize += onePercentSize;

@@ -12,6 +12,7 @@ import com.vip.vjtools.vjmap.oops.HeapUtils;
 import com.vip.vjtools.vjmap.oops.LoadedClassAccessor;
 import com.vip.vjtools.vjmap.oops.OldgenAccessor;
 import com.vip.vjtools.vjmap.oops.SurvivorAccessor;
+import com.vip.vjtools.vjmap.utils.TimeController.TimeoutException;
 
 import sun.jvm.hotspot.HotSpotAgent;
 import sun.jvm.hotspot.oops.ObjectHeap;
@@ -179,11 +180,11 @@ public class VJMap {
 
 				// 如果ctrl＋C退出，仍尽量打印结果
 				if (oldGenProcessor != null) {
-					tty.println("VJMap exited by user, below is the uncompleted summary ");
+					tty.println("VJMap aborted. Below is the incomplete summary: ");
 					oldGenProcessor.printResult();
 				}
 				if (heapProcessor != null) {
-					tty.println("VJMap exited by user, below is the uncompleted summary ");
+					tty.println("VJMap aborted. Below is the incomplete summary: ");
 					heapProcessor.printResult();
 				}
 				tty.flush();
@@ -219,6 +220,10 @@ public class VJMap {
 			double secs = (endTime - startTime) / 1000.0d;
 			tty.printf("%n Heap traversal took %.1f seconds.%n", secs);
 			tty.flush();
+		} catch (TimeoutException e) {
+			tty.println("\n\nVJMap aborted by timeout.");
+			tty.println("Try to use live option to reduce the fragments which make progress very slow.");
+			tty.println("./vjmap.sh -old:live PID\n\n");
 		} catch (Exception e) {
 			tty.println("Error Happen:" + e.getMessage());
 			if (e.getMessage() != null && e.getMessage().contains("Can't attach to the process")) {
@@ -271,8 +276,10 @@ public class VJMap {
 		tty.println("vjmap " + VERSION
 				+ " - prints per GC generation (Eden, Survivor, OldGen) object details of a given process.");
 		tty.println("Usage: vjmap.sh <options> <PID>");
+		tty.println("Usage: vjmap.sh <options> <executable java path> <coredump file path>");
 		tty.println("");
 		tty.printf(format, "-all", "print all gens histogram, order by total size");
+		tty.printf(format, "-all:live", "print all gens histogram, live objects only");
 		tty.printf(format, "-all:minsize=1024", "print all gens histogram, total size>=1024");
 		tty.printf(format, "-all:minsize=1024,byname",
 				"print all gens histogram, total size>=1024, order by class name");
