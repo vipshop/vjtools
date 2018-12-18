@@ -8,6 +8,7 @@ import java.util.List;
 import com.sun.tools.attach.VirtualMachine;
 import com.vip.vjtools.vjmap.oops.GenAddressAccessor;
 import com.vip.vjtools.vjmap.oops.HeapHistogramVisitor;
+import com.vip.vjtools.vjmap.oops.HeapUtils;
 import com.vip.vjtools.vjmap.oops.LoadedClassAccessor;
 import com.vip.vjtools.vjmap.oops.OldgenAccessor;
 import com.vip.vjtools.vjmap.oops.SurvivorAccessor;
@@ -19,22 +20,41 @@ import sun.tools.attach.HotSpotVirtualMachine;;
 
 public class VJMap {
 
-	public static final String VERSION = "1.0.7";
+	public static final String VERSION = "1.0.8";
 
 	private static PrintStream tty = System.out;
+	// 用于ctrl－C退出时仍然打印结果
+	private static OldGenProcessor oldGenProcessor;
+	private static HeapProcessor heapProcessor;
 
 	public static void runHeapVisitor(int pid, boolean orderByName, long minSize) {
 		ObjectHeap heap = VM.getVM().getObjectHeap();
-		HeapHistogramVisitor visitor = new HeapHistogramVisitor();
+		heapProcessor = new HeapProcessor(orderByName, minSize);
 
 		tty.println("Iterating over heap. This may take a while...");
 		tty.println("Geting live regions...");
 
-		heap.iterate(visitor);
+		heap.iterate(heapProcessor.visitor);
 
-		List<ClassStats> list = visitor.getClassStatsList();
-		ResultPrinter resultPrinter = new ResultPrinter();
-		resultPrinter.printAllGens(tty, list, orderByName, minSize);
+		heapProcessor.printResult();
+		heapProcessor = null;
+	}
+
+	public static class HeapProcessor {
+		HeapHistogramVisitor visitor = new HeapHistogramVisitor();
+		boolean orderByName;
+		long minSize;
+
+		public HeapProcessor(boolean orderByName, long minSize) {
+			this.orderByName = orderByName;
+			this.minSize = minSize;
+		}
+
+		public void printResult() {
+			List<ClassStats> list = HeapUtils.getClassStatsList(visitor.getClassStatsMap());
+			ResultPrinter resultPrinter = new ResultPrinter();
+			resultPrinter.printAllGens(tty, list, orderByName, minSize);
+		}
 	}
 
 	public static void runSurviorAccessor(int age, int minAge, boolean orderByName, long minSize) {
@@ -48,13 +68,28 @@ public class VJMap {
 	}
 
 	public static void runOldGenAccessor(boolean orderByName, long minSize) {
-		OldgenAccessor accessor = new OldgenAccessor();
-
+		oldGenProcessor = new OldGenProcessor(orderByName, minSize);
 		tty.println("Iterating over oldgen area. This may take a while...");
-		List<ClassStats> list = accessor.caculateHistogram();
+		oldGenProcessor.accessor.caculateHistogram();
+		oldGenProcessor.printResult();
+		oldGenProcessor = null;
+	}
 
-		ResultPrinter resultPrinter = new ResultPrinter();
-		resultPrinter.printOldGen(tty, list, orderByName, minSize);
+	public static class OldGenProcessor {
+		OldgenAccessor accessor = new OldgenAccessor();
+		boolean orderByName;
+		long minSize;
+
+		public OldGenProcessor(boolean orderByName, long minSize) {
+			this.orderByName = orderByName;
+			this.minSize = minSize;
+		}
+
+		public void printResult() {
+			List<ClassStats> list = HeapUtils.getClassStatsList(accessor.getClassStatsMap());
+			ResultPrinter resultPrinter = new ResultPrinter();
+			resultPrinter.printOldGen(tty, list, orderByName, minSize);
+		}
 	}
 
 	public static void printGenAddress() {
@@ -68,6 +103,7 @@ public class VJMap {
 	}
 
 	public static void main(String[] args) {
+		// 分析参数
 		boolean orderByName = false;
 		long minSize = -1;
 		int minAge = 2;
@@ -124,6 +160,7 @@ public class VJMap {
 			coredumpPath = args[2];
 		}
 
+		// 如有需要，执行GC
 		if (live) {
 			if (pid == null) {
 				tty.println("only a running vm can be attached when live option is on");
@@ -132,7 +169,26 @@ public class VJMap {
 			triggerGc(pid);
 		}
 
+
+		//// 正式执行
 		HotSpotAgent agent = new HotSpotAgent();
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+
+				// 如果ctrl＋C退出，仍尽量打印结果
+				if (oldGenProcessor != null) {
+					tty.println("VJMap exited by user, below is the uncompleted summary ");
+					oldGenProcessor.printResult();
+				}
+				if (heapProcessor != null) {
+					tty.println("VJMap exited by user, below is the uncompleted summary ");
+					heapProcessor.printResult();
+				}
+				tty.flush();
+			}
+		});
 
 		try {
 			if (args.length == 2) {
@@ -140,6 +196,7 @@ public class VJMap {
 			} else {
 				agent.attach(executablePath, coredumpPath);
 			}
+
 			long startTime = System.currentTimeMillis();
 			if (modeFlag.startsWith("-all")) {
 				runHeapVisitor(pid, orderByName, minSize);

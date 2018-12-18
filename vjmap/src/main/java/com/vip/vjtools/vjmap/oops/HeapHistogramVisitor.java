@@ -1,7 +1,6 @@
 package com.vip.vjtools.vjmap.oops;
 
 import java.util.HashMap;
-import java.util.List;
 
 import com.vip.vjtools.vjmap.ClassStats;
 import com.vip.vjtools.vjmap.utils.ProgressNotifier;
@@ -145,8 +144,8 @@ public class HeapHistogramVisitor implements HeapVisitor {
 		return Place.Unknown;
 	}
 
-	public List<ClassStats> getClassStatsList() {
-		return HeapUtils.getClassStatsList(classStatsMap);
+	public HashMap<Klass, ClassStats> getClassStatsMap() {
+		return classStatsMap;
 	}
 
 	public enum Place {

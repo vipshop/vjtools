@@ -26,12 +26,10 @@ public class ClassStats {
 
 	public ClassStats(Klass k) {
 		this.klass = k;
+		description = initDescription();
 	}
 
 	public String getDescription() {
-		if (description == null) {
-			description = initDescription();
-		}
 		return description;
 	}
 
