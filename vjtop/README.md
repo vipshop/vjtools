@@ -27,7 +27,7 @@
 
 ## 2.1 概述
 
-[Download 1.0.7.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.7/vjtop-1.0.7.zip) (from Maven Central)
+[Download 1.0.8.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.8/vjtop-1.0.8.zip) (from Maven Central)
 
 vjtop运行所需权限与jstak相同，必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行。如果仍有问题，请看后面的执行问题排查章节。
 

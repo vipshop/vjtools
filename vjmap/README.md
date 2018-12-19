@@ -13,7 +13,7 @@ vjmap的原始思路来源于R大的[TBJMap](https://github.com/alibaba/TBJMap) 
 
 # 2.使用说明
 
-[Download vjmap-1.0.7.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.7/vjmap-1.0.7.zip) (from Maven Central)
+[Download vjmap-1.0.8.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjmap/1.0.8/vjmap-1.0.8.zip) (from Maven Central)
 
 # 2.1 注意事项
 
