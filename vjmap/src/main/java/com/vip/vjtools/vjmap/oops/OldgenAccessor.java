@@ -2,7 +2,6 @@ package com.vip.vjtools.vjmap.oops;
 
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.List;
 
 import com.vip.vjtools.vjmap.ClassStats;
 import com.vip.vjtools.vjmap.utils.ProgressNotifier;
@@ -34,11 +33,13 @@ public class OldgenAccessor {
 	private Address cur;
 	private Address regionStart;
 	private int liveRegions = 0;
+	private HashMap<Klass, ClassStats> classStatsMap = new HashMap<>(2048, 0.2f);
 
-	public List<ClassStats> caculateHistogram() {
+	public HashMap<Klass, ClassStats> getClassStatsMap() {
+		return classStatsMap;
+	}
 
-		HashMap<Klass, ClassStats> classStatsMap = new HashMap<>(2048, 0.2f);
-
+	public void caculateHistogram() {
 		ObjectHeap objectHeap = HeapUtils.getObjectHeap();
 		CollectedHeap heap = checkHeapType();
 		ConcurrentMarkSweepGeneration cmsGen = HeapUtils.getOldGenForCMS(heap);
@@ -91,8 +92,6 @@ public class OldgenAccessor {
 		}
 
 		tty.println("\ntotal live regions:" + liveRegions);
-
-		return HeapUtils.getClassStatsList(classStatsMap);
 	}
 
 	private CollectedHeap checkHeapType() {

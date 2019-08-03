@@ -45,13 +45,14 @@ public class ResultPrinter {
 
 			}
 		}
-		tty.printf(" Total: %7d/%7s , min size=%d%n", totalCount, FormatUtils.toFloatUnit(totalSize), minSize);
+		tty.printf(" Total: %7d/%7s , minSize=%d%n", totalCount, FormatUtils.toFloatUnit(totalSize), minSize);
 	}
 
 	/**
 	 * 打印只包含存活区的结果
 	 */
-	public void printSurvivor(PrintStream tty, List<ClassStats> list, boolean orderByName, long minSize, int minAge) {
+	public void printSurvivor(PrintStream tty, List<ClassStats> list, boolean orderByName, long minSize, int age,
+			int minAge) {
 		if (orderByName) {
 			Collections.sort(list, ClassStats.NAME_COMPARATOR);
 		} else {
@@ -77,8 +78,13 @@ public class ResultPrinter {
 			}
 		}
 
-		tty.printf(" Total: %7d %7s, min age=%d, min size=%d%n", totalSurCount, FormatUtils.toFloatUnit(totalSurSize),
-				minAge, minSize);
+		if (age != -1) {
+			tty.printf(" Total: %7d %7s, age=%d, minSize=%d%n", totalSurCount, FormatUtils.toFloatUnit(totalSurSize),
+					age, minSize);
+		} else {
+			tty.printf(" Total: %7d %7s, minAge=%d, minSize=%d%n", totalSurCount, FormatUtils.toFloatUnit(totalSurSize),
+					minAge, minSize);
+		}
 	}
 
 	/**
@@ -110,7 +116,7 @@ public class ResultPrinter {
 			}
 		}
 
-		tty.printf(" Total: %7d %7s, min size=%d%n", totalOldCount, FormatUtils.toFloatUnit(totalOldSize), minSize);
+		tty.printf(" Total: %7d %7s, minSize=%d%n", totalOldCount, FormatUtils.toFloatUnit(totalOldSize), minSize);
 	}
 
 }

@@ -5,7 +5,7 @@
 
 	<groupId>com.vip</groupId>
 	<artifactId>sonar-vj</artifactId>
-	<version>1.0.7-SNAPSHOT</version>
+	<version>1.0.9-SNAPSHOT</version>
 	<packaging>sonar-plugin</packaging>
 
 	<properties>

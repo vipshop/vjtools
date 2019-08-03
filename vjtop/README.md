@@ -27,55 +27,40 @@
 
 ## 2.1 概述
 
-[Download 1.0.6.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.6/vjtop-1.0.6.zip) (from Maven Central)
+[Download 1.0.8.zip](http://repo1.maven.org/maven2/com/vip/vjtools/vjtop/1.0.8/vjtop-1.0.8.zip) (from Maven Central)
 
-vjtop运行所需权限与jstak相同，必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行。如果仍有问题，请看后面的执行问题排查章节。
+vjtop运行所需权限与jstack相同，必须与目标JVM使用相同的JDK版本运行，必须与目标JVM使用相同用户运行。如果仍有问题，请看后面的执行问题排查章节。
 
 ```
 // 占用CPU最多的线程
 ./vjtop.sh <PID> 
+
+// 打印选项，每个版本的参数会有变动，特别是模式参数，以help信息为准
+./vjtop.sh -h
+
 ```
 
-## 2.2 原理：
-
-### 2.21 进程区数据来源
-
-* 从/proc/PID/* 文件中获取进程数据, 详见[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
-* 从JDK的PerfData文件中获取JVM数据(JDK每秒写入/tmp/hsperfdata_$userid/$pid文件的统计数据)
-* 使用目标JVM的JMX中获取JVM数据（如果目标JVM还没启动JMX，通过attach方式动态加载）
-
-如果数据同时在PerfData和JMX存在，优先使用PerfData。 
-网络流量数据在/proc/PID/*中未能按进程区分，因此不再监控。
-
-### 2.2.2 线程区数据来源 
-
-使用ThreadMxBean操作：
-
-1. getAllThreadIds()获得所有Thread Id
-2. getThreadCpuTime(tids)获得所有线程的CPU时间 (以及SYS CPU，内存分配)
-3. 排序后，用getThreadInfo(tids)获得前10名线程的信息，因为不取线程的StackTrace，不会堵塞应用。
+## 2.2 找出CPU最繁忙的线程
 
 
-## 2.3 找出CPU最繁忙的线程
-
-
-### 2.3.1 命令参数
+### 2.2.1 命令参数
 
 ```
 // 按时间区间内，线程占用的CPU排序，默认显示前10的线程，默认每10秒打印一次
 ./vjtop.sh <PID>
 
-// 按线程从启动以来的总占用CPU来排序
-./vjtop.sh --totalcpu <PID>
-
 // 按时间区间内，线程占用的SYS CPU排序
-./vjtop.sh --syscpu <PID>
+./vjtop.sh -m syscpu <PID>
+
+// 按线程从启动以来的总占用CPU来排序
+./vjtop.sh -m totalcpu <PID>
 
 // 按线程从启动以来的总SYS CPU排序
-./vjtop.sh --totalsyscpu <PID>
+./vjtop.sh -m totalsyscpu <PID>
 ```
 
-### 2.3.2 输出示例：
+
+### 2.2.2 输出示例：
 
 ```
  PID: 191082 - 17:43:12 JVM: 1.7.0_79 USER: calvin UPTIME: 2d02h
@@ -135,20 +120,20 @@ vjtop运行所需权限与jstak相同，必须与目标JVM使用相同的JDK版�
 * 如果该线程的平均使用CPU少于单核的0.1%，这条线程将不参与排序显示，减少消耗。 
 
 
-## 2.4 找出内存分配最频繁的线程
+## 2.3 找出内存分配最频繁的线程
 
 
-### 2.4.1 命令参数
+### 2.3.1 命令参数
 
 ```
 // 线程分配内存的速度排序，默认显示前10的线程，默认每10秒打印一次
-./vjtop.sh --memory <PID>
+./vjtop.sh -m 5 <PID>
 
 // 按线程的总内存分配而不是打印间隔内的内存分配来排序
-./vjtop.sh --totalmemory <PID>
+./vjtop.sh -m 6 <PID>
 ```
 
-### 2.4.2 输出示例
+### 2.3.2 输出示例
 
 ```
 (忽略头信息)
@@ -176,6 +161,45 @@ vjtop运行所需权限与jstak相同，必须与目标JVM使用相同的JDK版�
 * `TOTAL-ALLOCATED`: 该线程分配内存的历史累计值，即从进程启动到现在，该线程分配的总内存大小，该总内存大小包括已回收的对象的内存(该线程分配的总内存大小占所有线程分配的总内存大小的百分比)。
 
 如果该线程的平均内存分配速度少于1K/s，这条线程将不参与排序显示，减少消耗。 
+
+
+## 2.4 命令行参数
+
+```
+// 打印其他选项
+./vjtop.sh -h
+
+// 结果输出到文件
+./vjtop.sh <PID> > /tmp/vjtop.log
+
+// 每5秒打印一次（默认10秒）
+./vjtop.sh -i 5 <PID>
+
+// 打印20次后退出
+./vjtop.sh -n 20 <PID>
+
+// 显示前100的线程（默认10）
+./vjtop.sh -l 100 <PID>
+
+// 不带变色与换页控制码的console模式，适合不支持控制码的终端。在Windows及输出到文件时将默认使用次此模式
+./vjtop.sh -o clean <PID>
+
+// key:value式的文本模式，适用于第三方工具采集vjtop的输出结果
+./vjtop.sh -o text <PID>
+
+// 只采集JVM信息，不采集繁忙线程信息
+./vjtop.sh -c jvm <PID>
+
+// 只采集繁忙线程信息，不采集JVM信息
+./vjtop.sh -c thread <PID>
+
+// 只显示线程名包含worker字样的线程，在热点线程与实时交互打印线程时都会过滤（1.0.6版开始忽略大小写）
+./vjtop.sh -f worker <PID>
+
+// 更宽的120字节的屏幕 （默认100）
+./vjtop.sh -w 120 <PID> > /tmp/vjtop.log
+```
+
 
 ## 2.5 实时交互
 
@@ -223,6 +247,9 @@ vjtop运行所需权限与jstak相同，必须与目标JVM使用相同的JDK版�
 ```
 
 4. 打印所有线程的TID和线程名
+
+不引入暂停
+
 ```
 Thread Id and name of all live threads:
  16	: "JMX server connection timeout 16" (TIMED_WAITING)
@@ -268,49 +295,27 @@ Thread Id and name of all live threads:
 ```
 
 
-## 2.6 输出控制
 
-```
-// 打印其他选项
-./vjtop.sh -h
+# 3. 原理
 
-// 结果输出到文件
-./vjtop.sh <PID> > /tmp/vjtop.log
+## 3.1 进程区数据来源
 
-// 每5秒打印一次（默认10秒）
-./vjtop.sh -i 5 <PID>
+* 从/proc/PID/* 文件中获取进程数据, 详见[proc filesystem](http://man7.org/linux/man-pages/man5/proc.5.html)
+* 从JDK的PerfData文件中获取JVM数据(JDK每秒写入/tmp/hsperfdata_$userid/$pid文件的统计数据)
+* 使用目标JVM的JMX中获取JVM数据（如果目标JVM还没启动JMX，通过attach方式动态加载）
 
-// 打印20次后退出
-./vjtop.sh -n 20 <PID>
+如果数据同时在PerfData和JMX存在，优先使用PerfData。 
+网络流量数据在/proc/PID/*中未能按进程区分，因此不再监控。
 
-// 不带变色与换页控制码的console模式，适合不支持控制码的终端。在Windows及输出到文件时将默认使用次此模式(1.0.6)
-./vjtop.sh -o clean <PID>
+## 3.2 线程区数据来源 
 
-// key:value式的文本模式，适用于第三方工具采集vjtop的输出结果 (1.0.6)
-./vjtop.sh -o text <PID>
+使用ThreadMxBean操作：
 
-// 只采集JVM信息，不采集繁忙线程信息 (1.0.6)
-./vjtop.sh -c jvm <PID>
-```
+1. getAllThreadIds()获得所有Thread Id
+2. getThreadCpuTime(tids)获得所有线程的CPU时间 (以及SYS CPU，内存分配)
+3. 排序后，用getThreadInfo(tids)获得前10名线程的信息，因为不取线程的StackTrace，不会堵塞应用。
 
-## 2.7 其他输出控制
-```
-// 只采集繁忙线程信息，不采集JVM信息 (1.0.6)
-./vjtop.sh -c thread <PID>
-
-// 只显示线程名包含worker字样的线程，在热点线程与实时交互打印线程时都会过滤（1.0.6版开始忽略大小写）
-./vjtop.sh -f worker <PID>
-
-// 显示前20的线程（默认10）
-./vjtop.sh -l 20 <PID>
-
-// 更宽的120字节的屏幕 （默认100）
-./vjtop.sh -w 120 <PID> > /tmp/vjtop.log
-```
-
-# 3. 监控值变色告警规则
-
-JVM信息告警规则
+# 4. 监控值变色告警规则
 
 * 进程CPU：服务器总CPU50%黄， 70%红
 * 进程线程：如果服务器少于8核，线程数为核数＊150 黄，核数＊225 红。 如果大于8核，核数＊100 黄, 核数＊150红。
@@ -323,11 +328,9 @@ JVM信息告警规则
 * FGC: 周期内的次数：1次黄，2次红
 * SAFEPOINT: 安全点次数每秒2次黄，4次红，总耗时达到了应用运行时间的5%黄，10%红
 
-线程告警规则
 
-* 线程CPU: CPU大于50%黄，70%红，SYS大于30%黄，50%红 
 
-# 4. 执行问题排查
+# 5. 执行问题排查
 
 1. JDK版本错误或tools.jar不存在
 
@@ -379,9 +382,9 @@ vjtop的命令(since 1.0.3):
 ```
 
 
-# 5. 与jvmtop相比的改进点
+# 6. 与jvmtop相比的改进点
 
-### 5.1 进程概览
+### 6.1 进程概览
 
 * 新功能：进程的物理内存，SWAP，IO，物理线程信息。
 * 新功能：将内存信息与GC信息拆开不同分代独立显示
@@ -389,19 +392,19 @@ vjtop的命令(since 1.0.3):
 * 新功能：对偏离正常范围的值，进行变色提示
 
 
-### 5.2 热点线程
+### 6.2 热点线程
 
 * 新功能：线程内存分配速度的展示与排序 (from SJK)
 * 新功能：线程SYS CPU的展示与排序，应用启动以来线程的总CPU间的排序 (from SJK)
 * 新配置项：打印间隔，展示线程数
 
-### 5.3 实时交互
+### 6.3 实时交互
 
 * 新功能： 选择打印某条线程的线程栈，所有TopN繁忙线程的栈，所有Blocked状态线程的栈
 * 新功能： 打印全部的线程名
 * 新功能： 实时切换显示模式和排序，刷新频率和显示线程数
 
-### 5.4 为在生产环境运行优化
+### 6.4 为在生产环境运行优化
 
 * 删除jvmtop会造成应用停顿的Profile页面
 * 删除jvmtop获取所有Java进程信息，有着不确定性的Overview页面

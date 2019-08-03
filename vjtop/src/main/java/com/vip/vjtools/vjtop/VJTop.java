@@ -19,7 +19,7 @@ import joptsimple.OptionSet;
 
 public class VJTop {
 
-	public static final String VERSION = "1.0.7";
+	public static final String VERSION = "1.0.9";
 
 	public VMDetailView view;
 	private Thread mainThread;
@@ -92,14 +92,16 @@ public class VJTop {
 			}
 
 			// 5. console/cleanConsole mode start thread to get user input
-			if (app.maxIterations == -1 && format != OutputFormat.text) {
+			if (format != OutputFormat.text) {
 				InteractiveTask task = new InteractiveTask(app);
 				// 前台运行，接受用户输入时才启动交互进程
 				if (task.inputEnabled()) {
 					view.displayCommandHints = true;
-					Thread interactiveThread = new Thread(task, "InteractiveThread");
-					interactiveThread.setDaemon(true);
-					interactiveThread.start();
+					if (app.maxIterations == -1) {
+						Thread interactiveThread = new Thread(task, "InteractiveThread");
+						interactiveThread.setDaemon(true);
+						interactiveThread.start();
+					}
 				} else {
 					// 后台运行，输出重定向到文件时，转为没有ansi码的干净模式
 					format = OutputFormat.cleanConsole;

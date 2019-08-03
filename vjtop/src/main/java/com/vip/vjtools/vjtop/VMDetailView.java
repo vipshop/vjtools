@@ -1,7 +1,6 @@
 package com.vip.vjtools.vjtop;
 
 import java.io.IOException;
-import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.util.Date;
@@ -27,8 +26,9 @@ public class VMDetailView {
 
 	private int width;
 
-	private VMInfo vmInfo;
-	private TopThreadInfo topThreadInfo;
+	public VMInfo vmInfo;
+	public TopThreadInfo topThreadInfo;
+	public ThreadPrinter threadPrinter;
 	private WarningRule warning;
 
 	// 纪录vjtop进程本身的消耗
@@ -43,6 +43,7 @@ public class VMDetailView {
 			Integer width, Integer interval) throws Exception {
 		this.vmInfo = vmInfo;
 		this.topThreadInfo = new TopThreadInfo(vmInfo);
+		this.threadPrinter = new ThreadPrinter(this);
 		this.warning = vmInfo.warningRule;
 
 		this.contentMode = contentMode;
@@ -131,7 +132,7 @@ public class VMDetailView {
 
 		String[] cpuLoadAnsi = Formats.colorAnsi(vmInfo.cpuLoad, warning.cpu);
 
-		System.out.printf(" PROCESS: %5.2f%% cpu(%s%5.2f%%%s of %d core)", vmInfo.singleCoreCpuLoad, cpuLoadAnsi[0],
+		System.out.printf(" PROCESS: %.2f%% cpu(%s%.2f%%%s of %d core)", vmInfo.singleCoreCpuLoad, cpuLoadAnsi[0],
 				vmInfo.cpuLoad, cpuLoadAnsi[1], vmInfo.processors);
 
 		if (vmInfo.isLinux) {
@@ -308,24 +309,30 @@ public class VMDetailView {
 		}
 
 		// 打印线程汇总
-		double deltaAllThreadCpuLoad = Utils.calcLoad(result.deltaAllThreadCpu / Utils.NANOS_TO_MILLS,
+		double deltaAllActiveThreadCpuLoad = Utils.calcLoad(result.deltaAllActiveThreadCpu / Utils.NANOS_TO_MILLS,
 				vmInfo.upTimeMills.delta);
-		double deltaAllThreadSysCpuLoad = Utils.calcLoad(result.deltaAllThreadSysCpu / Utils.NANOS_TO_MILLS,
+		double deltaAllActiveThreadSysCpuLoad = Utils.calcLoad(result.deltaAllActiveThreadSysCpu / Utils.NANOS_TO_MILLS,
 				vmInfo.upTimeMills.delta);
+		double deltaAllFreeThreadCpuLoad = Utils.calcLoad(result.deltaAllFreeThreadCpu / Utils.NANOS_TO_MILLS,
+				vmInfo.upTimeMills.delta);
+		// double deltaAllFreeThreadSysCpuLoad = Utils.calcLoad(result.deltaAllFreeThreadSysCpu / Utils.NANOS_TO_MILLS,
+		// vmInfo.upTimeMills.delta);
+
 		if (console) {
 			System.out.printf(
-					"%n Total  : %5.2f%% cpu(user=%5.2f%%, sys=%5.2f%%) by %d active threads(which cpu>0.05%%)%n",
-					deltaAllThreadCpuLoad, deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad, deltaAllThreadSysCpuLoad,
-					result.activeThreads);
+					"%n Total  : %.2f%% cpu(user=%.2f%%, sys=%.2f%%) by %d active java threads, %.2f%% by others%n",
+					deltaAllActiveThreadCpuLoad, deltaAllActiveThreadCpuLoad - deltaAllActiveThreadSysCpuLoad,
+					deltaAllActiveThreadSysCpuLoad, result.activeThreads, deltaAllFreeThreadCpuLoad);
 
 			System.out.printf(" Setting: top %d threads order by %s%s, flush every %ds%n", threadLimit,
 					mode.toString().toUpperCase(), threadNameFilter == null ? "" : " filter by " + threadNameFilter,
 					interval);
 		} else {
 			System.out.printf(
-					"sum.active.threadCount:%d%nsum.active.cpu.total:%.2f%nsum.active.cpu.user:%.2f%nsum.active.cpu.sys:%.2f%n",
-					result.activeThreads, deltaAllThreadCpuLoad, deltaAllThreadCpuLoad - deltaAllThreadSysCpuLoad,
-					deltaAllThreadSysCpuLoad);
+					"sum.active.threadCount:%d%nsum.active.cpu.total:%.2f%nsum.active.cpu.user:%.2f%nsum.active.cpu.sys:%.2f%nsum.free.cpu.total:%.2f%n",
+					result.activeThreads, deltaAllActiveThreadCpuLoad,
+					deltaAllActiveThreadCpuLoad - deltaAllActiveThreadSysCpuLoad, deltaAllActiveThreadSysCpuLoad,
+					deltaAllFreeThreadCpuLoad);
 		}
 	}
 
@@ -394,7 +401,7 @@ public class VMDetailView {
 
 		if (console) {
 			// 打印线程汇总信息，这里因为最后单位是精确到秒，所以bytes除以毫秒以后要乘以1000才是按秒统计
-			System.out.printf("%n Total  : %5s/s memory allocated by %d active threads(which >1k/s)%n",
+			System.out.printf("%n Total  : %5s/s memory allocated by %d active threads%n",
 					Formats.toFixLengthSizeUnit((result.deltaAllThreadBytes * 1000) / vmInfo.upTimeMills.delta),
 					result.activeThreads);
 
@@ -453,134 +460,9 @@ public class VMDetailView {
 		long deltaTotalCpuTime = deltaIterationCpuTime + deltaOtherCpuTime;
 		lastCpu = currentCpu;
 
-		System.out.printf(" Cost %5.2f%% cpu in %dms, other is %dms, total is %dms%n",
+		System.out.printf(" Cost %.2f%% cpu in %dms, other is %dms, total is %dms%n",
 				deltaIterationCpuTime * 100d / deltaIterationTime, deltaIterationTime, deltaOtherCpuTime,
 				deltaTotalCpuTime);
-	}
-
-	/**
-	 * 打印单条线程的stack strace，会造成停顿，但比获取全部线程的stack trace停顿少
-	 */
-	public void printStack(long tid) throws IOException {
-		System.out.printf("%n Stack trace of thread %d:%n", tid);
-
-		ThreadInfo info = vmInfo.getThreadInfo(tid, 20);
-		if (info == null) {
-			System.err.println(" TID not exist:" + tid);
-			return;
-		}
-		printSingleThread(info);
-		System.out.flush();
-	}
-
-	/**
-	 * 打印所有活跃线程的stack strace，会造成停顿，但比获取全部线程的stack trace停顿少
-	 */
-	public void printTopStack() throws IOException {
-		System.out.printf("%n Stack trace of top %d threads:%n", threadLimit);
-
-		ThreadInfo[] infos = topThreadInfo.getTopThreadInfo();
-		for (ThreadInfo info : infos) {
-			if (info == null) {
-				continue;
-			}
-			printSingleThread(info);
-		}
-		System.out.flush();
-	}
-
-	public StackTraceElement[] printSingleThread(ThreadInfo info) {
-		StackTraceElement[] trace = info.getStackTrace();
-		StringBuilder sb = new StringBuilder(512);
-
-		sb.append(" ").append(info.getThreadId()).append(": \"").append(info.getThreadName()).append("\"");
-
-		if (vmInfo.threadContentionMonitoringSupported) {
-			sb.append(" (blocked:").append(info.getBlockedCount()).append("/").append(info.getBlockedTime())
-					.append("ms, wait:").append(info.getWaitedCount()).append("/").append(info.getWaitedTime())
-					.append("ms");
-		} else {
-			sb.append(" (blocked:").append(info.getBlockedCount()).append(" times, wait:").append(info.getWaitedCount())
-					.append(" times");
-		}
-
-		if (info.isSuspended()) {
-			sb.append(" ,suspended");
-		}
-		if (info.isInNative()) {
-			sb.append(" ,in native");
-		}
-		sb.append(")\n");
-
-		sb.append("   java.lang.Thread.State: " + info.getThreadState().toString());
-		LockInfo lockInfo = info.getLockInfo();
-		if (lockInfo != null) {
-			sb.append("(on " + lockInfo + ")");
-		}
-		if (info.getLockOwnerName() != null) {
-			sb.append(" owned by " + info.getLockOwnerId() + ":\"" + info.getLockOwnerName() + "\"");
-		}
-		sb.append("\n");
-		for (StackTraceElement traceElement : trace) {
-			sb.append("\tat ").append(traceElement).append("\n");
-		}
-
-		System.out.print(sb.toString());
-
-		return trace;
-	}
-
-	/**
-	 * 打印所有线程，只获取名称不获取stack，不造成停顿
-	 */
-	public void printAllThreads() throws IOException {
-		System.out.println("\n Thread Id and name of all live threads:");
-
-		long tids[] = vmInfo.getAllThreadIds();
-		ThreadInfo[] threadInfos = vmInfo.getThreadInfo(tids);
-		for (ThreadInfo info : threadInfos) {
-			if (info == null) {
-				continue;
-			}
-
-			String threadName = info.getThreadName();
-			if (threadNameFilter != null && !threadName.toLowerCase().contains(threadNameFilter)) {
-				continue;
-			}
-			System.out.println(
-					" " + info.getThreadId() + "\t: \"" + threadName + "\" (" + info.getThreadState().toString() + ")");
-		}
-
-		if (threadNameFilter != null) {
-			System.out.println(" Thread name filter is:" + threadNameFilter);
-		}
-		System.out.flush();
-	}
-
-	public void printBlockedThreads() throws IOException {
-		System.out.println("\n Stack trace of blocked threads:");
-		int counter = 0;
-		ThreadInfo[] threadInfos = vmInfo.getAllThreadInfo();
-		for (ThreadInfo info : threadInfos) {
-			if (info == null) {
-				continue;
-			}
-
-			String threadName = info.getThreadName();
-
-			if (Thread.State.BLOCKED.equals(info.getThreadState())
-					&& (threadNameFilter == null || threadName.toLowerCase().contains(threadNameFilter))) {
-				printSingleThread(info);
-				counter++;
-			}
-		}
-
-		System.out.println(" Total " + counter + " blocked threads");
-
-		if (threadNameFilter != null) {
-			System.out.println(" Thread name filter is:" + threadNameFilter);
-		}
-		System.out.flush();
 	}
 
 
@@ -623,7 +505,16 @@ public class VMDetailView {
 			this.isCpuMode = isCpuMode;
 		}
 
-		public static ThreadInfoMode parse(String mode) {
+		public static ThreadInfoMode parse(String value) {
+			try {
+				return ThreadInfoMode.valueOf(value);
+			} catch (IllegalArgumentException e) {
+				throw new IllegalArgumentException(
+						"wrong option of thread info mode(cpu,syscpu,totalcpu,totalsyscpu,memory,totalmemory)");
+			}
+		}
+
+		public static ThreadInfoMode parseInt(String mode) {
 			switch (mode) {
 				case "1":
 					return cpu;

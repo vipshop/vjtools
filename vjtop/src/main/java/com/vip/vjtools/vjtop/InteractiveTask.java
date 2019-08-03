@@ -29,7 +29,6 @@ public class InteractiveTask implements Runnable {
 	public void run() {
 		// background执行时，console为Null
 		if (console == null) {
-
 			return;
 		}
 
@@ -97,7 +96,7 @@ public class InteractiveTask implements Runnable {
 
 		try {
 			long pid = Long.parseLong(pidStr);
-			app.view.printStack(pid);
+			app.view.threadPrinter.printStack(pid);
 			waitForEnter();
 		} catch (NumberFormatException e) {
 			tty.println(" Wrong number format for pid");
@@ -109,7 +108,7 @@ public class InteractiveTask implements Runnable {
 	private void printTopThreadsStack() throws IOException {
 		try {
 			app.preventFlush();
-			app.view.printTopStack();
+			app.view.threadPrinter.printTopStack();
 			waitForEnter();
 		} finally {
 			app.continueFlush();
@@ -119,7 +118,7 @@ public class InteractiveTask implements Runnable {
 	private void printAllThreadsName() throws IOException {
 		try {
 			app.preventFlush();
-			app.view.printAllThreads();
+			app.view.threadPrinter.printAllThreads();
 			waitForEnter();
 		} finally {
 			app.continueFlush();
@@ -129,7 +128,7 @@ public class InteractiveTask implements Runnable {
 	private void printBlockedThreadsStack() throws IOException {
 		try {
 			app.preventFlush();
-			app.view.printBlockedThreads();
+			app.view.threadPrinter.printBlockedThreads();
 			waitForEnter();
 		} finally {
 			app.continueFlush();
@@ -142,7 +141,8 @@ public class InteractiveTask implements Runnable {
 		String mode = readLine(
 				" Input number of Display Mode(1.cpu, 2.syscpu 3.total cpu 4.total syscpu 5.memory 6.total memory, current "
 						+ app.view.threadInfoMode + "): ");
-		ThreadInfoMode detailMode = ThreadInfoMode.parse(mode);
+		ThreadInfoMode detailMode = ThreadInfoMode.parseInt(mode);
+
 		if (detailMode == null) {
 			tty.println(" Wrong option for display mode(1-6)");
 		} else if (detailMode == app.view.threadInfoMode) {

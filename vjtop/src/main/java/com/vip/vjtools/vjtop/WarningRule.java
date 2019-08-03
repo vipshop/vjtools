@@ -3,15 +3,14 @@ package com.vip.vjtools.vjtop;
 import com.vip.vjtools.vjtop.util.Formats;
 
 public class WarningRule {
-
 	public DoubleWarning cpu = new DoubleWarning(50d, 70d);
 
 	public LongWarning swap = new LongWarning(1, 1);
 	public LongWarning thread = new LongWarning();
-	public LongWarning newThread = new LongWarning();
+	public LongWarning newThread = new LongWarning(1, Long.MAX_VALUE);
 	public LongWarning io = new LongWarning(100 * Formats.MB_SIZE, Long.MAX_VALUE);
 
-	public LongWarning loadClass = new LongWarning(80000, 150000);
+	public LongWarning loadClass = new LongWarning(80000, Long.MAX_VALUE);
 	public LongWarning newClass = new LongWarning(1, Long.MAX_VALUE);
 
 	public LongWarning old = new LongWarning();
@@ -31,8 +30,6 @@ public class WarningRule {
 	}
 
 	public void updateInterval(long intervalSeconds) {
-		newThread.yellow = 1;
-		newThread.red = intervalSeconds * 2;
 
 		ygcTime.yellow = intervalSeconds * 1000 * 5 / 100; // 5% interval
 		ygcTime.red = intervalSeconds * 1000 * 10 / 100; // 10% interval

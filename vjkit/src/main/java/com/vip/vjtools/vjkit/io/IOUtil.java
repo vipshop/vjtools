@@ -1,6 +1,7 @@
 package com.vip.vjtools.vjkit.io;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,20 +24,20 @@ import com.vip.vjtools.vjkit.text.Charsets;
  * 
  * 建议使用Apache Commons IO和Guava关于IO的工具类(com.google.common.io.*), 在未引入Commons IO时可以用本类做最基本的事情.
  * 
- * <p>
  * 1. 安静关闭Closeable对象
- * <p>
+ * 
  * 2. 读出InputStream/Reader全部内容到String 或 List<String>
- * <p>
- * 3. 读出InputStream一行内容到String
- * <p>
+ * 
+ * 3. 读出InputStream/Reader一行内容到String
+ * 
  * 4. 将String写到OutputStream/Writer
- * <p>
+ * 
+ * 5. 将String 转换为InputStream/Reader
+ * 
  * 5. InputStream/Reader与OutputStream/Writer之间复制的copy
  * 
  */
 public class IOUtil {
-	private static final String CLOSE_ERROR_MESSAGE = "IOException thrown while closing Closeable.";
 
 	private static Logger logger = LoggerFactory.getLogger(IOUtil.class);
 
@@ -52,7 +53,7 @@ public class IOUtil {
 		try {
 			closeable.close();
 		} catch (IOException e) {
-			logger.warn(CLOSE_ERROR_MESSAGE, e);
+			logger.warn("IOException thrown while closing Closeable.", e);
 		}
 	}
 
@@ -119,6 +120,20 @@ public class IOUtil {
 		if (data != null) {
 			output.write(data);
 		}
+	}
+
+	/**
+	 * 字符串转换成InputStream
+	 */
+	public static InputStream toInputStream(String input) {
+		return new ByteArrayInputStream(input.getBytes(Charsets.UTF_8));
+	}
+
+	/**
+	 * 字符串转换成Reader
+	 */
+	public static Reader toInputStreamReader(String input) {
+		return new InputStreamReader(toInputStream(input), Charsets.UTF_8);
 	}
 
 	/**

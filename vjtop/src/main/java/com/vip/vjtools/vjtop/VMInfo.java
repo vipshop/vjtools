@@ -362,13 +362,13 @@ public class VMInfo {
 
 			codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
 
-			direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPool().getMemoryUsed(),
-					jmxClient.getBufferPoolManager().getDirectBufferPool().getTotalCapacity(), maxDirectMemorySize);
+			direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPoolUsed(),
+					jmxClient.getBufferPoolManager().getDirectBufferPoolCapacity(), maxDirectMemorySize);
 
 			// 取巧用法，将count 放入无用的max中。
-			long mapUsed = jmxClient.getBufferPoolManager().getMappedBufferPool().getMemoryUsed();
-			map = new Usage(mapUsed, jmxClient.getBufferPoolManager().getMappedBufferPool().getTotalCapacity(),
-					mapUsed == 0 ? 0 : jmxClient.getBufferPoolManager().getMappedBufferPool().getCount());
+			long mapUsed = jmxClient.getBufferPoolManager().getMappedBufferPoolUsed();
+			map = new Usage(mapUsed, jmxClient.getBufferPoolManager().getMappedBufferPoolCapacity(),
+					mapUsed == 0 ? 0 : jmxClient.getBufferPoolManager().getMappedBufferPoolCount());
 
 		} catch (Exception e) {
 			handleJmxFetchDataError(e);

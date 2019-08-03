@@ -38,8 +38,8 @@ public class TopThreadInfo {
 			long[] threadCpuTotalTimeArray = vmInfo.getThreadCpuTime(tids);
 			long[] threadUserCpuTotalTimeArray = vmInfo.getThreadUserTime(tids);
 
-			// 过滤CPU占用太少的线程，每秒0.05%CPU (0.5ms cpu time)
-			long minDeltaCpuTime = (vmInfo.upTimeMills.delta * Utils.NANOS_TO_MILLS / 2000);
+			// 过滤CPU占用太少的线程，每秒0.01%CPU (0.1ms cpu time)
+			long minDeltaCpuTime = (vmInfo.upTimeMills.delta * Utils.NANOS_TO_MILLS / 10000);
 
 			// 计算本次CPU Time
 			// 此算法第一次不会显示任何数据，保证每次显示都只显示区间内数据
@@ -53,7 +53,9 @@ public class TopThreadInfo {
 					Long deltaThreadCpuTime = threadCpuTotalTime - lastTime;
 					if (deltaThreadCpuTime >= minDeltaCpuTime) {
 						result.threadCpuDeltaTimes.put(tid, deltaThreadCpuTime);
-						result.deltaAllThreadCpu += deltaThreadCpuTime;
+						result.deltaAllActiveThreadCpu += deltaThreadCpuTime;
+					} else {
+						result.deltaAllFreeThreadCpu += deltaThreadCpuTime;
 					}
 				}
 			}
@@ -70,7 +72,7 @@ public class TopThreadInfo {
 					Long deltaThreadSysCpuTime = Math.max(0, threadSysCpuTotalTime - lastTime);
 					if (deltaThreadSysCpuTime >= minDeltaCpuTime) {
 						result.threadSysCpuDeltaTimes.put(tid, deltaThreadSysCpuTime);
-						result.deltaAllThreadSysCpu += deltaThreadSysCpuTime;
+						result.deltaAllActiveThreadSysCpu += deltaThreadSysCpuTime;
 					}
 				}
 			}
@@ -85,21 +87,19 @@ public class TopThreadInfo {
 			// 按不同类型排序,过滤
 			if (mode == ThreadInfoMode.cpu) {
 				topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadCpuDeltaTimes, threadLimit);
-				result.activeThreads = result.threadCpuDeltaTimes.size();
 			} else if (mode == ThreadInfoMode.syscpu) {
 				topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadSysCpuDeltaTimes, threadLimit);
-				result.activeThreads = result.threadSysCpuDeltaTimes.size();
 			} else if (mode == ThreadInfoMode.totalcpu) {
 				topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadCpuTotalTimes, threadLimit);
-				result.activeThreads = result.threadCpuTotalTimes.size();
 			} else if (mode == ThreadInfoMode.totalsyscpu) {
 				topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadSysCpuTotalTimes, threadLimit);
-				result.activeThreads = result.threadSysCpuTotalTimes.size();
 			} else {
 				throw new RuntimeException("unkown mode:" + mode);
 			}
 
-			// 获得threadInfo
+			result.activeThreads = result.threadCpuDeltaTimes.size();
+
+			// 获得线程名等信息threadInfo
 			result.threadInfos = vmInfo.getThreadInfo(topTidArray);
 
 			lastThreadCpuTotalTimes = result.threadCpuTotalTimes;
@@ -110,7 +110,6 @@ public class TopThreadInfo {
 
 		return result;
 	}
-
 
 	public TopMemoryResult topMemoryThreads(ThreadInfoMode mode, int threadLimit) throws IOException {
 		TopMemoryResult result = new TopMemoryResult();
@@ -124,9 +123,6 @@ public class TopThreadInfo {
 			// 批量获取内存分配
 			long[] threadMemoryTotalBytesArray = vmInfo.getThreadAllocatedBytes(tids);
 
-			// 过滤太少的线程，每秒小于1k
-			long minDeltaMemory = vmInfo.upTimeMills.delta * 1024 / 1000;
-
 			// 此算法第一次不会显示任何数据，保证每次显示都只显示区间内数据
 			for (int i = 0; i < tids.length; i++) {
 				long tid = tids[i];
@@ -139,7 +135,7 @@ public class TopThreadInfo {
 
 				if (lastBytes != null) {
 					threadMemoryDeltaBytes = threadMemoryTotalBytes - lastBytes;
-					if (threadMemoryDeltaBytes >= minDeltaMemory) {
+					if (threadMemoryDeltaBytes > 0) {
 						result.threadMemoryDeltaBytesMap.put(tid, threadMemoryDeltaBytes);
 						result.deltaAllThreadBytes += threadMemoryDeltaBytes;
 					}
@@ -156,11 +152,11 @@ public class TopThreadInfo {
 			long[] topTidArray;
 			if (mode == ThreadInfoMode.memory) {
 				topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadMemoryDeltaBytesMap, threadLimit);
-				result.activeThreads = result.threadMemoryDeltaBytesMap.size();
 			} else {
 				topTidArray = Utils.sortAndFilterThreadIdsByValue(result.threadMemoryTotalBytesMap, threadLimit);
-				result.activeThreads = result.threadMemoryTotalBytesMap.size();
 			}
+
+			result.activeThreads = result.threadMemoryDeltaBytesMap.size();
 
 			result.threadInfos = vmInfo.getThreadInfo(topTidArray);
 
@@ -185,8 +181,10 @@ public class TopThreadInfo {
 		public ThreadInfo[] threadInfos;
 		public long activeThreads = 0;
 
-		public long deltaAllThreadCpu = 0;
-		public long deltaAllThreadSysCpu = 0;
+		public long deltaAllActiveThreadCpu = 0;
+		public long deltaAllActiveThreadSysCpu = 0;
+
+		public long deltaAllFreeThreadCpu = 0;
 
 		public LongObjectMap<Long> threadCpuTotalTimes;
 		public LongObjectMap<Long> threadCpuDeltaTimes;

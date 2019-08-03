@@ -72,11 +72,10 @@ START()
   VJTOP_SCRIPT=vjtop.sh
   which $VJTOP_SCRIPT 2>/dev/null
   if [[ $? == 0 ]]; then
-    VJTOP_DURATION=2
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to process vjtop."
-    echo -e "It will take ${VJTOP_DURATION} seconds, please wait."
+    echo -e "It will take 3 seconds, please wait."
     VJTOP_LOG=${LOGDIR}/vjtop-${PID}-${DATE}.log
-    $VJTOP_SCRIPT -n 1 -d $VJTOP_DURATION $PID > ${VJTOP_LOG}
+    $VJTOP_SCRIPT -n 3 -d 1 $PID > ${VJTOP_LOG}
     if [[ $? != 0 ]]; then
       echo -e "\033[31mprocess vjtop error.\033[0m"
     fi
@@ -156,8 +155,14 @@ START()
   else
     echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to zip all files."
     # zip files without heap dump 
-    ZIP_FILE=${BASEDIR}/vjdump-${PID}-${DATE}.zip
-    zip -j ${ZIP_FILE} ${LOGDIR}/*.log
+    if [ -x "$(command -v zip)" ]; then
+        COMPRESS_FILE=${BASEDIR}/vjdump-${PID}-${DATE}.zip
+        zip -j ${COMPRESS_FILE} ${LOGDIR}/*.log
+    else
+        COMPRESS_FILE=${BASEDIR}/vjdump-${PID}-${DATE}.tar.gz
+        (cd ${LOGDIR} && tar -zcvf ${COMPRESS_FILE} *.log)
+    fi
+
     if [[ $? != 0 ]]; then
       echo -e "\033[31mzip files error.\033[0m"
     else
@@ -168,8 +173,15 @@ START()
     if [[ $NEED_HEAP_DUMP == 1 ]]; then
       # compress all files
       echo -e "$(date '+%Y-%m-%d %H:%M:%S') Begin to zip files which include dump file."
-      ZIP_FILE_WITH_HEAP_DUMP=${BASEDIR}/vjdump-with-heap-${PID}-${DATE}.zip
-      zip -j ${ZIP_FILE_WITH_HEAP_DUMP} ${LOGDIR}/*.log ${JMAP_DUMP_FILE}
+
+      if [ -x "$(command -v zip)" ]; then
+        COMPRESS_FILE_WITH_HEAP_DUMP=${BASEDIR}/vjdump-with-heap-${PID}-${DATE}.zip
+        zip -j ${COMPRESS_FILE_WITH_HEAP_DUMP} ${LOGDIR}/*.log ${JMAP_DUMP_FILE}
+      else
+        COMPRESS_FILE_WITH_HEAP_DUMP=${BASEDIR}/vjdump-with-heap-${PID}-${DATE}.tar.gz
+        (cd ${LOGDIR} && tar -zcvf ${COMPRESS_FILE_WITH_HEAP_DUMP} *.log *.bin)
+      fi
+
       if [[ $? != 0 ]]; then
         echo -e "\033[31mzip files which include dump file error.\033[0m"
       else

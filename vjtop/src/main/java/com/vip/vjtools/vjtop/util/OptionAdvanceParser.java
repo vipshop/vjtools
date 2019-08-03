@@ -63,8 +63,8 @@ public class OptionAdvanceParser {
 	public static ThreadInfoMode parseThreadInfoMode(OptionSet optionSet) {
 		ThreadInfoMode threadInfoMode = ThreadInfoMode.cpu;
 		if (optionSet.hasArgument("mode")) {
-			Integer mode = (Integer) optionSet.valueOf("mode");
-			threadInfoMode = ThreadInfoMode.parse(mode.toString());
+			String mode = (String) optionSet.valueOf("mode");
+			threadInfoMode = ThreadInfoMode.parse(mode);
 		}
 		return threadInfoMode;
 	}
@@ -91,13 +91,13 @@ public class OptionAdvanceParser {
 		// detail mode
 		parser.acceptsAll(Arrays.asList("m", "mode"),
 				"number of thread display mode: \n"
-						+ " 1.cpu(default): display thread cpu usage and sort by its delta cpu time\n"
-						+ " 2.syscpu: display thread cpu usage and sort by delta syscpu time\n"
-						+ " 3.total cpu: display thread cpu usage and sort by total cpu time\n"
-						+ " 4.total syscpu: display thread cpu usage and sort by total syscpu time\n"
-						+ " 5.memory: display thread memory allocated and sort by delta\n"
-						+ " 6.total memory: display thread memory allocated and sort by total")
-				.withRequiredArg().ofType(Integer.class);
+						+ " cpu(default): display thread cpu usage and sort by its delta cpu time\n"
+						+ " syscpu: display thread cpu usage and sort by delta syscpu time\n"
+						+ " totalcpu: display thread cpu usage and sort by total cpu time\n"
+						+ " totalsyscpu: display thread cpu usage and sort by total syscpu time\n"
+						+ " memory: display thread memory allocated and sort by delta\n"
+						+ " totalmemory: display thread memory allocated and sort by total")
+				.withRequiredArg().ofType(String.class);
 
 		parser.acceptsAll(Arrays.asList("o", "output"),
 				"output format: \n" + " console(default): console with warning and flush ansi code\n"
@@ -106,7 +106,7 @@ public class OptionAdvanceParser {
 				.withRequiredArg().ofType(String.class);
 
 		parser.acceptsAll(Arrays.asList("c", "content"),
-				"output format: \n"
+				"output content: \n"
 						+ " all(default): jvm info and theads info\n jvm: only jvm info\n thread: only thread info\n")
 				.withRequiredArg().ofType(String.class);
 
