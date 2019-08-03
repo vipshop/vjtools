@@ -1,13 +1,12 @@
 package com.vip.vjtools.vjkit.mapper;
 
-import static org.assertj.core.api.Assertions.*;
+import com.vip.vjtools.vjkit.collection.ListUtil;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-
-import com.vip.vjtools.vjkit.collection.ListUtil;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BeanMapperTest {
 
@@ -58,6 +57,7 @@ public class BeanMapperTest {
 		assertThat(studentVo.getCourse()).containsExactly("chinese", "english");
 
 	}
+
 
 	@Test
 	public void copy2Map() {
@@ -143,6 +143,12 @@ public class BeanMapperTest {
 			this.name = name;
 		}
 
+		@Override
+		public String toString() {
+			return "Teacher{" +
+				"name='" + name + '\'' +
+				'}';
+		}
 	}
 
 	public static class StudentVO {

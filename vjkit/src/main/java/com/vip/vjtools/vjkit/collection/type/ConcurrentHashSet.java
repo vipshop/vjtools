@@ -27,38 +27,47 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> implements Set<E>, java
 		s = m.keySet();
 	}
 
+	@Override
 	public void clear() {
 		m.clear();
 	}
 
+	@Override
 	public int size() {
 		return m.size();
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return m.isEmpty();
 	}
 
+	@Override
 	public boolean contains(Object o) {
 		return m.containsKey(o);
 	}
 
+	@Override
 	public boolean remove(Object o) {
 		return m.remove(o) != null;
 	}
 
+	@Override
 	public boolean add(E e) {
 		return m.put(e, Boolean.TRUE) == null;
 	}
 
+	@Override
 	public Iterator<E> iterator() {
 		return s.iterator();
 	}
 
+	@Override
 	public Object[] toArray() {
 		return s.toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(T[] a) {
 		return s.toArray(a);
 	}
@@ -68,22 +77,27 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> implements Set<E>, java
 		return s.toString();
 	}
 
+	@Override
 	public int hashCode() {
 		return s.hashCode();
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		return o == this || s.equals(o);
 	}
 
+	@Override
 	public boolean containsAll(Collection<?> c) {
 		return s.containsAll(c);
 	}
 
+	@Override
 	public boolean removeAll(Collection<?> c) {
 		return s.removeAll(c);
 	}
 
+	@Override
 	public boolean retainAll(Collection<?> c) {
 		return s.retainAll(c);
 	}

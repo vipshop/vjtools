@@ -1,6 +1,8 @@
 package com.vip.vjtools.vjkit.mapper;
 
-import static org.assertj.core.api.Assertions.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,10 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.Test;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * 测试Jackson对Object,Map,List,数组,枚举,日期类等的持久化. 更多测试见showcase中的JsonDemo.
@@ -122,6 +121,14 @@ public class JsonMapperTest {
 		nullBeanResult = JsonMapper.INSTANCE.fromJson("null", TestBean.class);
 		assertThat(nullBeanResult).isNull();
 
+		nullBeanResult = JsonMapper.INSTANCE.fromJson("{}", TestBean.class);
+		assertThat(nullBeanResult).isNotNull();
+		assertThat(nullBeanResult.getDefaultValue()).isEqualTo("hello");
+
+
+		nullBeanResult = JsonMapper.INSTANCE.fromJson("", TestBean.class);
+		assertThat(nullBeanResult).isNull();
+
 		nullBeanResult = JsonMapper.INSTANCE.fromJson("", TestBean.class);
 		assertThat(nullBeanResult).isNull();
 
@@ -139,6 +146,9 @@ public class JsonMapperTest {
 
 		nullListResult = JsonMapper.INSTANCE.fromJson("[]", List.class);
 		assertThat(nullListResult).isEmpty();
+
+
+
 	}
 
 	/**

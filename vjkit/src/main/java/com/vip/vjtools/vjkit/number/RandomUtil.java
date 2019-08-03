@@ -6,9 +6,8 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.Validate;
 
-import com.vip.vjtools.vjkit.base.MoreValidate;
+import com.vip.vjtools.vjkit.base.Validate;
 
 /**
  * 随机数工具集.
@@ -104,7 +103,7 @@ public class RandomUtil {
 	 */
 	public static int nextInt(Random random, int min, int max) {
 		Validate.isTrue(max >= min, "Start value must be smaller or equal to end value.");
-		MoreValidate.nonNegative("min", min);
+		Validate.nonNegative("min", min);
 
 		if (min == max) {
 			return min;
@@ -168,7 +167,7 @@ public class RandomUtil {
 	 */
 	public static long nextLong(Random random, long min, long max) {
 		Validate.isTrue(max >= min, "Start value must be smaller or equal to end value.");
-		MoreValidate.nonNegative("min", min);
+		Validate.nonNegative("min", min);
 
 		if (min == max) {
 			return min;
@@ -220,7 +219,7 @@ public class RandomUtil {
 	 */
 	public static double nextDouble(Random random, final double min, final double max) {
 		Validate.isTrue(max >= min, "Start value must be smaller or equal to end value.");
-		MoreValidate.nonNegative("min", min);
+		Validate.nonNegative("min", min);
 
 		if (Double.compare(min, max) == 0) {
 			return min;

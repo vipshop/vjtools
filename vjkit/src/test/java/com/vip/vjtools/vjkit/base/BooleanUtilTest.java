@@ -1,9 +1,12 @@
 package com.vip.vjtools.vjkit.base;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * 优先使用org.apache.commons.lang3.BooleanUtils
+ */
 public class BooleanUtilTest {
 
 	@Test
