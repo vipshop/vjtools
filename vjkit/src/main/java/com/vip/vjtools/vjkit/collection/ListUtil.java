@@ -212,7 +212,7 @@ public class ListUtil {
 	}
 
 	/**
-	 * 升序排序, 采用JDK认为最优的排序算法, 使用Comparetor.
+	 * 升序排序, 采用JDK认为最优的排序算法, 使用Comparator.
 	 * 
 	 * @see java.util.Collections#sort(List, Comparator)
 	 */

@@ -9,7 +9,7 @@ import com.vip.vjtools.vjkit.text.MoreStringUtil;
 /**
  * 关于文件路径的工具集. 这个类只适合处理纯字符串的路径，如果是File对象或者Path对象的路径处理，建议直接使用Path类的方法。
  * 
- * @see {@link java.nio.file.Path}
+ * @see java.nio.file.Path
  */
 public class FilePathUtil {
 

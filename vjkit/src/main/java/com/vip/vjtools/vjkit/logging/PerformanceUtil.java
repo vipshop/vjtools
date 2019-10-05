@@ -86,7 +86,7 @@ public class PerformanceUtil {
 	/**
 	 * 当处理时间超过预定的阈值时发出警告信息
 	 * @param logger
-	 * @param key
+	 * @param duration
 	 * @param threshold 阈值（单位：ms）
 	 */
 	public static void slowLog(Logger logger, long duration, long threshold) {
@@ -165,7 +165,7 @@ public class PerformanceUtil {
 
 	/**
 	 * 记录结束时间并当处理时间超过预定的阈值时发出警告信息，最后清除
-	 * @param log
+	 * @param logger
 	 * @param key
 	 * @param threshold 阈值（单位：ms）
 	*  @param context 需要记录的context信息，如请求的json等

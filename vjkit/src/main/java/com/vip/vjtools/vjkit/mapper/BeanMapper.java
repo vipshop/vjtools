@@ -9,7 +9,7 @@ import org.dozer.Mapper;
 import com.vip.vjtools.vjkit.collection.ArrayUtil;
 
 /**
- * 实现深度的BeanOfClasssA<->BeanOfClassB复制
+ * 实现深度的BeanOfClassA<->BeanOfClassB复制
  * 
  * 不要使用Apache Common BeanUtils进行类复制，每次就行反射查询对象的属性列表, 非常缓慢.
  * 

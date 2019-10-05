@@ -56,7 +56,7 @@ public class FileUtil {
 	/**
 	 * 读取文件到byte[].
 	 * 
-	 * @see {@link Files#readAllBytes}
+	 * @see Files#readAllBytes
 	 */
 	public static byte[] toByteArray(final File file) throws IOException {
 		return Files.readAllBytes(file.toPath());
@@ -72,7 +72,7 @@ public class FileUtil {
 	/**
 	 * 读取文件的每行内容到List<String>.
 	 * 
-	 * @see {@link Files#readAllLines}
+	 * @see Files#readAllLines
 	 */
 	public static List<String> toLines(final File file) throws IOException {
 		return Files.readAllLines(file.toPath(), Charsets.UTF_8);
@@ -106,7 +106,7 @@ public class FileUtil {
 	/**
 	 * 打开文件为InputStream.
 	 * 
-	 * @see {@link Files#newInputStream}
+	 * @see Files#newInputStream
 	 */
 	public static InputStream asInputStream(String fileName) throws IOException {
 		return asInputStream(getPath(fileName));
@@ -115,7 +115,7 @@ public class FileUtil {
 	/**
 	 * 打开文件为InputStream.
 	 * 
-	 * @see {@link Files#newInputStream}
+	 * @see Files#newInputStream
 	 */
 	public static InputStream asInputStream(File file) throws IOException {
 		Validate.notNull(file, "file is null");
@@ -125,7 +125,7 @@ public class FileUtil {
 	/**
 	 * 打开文件为InputStream.
 	 * 
-	 * @see {@link Files#newInputStream}
+	 * @see Files#newInputStream
 	 */
 	public static InputStream asInputStream(Path path) throws IOException {
 		Validate.notNull(path, "path is null");
@@ -135,28 +135,28 @@ public class FileUtil {
 	/**
 	 * 打开文件为OutputStream.
 	 * 
-	 * @see {@link Files#newOutputStream}
+	 * @see Files#newOutputStream
 	 */
-	public static OutputStream asOututStream(String fileName) throws IOException {
-		return asOututStream(getPath(fileName));
+	public static OutputStream asOutputStream(String fileName) throws IOException {
+		return asOutputStream(getPath(fileName));
 	}
 
 	/**
 	 * 打开文件为OutputStream.
 	 * 
-	 * @see {@link Files#newOutputStream}
+	 * @see Files#newOutputStream
 	 */
-	public static OutputStream asOututStream(File file) throws IOException {
+	public static OutputStream asOutputStream(File file) throws IOException {
 		Validate.notNull(file, "file is null");
-		return asOututStream(file.toPath());
+		return asOutputStream(file.toPath());
 	}
 
 	/**
 	 * 打开文件为OutputStream.
 	 * 
-	 * @see {@link Files#newOutputStream}
+	 * @see Files#newOutputStream
 	 */
-	public static OutputStream asOututStream(Path path) throws IOException {
+	public static OutputStream asOutputStream(Path path) throws IOException {
 		Validate.notNull(path, "path is null");
 		return Files.newOutputStream(path);
 	}
@@ -164,7 +164,7 @@ public class FileUtil {
 	/**
 	 * 获取File的BufferedReader.
 	 * 
-	 * @see {@link Files#newBufferedReader}
+	 * @see Files#newBufferedReader
 	 */
 	public static BufferedReader asBufferedReader(String fileName) throws IOException {
 		Validate.notBlank(fileName, "filename is blank");
@@ -179,7 +179,7 @@ public class FileUtil {
 	/**
 	 * 获取File的BufferedWriter.
 	 * 
-	 * @see {@link Files#newBufferedWriter}
+	 * @see Files#newBufferedWriter
 	 */
 	public static BufferedWriter asBufferedWriter(String fileName) throws IOException {
 		Validate.notBlank(fileName, "filename is blank");
@@ -189,7 +189,7 @@ public class FileUtil {
 	/**
 	 * 获取File的BufferedWriter.
 	 * 
-	 * @see {@link Files#newBufferedWriter}
+	 * @see Files#newBufferedWriter
 	 */
 	public static BufferedWriter asBufferedWriter(Path path) throws IOException {
 		Validate.notNull(path, "path is null");
@@ -229,9 +229,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * 文件复制.
-	 * 
-	 * @see {@link Files#copy}
+	 * 文件复制. {@link Files#copy}
 	 * 
 	 * @param from 如果为null，或文件不存在或者是目录，，抛出异常
 	 * @param to 如果to为null，或文件存在但是一个目录，抛出异常
@@ -243,7 +241,7 @@ public class FileUtil {
 	}
 
 	/**
-	 * 文件复制. @see {@link Files#copy}
+	 * 文件复制. {@link Files#copy}
 	 * 
 	 * @param from 如果为null，或文件不存在或者是目录，，抛出异常
 	 * @param to 如果to为null，或文件存在但是一个目录，抛出异常
@@ -283,7 +281,7 @@ public class FileUtil {
 	/**
 	 * 文件移动/重命名.
 	 * 
-	 * @see {@link Files#move}
+	 * @see Files#move
 	 */
 	public static void moveFile(@NotNull File from, @NotNull File to) throws IOException {
 		Validate.notNull(from);
@@ -295,7 +293,7 @@ public class FileUtil {
 	/**
 	 * 文件移动/重命名.
 	 * 
-	 * @see {@link Files#move}
+	 * @see Files#move
 	 */
 	public static void moveFile(@NotNull Path from, @NotNull Path to) throws IOException {
 		Validate.isTrue(isFileExists(from), "%s is not exist or not a file", from);
@@ -329,7 +327,7 @@ public class FileUtil {
 	/**
 	 * 创建文件或更新时间戳.
 	 * 
-	 * @see {@link com.google.common.io.Files#touch}
+	 * @see com.google.common.io.Files#touch
 	 */
 	public static void touch(String filePath) throws IOException {
 		touch(new File(filePath));
@@ -338,7 +336,7 @@ public class FileUtil {
 	/**
 	 * 创建文件或更新时间戳.
 	 * 
-	 * @see {@link com.google.common.io.Files#touch}
+	 * @see com.google.common.io.Files#touch
 	 */
 	public static void touch(File file) throws IOException {
 		com.google.common.io.Files.touch(file);
@@ -368,7 +366,7 @@ public class FileUtil {
 	/**
 	 * 删除目录及所有子目录/文件
 	 * 
-	 * @see {@link Files#walkFileTree}
+	 * @see Files#walkFileTree
 	 */
 	public static void deleteDir(Path dir) throws IOException {
 		Validate.isTrue(isDirExists(dir), "%s is not exist or not a dir", dir);
@@ -427,7 +425,7 @@ public class FileUtil {
 	/**
 	 * 确保目录存在, 如不存在则创建.
 	 * 
-	 * @see {@link Files#createDirectories}
+	 * @see Files#createDirectories
 	 * 
 	 */
 	public static void makesureDirExists(Path dirPath) throws IOException {
@@ -447,8 +445,8 @@ public class FileUtil {
 	/**
 	 * 判断文件是否存在, from Jodd.
 	 * 
-	 * @see {@link Files#exists}
-	 * @see {@link Files#isRegularFile}
+	 * @see Files#exists
+	 * @see Files#isRegularFile
 	 */
 	public static boolean isFileExists(String fileName) {
 		if (fileName == null) {
@@ -460,8 +458,8 @@ public class FileUtil {
 	/**
 	 * 判断文件是否存在, from Jodd.
 	 * 
-	 * @see {@link Files#exists}
-	 * @see {@link Files#isRegularFile}
+	 * @see Files#exists
+	 * @see Files#isRegularFile
 	 */
 	public static boolean isFileExists(File file) {
 		if (file == null) {
@@ -473,8 +471,8 @@ public class FileUtil {
 	/**
 	 * 判断文件是否存在, from Jodd.
 	 * 
-	 * @see {@link Files#exists}
-	 * @see {@link Files#isRegularFile}
+	 * @see Files#exists
+	 * @see Files#isRegularFile
 	 */
 	public static boolean isFileExists(Path path) {
 		if (path == null) {
@@ -486,7 +484,7 @@ public class FileUtil {
 	/**
 	 * 在临时目录创建临时目录，命名为${毫秒级时间戳}-${同一毫秒内的随机数}.
 	 *
-	 * @see {@link Files#createTempDirectory}
+	 * @see Files#createTempDirectory
 	 */
 	public static Path createTempDir() throws IOException {
 		return Files.createTempDirectory(System.currentTimeMillis() + "-");
@@ -495,7 +493,7 @@ public class FileUtil {
 	/**
 	 * 在临时目录创建临时文件，命名为tmp-${random.nextLong()}.tmp
 	 * 
-	 * @see {@link Files#createTempFile}
+	 * @see Files#createTempFile
 	 */
 	public static Path createTempFile() throws IOException {
 		return Files.createTempFile("tmp-", ".tmp");
@@ -504,7 +502,7 @@ public class FileUtil {
 	/**
 	 * 在临时目录创建临时文件，命名为${prefix}${random.nextLong()}${suffix}
 	 * 
-	 * @see {@link Files#createTempFile}
+	 * @see Files#createTempFile
 	 */
 	public static Path createTempFile(String prefix, String suffix) throws IOException {
 		return Files.createTempFile(prefix, suffix);
@@ -526,7 +524,7 @@ public class FileUtil {
 	/**
 	 * 获取文件名的扩展名部分(不包含.)
 	 * 
-	 * @see {@link com.google.common.io.Files#getFileExtension}
+	 * @see com.google.common.io.Files#getFileExtension
 	 */
 	public static String getFileExtension(File file) {
 		return com.google.common.io.Files.getFileExtension(file.getName());
@@ -535,7 +533,7 @@ public class FileUtil {
 	/**
 	 * 获取文件名的扩展名部分(不包含.)
 	 * 
-	 * @see {@link com.google.common.io.Files#getFileExtension}
+	 * @see com.google.common.io.Files#getFileExtension
 	 */
 	public static String getFileExtension(String fullName) {
 		return com.google.common.io.Files.getFileExtension(fullName);

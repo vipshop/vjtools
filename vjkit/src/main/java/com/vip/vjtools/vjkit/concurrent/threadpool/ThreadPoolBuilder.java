@@ -75,7 +75,7 @@ public class ThreadPoolBuilder {
 	 * Queue默认为无限长的LinkedBlockingQueue, 但建议设置queueSize换成有界的队列.
 	 * 
 	 * 如果使用有界队列, 当队列满了之后,会调用RejectHandler进行处理, 默认为AbortPolicy，抛出RejectedExecutionException异常.
-	 * 其他可选的Policy包括静默放弃当前任务(Discard)，放弃Queue里最老的任务(DisacardOldest)，或由主线程来直接执行(CallerRuns).
+	 * 其他可选的Policy包括静默放弃当前任务(Discard)，放弃Queue里最老的任务(DiscardOldest)，或由主线程来直接执行(CallerRuns).
 	 * 
 	 * 3. 因为线程全部为core线程，所以不会在空闲时回收.
 	 */
@@ -135,7 +135,7 @@ public class ThreadPoolBuilder {
 			return this;
 		}
 
-		public FixedThreadPoolBuilder setRejectHanlder(RejectedExecutionHandler rejectHandler) {
+		public FixedThreadPoolBuilder setRejectHandler(RejectedExecutionHandler rejectHandler) {
 			this.rejectHandler = rejectHandler;
 			return this;
 		}
@@ -235,7 +235,7 @@ public class ThreadPoolBuilder {
 			return this;
 		}
 
-		public CachedThreadPoolBuilder setRejectHanlder(RejectedExecutionHandler rejectHandler) {
+		public CachedThreadPoolBuilder setRejectHandler(RejectedExecutionHandler rejectHandler) {
 			this.rejectHandler = rejectHandler;
 			return this;
 		}
@@ -356,7 +356,7 @@ public class ThreadPoolBuilder {
 			return this;
 		}
 
-		public QueuableCachedThreadPoolBuilder setRejectHanlder(RejectedExecutionHandler rejectHandler) {
+		public QueuableCachedThreadPoolBuilder setRejectHandler(RejectedExecutionHandler rejectHandler) {
 			this.rejectHandler = rejectHandler;
 			return this;
 		}

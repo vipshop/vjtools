@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * 提供对配置值进行校验，并根据结果决定是否使用默认值。
  * 
- * Guva, Commons Lang里的Validate类用于判断并抛异常。
+ * Guava, Commons Lang里的Validate类用于判断并抛异常。
  * 
  * 而ValueValidator的行为是取默认值，多用于配置值的处理。
  * 

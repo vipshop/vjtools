@@ -29,7 +29,7 @@ public class MoreStringUtil {
 	/**
 	 * 高性能的Split，针对char的分隔符号，比JDK String自带的高效.
 	 * 
-	 * copy from Commons Lange 3.5 StringUtils 并做优化
+	 * copy from Commons Lang 3.5 StringUtils 并做优化
 	 * 
 	 * @see #split(String, char, int)
 	 */
@@ -40,7 +40,7 @@ public class MoreStringUtil {
 	/**
 	 * 高性能的Split，针对char的分隔符号，比JDK String自带的高效.
 	 * 
-	 * copy from Commons Lange 3.5 StringUtils, 做如下优化:
+	 * copy from Commons Lang 3.5 StringUtils, 做如下优化:
 	 * 
 	 * 1. 最后不做数组转换，直接返回List.
 	 * 

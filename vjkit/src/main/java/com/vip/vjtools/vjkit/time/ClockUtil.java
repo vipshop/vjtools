@@ -141,7 +141,7 @@ public class ClockUtil {
 		}
 
 		/**
-		 * 获取nanotime
+		 * 获取nanoTime
 		 */
 		@Override
 		public long nanoTime() {
@@ -177,7 +177,7 @@ public class ClockUtil {
 		}
 
 		/**
-		 * 设置nanotime.
+		 * 设置nanoTime.
 		 */
 		public void setNanoTime(long nanoTime) {
 			this.nanoTme = nanoTime;

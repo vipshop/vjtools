@@ -49,7 +49,7 @@ public class ThreadPoolUtil {
 	}
 
 	/**
-	 * @see gracefulShutdown
+	 * @see #gracefulShutdown
 	 */
 	public static boolean gracefulShutdown(@Nullable ExecutorService threadPool, int shutdownTimeout,
 			TimeUnit timeUnit) {
@@ -70,7 +70,7 @@ public class ThreadPoolUtil {
 	/**
 	 * 可设定是否daemon, daemon线程在主线程已执行完毕时, 不会阻塞应用不退出, 而非daemon线程则会阻塞.
 	 * 
-	 * @see buildThreadFactory
+	 * @see #buildThreadFactory
 	 */
 	public static ThreadFactory buildThreadFactory(@NotNull String threadNamePrefix, @NotNull boolean daemon) {
 		return new ThreadFactoryBuilder().setNameFormat(threadNamePrefix + "-%d").setDaemon(daemon).build();
@@ -86,7 +86,7 @@ public class ThreadPoolUtil {
 	}
 
 	/**
-	 * 保证不会有Exception抛出到线程池的Runnable包裹类，防止用户没有捕捉异常导致中断了线程池中的线程, 使得SchedulerService无法执行. 在无法控制第三方包的Runnalbe实现时，使用本类进行包裹.
+	 * 保证不会有Exception抛出到线程池的Runnable包裹类，防止用户没有捕捉异常导致中断了线程池中的线程, 使得SchedulerService无法执行. 在无法控制第三方包的Runnable实现时，使用本类进行包裹.
 	 */
 	private static class SafeRunnable implements Runnable {
 
