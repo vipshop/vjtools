@@ -22,7 +22,7 @@
 	<files>
 		<file>
 			<source>src/main/assembly/vjmxcli.sh</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<destName>vjmxcli.sh</destName>
 			<fileMode>0755</fileMode>
 			<filtered>true</filtered>
@@ -30,12 +30,12 @@
 		</file>
 		<file>
 			<source>src/main/assembly/vjmxcli.bat</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<lineEnding>windows</lineEnding>
 		</file>
 		<file>
 			<source>README.md</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<destName>README.md</destName>
 			<lineEnding>unix</lineEnding>
 		</file>

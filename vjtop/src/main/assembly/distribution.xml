@@ -12,24 +12,24 @@
 	<files>
 		<file>
 			<source>src/main/assembly/vjtop.bat</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<lineEnding>windows</lineEnding>
 		</file>
 		<file>
 			<source>src/main/assembly/vjtop.sh</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<fileMode>0755</fileMode>
 			<lineEnding>unix</lineEnding>
 		</file>
 		<file>
 			<source>README.md</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<destName>README.md</destName>
 			<lineEnding>unix</lineEnding>
 		</file>
 		<file>
 			<source>${project.build.directory}/vjtop.jar</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 		</file>
 	</files>
 </assembly>
