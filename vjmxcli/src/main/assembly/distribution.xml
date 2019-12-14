@@ -29,7 +29,7 @@
 			<lineEnding>unix</lineEnding>
 		</file>
 		<file>
-			<source>src/main/assembly/vjmxcli.sh</source>
+			<source>src/main/assembly/vjmxcli.bat</source>
 			<outputDirectory>/</outputDirectory>
 			<lineEnding>windows</lineEnding>
 		</file>
