@@ -12,12 +12,17 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.json.JSONException;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  * 测试Jackson对Object,Map,List,数组,枚举,日期类等的持久化. 更多测试见showcase中的JsonDemo.
  */
 public class JsonMapperTest {
 
+	public void assertJSONEqual(String s1, String s2) throws JSONException {
+		JSONAssert.assertEquals(s1, s2, false);
+	}
 	/**
 	 * 序列化对象/集合到Json字符串.
 	 */
@@ -27,8 +32,8 @@ public class JsonMapperTest {
 		TestBean bean = new TestBean("A");
 		String beanString = JsonMapper.INSTANCE.toJson(bean);
 		System.out.println("Bean:" + beanString);
-		assertThat(beanString)
-				.isEqualTo("{\"name\":\"A\",\"defaultValue\":\"hello\",\"nullValue\":null,\"emptyValue\":[]}");
+		assertJSONEqual(beanString,
+				"{\"name\":\"A\",\"defaultValue\":\"hello\",\"nullValue\":null,\"emptyValue\":[]}");
 
 		// Map
 		Map<String, Object> map = Maps.newLinkedHashMap();
@@ -48,14 +53,14 @@ public class JsonMapperTest {
 		List<TestBean> beanList = Lists.newArrayList(new TestBean("A"), new TestBean("B"));
 		String beanListString = JsonMapper.INSTANCE.toJson(beanList);
 		System.out.println("Bean List:" + beanListString);
-		assertThat(beanListString).isEqualTo(
+		assertJSONEqual(beanListString,
 				"[{\"name\":\"A\",\"defaultValue\":\"hello\",\"nullValue\":null,\"emptyValue\":[]},{\"name\":\"B\",\"defaultValue\":\"hello\",\"nullValue\":null,\"emptyValue\":[]}]");
 
 		// Bean[]
 		TestBean[] beanArray = new TestBean[] { new TestBean("A"), new TestBean("B") };
 		String beanArrayString = JsonMapper.INSTANCE.toJson(beanArray);
 		System.out.println("Array List:" + beanArrayString);
-		assertThat(beanArrayString).isEqualTo(
+		assertJSONEqual(beanArrayString,
 				"[{\"name\":\"A\",\"defaultValue\":\"hello\",\"nullValue\":null,\"emptyValue\":[]},{\"name\":\"B\",\"defaultValue\":\"hello\",\"nullValue\":null,\"emptyValue\":[]}]");
 	}
 
@@ -145,31 +150,33 @@ public class JsonMapperTest {
 	 * 测试三种不同的Mapper.
 	 */
 	@Test
-	public void threeTypeMappers() {
+	public void threeTypeMappers() throws JSONException {
 		// 打印全部属性
 		JsonMapper normalBinder = JsonMapper.defaultMapper();
 		TestBean bean = new TestBean("A");
-		assertThat(normalBinder.toJson(bean))
-				.isEqualTo("{\"name\":\"A\",\"defaultValue\":\"hello\",\"nullValue\":null,\"emptyValue\":[]}");
+		assertJSONEqual(normalBinder.toJson(bean), "{\"name\":\"A\",\"defaultValue\":\"hello\",\"nullValue\":null,\"emptyValue\":[]}");
 
 		// 不打印nullValue属性
 		JsonMapper nonNullMapper = JsonMapper.nonNullMapper();
-		assertThat(nonNullMapper.toJson(bean))
-				.isEqualTo("{\"name\":\"A\",\"defaultValue\":\"hello\",\"emptyValue\":[]}");
+		assertJSONEqual(nonNullMapper.toJson(bean),"{\"name\":\"A\",\"defaultValue\":\"hello\",\"emptyValue\":[]}");
 
 		// 不打印nullValue与empty的属性
 		JsonMapper nonEmptyMapper = JsonMapper.nonEmptyMapper();
-		assertThat(nonEmptyMapper.toJson(bean)).isEqualTo("{\"name\":\"A\",\"defaultValue\":\"hello\"}");
+		assertJSONEqual(nonEmptyMapper.toJson(bean),"{\"name\":\"A\",\"defaultValue\":\"hello\"}");
 
 		TestBean nonEmptyBean = nonEmptyMapper.fromJson("{\"name\":\"A\",\"defaultValue\":\"hello\"}", TestBean.class);
 		assertThat(nonEmptyBean.getEmptyValue()).isEmpty();
 	}
 
 	@Test
-	public void jsonp() {
+	public void jsonp() throws JSONException{
 		TestBean bean = new TestBean("A");
 		String jsonp = JsonMapper.nonEmptyMapper().toJsonP("haha", bean);
-		assertThat(jsonp).isEqualTo("haha({\"name\":\"A\",\"defaultValue\":\"hello\"})");
+		String testJSON="haha({\"name\":\"A\",\"defaultValue\":\"hello\"})";
+		String expected = testJSON.substring(testJSON.indexOf("(")+1,testJSON.indexOf(")"));
+		String test = jsonp.substring(jsonp.indexOf("(")+1, jsonp.indexOf(")"));
+		assertThat(jsonp.replace(test,"")).isEqualTo(testJSON.replace(expected,""));
+		assertJSONEqual(expected, test);
 	}
 
 	@Test
