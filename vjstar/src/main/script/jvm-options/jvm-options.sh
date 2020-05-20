@@ -77,7 +77,7 @@ GC_OPTS="$GC_OPTS -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=10
 if [ -d /dev/shm/ ]; then
     GC_LOG_FILE=/dev/shm/gc-${APPID}.log
 else
-	GC_LOG_FILE=${LOGDIR}/gc-${APPID}.log
+    GC_LOG_FILE=${LOGDIR}/gc-${APPID}.log
 fi
 
 
@@ -93,7 +93,7 @@ GCLOG_OPTS="-Xloggc:${GC_LOG_FILE} -XX:+PrintGCDetails -XX:+PrintGCDateStamps -X
 
 #打印GC原因，JDK8默认打开
 if [[ "$JAVA_VERSION" < "1.8" ]]; then
-	GCLOG_OPTS="$GCLOG_OPTS -XX:+PrintGCCause"
+    GCLOG_OPTS="$GCLOG_OPTS -XX:+PrintGCCause"
 fi
 
 
