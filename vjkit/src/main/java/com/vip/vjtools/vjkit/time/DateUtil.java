@@ -192,7 +192,7 @@ public class DateUtil {
 
 	///// 获取日期的位置//////
 	/**
-	 * 获得日期是一周的第几天. 已改为中国习惯，1 是Monday，而不是Sundays.
+	 * 获得日期是一周的第几天. 已改为中国习惯，1 是Monday，而不是Sunday.
 	 */
 	public static int getDayOfWeek(@NotNull final Date date) {
 		int result = getWithMondayFirst(date, Calendar.DAY_OF_WEEK);
