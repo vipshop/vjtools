@@ -22,6 +22,10 @@ public class OptionAdvanceParser {
 			pid = Integer.valueOf((String) optionSet.nonOptionArguments().get(0));
 		}
 
+		if (pid == null){
+			pid = SelectPid.getPidFromJpsList();
+		}
+
 		if (pid == null) {
 			System.out.println("PID can't be empty !!!");
 			VJTop.printHelper(parser);
