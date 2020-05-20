@@ -136,15 +136,15 @@ public class FileUtilTest {
 	public void testAsOututStream() throws Exception {
 
 		Path tempPath = FileUtil.createTempFile();
-		try (OutputStream os = FileUtil.asOututStream(tempPath.toString())) {
+		try (OutputStream os = FileUtil.asOutputStream(tempPath.toString())) {
 			assertThat(os).isNotNull();
 		}
 
-		try (OutputStream os = FileUtil.asOututStream(tempPath);) {
+		try (OutputStream os = FileUtil.asOutputStream(tempPath);) {
 			assertThat(os).isNotNull();
 		}
 
-		try (OutputStream os = FileUtil.asOututStream(tempPath.toFile())) {
+		try (OutputStream os = FileUtil.asOutputStream(tempPath.toFile())) {
 			assertThat(os).isNotNull();
 		}
 	}

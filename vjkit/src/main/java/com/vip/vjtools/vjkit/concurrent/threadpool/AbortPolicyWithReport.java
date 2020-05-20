@@ -18,7 +18,7 @@ public class AbortPolicyWithReport extends ThreadPoolExecutor.AbortPolicy {
 
 	private final String threadName;
 
-	private ThreadDumpper dummper = new ThreadDumpper();
+	private ThreadDumpper dumpper = new ThreadDumpper();
 
 	public AbortPolicyWithReport(String threadName) {
 		this.threadName = threadName;
@@ -34,7 +34,7 @@ public class AbortPolicyWithReport extends ThreadPoolExecutor.AbortPolicy {
 				e.getLargestPoolSize(), e.getTaskCount(), e.getCompletedTaskCount(), e.isShutdown(), e.isTerminated(),
 				e.isTerminating());
 		logger.warn(msg);
-		dummper.tryThreadDump(null);
+		dumpper.tryThreadDump(null);
 		throw new RejectedExecutionException(msg);
 	}
 

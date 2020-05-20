@@ -16,7 +16,7 @@ import com.vip.vjtools.vjkit.io.type.StringBuilderWriter;
 /**
  * 关于异常的工具类.
  * 
- * 1. Checked/Uncheked及Wrap(如ExecutionException)的转换.
+ * 1. Checked/Unchecked及Wrap(如ExecutionException)的转换.
  * 
  * 2. 打印Exception的辅助函数. (其中一些来自Common Lang ExceptionUtils)
  * 
@@ -30,14 +30,14 @@ public class ExceptionUtil {
 
 	private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
 
-	///// Checked/Uncheked及Wrap(如ExecutionException)的转换/////
+	///// Checked/Unchecked及Wrap(如ExecutionException)的转换/////
 
 	/**
-	 * 将CheckedException转换为RuntimeException重新抛出, 可以减少函数签名中的CheckExcetpion定义.
+	 * 将CheckedException转换为RuntimeException重新抛出, 可以减少函数签名中的CheckException定义.
 	 * 
 	 * CheckedException会用UndeclaredThrowableException包裹，RunTimeException和Error则不会被转变.
 	 * 
-	 * copy from Commons Lange 3.5 ExceptionUtils.
+	 * copy from Commons Lang 3.5 ExceptionUtils.
 	 * 
 	 * 虽然unchecked()里已直接抛出异常，但仍然定义返回值，方便欺骗Sonar。因此本函数也改变了一下返回值
 	 * 

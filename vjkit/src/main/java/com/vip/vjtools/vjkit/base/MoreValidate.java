@@ -3,7 +3,7 @@ package com.vip.vjtools.vjkit.base;
 import com.vip.vjtools.vjkit.base.annotation.Nullable;
 
 /**
- * 参数校验统一使用Apache Common Lange Validate, 补充一些缺少的.
+ * 参数校验统一使用Apache Common Lang Validate, 补充一些缺少的.
  * 
  * 为什么不用Guava的{@code com.google.common.base.Preconditions} , 一是少打几个字而已, 二是Validate的方法多，比如noNullElements()判断多个元素都不为空
  * 

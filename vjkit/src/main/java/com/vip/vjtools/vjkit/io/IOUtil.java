@@ -44,7 +44,7 @@ public class IOUtil {
 	/**
 	 * 在final中安静的关闭, 不再往外抛出异常避免影响原有异常，最常用函数. 同时兼容Closeable为空未实际创建的情况.
 	 * 
-	 * @see {@link Closeables#close}
+	 * @see Closeables#close
 	 */
 	public static void closeQuietly(Closeable closeable) {
 		if (closeable == null) {
@@ -68,7 +68,7 @@ public class IOUtil {
 	/**
 	 * 简单读取Reader到String
 	 * 
-	 * @see {@link CharStreams#toString}
+	 * @see CharStreams#toString
 	 */
 	public static String toString(Reader input) throws IOException {
 		return CharStreams.toString(input);
@@ -84,7 +84,7 @@ public class IOUtil {
 	/**
 	 * 简单读取Reader的每行内容到List<String>
 	 * 
-	 * @see {@link CharStreams#readLines}
+	 * @see CharStreams#readLines
 	 */
 	public static List<String> toLines(final Reader input) throws IOException {
 		return CharStreams.readLines(toBufferedReader(input));
@@ -139,7 +139,7 @@ public class IOUtil {
 	/**
 	 * 在Reader与Writer间复制内容
 	 * 
-	 * @see {@link CharStreams#copy}
+	 * @see CharStreams#copy
 	 */
 	public static long copy(final Reader input, final Writer output) throws IOException {
 		return CharStreams.copy(input, output);
@@ -148,7 +148,7 @@ public class IOUtil {
 	/**
 	 * 在InputStream与OutputStream间复制内容
 	 * 
-	 * @see {@link ByteStreams#copy}
+	 * @see ByteStreams#copy
 	 */
 	public static long copy(final InputStream input, final OutputStream output) throws IOException {
 		return ByteStreams.copy(input, output);

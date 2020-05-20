@@ -36,7 +36,7 @@ public class StringBuilderHolder {
 	 * 
 	 * 用于StringBuilder在使用过程中，会调用其他可能也使用StringBuilderHolder的子函数.
 	 * 
-	 * @param initSize StringBulder的初始大小, 建议512,如果容量不足将进行扩容，扩容后的数组将一直保留.
+	 * @param initSize StringBuilder的初始大小, 建议512,如果容量不足将进行扩容，扩容后的数组将一直保留.
 	 */
 	public StringBuilderHolder(int initSize) {
 		this.initSize = initSize;

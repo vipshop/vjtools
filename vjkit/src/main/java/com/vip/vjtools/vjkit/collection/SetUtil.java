@@ -92,7 +92,7 @@ public class SetUtil {
 	 * 
 	 * @see java.util.Collections#emptySet()
 	 */
-	public static final <T> Set<T> emptySet() {
+	public static <T> Set<T> emptySet() {
 		return Collections.emptySet();
 	}
 
@@ -114,7 +114,7 @@ public class SetUtil {
 	 * 
 	 * @see java.util.Collections#singleton(Object)
 	 */
-	public static final <T> Set<T> singletonSet(T o) {
+	public static <T> Set<T> singletonSet(T o) {
 		return Collections.singleton(o);
 	}
 

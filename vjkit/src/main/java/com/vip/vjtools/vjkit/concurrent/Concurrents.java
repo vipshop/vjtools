@@ -57,7 +57,7 @@ public class Concurrents {
 	/**
 	 * 返回令牌桶算法的RateLimiter默认版，默认令牌桶大小等于期望的QPS，且刚启动时桶为空。
 	 * 
-	 * @permitsPerSecond 每秒允许的请求数，可看成QPS，同时将QPS平滑到毫秒级别上，请求到达速度不平滑时依赖缓冲能力.
+	 * @param permitsPerSecond 每秒允许的请求数，可看成QPS，同时将QPS平滑到毫秒级别上，请求到达速度不平滑时依赖缓冲能力.
 	 */
 	public static RateLimiter rateLimiter(int permitsPerSecond) {
 		return RateLimiter.create(permitsPerSecond);

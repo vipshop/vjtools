@@ -25,7 +25,7 @@ import com.vip.vjtools.vjkit.text.Charsets;
  * 
  * 不指定contextClass时，按URLClassLoader的实现, 从jar file中查找resourceName，
  * 
- * 所以resourceName无需以"/"打头即表示jar file中的根目录，带了"/" 反而导致JarFile.getEntry(resouceName)时没有返回.
+ * 所以resourceName无需以"/"打头即表示jar file中的根目录，带了"/" 反而导致JarFile.getEntry(resourceName)时没有返回.
  * 
  * 指定contextClass时，class.getResource()会先对name进行处理再交给classLoader，打头的"/"的会被去除，不以"/"打头则表示与该contextClass package的相对路径,
  * 会先转为绝对路径.

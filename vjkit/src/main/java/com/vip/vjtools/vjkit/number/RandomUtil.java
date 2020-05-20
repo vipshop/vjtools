@@ -100,7 +100,7 @@ public class RandomUtil {
 	 * 
 	 * JDK本身不具有控制两端范围的nextInt，因此参考Commons Lang RandomUtils的实现, 不直接复用是因为要传入Random实例
 	 * 
-	 * @see org.apache.commons.lang3.RandomUtils#nextInt(long, long)
+	 * @see org.apache.commons.lang3.RandomUtils#nextInt(int, int)
 	 */
 	public static int nextInt(Random random, int min, int max) {
 		Validate.isTrue(max >= min, "Start value must be smaller or equal to end value.");

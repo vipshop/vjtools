@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * JDK并没有提供ConcurrenHashSet，考虑到JDK的HashSet也是基于HashMap实现的，因此ConcurrenHashSet也由ConcurrenHashMap完成。
+ * JDK并没有提供ConcurrentHashSet，考虑到JDK的HashSet也是基于HashMap实现的，因此ConcurrentHashSet也由ConcurrentHashMap完成。
  * 
  * 虽然也可以通过Collections.newSetFromMap(new ConcurrentHashMap())，
  * 
