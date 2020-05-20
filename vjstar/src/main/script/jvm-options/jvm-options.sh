@@ -75,13 +75,15 @@ GC_OPTS="$GC_OPTS -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=10
 
 # 默认使用/dev/shm 内存文件系统避免在高IO场景下写GC日志时被阻塞导致STW时间延长
 if [ -d /dev/shm/ ]; then
-    GC_LOG_FILE=/dev/shm/gc-${APPID}.log
+  GC_LOG_FILE=/dev/shm/gc-${APPID}.log
 else
-	GC_LOG_FILE=${LOGDIR}/gc-${APPID}.log
+  GC_LOG_FILE=${LOGDIR}/gc-${APPID}.log
 fi
 
 
 if [ -f ${GC_LOG_FILE} ]; then
+  [ ! -d ${LOGDIR} ] && mkdir -p ${LOGDIR}
+
   GC_LOG_BACKUP=${LOGDIR}/gc-${APPID}-$(date +'%Y%m%d_%H%M%S').log
   echo "saving gc log ${GC_LOG_FILE} to ${GC_LOG_BACKUP}"
   mv ${GC_LOG_FILE} ${GC_LOG_BACKUP}
@@ -93,7 +95,7 @@ GCLOG_OPTS="-Xloggc:${GC_LOG_FILE} -XX:+PrintGCDetails -XX:+PrintGCDateStamps -X
 
 #打印GC原因，JDK8默认打开
 if [[ "$JAVA_VERSION" < "1.8" ]]; then
-	GCLOG_OPTS="$GCLOG_OPTS -XX:+PrintGCCause"
+  GCLOG_OPTS="$GCLOG_OPTS -XX:+PrintGCCause"
 fi
 
 
