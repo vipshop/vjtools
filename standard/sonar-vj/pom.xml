@@ -13,6 +13,7 @@
 		<java.plugin.version>5.0.1.12818</java.plugin.version>
 		<sslr.version>1.21</sslr.version>
 		<gson.version>2.6.2</gson.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 

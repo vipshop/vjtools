@@ -8,28 +8,32 @@
 	</formats>
 	
 	<baseDirectory>${project.artifactId}</baseDirectory>
-	
+		<dependencySets>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>com.vip.vjtools:vjtop:jar</include>
+			</includes>
+			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+		</dependencySet>
+	</dependencySets>
 	<files>
 		<file>
 			<source>src/main/assembly/vjtop.bat</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<lineEnding>windows</lineEnding>
 		</file>
 		<file>
 			<source>src/main/assembly/vjtop.sh</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<fileMode>0755</fileMode>
 			<lineEnding>unix</lineEnding>
 		</file>
 		<file>
 			<source>README.md</source>
-			<outputDirectory>/</outputDirectory>
+			<outputDirectory></outputDirectory>
 			<destName>README.md</destName>
 			<lineEnding>unix</lineEnding>
-		</file>
-		<file>
-			<source>${project.build.directory}/vjtop.jar</source>
-			<outputDirectory>/</outputDirectory>
 		</file>
 	</files>
 </assembly>
