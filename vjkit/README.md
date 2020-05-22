@@ -5,7 +5,7 @@
 
 综合众多开源类库的精华而成， 让开发人员避免底层代码的重复开发，默认就拥有最佳实践，尤其在性能的方面。
 
-针对“基础，文本，数字，日期，文件，集合，并发，反射”这些开发人员的日常，VJKit做了两件事情：
+针对“基础，文本，数字，日期，文件，集合，并发，反射，[日志脱敏](docs/data_masking.md)”这些开发人员的日常，VJKit做了两件事情：
 
 一是对[Guava](https://github.com/google/guava) 与[Common Lang](https://github.com/apache/commons-lang)中最常用的API的提炼归类，避免了大家直面茫茫多的API(但有些工具类如Guava Cache还是建议直接使用，详见[直用三方工具类](docs/direct_3rd.md) )
 
