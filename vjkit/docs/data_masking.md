@@ -7,7 +7,7 @@ vjmask是唯品会的日志脱敏组件，在业务中广泛使用。基于性�
 ```
 <dependency>
     <groupId>com.vip.vjtools</groupId>
-    <artifactId>vjmask</artifactId>
+    <artifactId>vjkit</artifactId>
     <version>${version}</version>
 </dependency>
 ```
