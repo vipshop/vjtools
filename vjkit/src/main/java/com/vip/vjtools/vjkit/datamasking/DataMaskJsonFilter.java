@@ -84,7 +84,7 @@ public class DataMaskJsonFilter implements ContextValueFilter {
 			String fieldName = field.getName();
 			SensitiveType type = MaskMapping.getMaskTypeMapping(fieldName);
 			if (type != null) {
-				return DataMask.maskByType(value, type);
+				return DataMask.mask(value, type);
 			} else {
 				return value;
 			}

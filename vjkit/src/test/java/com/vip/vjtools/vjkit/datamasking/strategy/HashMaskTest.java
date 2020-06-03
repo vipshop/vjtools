@@ -1,6 +1,7 @@
 package com.vip.vjtools.vjkit.datamasking.strategy;
 
-import com.vip.vjtools.vjkit.datamasking.EncryptUtil;
+import com.vip.vjtools.vjkit.text.EncodeUtil;
+import com.vip.vjtools.vjkit.text.HashUtil;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +21,8 @@ public class HashMaskTest {
 		assertThat(mask.mask("", null)).isEmpty();
 
 		String salt = HashMask.getSalt();
-		assertThat(mask.mask("test", null)).isEqualTo(EncryptUtil.sha1("test" + salt));
+		String encrypt = EncodeUtil.encodeHex(HashUtil.sha1("test" + salt));
+		assertThat(mask.mask("test", null)).isEqualTo(encrypt);
 
 	}
 }

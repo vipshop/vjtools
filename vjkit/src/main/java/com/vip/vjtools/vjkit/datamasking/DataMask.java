@@ -23,7 +23,7 @@ public class DataMask {
 	 * @param type 类型
 	 * @return 掩码后的字符串
 	 */
-	public static String maskByType(String source, SensitiveType type) {
+	public static String mask(String source, SensitiveType type) {
 		try {
 			return type.getStrategy().mask(source, type.getParams());
 		} catch (Exception e) {
@@ -38,7 +38,7 @@ public class DataMask {
 	 */
 	public static String mask(String source) {
 		try {
-			return maskByType(source, SensitiveType.Default);
+			return mask(source, SensitiveType.Default);
 		} catch (Exception e) {
 			return source;
 		}
