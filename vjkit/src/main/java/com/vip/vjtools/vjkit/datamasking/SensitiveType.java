@@ -21,9 +21,11 @@ public enum SensitiveType {
 	Account(new PartMask(), 1),//账号
 	Password(new PartMask(), 0),//密码
 	/**
-	 * 散列，这种掩码方式，可以用于掩码后的查询
+	 * 散列，这种掩码方式，用户可以手工计算Hash值来精确查询日志。
 	 */
-	Hash(new HashMask()), Default(new PartMask(), 1, 0); //缺省,只显示第一个字符串
+	Hash(new HashMask()),
+
+	Default(new PartMask(), 1, 0); //缺省,只显示第一个字符串
 
 	private MaskStrategy strategy;
 	private int[] params;

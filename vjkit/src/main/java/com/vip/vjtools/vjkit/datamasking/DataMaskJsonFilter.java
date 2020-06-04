@@ -21,25 +21,34 @@ public class DataMaskJsonFilter implements ContextValueFilter {
 		try {
 			Field field = context.getField();
 
-			//处理字符串
+			//处理字符串,只处理字符串相关类型的字段
 			if (field.getType() == String.class) {
 				if (((String) value).length() == 0) {
 					return value;
 				}
-				return mask(field, (String) value);
+				Sensitive sensitive = field.getAnnotation(Sensitive.class);
+				SensitiveType sensitiveType = getSensitiveType(field, sensitive);
+				return mask((String) value, sensitive, sensitiveType);
+
 			} else if (field.getType() == String[].class) {//处理数组String[]
-				if (!needMask(field)) {
+				Sensitive sensitive = field.getAnnotation(Sensitive.class);
+				SensitiveType sensitiveType = getSensitiveType(field, sensitive);
+
+				if (sensitiveType == null) {
 					return value;
 				}
 				String[] strArr = (String[]) value;
 
 				for (int i = 0; i < strArr.length; i++) {
-					strArr[i] = mask(field, strArr[i]);
+					strArr[i] = mask(strArr[i], sensitive, sensitiveType);
 				}
 				return strArr;
 			} else if (Collection.class.isAssignableFrom(field.getType())) {
 				//处理Collection<String>,没有set()的接口，重新构造一个
-				if (!needMask(field)) {
+				Sensitive sensitive = field.getAnnotation(Sensitive.class);
+				SensitiveType sensitiveType = getSensitiveType(field, sensitive);
+
+				if (sensitiveType == null) {
 					return value;
 				}
 
@@ -54,7 +63,7 @@ public class DataMaskJsonFilter implements ContextValueFilter {
 				Collection<String> newValue = (Collection<String>) value.getClass().newInstance();
 
 				for (String item : (Collection<String>) value) {
-					newValue.add(mask(field, item));
+					newValue.add(mask(item, sensitive, sensitiveType));
 				}
 
 				return newValue;
@@ -69,20 +78,14 @@ public class DataMaskJsonFilter implements ContextValueFilter {
 
 	/**
 	 * 对字段进行mask
-	 * @param field 字段
 	 * @param value 值
 	 * @return 脱敏后的值
 	 */
-	private String mask(Field field, String value) {
+	private String mask(String value, Sensitive sensitive, SensitiveType type) {
 		if (value == null || value.isEmpty()) {
 			return value;
 		}
-
-		Sensitive sensitive = field.getAnnotation(Sensitive.class);
 		if (sensitive == null) {
-			//名称有默认的mapping配置
-			String fieldName = field.getName();
-			SensitiveType type = MaskMapping.getMaskTypeMapping(fieldName);
 			if (type != null) {
 				return DataMask.mask(value, type);
 			} else {
@@ -93,18 +96,16 @@ public class DataMaskJsonFilter implements ContextValueFilter {
 		}
 	}
 
-	/**
-	 * 先判断是否需要Mask，过滤不需要的反射操作
-	 */
-	private boolean needMask(Field field) {
-		Sensitive sensitive = field.getAnnotation(Sensitive.class);
+	private SensitiveType getSensitiveType(Field field, Sensitive sensitive) {
+		SensitiveType type = null;
 		if (sensitive == null) {
 			String fieldName = field.getName();
-			SensitiveType type = MaskMapping.getMaskTypeMapping(fieldName);
-			return type != null;
+			//没有@Sensitive，但是有mapping命中
+			type = MaskMapping.getMaskTypeMapping(fieldName);
 		} else {
-			return true;
+			type = sensitive.type();
 		}
+		return type;
 	}
 
 
