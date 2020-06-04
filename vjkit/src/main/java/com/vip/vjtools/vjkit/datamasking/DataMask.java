@@ -18,6 +18,19 @@ public class DataMask {
 	}
 
 	/**
+	 * 默认的脱敏方式，只显示第一个字符串
+	 * @param source 源字符串
+	 * @return 脱敏后的字符串
+	 */
+	public static String mask(String source) {
+		try {
+			return mask(source, SensitiveType.Default);
+		} catch (Exception e) {
+			return source;
+		}
+	}
+
+	/**
 	 * 根据类型来脱敏
 	 * @param source 源字符串
 	 * @param type 类型
@@ -26,19 +39,6 @@ public class DataMask {
 	public static String mask(String source, SensitiveType type) {
 		try {
 			return type.getStrategy().mask(source, type.getParams());
-		} catch (Exception e) {
-			return source;
-		}
-	}
-
-	/**
-	 * 默认的脱敏方式，只显示第一个字符串
-	 * @param source 源字符串
-	 * @return 脱敏后的字符串
-	 */
-	public static String mask(String source) {
-		try {
-			return mask(source, SensitiveType.Default);
 		} catch (Exception e) {
 			return source;
 		}
