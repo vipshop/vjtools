@@ -26,11 +26,13 @@ public class DataMaskJsonFilter implements ContextValueFilter {
 				if (((String) value).length() == 0) {
 					return value;
 				}
+
 				Sensitive sensitive = field.getAnnotation(Sensitive.class);
 				SensitiveType sensitiveType = getSensitiveType(field, sensitive);
 				return mask((String) value, sensitive, sensitiveType);
 
-			} else if (field.getType() == String[].class) {//处理数组String[]
+			} else if (field.getType() == String[].class) {
+				//处理数组String[]
 				Sensitive sensitive = field.getAnnotation(Sensitive.class);
 				SensitiveType sensitiveType = getSensitiveType(field, sensitive);
 
@@ -44,7 +46,7 @@ public class DataMaskJsonFilter implements ContextValueFilter {
 				}
 				return strArr;
 			} else if (Collection.class.isAssignableFrom(field.getType())) {
-				//处理Collection<String>,没有set()的接口，重新构造一个
+				//处理Collection<String>
 				Sensitive sensitive = field.getAnnotation(Sensitive.class);
 				SensitiveType sensitiveType = getSensitiveType(field, sensitive);
 
@@ -52,16 +54,12 @@ public class DataMaskJsonFilter implements ContextValueFilter {
 					return value;
 				}
 
-				Type type = field.getGenericType();
-				if (!(type instanceof ParameterizedType)) {
+				if(!isStringCollection(field)){
 					return value;
 				}
-				Class parameterizedType = (Class) ((ParameterizedType) type).getActualTypeArguments()[0];
-				if (parameterizedType != String.class) {
-					return value;
-				}
-				Collection<String> newValue = (Collection<String>) value.getClass().newInstance();
 
+				//没有set()的接口，重新构造一个
+				Collection<String> newValue = (Collection<String>) value.getClass().newInstance();
 				for (String item : (Collection<String>) value) {
 					newValue.add(mask(item, sensitive, sensitiveType));
 				}
@@ -74,6 +72,23 @@ public class DataMaskJsonFilter implements ContextValueFilter {
 		} catch (Exception e) {
 			return value;
 		}
+	}
+
+	/**
+	 * 是否Collection<String>
+	 * @param field
+	 * @return
+	 */
+	private boolean isStringCollection(Field field){
+		Type type = field.getGenericType();
+		if (!(type instanceof ParameterizedType)) {
+			return false;
+		}
+		Class parameterizedType = (Class) ((ParameterizedType) type).getActualTypeArguments()[0];
+		if (parameterizedType != String.class) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
