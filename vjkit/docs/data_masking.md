@@ -16,6 +16,8 @@ vjmask是唯品会的日志脱敏组件，在业务中广泛使用。基于性�
 脱敏组件支持对单个字符串进行脱敏，也支持toJSON和toString的序列化脱敏
 
 ```
+import com.vip.vjtools.vjkit.datamasking.DataMask;
+
 // 单个字符串，按中文姓名规则脱敏
 logger.info("some sensitive info:{}",DataMask.mask(name,SensitiveType.Name));
 //单个字符串，按默认方式脱敏，结果为 "t***";
@@ -51,7 +53,7 @@ public class User{
 护照/军官号 | 只显示前二后二 | EI****64 | Passport
 账号 | 只显示前一后一 | a****b | Account
 密码 | 不显示任意字符 | ********* | Password
-散列 | sha1(source+salt) ，可以通过DataMask.setSalt设置 | 6b76e070c5b5d1b889295506faa8b98e97da7e87 | Hash
+散列 | sha1(source+salt) ，可以通过DataMask.setSalt设置salt，用于希望在日志系统中精确找回这条日志的场景，可以再自己hash获得hash值 | 6b76e070c5b5d1b889295506faa8b98e97da7e87 | Hash
 
 
 # 3.详细介绍
