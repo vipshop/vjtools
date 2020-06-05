@@ -18,7 +18,7 @@
 		<junit.version>4.12</junit.version>
 		<assertj.version>2.6.0</assertj.version>
 		<mockito.version>2.18.3</mockito.version>
-        <fastjson.version>1.2.61</fastjson.version>
+		<fastjson.version>1.2.70</fastjson.version>
 
 		<!-- Plugin的属性 -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

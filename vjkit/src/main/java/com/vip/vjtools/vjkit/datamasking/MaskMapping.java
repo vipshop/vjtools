@@ -79,7 +79,7 @@ public class MaskMapping {
 						SensitiveType sensitiveType = SensitiveType.valueOf(type);
 
 						for (String map : maps) {
-							mappings.put(map, sensitiveType);
+							mappings.put(map.toLowerCase(), sensitiveType);
 
 							if (isUserMapping) {
 								logger.info("load user mask mapping {}={},from path:{}", sensitiveType, map, path);
@@ -101,7 +101,7 @@ public class MaskMapping {
 
 
 	public static SensitiveType getMaskTypeMapping(String fieldName) {
-		return mappings.get(fieldName);
+		return mappings.get(fieldName.toLowerCase());
 	}
 
 }
