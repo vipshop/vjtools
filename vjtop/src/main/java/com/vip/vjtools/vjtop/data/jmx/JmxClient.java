@@ -54,6 +54,8 @@ import javax.management.remote.JMXServiceURL;
 import com.sun.management.HotSpotDiagnosticMXBean;
 import com.sun.management.OperatingSystemMXBean;
 import com.sun.management.ThreadMXBean;
+import com.sun.tools.attach.AgentInitializationException;
+import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.VirtualMachine;
 import com.vip.vjtools.vjtop.util.Utils;
 
@@ -238,7 +240,14 @@ public class JmxClient {
 			String home = vm.getSystemProperties().getProperty("java.home");
 			int version = Utils.getJavaMajorVersion(vm.getSystemProperties().getProperty("java.specification.version"));
 
-			if (version <= 8) {
+			if (version >= 8) {
+				vm.startLocalManagementAgent();
+				agentProps = vm.getAgentProperties();
+				address = (String) agentProps.get(LOCAL_CONNECTOR_ADDRESS_PROP);
+				if (address != null) {
+					return address;
+				}
+			} else {
 				// Normally in ${java.home}/jre/lib/management-agent.jar but might
 				// be in ${java.home}/lib in build environments.
 				String agentPath = home + File.separator + "jre" + File.separator + "lib" + File.separator
@@ -252,7 +261,21 @@ public class JmxClient {
 					}
 				}
 				agentPath = f.getCanonicalPath();
-				vm.loadAgent(agentPath, "com.sun.management.jmxremote");
+				try {
+					vm.loadAgent(agentPath, "com.sun.management.jmxremote");
+				} catch (AgentLoadException x) {
+					// 高版本 attach 低版本jdk 抛异常：com.sun.tools.attach.AgentLoadException: 0，实际上是成功的;
+					// 根因： HotSpotVirtualMachine.loadAgentLibrary 高版本jdk实现不一样了
+					if (!"0".equals(x.getMessage())) {
+						IOException ioe = new IOException(x.getMessage());
+						ioe.initCause(x);
+						throw ioe;
+					}
+				} catch (AgentInitializationException x) {
+					IOException ioe = new IOException(x.getMessage());
+					ioe.initCause(x);
+					throw ioe;
+				}
 
 
 				// 4. 再次获取connector address
@@ -262,9 +285,6 @@ public class JmxClient {
 				if (address == null) {
 					throw new IOException("Fails to find connector address");
 				}
-			} else {
-				// for jdk9 or later
-				vm.startLocalManagementAgent();
 			}
 
 			agentProps = vm.getAgentProperties();
