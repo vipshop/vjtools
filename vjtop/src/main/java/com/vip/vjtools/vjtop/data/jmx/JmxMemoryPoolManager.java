@@ -15,7 +15,10 @@ public class JmxMemoryPoolManager {
 	public static final String PERM = "perm";
 	public static final String METASPACE = "metaspace";// JDK8永久代名称
 	public static final String CODE_CACHE = "code cache";
-	public static final String COMPRESSED_CLASS_SPACE = "compressed class space";
+	public static final String CODEHEAP = "codeheap";
+	public static final String CODECACHE = "codecache";
+	public static final String ZHEAP = "zheap"; // for zgc
+	public static final String COMPRESSED_CLASS_SPACE = "compressed class space"; // zgc not support until jdk15
 
 	private MemoryPoolMXBean survivorMemoryPool = null;
 	private MemoryPoolMXBean edenMemoryPool = null;
@@ -32,13 +35,14 @@ public class JmxMemoryPoolManager {
 			String lowerCaseName = name.toLowerCase();
 			if (lowerCaseName.contains(SURVIVOR)) {
 				survivorMemoryPool = memoryPool;
-			} else if (lowerCaseName.contains(EDEN)) {
+			} else if (lowerCaseName.contains(EDEN) || lowerCaseName.contains(ZHEAP)) {
 				edenMemoryPool = memoryPool;
 			} else if (lowerCaseName.contains(OLD) || lowerCaseName.contains(TENURED)) {
 				oldMemoryPool = memoryPool;
 			} else if (lowerCaseName.contains(PERM) || lowerCaseName.contains(METASPACE)) {
 				permMemoryPool = memoryPool;
-			} else if (lowerCaseName.contains(CODE_CACHE)) {
+			} else if (lowerCaseName.contains(CODE_CACHE) || lowerCaseName.contains(CODEHEAP)
+					|| lowerCaseName.contains(CODECACHE)) {
 				codeCacheMemoryPool = memoryPool;
 			} else if (lowerCaseName.contains(COMPRESSED_CLASS_SPACE)) {
 				compressedClassSpaceMemoryPool = memoryPool;

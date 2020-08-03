@@ -70,4 +70,20 @@ public class Utils {
 		} catch (InterruptedException e) {
 		}
 	}
+
+	public static int getJavaMajorVersion(String javaSpecificationVersion) {
+		if (javaSpecificationVersion.startsWith("1.8")) {
+			return 8;
+		} else if (javaSpecificationVersion.startsWith("1.7")) {
+			return 7;
+		} else if (javaSpecificationVersion.startsWith("1.6")) {
+			return 6;
+		} else {
+			try {
+				return Integer.parseInt(javaSpecificationVersion);
+			} catch (NumberFormatException e) {
+				return 0;
+			}
+		}
+	}
 }

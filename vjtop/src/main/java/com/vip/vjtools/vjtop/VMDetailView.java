@@ -157,12 +157,16 @@ public class VMDetailView {
 				Formats.toColor(vmInfo.classLoaded.current, warning.loadClass), vmInfo.classUnLoaded,
 				Formats.toColor(vmInfo.classLoaded.delta, warning.newClass));
 
-		System.out.printf(" HEAP: %s eden, %s sur, %s old%n", Formats.formatUsage(vmInfo.eden),
-				Formats.formatUsage(vmInfo.sur), Formats.formatUsageWithColor(vmInfo.old, warning.old));
+		if (vmInfo.ygcStrategy.equals("ZGC")) {
+			System.out.printf(" HEAP: %s%n", Formats.formatUsage(vmInfo.eden));
+		} else {
+			System.out.printf(" HEAP: %s eden, %s sur, %s old%n", Formats.formatUsage(vmInfo.eden),
+					Formats.formatUsage(vmInfo.sur), Formats.formatUsageWithColor(vmInfo.old, warning.old));
+		}
 
 		System.out.printf(" NON-HEAP: %s %s, %s codeCache", Formats.formatUsageWithColor(vmInfo.perm, warning.perm),
 				vmInfo.permGenName, Formats.formatUsageWithColor(vmInfo.codeCache, warning.codeCache));
-		if (vmInfo.jvmMajorVersion >= 8) {
+		if (vmInfo.jvmMajorVersion >= 8 && !vmInfo.ygcStrategy.equals("ZGC")) {
 			System.out.printf(", %s ccs", Formats.formatUsage(vmInfo.ccs));
 		}
 		System.out.println("");
@@ -172,13 +176,21 @@ public class VMDetailView {
 				Formats.toMB(vmInfo.direct.max), Formats.toMB(vmInfo.map.used), Formats.toMB(vmInfo.map.committed),
 				vmInfo.map.max, Formats.toMB(vmInfo.threadStackSize * vmInfo.threadActive));
 
+		// gc strategy
+		System.out.printf(" GC-STRATEGY: %s / %s%n", vmInfo.ygcStrategy, vmInfo.fullgcStrategy);
+		// gc count
 		long ygcCount = vmInfo.ygcCount.delta;
 		long ygcTime = vmInfo.ygcTimeMills.delta;
 		long avgYgcTime = ygcCount == 0 ? 0 : ygcTime / ygcCount;
 		long fgcCount = vmInfo.fullgcCount.delta;
-		System.out.printf(" GC: %s/%sms/%sms ygc, %s/%dms fgc", Formats.toColor(ygcCount, warning.ygcCount),
-				Formats.toColor(ygcTime, warning.ygcTime), Formats.toColor(avgYgcTime, warning.ygcAvgTime),
-				Formats.toColor(fgcCount, warning.fullgcCount), vmInfo.fullgcTimeMills.delta);
+		if (vmInfo.ygcStrategy.equals("ZGC")) {
+			System.out.printf(" GC: %s/%sms/%sms zgc", Formats.toColor(ygcCount, warning.ygcCount),
+					Formats.toColor(ygcTime, warning.ygcTime), Formats.toColor(avgYgcTime, warning.ygcAvgTime));
+		} else {
+			System.out.printf(" GC: %s/%sms/%sms ygc, %s/%dms fgc", Formats.toColor(ygcCount, warning.ygcCount),
+					Formats.toColor(ygcTime, warning.ygcTime), Formats.toColor(avgYgcTime, warning.ygcAvgTime),
+					Formats.toColor(fgcCount, warning.fullgcCount), vmInfo.fullgcTimeMills.delta);
+		}
 
 		if (vmInfo.perfDataSupport) {
 			System.out.printf(" | SAFE-POINT: %s count, %sms time, %dms syncTime",
@@ -536,6 +548,7 @@ public class VMDetailView {
 
 	public enum OutputFormat {
 		console(true), cleanConsole(false), text(false);
+
 		OutputFormat(boolean ansi) {
 			this.ansi = ansi;
 		}

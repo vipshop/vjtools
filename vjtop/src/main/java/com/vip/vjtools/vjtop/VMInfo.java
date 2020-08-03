@@ -7,9 +7,11 @@ import java.lang.management.ThreadInfo;
 import java.util.Locale;
 import java.util.Map;
 
+import com.sun.management.GarbageCollectorMXBean;
 import com.vip.vjtools.vjtop.data.PerfData;
 import com.vip.vjtools.vjtop.data.ProcFileData;
 import com.vip.vjtools.vjtop.data.jmx.JmxClient;
+import com.vip.vjtools.vjtop.data.jmx.JmxGarbageCollectorManager;
 import com.vip.vjtools.vjtop.data.jmx.JmxMemoryPoolManager;
 import com.vip.vjtools.vjtop.util.Formats;
 import com.vip.vjtools.vjtop.util.Utils;
@@ -65,8 +67,10 @@ public class VMInfo {
 	public double cpuLoad = 0.0;
 	public double singleCoreCpuLoad = 0.0;
 
+	public String ygcStrategy = "";
 	public Rate ygcCount = new Rate();
 	public Rate ygcTimeMills = new Rate();
+	public String fullgcStrategy = "";
 	public Rate fullgcCount = new Rate();
 	public Rate fullgcTimeMills = new Rate();
 	public String currentGcCause = "";
@@ -179,9 +183,8 @@ public class VMInfo {
 		Map<String, String> taregetVMSystemProperties = jmxClient.getRuntimeMXBean().getSystemProperties();
 		osUser = taregetVMSystemProperties.get("user.name");
 		jvmVersion = taregetVMSystemProperties.get("java.version");
-		jvmMajorVersion = getJavaMajorVersion(jvmVersion);
+		jvmMajorVersion = Utils.getJavaMajorVersion(taregetVMSystemProperties.get("java.specification.version"));
 		permGenName = jvmMajorVersion >= 8 ? "metaspace" : "perm";
-
 		threadStackSize = 1024
 				* Long.parseLong(jmxClient.getHotSpotDiagnosticMXBean().getVMOption("ThreadStackSize").getValue());
 		maxDirectMemorySize = Long
@@ -337,9 +340,21 @@ public class VMInfo {
 
 		try {
 			JmxMemoryPoolManager memoryPoolManager = jmxClient.getMemoryPoolManager();
-			eden = new Usage(memoryPoolManager.getEdenMemoryPool().getUsage());
-			old = new Usage(memoryPoolManager.getOldMemoryPool().getUsage());
-			warningRule.updateOld(old.max);
+
+			MemoryPoolMXBean edenMXBean = memoryPoolManager.getEdenMemoryPool();
+			if (edenMXBean != null) {
+				eden = new Usage(edenMXBean.getUsage());
+			} else {
+				eden = new Usage();
+			}
+
+			MemoryPoolMXBean oldMXBean = memoryPoolManager.getOldMemoryPool();
+			if (oldMXBean != null) {
+				old = new Usage(oldMXBean.getUsage());
+				warningRule.updateOld(old.max);
+			} else {
+				old = new Usage();
+			}
 
 			MemoryPoolMXBean survivorMemoryPool = memoryPoolManager.getSurvivorMemoryPool();
 			if (survivorMemoryPool != null) {
@@ -348,8 +363,13 @@ public class VMInfo {
 				sur = new Usage();
 			}
 
-			perm = new Usage(memoryPoolManager.getPermMemoryPool().getUsage());
-			warningRule.updatePerm(perm.max);
+			MemoryPoolMXBean permMXBean = memoryPoolManager.getPermMemoryPool();
+			if (permMXBean != null) {
+				perm = new Usage(permMXBean.getUsage());
+				warningRule.updatePerm(perm.max);
+			} else {
+				perm = new Usage();
+			}
 
 			if (jvmMajorVersion >= 8) {
 				MemoryPoolMXBean compressedClassSpaceMemoryPool = memoryPoolManager.getCompressedClassSpaceMemoryPool();
@@ -360,7 +380,12 @@ public class VMInfo {
 				}
 			}
 
-			codeCache = new Usage(memoryPoolManager.getCodeCacheMemoryPool().getUsage());
+			MemoryPoolMXBean memoryPoolMXBean = memoryPoolManager.getCodeCacheMemoryPool();
+			if (memoryPoolMXBean != null) {
+				codeCache = new Usage(memoryPoolMXBean.getUsage());
+			} else {
+				codeCache = new Usage();
+			}
 
 			direct = new Usage(jmxClient.getBufferPoolManager().getDirectBufferPoolUsed(),
 					jmxClient.getBufferPoolManager().getDirectBufferPoolCapacity(), maxDirectMemorySize);
@@ -385,13 +410,18 @@ public class VMInfo {
 			}
 		} else if (isJmxStateOk()) {
 			try {
-				ygcCount.update(jmxClient.getGarbageCollectorManager().getYoungCollector().getCollectionCount());
-				ygcTimeMills.update(jmxClient.getGarbageCollectorManager().getYoungCollector().getCollectionTime());
+				JmxGarbageCollectorManager gcManager = jmxClient.getGarbageCollectorManager();
 
-				if (jmxClient.getGarbageCollectorManager().getFullCollector() != null) {
-					fullgcCount.update(jmxClient.getGarbageCollectorManager().getFullCollector().getCollectionCount());
-					fullgcTimeMills
-							.update(jmxClient.getGarbageCollectorManager().getFullCollector().getCollectionTime());
+				GarbageCollectorMXBean ygcMXBean = gcManager.getYoungCollector();
+				ygcStrategy = gcManager.getYgcStrategy();
+				ygcCount.update(ygcMXBean.getCollectionCount());
+				ygcTimeMills.update(ygcMXBean.getCollectionTime());
+
+				GarbageCollectorMXBean fullgcMXBean = gcManager.getFullCollector();
+				if (fullgcMXBean != null) {
+					fullgcStrategy = gcManager.getFgcStrategy();
+					fullgcCount.update(fullgcMXBean.getCollectionCount());
+					fullgcTimeMills.update(fullgcMXBean.getCollectionTime());
 				}
 			} catch (Exception e) {
 				handleJmxFetchDataError(e);
@@ -480,17 +510,6 @@ public class VMInfo {
 		return state != VMInfoState.ATTACHED_UPDATE_ERROR && state != VMInfoState.DETACHED;
 	}
 
-	private static int getJavaMajorVersion(String jvmVersion) {
-		if (jvmVersion.startsWith("1.8")) {
-			return 8;
-		} else if (jvmVersion.startsWith("1.7")) {
-			return 7;
-		} else if (jvmVersion.startsWith("1.6")) {
-			return 6;
-		} else {
-			return 0;
-		}
-	}
 
 	public enum VMInfoState {
 		INIT, ERROR_DURING_ATTACH, ATTACHED, ATTACHED_UPDATE_ERROR, DETACHED
