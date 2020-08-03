@@ -142,7 +142,7 @@ public class Client {
 		if (index <= 0) {
 			throw new RuntimeException("Unable to parse: " + userpass);
 		}
-		return new String[] { userpass.substring(0, index), userpass.substring(index + 1) };
+		return new String[]{userpass.substring(0, index), userpass.substring(index + 1)};
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class Client {
 	 */
 	protected static Map formatCredentials(final String login, final String password) {
 		Map env = null;
-		String[] creds = new String[] { login, password };
+		String[] creds = new String[]{login, password};
 		env = new HashMap(1);
 		env.put(JMXConnector.CREDENTIALS, creds);
 		return env;
@@ -202,39 +202,49 @@ public class Client {
 			}
 
 			// 3. 未启动，尝试启动
-			// JDK8后有更直接的vm.startLocalManagementAgent()方法
-			String home = vm.getSystemProperties().getProperty("java.home");
+			int version = getJavaMajorVersion(vm.getSystemProperties().getProperty("java.specification.version"));
+			if (version >= 8) {
+				vm.startLocalManagementAgent();
+				agentProps = vm.getAgentProperties();
+				address = (String) agentProps.get(LOCAL_CONNECTOR_ADDRESS_PROP);
+			} else {
+				// JDK8后有更直接的vm.startLocalManagementAgent()方法
+				String home = vm.getSystemProperties().getProperty("java.home");
+				// Normally in ${java.home}/jre/lib/management-agent.jar but might
+				// be in ${java.home}/lib in build environments.
+				String agentPath = home + File.separator + "jre" + File.separator + "lib" + File.separator
+						+ "management-agent.jar";
 
-			// Normally in ${java.home}/jre/lib/management-agent.jar but might
-			// be in ${java.home}/lib in build environments.
-
-			String agentPath = home + File.separator + "jre" + File.separator + "lib" + File.separator
-					+ "management-agent.jar";
-			File f = new File(agentPath);
-			if (!f.exists()) {
-				agentPath = home + File.separator + "lib" + File.separator + "management-agent.jar";
-				f = new File(agentPath);
+				File f = new File(agentPath);
 				if (!f.exists()) {
-					throw new IOException("Management agent not found");
+					agentPath = home + File.separator + "lib" + File.separator + "management-agent.jar";
+					f = new File(agentPath);
+					if (!f.exists()) {
+						throw new IOException("Management agent not found");
+					}
 				}
-			}
 
-			agentPath = f.getCanonicalPath();
-			try {
-				vm.loadAgent(agentPath, "com.sun.management.jmxremote");
-			} catch (AgentLoadException x) {
-				IOException ioe = new IOException(x.getMessage());
-				ioe.initCause(x);
-				throw ioe;
-			} catch (AgentInitializationException x) {
-				IOException ioe = new IOException(x.getMessage());
-				ioe.initCause(x);
-				throw ioe;
-			}
+				agentPath = f.getCanonicalPath();
+				try {
+					vm.loadAgent(agentPath, "com.sun.management.jmxremote");
+				} catch (AgentLoadException x) {
+					// 高版本 attach 低版本jdk 抛异常：com.sun.tools.attach.AgentLoadException: 0，实际上是成功的;
+					// 根因： HotSpotVirtualMachine.loadAgentLibrary 高版本jdk实现不一样了
+					if (!"0".equals(x.getMessage())) {
+						IOException ioe = new IOException(x.getMessage());
+						ioe.initCause(x);
+						throw ioe;
+					}
+				} catch (AgentInitializationException x) {
+					IOException ioe = new IOException(x.getMessage());
+					ioe.initCause(x);
+					throw ioe;
+				}
 
-			// 4. 再次获取connector address
-			agentProps = vm.getAgentProperties();
-			address = (String) agentProps.get(LOCAL_CONNECTOR_ADDRESS_PROP);
+				// 4. 再次获取connector address
+				agentProps = vm.getAgentProperties();
+				address = (String) agentProps.get(LOCAL_CONNECTOR_ADDRESS_PROP);
+			}
 
 			if (address == null) {
 				throw new IOException("Fails to find connector address");
@@ -311,7 +321,7 @@ public class Client {
 
 	public Object[] executeOneCmd(final String hostport, final String login, final String password,
 			final String beanname, final String command) throws Exception {
-		return execute(hostport, login, password, beanname, new String[] { command }, true);
+		return execute(hostport, login, password, beanname, new String[]{command}, true);
 	}
 
 	/**
@@ -386,7 +396,7 @@ public class Client {
 				}
 				buffer.append("\n");
 			}
-			result = new String[] { buffer.toString() };
+			result = new String[]{buffer.toString()};
 		}
 		return result;
 	}
@@ -404,7 +414,7 @@ public class Client {
 			throws Exception {
 		// If no command, then print out list of attributes and operations.
 		if (command == null || command.length <= 0) {
-			return new String[] { listOptions(mbsc, instance) };
+			return new String[]{listOptions(mbsc, instance)};
 		}
 
 		// Maybe multiple attributes/operations listed on one command line.
@@ -614,8 +624,8 @@ public class Client {
 		// Get first attribute of name 'cmd'. Assumption is no method
 		// overrides. Then, look at the attribute and use its type.
 		MBeanAttributeInfo info = (MBeanAttributeInfo) getFeatureInfo(infos, parse.getCmd());
-		java.lang.reflect.Constructor c = Class.forName(info.getType()).getConstructor(new Class[] { String.class });
-		Attribute a = new Attribute(parse.getCmd(), c.newInstance(new Object[] { parse.getArgs()[0] }));
+		java.lang.reflect.Constructor c = Class.forName(info.getType()).getConstructor(new Class[]{String.class});
+		Attribute a = new Attribute(parse.getCmd(), c.newInstance(new Object[]{parse.getArgs()[0]}));
 		mbsc.setAttribute(instance.getObjectName(), a);
 		return null;
 	}
@@ -644,8 +654,8 @@ public class Client {
 				for (int i = 0; i < paraminfosLength; i++) {
 					MBeanParameterInfo paraminfo = paraminfos[i];
 					java.lang.reflect.Constructor c = Class.forName(paraminfo.getType())
-							.getConstructor(new Class[] { String.class });
-					params[i] = c.newInstance(new Object[] { parse.getArgs()[i] });
+							.getConstructor(new Class[]{String.class});
+					params[i] = c.newInstance(new Object[]{parse.getArgs()[i]});
 					signature[i] = paraminfo.getType();
 				}
 				result = mbsc.invoke(instance.getObjectName(), parse.getCmd(), params, signature);
@@ -757,6 +767,22 @@ public class Client {
 				}
 			}
 			return this.buffer.toString();
+		}
+	}
+
+	private static int getJavaMajorVersion(String javaSpecificationVersion) {
+		if (javaSpecificationVersion.startsWith("1.8")) {
+			return 8;
+		} else if (javaSpecificationVersion.startsWith("1.7")) {
+			return 7;
+		} else if (javaSpecificationVersion.startsWith("1.6")) {
+			return 6;
+		} else {
+			try {
+				return Integer.parseInt(javaSpecificationVersion);
+			} catch (NumberFormatException e) {
+				return 0;
+			}
 		}
 	}
 

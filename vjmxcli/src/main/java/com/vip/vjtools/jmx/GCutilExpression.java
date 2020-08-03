@@ -103,10 +103,16 @@ public class GCutilExpression {
 	}
 
 	public Object getFGC() throws Exception {
+		if (fgcCollector == null) {
+			return 0;
+		}
 		return getAttribute(fgcCollector, COLLECTION_COUNT_ATTRIBUTE);
 	}
 
 	public Double getFGCT() throws Exception {
+		if (fgcCollector == null) {
+			return 0.0;
+		}
 		return Double.parseDouble(getAttribute(fgcCollector, COLLECTION_TIME_ATTRIBUTE).toString()) / 1000;
 	}
 

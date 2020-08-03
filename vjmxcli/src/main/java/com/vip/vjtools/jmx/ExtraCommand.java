@@ -24,9 +24,9 @@ public class ExtraCommand {
 		String[] commands;
 
 		if (getJavaVersion(mbsc) > 7) {
-			commands = new String[] { "S", "S", "E", "O", "M", "CCS", "YGC", "YGCT", "FGC", "FGCT", "GCT" };
+			commands = new String[]{"S", "S", "E", "O", "M", "CCS", "YGC", "YGCT", "FGC", "FGCT", "GCT"};
 		} else {
-			commands = new String[] { "S", "S", "E", "O", "P", "YGC", "YGCT", "FGC", "FGCT", "GCT" };
+			commands = new String[]{"S", "S", "E", "O", "P", "YGC", "YGCT", "FGC", "FGCT", "GCT"};
 		}
 
 		for (String commmand : commands) {
@@ -84,14 +84,18 @@ public class ExtraCommand {
 	public static int getJavaVersion(final MBeanServerConnection mbsc) throws Exception {
 		Object version = mbsc.getAttribute(Client.getObjectName("java.lang:type=Runtime"), "SpecVersion");
 		String javaVersion = version.toString();
-		if (javaVersion.startsWith("1.8") || Double.parseDouble(javaVersion.substring(0, 3)) > 1.7) {
+		if (javaVersion.startsWith("1.8")) {
 			return 8;
 		} else if (javaVersion.startsWith("1.7")) {
 			return 7;
 		} else if (javaVersion.startsWith("1.6")) {
 			return 6;
 		} else {
-			return 0;
+			try {
+				return Integer.parseInt(javaVersion);
+			} catch (NumberFormatException e) {
+				return 0;
+			}
 		}
 	}
 }

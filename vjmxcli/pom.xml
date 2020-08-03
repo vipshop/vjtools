@@ -19,13 +19,13 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.sun</groupId>
 			<artifactId>tools</artifactId>
 			<version>${java.version}</version>
 			<scope>system</scope>
 			<systemPath>${toolsjar}</systemPath>
-		</dependency>
+		</dependency> -->
 	</dependencies>
 
 	<build>
@@ -129,6 +129,31 @@
 				</plugins>
 			</build>
 		</profile>
+	
+	
+		<profile>
+	      <id>jdk9</id>
+	      <activation>
+	        <jdk>[1.9,)</jdk>
+	      </activation>
+	      <dependencies/>
+	    </profile>
+	    <profile>
+	      <id>default-jdk</id>
+	      <activation>
+	        <jdk>(,1.8]</jdk>
+	      </activation>
+	      <dependencies>
+	        <dependency>
+				<groupId>com.sun</groupId>
+				<artifactId>tools</artifactId>
+				<version>${java.version}</version>
+				<scope>system</scope>
+				<systemPath>${toolsjar}</systemPath>
+			</dependency>
+	      </dependencies>
+	    </profile>
+	
 	</profiles>
 
 	<distributionManagement>
