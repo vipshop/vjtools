@@ -15,7 +15,7 @@
 		<logback.version>1.1.11</logback.version>
 		<dozer.version>5.5.1</dozer.version>
 		<jackson.version>2.9.10.4</jackson.version>
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<assertj.version>2.6.0</assertj.version>
 		<mockito.version>2.18.3</mockito.version>
 		<fastjson.version>1.2.70</fastjson.version>
