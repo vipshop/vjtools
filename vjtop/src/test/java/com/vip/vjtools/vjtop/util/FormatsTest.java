@@ -1,249 +1,127 @@
 package com.vip.vjtools.vjtop.util;
 
+import com.vip.vjtools.vjtop.VMInfo.Usage;
 import com.vip.vjtools.vjtop.WarningRule.LongWarning;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import java.util.ArrayList;
+
+import static com.vip.vjtools.vjtop.util.Formats.*;
+import static org.junit.Assert.*;
 
 public class FormatsTest {
 
     @Rule public ExpectedException thrown = ExpectedException.none();
 
     @Test
-    public void joinInput0NotNullOutputNotNull() {
+    public void testFormatUsage() {
+        assertEquals("0m/0m", formatUsage(new Usage(1L, 2L, 2L)));
+        assertEquals("0m/0m/0m", formatUsage(new Usage(1L, 1L, 2L)));
+    }
 
-        // Arrange
+    @Test
+    public void testFormatUsageWithColor() {
+        assertEquals("0m/0m",
+          formatUsageWithColor(new Usage(1L, 2L, 2L), new LongWarning()));
+    }
+
+    @Test
+    public void testJoin() {
         final ArrayList<String> list = new ArrayList<String>();
         final String delim = "AAAAAAAA";
 
-        // Act
-        final String retval = Formats.join(list, delim);
+        assertEquals("", join(list, delim));
 
-        // Assert result
-        Assert.assertEquals("", retval);
-    }
-
-    @Test
-    public void joinInput1NullOutputNotNull() {
-
-        // Arrange
-        final ArrayList<String> list = new ArrayList<String>();
         list.add("");
-        final String delim = null;
-
-        // Act
-        final String retval = Formats.join(list, delim);
-
-        // Assert result
-        Assert.assertEquals("", retval);
+        assertEquals("", join(list, delim));
     }
 
     @Test
-    public void leftStrInputNotNullNegativeOutputStringIndexOutOfBoundsException() {
+    public void testLeftStr() {
+        assertEquals("", leftStr("!!!!!!!!", 0));
 
-        // Arrange
-        final String str = "!";
-        final int length = -536_870_911;
-
-        // Act
         thrown.expect(StringIndexOutOfBoundsException.class);
-        Formats.leftStr(str, length);
-
+        leftStr("!", -536_870_911);
         // Method is not expected to return due to exception thrown
     }
 
     @Test
-    public void leftStrInputNotNullZeroOutputNotNull() {
-
-        // Arrange
-        final String str = "!!!!!!!!";
-        final int length = 0;
-
-        // Act
-        final String retval = Formats.leftStr(str, length);
-
-        // Assert result
-        Assert.assertEquals("", retval);
+    public void testParseFromSize() {
+        assertEquals(-1L, parseFromSize(null));
+        assertEquals(1024L, parseFromSize("1k"));
+        assertEquals(1024L, parseFromSize("1kb"));
+        assertEquals(1_048_576L, parseFromSize("1mb"));
+        assertEquals(1_048_576L, parseFromSize("1m"));
+        assertEquals(1_073_741_824L, parseFromSize("1gb"));
+        assertEquals(1_073_741_824L, parseFromSize("1g"));
+        assertEquals(1_099_511_627_776L, parseFromSize("1tb"));
+        assertEquals(1_099_511_627_776L, parseFromSize("1t"));
+        assertEquals(44L, parseFromSize("44bytes"));
+        assertEquals(-1L, parseFromSize("!!!"));
     }
 
     @Test
-    public void rightStrInputNotNullNegativeOutputStringIndexOutOfBoundsException() {
+    public void testRightStr() {
+        assertEquals("!!!!!!!!", rightStr("!!!!!!!!", 2_147_221_512));
 
-        // Arrange
-        final String str = "!!!!!!!!";
-        final int length = -1_048_568;
-
-        // Act
         thrown.expect(StringIndexOutOfBoundsException.class);
-        Formats.rightStr(str, length);
-
+        rightStr("!!!!!!!!", -1_048_568);
         // Method is not expected to return due to exception thrown
     }
 
     @Test
-    public void rightStrInputNotNullPositiveOutputNotNull() {
+    public void testShortName() {
+        assertEquals("!", shortName("!", 1, 6));
+        assertEquals("!...", shortName("!!!!!!!!!!", 4, 0));
 
-        // Arrange
-        final String str = "!!!!!!!!";
-        final int length = 2_147_221_512;
-
-        // Act
-        final String retval = Formats.rightStr(str, length);
-
-        // Assert result
-        Assert.assertEquals("!!!!!!!!", retval);
-    }
-
-    @Test
-    public void shortNameInputNotNullPositivePositiveOutputNotNull() {
-
-        // Arrange
-        final String str = "!";
-        final int length = 1;
-        final int rightLength = 6;
-
-        // Act
-        final String retval = Formats.shortName(str, length, rightLength);
-
-        // Assert result
-        Assert.assertEquals("!", retval);
-    }
-
-    @Test
-    public void shortNameInputNotNullPositiveZeroOutputNotNull() {
-
-        // Arrange
-        final String str = "!!!!!!!!!!";
-        final int length = 4;
-        final int rightLength = 0;
-
-        // Act
-        final String retval = Formats.shortName(str, length, rightLength);
-
-        // Assert result
-        Assert.assertEquals("!...", retval);
-    }
-
-    @Test
-    public void shortNameInputNotNullZeroNegativeOutputStringIndexOutOfBoundsException() {
-
-        // Arrange
-        final String str = "!!!!!!!!!!";
-        final int length = 0;
-        final int rightLength = -19;
-
-        // Act
         thrown.expect(StringIndexOutOfBoundsException.class);
-        Formats.shortName(str, length, rightLength);
-
+        shortName("!!!!!!!!!!", 0, -19);
         // Method is not expected to return due to exception thrown
     }
 
     @Test
-    public void toFixLengthSizeUnitInputNullOutputNotNull() {
-
-        // Arrange
-        final Long size = null;
-
-        // Act
-        final String retval = Formats.toFixLengthSizeUnit(size);
-
-        // Assert result
-        Assert.assertEquals("NaN", retval);
+    public void testToFixLengthSizeUnit() {
+        assertEquals("NaN", toFixLengthSizeUnit(null));
+        assertEquals(" 123", toFixLengthSizeUnit(123L));
+        assertEquals(" 120k", toFixLengthSizeUnit(123_456L));
+        assertEquals(" 117m", toFixLengthSizeUnit(123_456_789L));
+        assertEquals(" 114g", toFixLengthSizeUnit(123_456_789_000L));
+        assertEquals("4194304t", toFixLengthSizeUnit(4_611_686_018_427_387_906L));
     }
 
     @Test
-    public void toFixLengthSizeUnitInputPositiveOutputNotNull() {
-
-        // Arrange
-        final Long size = 4_611_686_018_427_387_906L;
-
-        // Act
-        final String retval = Formats.toFixLengthSizeUnit(size);
-
-        // Assert result
-        Assert.assertEquals("4194304t", retval);
+    public void testToMB() {
+        assertEquals("NaN", toMB(-8L));
+        assertEquals("0m", toMB(8L));
+        assertEquals("114g", toMB(123_456_789_000L));
     }
 
     @Test
-    public void toMBInputNegativeOutputNotNull() {
-
-        // Arrange
-        final long bytes = -8L;
-
-        // Act
-        final String retval = Formats.toMB(bytes);
-
-        // Assert result
-        Assert.assertEquals("NaN", retval);
+    public void testToSizeUnit() {
+        assertEquals("-1023", toSizeUnit(-1023L));
+        assertEquals("NaN", toSizeUnit(null));
+        assertEquals("44k", toSizeUnit(45_312L));
+        assertEquals("117m", toSizeUnit(123_456_789L));
+        assertEquals("114g", toSizeUnit(123_456_789_000L));
+        assertEquals("112t", toSizeUnit(123_456_789_000_000L));
     }
 
     @Test
-    public void toMBInputPositiveOutputNotNull() {
+    public void testToSizeUnitWithColor() {
+        assertEquals("123", toSizeUnitWithColor(123L, new LongWarning()));
 
-        // Arrange
-        final long bytes = 8L;
-
-        // Act
-        final String retval = Formats.toMB(bytes);
-
-        // Assert result
-        Assert.assertEquals("0m", retval);
-    }
-
-    @Test
-    public void toSizeUnitInputNegativeOutputNotNull() {
-
-        // Arrange
-        final Long size = -1023L;
-
-        // Act
-        final String retval = Formats.toSizeUnit(size);
-
-        // Assert result
-        Assert.assertEquals("-1023", retval);
-    }
-
-    @Test
-    public void toSizeUnitInputNullOutputNotNull() {
-
-        // Arrange
-        final Long size = null;
-
-        // Act
-        final String retval = Formats.toSizeUnit(size);
-
-        // Assert result
-        Assert.assertEquals("NaN", retval);
-    }
-
-    @Test
-    public void toSizeUnitInputPositiveOutputNotNull() {
-
-        // Arrange
-        final Long size = 45_312L;
-
-        // Act
-        final String retval = Formats.toSizeUnit(size);
-
-        // Assert result
-        Assert.assertEquals("44k", retval);
-    }
-
-    @Test
-    public void toSizeUnitWithColorInputNullNullOutputNullPointerException() {
-
-        // Arrange
-        final Long size = null;
-        final LongWarning warning = null;
-
-        // Act
         thrown.expect(NullPointerException.class);
-        Formats.toSizeUnitWithColor(size, warning);
-
+        toSizeUnitWithColor(null, null);
         // Method is not expected to return due to exception thrown
+    }
+
+    @Test
+    public void testToTimeUnit() {
+        assertEquals("01s", toTimeUnit(1_000L));
+        assertEquals("02m00s", toTimeUnit(120_000L));
+        assertEquals("02h00m", toTimeUnit(7_200_000L));
+        assertEquals("2d00h", toTimeUnit(172_800_000L));
     }
 
 }
