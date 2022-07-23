@@ -113,7 +113,7 @@ keySet遍历的方式，增加了N次用key获取value的查询。
 
 2) 即使线程安全类仍然要注意函数的正确使用。
 
-例如：即使用了ConcurrentHashMap，但直接是用get/put方法，仍然可能会多线程间互相覆盖。
+例如：即使用了 ConcurrentHashMap，但直接使用 get/put 方法，仍然可能会多线程间互相覆盖。
 
 ```java
 //WRONG

@@ -204,11 +204,11 @@ public void foo() {
 
 ----
 
-**Rule 14.【强制】使用IDE生成toString，hashCode和equals方法。**
+**Rule 14.【强制】使用 IDE 生成 toString、hashCode 和 equals 方法。**
 
-使用IDE生成而不是手写，能保证toString有统一的格式，equals和hashCode则避免不正确的Null值处理。
+使用 IDE 生成而不是手写，能保证 toString 有统一的格式，equals 和 hashCode 则避免不正确的 null 值处理。
 
-子类生成toString() 时，还需要勾选父类的属性。
+子类生成 toString 时，还需要勾选父类的属性。
 
 ----
 

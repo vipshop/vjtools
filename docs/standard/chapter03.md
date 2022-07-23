@@ -68,24 +68,33 @@ public void put(Elephant elephant, Fridge fridge);
 
 ----
 
-**Rule 9. 【推荐】TODO标记，清晰说明代办事项和处理人**
+**Rule 9. 【推荐】TODO 标记，清晰说明代办事项和处理人**
+
+“对那些临时的, 短期的解决方案, 或已经够好但仍不完美的代码使用 TODO 注释. ”
 
 清晰描述待修改的事项，保证过几个月后仍然能够清楚要做什么修改。
 
 如果近期会处理的事项，写明处理人。如果远期的，写明提出人。
 
-通过IDE和Sonar的标记扫描，经常清理此类标记，线上故障经常来源于这些标记但未处理的代码。
+通过 IDE 和 Sonar 的标记扫描，经常清理此类标记，线上故障经常来源于这些标记但未处理的代码。
+
+正例：
 
 ```java
-正例：
-//TODO:calvin use xxx to replace yyy.
-
-反例：
-//TODO: refactor it
+// TODO(who): to do what.
+// TODO(who): when to do what.
+// TODO(calvin): use xxx to replace yyy.
 ```
 
+反例：
+
+```java
+// TODO: refactor it
+```
+
+不推荐使用 FIXME 标记。这样，在项目中搜索 TODO 就可以得到完整的 TODO list，而不需要搜索 TODO 和 FIXME。
+
 * [Sonar: Track uses of "TODO" tags](https://rules.sonarsource.com/java/RSPEC-1135)
-* [Sonar: Track uses of "FIXME" tags](https://rules.sonarsource.com/java/RSPEC-1134)
 
 ----
 
