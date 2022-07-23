@@ -1,17 +1,17 @@
 # (七) 基本类型与字符串
 
-**Rule 1. 原子数据类型(int等)与包装类型(Integer等)的使用原则**    
+**Rule 1. 原子数据类型(int等)与包装类型(Integer等)的使用原则**
 
-**1.1 【推荐】需要序列化的POJO类属性使用包装数据类型** 
+**1.1 【推荐】需要序列化的POJO类属性使用包装数据类型**
 
 
-**1.2 【推荐】RPC方法的返回值和参数使用包装数据类型** 
+**1.2 【推荐】RPC方法的返回值和参数使用包装数据类型**
 
 
 **1.3 【推荐】局部变量尽量使用基本数据类型**
 
-    
-包装类型的坏处:  
+
+包装类型的坏处:
 
 1）Integer 24字节，而原子类型 int 4字节。
 
@@ -22,17 +22,17 @@
 
 包装类型的好处:
 
-1）包装类型能表达Null的语义。 
-    
+1）包装类型能表达Null的语义。
+
 比如数据库的查询结果可能是null，如果用基本数据类型有NPE风险。又比如显示成交总额涨跌情况，如果调用的RPC服务不成功时，应该返回null，显示成-%，而不是0%。
 
 2）集合需要包装类型，除非使用数组，或者特殊的原子类型集合。
-    
-3）泛型需要包装类型，如`Result<Integer>`。
-    
-----  
 
-**Rule 2.原子数据类型与包装类型的转换原则**  
+3）泛型需要包装类型，如`Result<Integer>`。
+
+----
+
+**Rule 2.原子数据类型与包装类型的转换原则**
 
 **2.1【推荐】自动转换(AutoBoxing)有一定成本，调用者与被调用函数间尽量使用同一类型，减少默认转换**
 
@@ -56,15 +56,15 @@ int i = Integer.parseInt(str);
 
 ```java
 //如果intObject为null，产生NPE
-int i = intObject; 
+int i = intObject;
 ```
 
-----  
+----
 
 **Rule 3. 数值equals比较的原则**
 
 **3.1【强制】 所有包装类对象之间值的比较，全部使用equals方法比较**
-      
+
 \==判断对象是否同一个。Integer var = ?在缓存区间的赋值（见规则1），会复用已有对象，因此这个区间内的Integer使用==进行判断可通过，但是区间之外的所有数据，则会在堆上新产生，不会通过。因此如果用\== 来比较数值，很可能在小的测试数据中通过，而到了生产环境才出问题。
 
 
@@ -97,7 +97,7 @@ float f2 = 0.45f/3; //实际等于0.14999999
 
 //WRONG
 if (f1 == f2) {...}
-if (Double.compare(f1,f2)==0) 
+if (Double.compare(f1,f2)==0)
 
 //RIGHT
 static final float EPSILON = 0.00001f;
@@ -106,16 +106,16 @@ if (Math.abs(f1-f2)<EPSILON) {...}
 
 * [Sonar-1244: Floating point numbers should not be tested for equality](https://rules.sonarsource.com/java/RSPEC-1244)
 
-----  
+----
 
 **Rule 4. 数字类型的计算原则**
 
 **4.1【强制】数字运算表达式，因为先进行等式右边的运算，再赋值给等式左边的变量，所以等式两边的类型要一致**
- 
-例子1: int与int相除后，哪怕被赋值给float或double，结果仍然是四舍五入取整的int。 
+
+例子1: int与int相除后，哪怕被赋值给float或double，结果仍然是四舍五入取整的int。
 
 需要强制将除数或被除数转换为float或double。
-   
+
 ```java
 double d = 24/7;  //结果是3.0
 double d =  (double)24/7; //结果是正确的3.42857
@@ -170,28 +170,28 @@ double d2 = 1.03d - 0.42d; //结果是0.6100000000000001
 
 * [Sonar-2164: Math should not be performed on floats](https://rules.sonarsource.com/java/RSPEC-2164)
 
-----  
+----
 
 **Rule 5. 【推荐】如果变量值仅有有限的可选值，用枚举类来定义常量**
 
 尤其是变量还希望带有名称之外的延伸属性时，如下例：
-  
+
 ```java
 //WRONG
 public String MONDAY = "MONDAY";
 public int MONDAY_SEQ = 1;
 
 //RIGHT
-public enum SeasonEnum { 
-	SPRING(1), SUMMER(2), AUTUMN(3), WINTER(4); 
-	int seq; 
+public enum SeasonEnum {
+	SPRING(1), SUMMER(2), AUTUMN(3), WINTER(4);
+	int seq;
 	SeasonEnum(int seq) { this.seq = seq; }
 }
 ```
 
 业务代码中不要依赖ordinary()函数进行业务运算，而是自定义数字属性，以免枚举值的增减调序造成影响。 例外：永远不会有变化的枚举，比如上例的一年四季。
 
-----  
+----
 
 **Rule 6. 字符串拼接的原则**
 
@@ -244,7 +244,7 @@ str = "result:" + myObject;  // myObject为Null时，输出 result:null
 
 参考BigDecimal的toString()实现，及vjkit中的StringBuilderHolder。
 
-----  
+----
 
 **Rule 7. 【推荐】字符操作时，优先使用字符参数，而不是字符串，能提升性能**
 
@@ -253,7 +253,7 @@ str = "result:" + myObject;  // myObject为Null时，输出 result:null
 str.indexOf("e");
 
 //RIGHT
-stringBuilder.append('a'); 
+stringBuilder.append('a');
 str.indexOf('e');
 str.replace('m','z');
 ```
@@ -262,10 +262,10 @@ str.replace('m','z');
 
 * [Sonar-3027: String function use should be optimized for single characters](https://rules.sonarsource.com/java/RSPEC-3027)
 
-----  
+----
 
 **Rule 8. 【推荐】利用好正则表达式的预编译功能，可以有效加快正则匹配速度**
-       
+
 反例：
 ```java
 //直接使用String的matches()方法
@@ -276,7 +276,7 @@ Pattern pattern = Pattern.compile("[a-zA-z]");
 result = pattern.matcher("abc").matches();
 ```
 
-正例：  
+正例：
 ```java
 //在某个地方预先编译Pattern，比如类的静态变量
 private static Pattern pattern = Pattern.compile("[a-zA-z]");
@@ -286,5 +286,3 @@ result = pattern.matcher("abc").matches();
 ```
 
 ----
-
-

@@ -8,7 +8,7 @@
 
 
 默认构造函数使用默认的数组大小，比如ArrayList默认大小为10，HashMap为16。因此建议使用ArrayList(int initialCapacity)等构造函数，明确初始化大小。
-    
+
 
 HashMap/HashSet的初始值还要考虑加载因子:
 
@@ -16,15 +16,15 @@ HashMap/HashSet的初始值还要考虑加载因子:
 
 如果希望加快Key查找的时间，还可以进一步降低加载因子，加大初始大小，以降低哈希冲突的概率。
 
-----  
+----
 
 **Rule 2. 【推荐】尽量使用新式的foreach语法遍历Collection与数组**
 
 foreach是语法糖，遍历集合的实际字节码等价于基于Iterator的循环。
-    
+
 foreach代码一来代码简洁，二来有效避免了有多个循环或嵌套循环时，因为不小心的复制粘贴，用错了iterator或循环计数器(i,j)的情况。
 
-----  
+----
 
 **Rule 3. 【强制】不要在foreach循环里进行元素的remove/add操作，remove元素可使用Iterator方式**
 
@@ -43,13 +43,13 @@ while (it.hasNext()) {
   if (condition) {
     it.remove();
   }
-} 
+}
 ```
 
 * Facebook-Contrib: Correctness - Method modifies collection element while iterating
 * Facebook-Contrib: Correctness - Method deletes collection element while iterating
 
-----  
+----
 
 **Rule 4. 【强制】使用entrySet遍历Map类集合Key/Value，而不是keySet	方式进行遍历**
 
@@ -57,13 +57,13 @@ keySet遍历的方式，增加了N次用key获取value的查询。
 
 * [Sonar-2864:"entrySet()" should be iterated when both the key and value are needed](https://rules.sonarsource.com/java/RSPEC-2864)
 
-----  
+----
 
 **Rule 5. 【强制】当对象用于集合时，下列情况需要重新实现hashCode()和 equals()**
 
 1） 以对象做为Map的KEY时；
 
-2） 将对象存入Set时。 
+2） 将对象存入Set时。
 
 上述两种情况，都需要使用hashCode和equals比较对象，默认的实现会比较是否同一个对象（对象的引用相等）。
 
@@ -71,19 +71,19 @@ keySet遍历的方式，增加了N次用key获取value的查询。
 
 * [Sonar-2141:Classes that don't define "hashCode()" should not be used in hashes](https://rules.sonarsource.com/java/RSPEC-2141)
 
-----  
+----
 
 **Rule 6. 【强制】高度注意各种Map类集合Key/Value能不能存储null值的情况**
 
 | Map | Key | Value |
 | -------- | -------- |-------- |
 |HashMap|Nullable | Nullable|
-|ConcurrentHashMap| NotNull| NotNull|   
-|TreeMap| NotNull| Nullable | 
+|ConcurrentHashMap| NotNull| NotNull|
+|TreeMap| NotNull| Nullable |
 
 由于HashMap的干扰，很多人认为ConcurrentHashMap是可以置入null值。同理，Set中的value实际是Map中的key。
 
-----  
+----
 
 **Rule 7. 【强制】长生命周期的集合，里面内容需要及时清理，避免内存泄漏**
 
@@ -94,17 +94,17 @@ keySet遍历的方式，增加了N次用key获取value的查询。
 2） 长生命周期对象的属性；
 
 3） 保存在ThreadLocal中的集合。
-   
+
 如无法保证集合的大小是有限的，使用合适的缓存方案代替直接使用HashMap。
-   
+
 另外，如果使用WeakHashMap保存对象，当对象本身失效时，就不会因为它在集合中存在引用而阻止回收。但JDK的WeakHashMap并不支持并发版本，如果需要并发可使用Guava Cache的实现。
-  
+
 ----
 
 **Rule 8. 【强制】集合如果存在并发修改的场景，需要使用线程安全的版本**
 
 1) 著名的反例，HashMap扩容时，遇到并发修改可能造成100%CPU占用。
-   
+
 推荐使用`java.util.concurrent(JUC)`工具包中的并发版集合，如ConcurrentHashMap等，优于使用Collections.synchronizedXXX()系列函数进行同步化封装(等价于在每个方法都加上synchronized关键字)。
 
 
@@ -124,7 +124,7 @@ if (e == null) {
 }
 return e;
 
-//RIGHT 
+//RIGHT
 E e = map.get(key);
 if (e == null) {
   e = new E();
@@ -163,7 +163,7 @@ stack.pushAll(integers);
 Class Stack<E>{
   public void popAll(Collection<? super E> dist){
      while(!isEmpty())
-   	   dist.add(pop);   
+   	   dist.add(pop);
   }
 }
 
@@ -179,7 +179,7 @@ stack.popAll(objects);
 
 因此实在无法明确其泛型时，使用`List`也是可以的。
 
-----  
+----
 
 **Rule 11. 【推荐】如果Key只有有限的可选值，先将Key封装成Enum，并使用EnumMap**
 
@@ -189,13 +189,13 @@ EnumMap，以Enum为Key的Map，内部存储结构为`Object[enum.size]`，访�
 public enum COLOR {
   RED, GREEN, BLUE, ORANGE;
 }
-  
+
 EnumMap<COLOR, String> moodMap = new EnumMap<COLOR, String> (COLOR.class);
 ```
 
 * [Sonar-1640: Maps with keys that are enum values should be replaced with EnumMap](https://rules.sonarsource.com/java/RSPEC-1640)
 
-----  
+----
 
 **Rule 12. 【推荐】Array 与 List互转的正确写法**
 
@@ -208,7 +208,7 @@ String[] array = list.toArray(new String[list.size()]); //RIGHT，但list.size()
 
 // array -> list
 //非原始类型数组，且List不能再扩展
-List list = Arrays.asList(array); 
+List list = Arrays.asList(array);
 
 //非原始类型数组， 但希望List能再扩展
 List list = new ArrayList(array.length);
@@ -226,6 +226,3 @@ Collections.addAll()实际是循环加入元素，性能相对较低，同样会
 * Facebook-Contrib: Correctness - Method calls Array.asList on an array of primitive values
 
 ----
-
-
-

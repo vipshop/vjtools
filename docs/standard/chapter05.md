@@ -3,10 +3,10 @@
 **Rule 1. 【推荐】类成员与方法的可见性最小化**
 
 任何类、方法、参数、变量，严控访问范围。过于宽泛的访问范围，不利于模块解耦。思考：如果是一个private的方法，想删除就删除，可是一个public的service方法，或者一个public的成员变量，删除一下，不得手心冒点汗吗？
-  
+
 例外：为了单元测试，有时也可能将访问范围扩大，此时需要加上JavaDoc说明或vjkit中的`@VisibleForTesting`注解。
 
----- 
+----
 
 **Rule 2.【推荐】 减少类之间的依赖**
 
@@ -17,23 +17,23 @@ a.foo(b);     //WRONG
 
 a.foo(b.bar); //RIGHT
 ```
-----    
+----
 
 **Rule 3.【推荐】 定义变量与方法参数时，尽量使用接口而不是具体类**
 
 使用接口可以保持一定的灵活性，也能向读者更清晰的表达你的需求：变量和参数只是要求有一个Map，而不是特定要求一个HashMap。
-    
+
 例外：如果变量和参数要求某种特殊类型的特性，则需要清晰定义该参数类型，同样是为了向读者表达你的需求。
 
 ----
-      
+
 **Rule 4. 【推荐】类的长度度量**
-    
+
 类尽量不要超过300行，或其他团队共同商定的行数。
 
 对过大的类进行分拆时，可考虑其内聚性，即类的属性与类的方法的关联程度，如果有些属性没有被大部分的方法使用，其内聚性是低的。
 
-----  
+----
 
 **Rule 5.【推荐】 构造函数如果有很多参数，且有多种参数组合时，建议使用Builder模式**
 
@@ -53,7 +53,7 @@ public A(int timeout) {
 }
 ```
 
-----  
+----
 
 **Rule 6.【推荐】构造函数要简单，尤其是存在继承关系的时候**
 
@@ -64,7 +64,7 @@ Foo foo = new Foo();
 foo.init();
 ```
 
-----  
+----
 
 **Rule 7.【强制】所有的子类覆写方法，必须加`@Override`注解**
 
@@ -73,7 +73,7 @@ foo.init();
 而且，如果在父类中对方法签名进行了修改，子类会马上编译报错。
 
 另外，也能提醒阅读者这是个覆写方法。
-    
+
 最后，建议在IDE的Save Action中配置自动添加`@Override`注解，如果无意间错误同名覆写了父类方法也能被发现。
 
 * [Sonar-1161: "@Override" should be used on overriding and implementing methods](https://rules.sonarsource.com/java/RSPEC-1161)
@@ -83,7 +83,7 @@ foo.init();
 **Rule 8.【强制】静态方法不能被子类覆写。**
 
 因为它只会根据表面类型来决定调用的方法。
-    
+
 ```java
 Base base = new Children();
 
@@ -91,10 +91,10 @@ Base base = new Children();
 base.staticMethod();
 ```
 
-----  
+----
 
 **Rule 9.静态方法访问的原则**
- 
+
 **9.1【推荐】避免通过一个类的对象引用访问此类的静态变量或静态方法，直接用类名来访问即可**
 
 目的是向读者更清晰传达调用的是静态方法。可在IDE的Save Action中配置自动转换。
@@ -131,16 +131,16 @@ public void foo() {
 * [Sonar-3010: Static fields should not be updated in constructors](https://rules.sonarsource.com/java/RSPEC-3010)
 
 
-----  
+----
 
 **Rule 10.【推荐】 内部类的定义原则**
 
 当一个类与另一个类关联非常紧密，处于从属的关系，特别是只有该类会访问它时，可定义成私有内部类以提高封装性。
 
 另外，内部类也常用作回调函数类，在JDK8下建议写成Lambda。
-    
+
 内部类分匿名内部类，内部类，静态内部类三种。
-    
+
 1) 匿名内部类 与 内部类，按需使用：
 
 在性能上没有区别；当内部类会被多个地方调用，或匿名内部类的长度太长，已影响对调用它的方法的阅读时，定义有名字的内部类。
@@ -150,11 +150,11 @@ public void foo() {
 
 1. 非静态内部类持有外部类的引用，能访问外类的实例方法与属性。构造时多传入一个引用对性能没有太大影响，更关键的是向阅读者传递自己的意图，内部类会否访问外部类。
 2. 非静态内部类里不能定义static的属性与方法。
- 
+
 * [Sonar-2694: Inner classes which do not reference their owning classes should be "static"](https://rules.sonarsource.com/java/RSPEC-2694)
 * [Sonar-1604: Anonymous inner classes containing only one method should become lambdas](https://rules.sonarsource.com/java/RSPEC-1604)
 
-----  
+----
 
 **Rule 11.【推荐】使用getter/setter方法，还是直接public成员变量的原则。**
 
@@ -169,7 +169,7 @@ public void foo() {
 3. 增加简单的值处理，值类型转换等
 
 建议通过IDE生成getter/setter。
-    
+
 但getter/seter中不应有复杂的业务处理，建议另外封装函数，并且不要以getXX/setXX命名。
 
 
@@ -177,13 +177,13 @@ public void foo() {
 
 例外：有些序列化框架只能从getter/setter反射，不能直接反射public成员变量。
 
-----  
+----
 
 **Rule 12.【强制】POJO类必须覆写toString方法。**
- 
+
 便于记录日志，排查问题时调用POJO的toString方法打印其属性值。否则默认的Object.toString()只打印`类名@数字`的无效信息。
 
-----  
+----
 
 **Rule 13. hashCode和equals方法的处理，遵循如下规则:**
 
@@ -202,7 +202,7 @@ public void foo() {
 
 * [Sonar-1206: "equals(Object obj)" and "hashCode()" should be overridden in pairs](https://rules.sonarsource.com/java/RSPEC-1206)
 
-----  
+----
 
 **Rule 14.【强制】使用IDE生成toString，hashCode和equals方法。**
 
@@ -212,7 +212,7 @@ public void foo() {
 
 ----
 
-**Rule 15. 【强制】Object的equals方法容易抛空指针异常，应使用常量或确定非空的对象来调用equals**    
+**Rule 15. 【强制】Object的equals方法容易抛空指针异常，应使用常量或确定非空的对象来调用equals**
 
 推荐使用java.util.Objects#equals（JDK7引入的工具类）
 
@@ -224,7 +224,7 @@ Objects.equals(object, "test"); //RIGHT
 
 * [Sonar-1132: Strings literals should be placed on the left side when checking for equality](https://rules.sonarsource.com/java/RSPEC-1132)
 
-----  
+----
 
 **Rule 16.【强制】除了保持兼容性的情况，总是移除无用属性、方法与参数**
 
@@ -237,7 +237,7 @@ Objects.equals(object, "test"); //RIGHT
 * [Sonar-1172: Unused method parameters should be removed](https://rules.sonarsource.com/java/RSPEC-1172) Sonar-VJ版只对private方法的无用参数告警。
 
 
-----  
+----
 
 **Rule 17.【推荐】final关键字与性能无关，仅用于下列不可修改的场景**
 
@@ -258,5 +258,3 @@ obj.getA().getB().getC().hello();
 ```
 
 ----
-
-

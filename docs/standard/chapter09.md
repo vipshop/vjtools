@@ -30,7 +30,7 @@ Thread thread = new Thread(...);
 thread.start();
 ```
 
-同理，定时器也不要使用Timer，而应该使用ScheduledExecutorService。 
+同理，定时器也不要使用Timer，而应该使用ScheduledExecutorService。
 
 因为Timer只有单线程，不能并发的执行多个在其中定义的任务，而且如果其中一个任务抛出异常，整个Timer也会挂掉，而ScheduledExecutorService只有那个没捕获到异常的任务不再定时执行，其他任务不受影响。
 
@@ -40,9 +40,9 @@ thread.start();
 
 Executors返回的线程池对象的弊端 ：
 
-1）FixedThreadPool 和 SingleThreadPool: 
+1）FixedThreadPool 和 SingleThreadPool:
 
-允许的请求队列长度为 Integer.MAX_VALUE，可能会堆积大量的请求，从而导致 OOM。 
+允许的请求队列长度为 Integer.MAX_VALUE，可能会堆积大量的请求，从而导致 OOM。
 
 
 2）CachedThreadPool 和 ScheduledThreadPool:
@@ -243,7 +243,7 @@ synchronized(A.class) {
 
 
 
-* 无锁的数据结构： 
+* 无锁的数据结构：
 
 1）完全无锁无等待的结构，如JDK8的ConcurrentHashMap；
 
@@ -262,8 +262,8 @@ synchronized(A.class) {
 对多个资源多个对象的加锁顺序要一致。
 
 如果无法确定完全避免死锁，可以使用带超时控制的tryLock语句加锁。
-    
-----   
+
+----
 
 **Rule 13. 【推荐】volatile修饰符，AtomicXX系列的正确使用**
 
@@ -274,13 +274,13 @@ synchronized(A.class) {
 此时可使用Atomic*系列:
 
 ```java
-AtomicInteger count = new AtomicInteger(); 
-count.addAndGet(2); 
+AtomicInteger count = new AtomicInteger();
+count.addAndGet(2);
 ```
 
 但如果需要原子地同时对多个AtomicXXX的Counter进行操作，则仍然需要使用synchronized将改动代码块加锁。
 
-----   
+----
 
 **Rule 14. 【推荐】延时初始化的正确写法**
 
@@ -301,5 +301,3 @@ public void myMethod() {
 * [Sonar-2168: Double-checked locking should not be used](https://rules.sonarsource.com/java/RSPEC-2168)
 
 ----
-
-

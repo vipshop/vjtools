@@ -3,14 +3,14 @@
 **Rule 1. 【强制】创建异常的消耗大，只用在真正异常的场景**
 
 构造异常时，需要获得整个调用栈，有一定消耗。
-    
+
 不要用来做流程控制，条件控制，因为异常的处理效率比条件判断低。
 
 发生概率较高的条件，应该先进行检查规避，比如：IndexOutOfBoundsException，NullPointerException等，所以如果代码里捕获这些异常通常是个坏味道。
-    
+
 ```java
 //WRONG
-try { 
+try {
   return obj.method();
 } catch (NullPointerException e) {
   return false;
@@ -19,7 +19,7 @@ try {
 //RIGHT
 if (obj == null) {
   return false;
-}     
+}
 ```
 
 * [Sonar-1696: "NullPointerException" should not be caught](https://rules.sonarsource.com/java/RSPEC-1696)
@@ -27,13 +27,13 @@ if (obj == null) {
 ----
 
 **Rule 2. 【推荐】在特定场景，避免每次构造异常**
-   
+
 如上，异常的构造函数需要获得整个调用栈。
 
 如果异常频繁发生，且不需要打印完整的调用栈时，可以考虑绕过异常的构造函数。
 
 1） 如果异常的message不变，将异常定义为静态成员变量;
-  
+
 下例定义静态异常，并简单定义一层的StackTrace。`ExceptionUtil`见vjkit。
 
 ```java
@@ -52,8 +52,8 @@ Exception默认不是Cloneable的，`CloneableException`见vjkit。
 
 ```java
 private static CloneableException TIMEOUT_EXCEPTION = new CloneableException("Timeout") .setStackTrace(My.class,
- "hello"); 
- 
+ "hello");
+
 ...
 
 throw TIMEOUT_EXCEPTION.clone("Timeout for 40ms");
@@ -131,7 +131,7 @@ try {
 ----
 
 **Rule 7.异常处理的原则**
-    
+
 **7.1 【强制】捕获异常一定要处理；如果故意捕获并忽略异常，须要注释写明原因**
 
 方便后面的阅读者知道，此处不是漏了处理。
@@ -149,7 +149,7 @@ try {
 }
 ```
 
-  
+
 **7.2 【强制】异常处理不能吞掉原异常，要么在日志打印，要么在重新抛出的异常里包含原异常**
 
 ```java
@@ -157,12 +157,12 @@ try {
 throw new MyException("message");
 
 //RIGHT 记录日志后抛出新异常，向上次调用者屏蔽底层异常
-logger.error("message", ex); 
-throw new MyException("message"); 
+logger.error("message", ex);
+throw new MyException("message");
 
 //RIGHT 传递底层异常
-throw new MyException("message", ex); 
-```  
+throw new MyException("message", ex);
+```
 
 * [Sonar-1166: Exception handlers should preserve the original exceptions](https://rules.sonarsource.com/java/RSPEC-1166)，其中默认包含了InterruptedException, NumberFormatException，NoSuchMethodException等若干例外
 
@@ -219,7 +219,7 @@ try {
 } finally {
   return 2; //实际return 2 而不是1
 }
-	
+
 try {
   ...
   throw TimeoutException();
@@ -231,5 +231,3 @@ try {
 * [Sonar-1143: Jump statements should not occur in "finally" blocks](https://rules.sonarsource.com/java/RSPEC-1143)
 
 ----
-
-

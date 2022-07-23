@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 private static Logger logger = LoggerFactory.getLogger(Foo.class);
 ```
 
-----  
+----
 
 **Rule 2. 【推荐】对不确定会否输出的日志，采用占位符或条件判断**
 
@@ -40,10 +40,10 @@ if (logger.isDebugEnabled()) {
 }
 ```
 
-----  
+----
 
 **Rule 3. 【推荐】对确定输出，而且频繁输出的日志，采用直接拼装字符串的方式**
-  
+
 如果这是一条WARN，ERROR级别的日志，或者确定输出的INFO级别的业务日志，直接字符串拼接，比使用占位符替换，更加高效。
 
 Slf4j的占位符并没有魔术，每次输出日志都要进行占位符的查找，字符串的切割与重新拼接。
@@ -56,7 +56,7 @@ logger.info("I am a business log with id: " + id + " symbol: " + symbol);
 logger.warn("Processing trade with id: " + id + " symbol: " + symbol);
 ```
 
-----  
+----
 
 **Rule 4. 【推荐】尽量使用异步日志**
 
@@ -64,7 +64,7 @@ logger.warn("Processing trade with id: " + id + " symbol: " + symbol);
 
 需要正确配置异步队列长度及队列满的行为，是丢弃还是等待可用，业务上允许丢弃的尽量选丢弃。
 
-----  
+----
 
 **Rule 5. 【强制】禁止使用性能很低的System.out()打印日志信息**
 
@@ -75,13 +75,13 @@ logger.warn("Processing trade with id: " + id + " symbol: " + symbol);
 * [Sonar-106: Standard outputs should not be used directly to log anything](https://rules.sonarsource.com/java/RSPEC-106)
 * [Sonar-1148: Throwable.printStackTrace(...) should not be called](https://rules.sonarsource.com/java/RSPEC-1148)
 
-----  
+----
 
 **Rule 6. 【强制】禁止配置日志框架输出日志打印处的类名，方法名及行号的信息**
 
 日志框架在每次打印时，通过主动获得当前线程的StackTrace来获取上述信息的消耗非常大，尽量通过Logger名本身给出足够信息。
 
-----  
+----
 
 **Rule 7. 【推荐】谨慎地记录日志，避免大量输出无效日志，信息不全的日志**
 
@@ -89,7 +89,7 @@ logger.warn("Processing trade with id: " + id + " symbol: " + symbol);
 
 记录日志时请思考：这些日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？
 
----- 
+----
 
 **Rule 8. 【推荐】使用warn级别而不是error级别，记录外部输入参数错误的情况**
 
@@ -98,5 +98,3 @@ logger.warn("Processing trade with id: " + id + " symbol: " + symbol);
 error级别只记录系统逻辑出错、异常或重要的错误信息。
 
 ----
-
-
