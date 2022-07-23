@@ -2,25 +2,25 @@
 
 **Rule 1. 【强制】禁止拼音缩写，避免阅读者费劲猜测；尽量不用拼音，除非中国式业务词汇没有通用易懂的英文对应。**
 
-```text 
+```text
 禁止： DZ[打折] / getPFByName() [评分]
 
 尽量避免：Dazhe / DaZhePrice
 
 ```
 
-----  
+----
 
 **Rule 2. 【强制】禁止使用非标准的英文缩写**
 
-```text 
+```text
 反例： AbstractClass 缩写成 AbsClass；condition 缩写成 condi。
 ```
 
-----  
-       
+----
+
 **Rule 3. 【强制】禁用其他编程语言风格的前缀和后缀**
- 
+
 在其它编程语言中使用的特殊前缀或后缀，如`_name`, `name_`, `mName`, `i_name`，在Java中都不建议使用。
 
 ----
@@ -39,25 +39,25 @@
 4）如果一个应用里同时存在 `Account、AccountInfo、AccountData` 类，或者一个类里同时有 `getAccountInfo()、getAccountData()`, `save()、 store()` 的函数，阅读者将非常困惑。
 
 
-5） `callerId` 与 `calleeId`， `mydearfriendswitha` 与 `mydearfriendswithb` 这种拼写极度接近，考验阅读者眼力的。 
+5） `callerId` 与 `calleeId`， `mydearfriendswitha` 与 `mydearfriendswithb` 这种拼写极度接近，考验阅读者眼力的。
 
-----  
+----
 
 **Rule 5. 【推荐】包名全部小写。点分隔符之间尽量只有一个英语单词，即使有多个单词也不使用下划线或大小写分隔**
 
-```text 
+```text
 正例： com.vip.javatool
 
 反例： com.vip.java_tool, com.vip.javaTool
 ```
-                                                                   
+
 * [Sonar-120:Package names should comply with a naming convention](https://rules.sonarsource.com/java/RSPEC-120)
 
-----  
+----
 
 **Rule 6. 【强制】类名与接口名使用UpperCamelCase风格，遵从驼峰形式**
 
-Tcp, Xml等缩写也遵循驼峰形式，可约定例外如：DTO/ VO等。 
+Tcp, Xml等缩写也遵循驼峰形式，可约定例外如：DTO/ VO等。
 
 ``` text
 正例：UserId / XmlService / TcpUdpDeal / UserVO
@@ -68,8 +68,8 @@ Tcp, Xml等缩写也遵循驼峰形式，可约定例外如：DTO/ VO等。
 * [Sonar-101:Class names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-101)
 * [Sonar-114:Interface names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-114)
 
----- 
- 
+----
+
 **Rule 7. 【强制】方法名、参数名、成员变量、局部变量使用lowerCamelCase风格，遵从驼峰形式**
 
 ```text
@@ -80,28 +80,28 @@ Tcp, Xml等缩写也遵循驼峰形式，可约定例外如：DTO/ VO等。
 * [Sonar-116:Field names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-116)
 * [Sonar-117:Local variable and method parameter names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-117)
 
-----  
+----
 
 **Rule 8. 【强制】常量命名全大写，单词间用下划线隔开。力求语义表达完整清楚，不要嫌名字长**
 
 ```text
-正例： MAX_STOCK_COUNT 
-   
+正例： MAX_STOCK_COUNT
+
 反例： MAX_COUNT
 ```
-    
+
 例外：当一个static final字段不是一个真正常量，比如不是基本类型时，不需要使用大写命名。
-    
+
 ```java
 private static final Logger logger = Logger.getLogger(MyClass.class);
 ```
 
 例外：枚举常量推荐全大写，但如果历史原因未遵循也是允许的，所以我们修改了Sonar的规则。
 
-* [Sonar-115:Constant names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-115) 
+* [Sonar-115:Constant names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-115)
 * [Sonar-308:Static non-final field names should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-308)
 
-----  
+----
 
 **Rule 9. 【推荐】如果使用到了通用的设计模式，在类名中体现，有利于阅读者快速理解设计思想**
 
@@ -109,7 +109,7 @@ private static final Logger logger = Logger.getLogger(MyClass.class);
 正例：OrderFactory， LoginProxy ，ResourceObserver
 ```
 
-----  
+----
 
 **Rule 10. 【推荐】枚举类名以Enum结尾; 抽象类使用Abstract或Base开头；异常类使用Exception结尾；测试类以它要测试的类名开始，以Test结尾**
 
@@ -121,17 +121,17 @@ private static final Logger logger = Logger.getLogger(MyClass.class);
 * [Sonar-3577:Test classes should comply with a naming convention](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-3577)
 
 
-----  
+----
 
 **Rule 11. 【推荐】实现类尽量用Impl的后缀与接口关联，除了形容能力的接口**
-    
+
 ```text
 正例：CacheServiceImpl 实现 CacheService接口。
 
 正例: Foo 实现 Translatable接口。
 ```
 
-----  
+----
 
 **Rule 12. 【强制】POJO类中布尔类型的变量名，不要加is前缀，否则部分框架解析会引起序列化错误**
 
@@ -172,4 +172,3 @@ public class B extends A {
 * [Sonar: Local variables should not shadow class fields](https://www.sonarsource.com/products/codeanalyzers/sonarjava/rules.html#RSPEC-1117)
 
 ----
-

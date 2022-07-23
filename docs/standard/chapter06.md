@@ -5,7 +5,7 @@
 曾经试过合并代码时，因为没加括号，单条语句合并成两条语句后，仍然认为只有单条语句，另一条语句在循环外执行。
 
 其他增加调试语句等情况也经常引起同样错误。
-    
+
 可在IDE的Save Action中配置自动添加。
 
 ```java
@@ -37,7 +37,7 @@ if (condition) {
 
 **Rule 3.【推荐】限定方法的嵌套层次**
 
-所有if/else/for/while/try的嵌套，当层次过多时，将引起巨大的阅读障碍，因此一般推荐嵌套层次不超过4。  
+所有if/else/for/while/try的嵌套，当层次过多时，将引起巨大的阅读障碍，因此一般推荐嵌套层次不超过4。
 
 通过抽取方法，或哨兵语句（见Rule 2）来减少嵌套。
 
@@ -47,12 +47,12 @@ public void applyDriverLicense() {
     System.out.println("You are too young to apply driver license.");
     return;
   }
-    
+
   if (isTooOld()) {
     System.out.println("You are too old to apply driver license.");
     return;
   }
-    
+
   System.out.println("You've applied the driver license successfully.");
   return;
 }
@@ -121,7 +121,7 @@ if (maybeFalse() && maybeTrue()) { ... }
 **Rule 8.【强制】switch的规则**
 
 1）在一个switch块内，每个case要么通过break/return等来终止，要么注释说明程序将继续执行到哪一个case为止；
-    
+
 2）在一个switch块内，都必须包含一个default语句并且放在最后，即使它什么代码也没有。
 
 ```java
@@ -135,7 +135,7 @@ case "lion": // 执行到tiger
 case "tiger":
   System.out.println("It's a beast.");
   break;
-default: 
+default:
   // 什么都不做，也要有default
   break;
 }
@@ -160,5 +160,3 @@ while语句能在循环开始的时候就看到循环条件，便于帮助理解
 do-while语句要在循环最后才看到循环条件，不利于代码维护，代码逻辑容易出错。
 
 ----
-
-
