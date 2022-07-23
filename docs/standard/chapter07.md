@@ -22,7 +22,7 @@
 
 包装类型的好处:
 
-1）包装类型能表达Null的语义。
+1）包装类型能表达 null 的语义。
 
 比如数据库的查询结果可能是null，如果用基本数据类型有NPE风险。又比如显示成交总额涨跌情况，如果调用的RPC服务不成功时，应该返回null，显示成-%，而不是0%。
 
@@ -74,35 +74,53 @@ int i = intObject;
 
 * Facebook-Contrib: Correctness - Method calls BigDecimal.equals()
 
+**3.3【强制】 Atomic\* 系列，不能使用 equals 方法**
 
-**3.3【强制】 Atomic* 系列，不能使用equals方法**
-
-因为 Atomic* 系列没有覆写equals方法。
+因为 Atomic\* 系列没有覆写 equals 方法。
 
 ```java
-//RIGHT
-if (counter1.get() == counter2.get()){...}
+// RIGHT
+if (counter1.get() == counter2.get()) {
+    // ...
+}
 ```
 
 * [Sonar-2204: ".equals()" should not be used to test the values of "Atomic" classes](https://rules.sonarsource.com/java/RSPEC-2204)
 
+**3.4【强制】 double 及 float 的比较，要特殊处理**
 
-**3.4【强制】 double及float的比较，要特殊处理**
-
-因为精度问题，浮点数间的equals非常不可靠，在vjkit的NumberUtil中有对应的封装函数。
+因为精度问题，浮点数间的 equals 非常不可靠，在 vjkit 的 NumberUtil 中有对应的封装函数。
 
 ```java
 float f1 = 0.15f;
-float f2 = 0.45f/3; //实际等于0.14999999
+float f2 = 0.45f/3; // 实际等于0.14999999
 
-//WRONG
-if (f1 == f2) {...}
-if (Double.compare(f1,f2)==0)
+// 反例
+if (f1 == f2) {
+    // ...
+}
 
-//RIGHT
+// 反例
+if (Double.compare(f1, f2) == 0) {
+    // ...
+}
+
+// 正例
+// 绝对误差
 static final float EPSILON = 0.00001f;
-if (Math.abs(f1-f2)<EPSILON) {...}
+if (Math.abs(f1 - f2) < EPSILON) {
+    // ...
+}
+
+// 正例
+// 相对误差
+static final float EPSILON = 0.001f;
+if (Math.abs(f1 - f2) / (Math.abs(f1) + Math.abs(f2)) < EPSILON) {
+    // ...
+}
 ```
+
+推荐使用“相对误差”的方式比较浮点数。
 
 * [Sonar-1244: Floating point numbers should not be tested for equality](https://rules.sonarsource.com/java/RSPEC-1244)
 
@@ -223,10 +241,10 @@ for (int i = 0; i < 100; i++) {
 
 ```java
 //WRONG
-str = "result:" + myObject.toString();  // myObject为Null时，抛NPE
+str = "result:" + myObject.toString();  // myObject 为 null时，抛 NPE
 
 //RIGHT
-str = "result:" + myObject;  // myObject为Null时，输出 result:null
+str = "result:" + myObject;  // myObject 为 null 时，输出 result:null
 ```
 
 
