@@ -10,7 +10,7 @@
 	<description>VIP's best practice libraries</description>
 
 	<properties>
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<assertj.version>2.6.0</assertj.version>
 		<mockito.version>2.18.3</mockito.version>
 		<logback.version>1.1.8</logback.version>
