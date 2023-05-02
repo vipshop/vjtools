@@ -2,6 +2,7 @@ package com.vip.vjtools.vjkit.time;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Test;
@@ -10,17 +11,26 @@ public class DateUtilTest {
 
 	@Test
 	public void isSameDay() {
-		Date date1 = new Date(106, 10, 1);
-		Date date2 = new Date(106, 10, 1, 12, 23, 44);
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2006, Calendar.OCTOBER, 1, 0, 0, 0);
+		Date date1 = new Date(calendar.getTime().getTime());
+
+		calendar.set(2006, Calendar.OCTOBER, 1, 12, 23, 44);
+		Date date2 = new Date(calendar.getTime().getTime());
 		assertThat(DateUtil.isSameDay(date1, date2)).isTrue();
 
-		Date date3 = new Date(106, 10, 1);
+		calendar.set(2006, Calendar.OCTOBER, 1, 0, 0, 0);
+		Date date3 = new Date(calendar.getTime().getTime());
+
 		assertThat(DateUtil.isSameTime(date1, date3)).isTrue();
 
-		Date date5 = new Date(106, 10, 2);
+		calendar.set(2006, Calendar.OCTOBER, 2);
+		Date date5 = calendar.getTime();
+
 		assertThat(DateUtil.isSameTime(date1, date5)).isFalse();
 
-		Date date4 = new Date(106, 10, 1, 12, 23, 43);
+		calendar.set(2006, Calendar.OCTOBER, 1, 12, 23, 43);
+		Date date4 = calendar.getTime();
 		assertThat(DateUtil.isBetween(date3, date1, date2)).isTrue();
 		assertThat(DateUtil.isBetween(date4, date1, date2)).isTrue();
 
@@ -28,14 +38,14 @@ public class DateUtilTest {
 			DateUtil.isBetween(null, date1, date2);
 			fail("should fail before");
 		} catch (Exception e) {
-
+			assertThat(e.fillInStackTrace() instanceof IllegalArgumentException).isTrue();
 		}
 
 		try {
 			DateUtil.isBetween(date3, date2, date1);
 			fail("should fail before");
 		} catch (Exception e) {
-
+			assertThat(e.fillInStackTrace() instanceof IllegalArgumentException).isTrue();
 		}
 
 		assertThat(DateUtil.isBetween(date5, date1, date2)).isFalse();
@@ -43,32 +53,65 @@ public class DateUtilTest {
 
 	@Test
 	public void truncateAndCelling() {
-		// Sat Jan 21 12:12:12 CST 2017
-		Date date = new Date(117, 0, 21, 12, 12, 12);
+		Calendar calendar = Calendar.getInstance();
+		// 设置为2017年1月21日12点12分12秒
+		calendar.set(2017, Calendar.JANUARY, 21, 12, 12, 12);
 
-		Date beginYear = new Date(117, 0, 1, 0, 0, 0);
-		Date endYear = new Date(new Date(117, 11, 31, 23, 59, 59).getTime() + 999);
-		Date nextYear = new Date(118, 0, 1, 0, 0, 0);
-
-		Date beginMonth = new Date(117, 0, 1);
-		Date endMonth = new Date(new Date(117, 0, 31, 23, 59, 59).getTime() + 999);
-		Date nextMonth = new Date(117, 1, 1);
-
-		Date beginWeek = new Date(117, 0, 16);
-		Date endWeek = new Date(new Date(117, 0, 22, 23, 59, 59).getTime() + 999);
-		Date nextWeek = new Date(117, 0, 23);
-
-		Date beginDate = new Date(117, 0, 21);
-		Date endDate = new Date(new Date(117, 0, 21, 23, 59, 59).getTime() + 999);
-		Date nextDate = new Date(117, 0, 22);
-
-		Date beginHour = new Date(117, 0, 21, 12, 0, 0);
-		Date endHour = new Date(new Date(117, 0, 21, 12, 59, 59).getTime() + 999);
-		Date nextHour = new Date(117, 0, 21, 13, 0, 0);
-
-		Date beginMinute = new Date(117, 0, 21, 12, 12, 0);
-		Date endMinute = new Date(new Date(117, 0, 21, 12, 12, 59).getTime() + 999);
-		Date nextMinute = new Date(117, 0, 21, 12, 13, 0);
+		Date date = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 1, 0, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date beginYear = calendar.getTime();
+		calendar.set(2017, Calendar.DECEMBER, 31, 23, 59, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		Date endYear = calendar.getTime();
+		calendar.set(2018, Calendar.JANUARY, 1, 0, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date nextYear = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 1, 0, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date beginMonth = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 31, 23, 59, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		Date endMonth = calendar.getTime();
+		calendar.set(2017, Calendar.FEBRUARY, 1, 0, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date nextMonth = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 16, 0, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date beginWeek = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 22, 23, 59, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		Date endWeek = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 23, 0, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date nextWeek = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 21, 0, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date beginDate = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 21, 23, 59, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		Date endDate = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 22, 0, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date nextDate = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 21, 12, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date beginHour = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 21, 12, 59, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		Date endHour = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 21, 13, 0, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date nextHour = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 21, 12, 12, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date beginMinute = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 21, 12, 12, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		Date endMinute = calendar.getTime();
+		calendar.set(2017, Calendar.JANUARY, 21, 12, 13, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date nextMinute = calendar.getTime();
 
 		assertThat(DateUtil.isSameTime(DateUtil.beginOfYear(date), beginYear)).isTrue();
 		assertThat(DateUtil.isSameTime(DateUtil.endOfYear(date), endYear)).isTrue();
@@ -97,21 +140,35 @@ public class DateUtilTest {
 
 	@Test
 	public void changeDay() {
-		Date date = new Date(106, 10, 1, 12, 23, 44);
-		Date expectDate1 = new Date(106, 10, 3);
-		Date expectDate2 = new Date(106, 9, 31);
-		Date expectDate3 = new Date(106, 11, 1);
-		Date expectDate4 = new Date(106, 7, 1);
-		Date expectDate5 = new Date(106, 10, 1, 13, 23, 44);
-		Date expectDate6 = new Date(106, 10, 1, 10, 23, 44);
-		Date expectDate7 = new Date(106, 10, 1, 12, 24, 44);
-		Date expectDate8 = new Date(106, 10, 1, 12, 21, 44);
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.set(2016, Calendar.NOVEMBER, 1, 12, 23, 44);
+		Date date = calendar.getTime();
+		calendar.set(2016, Calendar.NOVEMBER, 3, 0, 0, 0);
+		Date expectDate1 = calendar.getTime();
+		calendar.set(2016, Calendar.OCTOBER, 31, 0, 0, 0);
+		Date expectDate2 = calendar.getTime();
+		calendar.set(2016, Calendar.DECEMBER, 1, 0, 0, 0);
+		Date expectDate3 = calendar.getTime();
+		calendar.set(2016, Calendar.AUGUST, 1, 0, 0, 0);
+		Date expectDate4 = calendar.getTime();
+		calendar.set(2016, Calendar.NOVEMBER, 1, 13, 23, 44);
+		Date expectDate5 = calendar.getTime();
+		calendar.set(2016, Calendar.NOVEMBER, 1, 10, 23, 44);
+		Date expectDate6 = calendar.getTime();
+		calendar.set(2016, Calendar.NOVEMBER, 1, 12, 24, 44);
+		Date expectDate7 = calendar.getTime();
+		calendar.set(2016, Calendar.NOVEMBER, 1, 12, 21, 44);
+		Date expectDate8 = calendar.getTime();
+		calendar.set(2016, Calendar.NOVEMBER, 1, 12, 23, 45);
+		Date expectDate9 = calendar.getTime();
+		calendar.set(2016, Calendar.NOVEMBER, 1, 12, 23, 42);
+		Date expectDate10 = calendar.getTime();
 
-		Date expectDate9 = new Date(106, 10, 1, 12, 23, 45);
-		Date expectDate10 = new Date(106, 10, 1, 12, 23, 42);
-
-		Date expectDate11 = new Date(106, 10, 8);
-		Date expectDate12 = new Date(106, 9, 25);
+		calendar.set(2016, Calendar.NOVEMBER, 8, 0, 0, 0);
+		Date expectDate11 = calendar.getTime();
+		calendar.set(2016, Calendar.OCTOBER, 25, 0, 0, 0);
+		Date expectDate12 = calendar.getTime();
 
 		assertThat(DateUtil.isSameDay(DateUtil.addDays(date, 2), expectDate1)).isTrue();
 		assertThat(DateUtil.isSameDay(DateUtil.subDays(date, 1), expectDate2)).isTrue();
@@ -135,13 +192,37 @@ public class DateUtilTest {
 
 	@Test
 	public void setDay() {
-		Date date = new Date(116, 10, 1, 10, 10, 1);
-		Date expectedDate = new Date(116, 10, 3);
-		Date expectedDate2 = new Date(116, 10, 1);
-		Date expectedDate3 = new Date(117, 10, 1);
-		Date expectedDate4 = new Date(116, 10, 1, 9, 10, 1);
-		Date expectedDate5 = new Date(116, 10, 1, 10, 9, 1);
-		Date expectedDate6 = new Date(116, 10, 1, 10, 10, 10);
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.set(2016, Calendar.NOVEMBER, 1, 10, 10, 1);   // 2016年11月1日10点10分1秒
+		Date date = calendar.getTime();
+
+		calendar.set(2016, Calendar.NOVEMBER, 3, 0, 0, 0);
+		Date expectedDate = calendar.getTime();
+		calendar.set(2016, Calendar.DECEMBER, 1, 0, 0, 0);
+		Date expectedDate2 = calendar.getTime();
+		calendar.set(2017, Calendar.NOVEMBER, 1, 0, 0, 0);
+
+		Date expectedDate3 = calendar.getTime();
+
+		calendar.set(2016, Calendar.NOVEMBER, 1);
+		// 手动设置期望时间
+		calendar.set(Calendar.HOUR_OF_DAY, 9);
+		calendar.set(Calendar.MINUTE, 10);
+		calendar.set(Calendar.SECOND, 1);
+		Date expectedDate4 = calendar.getTime(); // 2016年11月1日9点10分1秒
+
+		// 手动设置期望时间
+		calendar.set(Calendar.HOUR_OF_DAY, 10);
+		calendar.set(Calendar.MINUTE, 9);
+		calendar.set(Calendar.SECOND, 1);
+		Date expectedDate5 = calendar.getTime(); // 2016年11月1日10点9分1秒
+
+		// 手动设置期望时间
+		calendar.set(Calendar.HOUR_OF_DAY, 10);
+		calendar.set(Calendar.MINUTE, 10);
+		calendar.set(Calendar.SECOND, 10);
+		Date expectedDate6 = calendar.getTime(); // 2016年11月1日10点10分10秒
 
 		assertThat(DateUtil.isSameDay(DateUtil.setDays(date, 3), expectedDate)).isTrue();
 		assertThat(DateUtil.isSameDay(DateUtil.setMonths(date, 11), expectedDate2)).isTrue();
@@ -150,52 +231,86 @@ public class DateUtilTest {
 		assertThat(DateUtil.isSameTime(DateUtil.setHours(date, 9), expectedDate4)).isTrue();
 		assertThat(DateUtil.isSameTime(DateUtil.setMinutes(date, 9), expectedDate5)).isTrue();
 		assertThat(DateUtil.isSameTime(DateUtil.setSeconds(date, 10), expectedDate6)).isTrue();
-
 	}
 
 	@Test
 	public void getDayOfWeek() {
 		// 2017-01-09
-		Date date = new Date(117, 0, 9);
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2017, Calendar.JANUARY, 9, 0, 0, 0);
+		Date date = calendar.getTime();
 		assertThat(DateUtil.getDayOfWeek(date)).isEqualTo(1);
-
-		Date date2 = new Date(117, 0, 15);
+		calendar.set(2017, Calendar.JANUARY, 15, 0, 0, 0);
+		Date date2 = calendar.getTime();
 		assertThat(DateUtil.getDayOfWeek(date2)).isEqualTo(7);
 	}
 
 	@Test
 	public void isLeapYear() {
 		// 2008-01-09,整除4年, true
-		Date date = new Date(108, 0, 9);
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2008, Calendar.JANUARY, 9);
+		Date date = calendar.getTime();
 		assertThat(DateUtil.isLeapYear(date)).isTrue();
 
 		// 2000-01-09,整除400年，true
-		date = new Date(100, 0, 9);
+		calendar.set(2000, Calendar.JANUARY, 9);
+		date = calendar.getTime();
 		assertThat(DateUtil.isLeapYear(date)).isTrue();
 
 		// 1900-01-09，整除100年，false
-		date = new Date(0, 0, 9);
+		calendar.set(1900, Calendar.JANUARY, 9);
+		date = calendar.getTime();
 		assertThat(DateUtil.isLeapYear(date)).isFalse();
 	}
 
 	@Test
 	public void getXXofXX() {
+		Calendar calendar = Calendar.getInstance();
+
 		// 2008-02-09, 整除4年, 闰年
-		Date date = new Date(108, 2, 9);
+		calendar.set(2008, 2, 9);
+		Date date = calendar.getTime();
 		assertThat(DateUtil.getMonthLength(date)).isEqualTo(29);
 
 		// 2009-02-09, 整除4年, 非闰年
-		Date date2 = new Date(109, 2, 9);
+		calendar.set(2009, 2, 9);
+		Date date2 = calendar.getTime();
 		assertThat(DateUtil.getMonthLength(date2)).isEqualTo(28);
 
-		Date date3 = new Date(108, 8, 9);
+		calendar.set(2008, 10, 9);
+		Date date3 = calendar.getTime();
 		assertThat(DateUtil.getMonthLength(date3)).isEqualTo(31);
 
-		Date date4 = new Date(109, 11, 30);
+		calendar.set(2009, Calendar.DECEMBER, 30);
+		Date date4 = calendar.getTime();
 		assertThat(DateUtil.getDayOfYear(date4)).isEqualTo(364);
-
-		Date date5 = new Date(117, 0, 12);
+		calendar.set(2017, Calendar.JANUARY, 12);
+		Date date5 = calendar.getTime();
 		assertThat(DateUtil.getWeekOfMonth(date5)).isEqualTo(3);
 		assertThat(DateUtil.getWeekOfYear(date5)).isEqualTo(3);
+	}
+
+	@Test
+	public void testGetMonthLength() {
+		Calendar calendar = Calendar.getInstance();
+
+		calendar.set(2020, 2, 14);
+		assertThat(DateUtil.getMonthLength(calendar.getTime())).isEqualTo(29);
+
+
+		calendar.set(2023, 2, 14);
+		assertThat(DateUtil.getMonthLength(calendar.getTime())).isEqualTo(28);
+
+		calendar.set(2023, 4, 14);
+		assertThat(DateUtil.getMonthLength(calendar.getTime())).isEqualTo(30);
+
+		calendar.set(2023, 1, 14);
+		assertThat(DateUtil.getMonthLength(calendar.getTime())).isEqualTo(31);
+
+		assertThat(DateUtil.getMonthLength(2023, 1)).isEqualTo(31);
+		assertThat(DateUtil.getMonthLength(2023, 2)).isEqualTo(28);
+		assertThat(DateUtil.getMonthLength(2023, 4)).isEqualTo(30);
+
 	}
 }

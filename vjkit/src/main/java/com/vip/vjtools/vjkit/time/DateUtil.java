@@ -45,7 +45,7 @@ public class DateUtil {
 	 */
 	public static boolean isBetween(@NotNull final Date date, @NotNull final Date start, @NotNull final Date end) {
 		if (date == null || start == null || end == null || start.after(end)) {
-			throw new IllegalArgumentException("some date parameters is null or dateBein after dateEnd");
+			throw new IllegalArgumentException("some date parameters is null or dateBegin after dateEnd");
 		}
 		return !date.before(start) && !date.after(end);
 	}
@@ -217,7 +217,6 @@ public class DateUtil {
 
 	/**
 	 * 获得日期是一年的第几周，返回值从1开始.
-	 * 
 	 * 开始的一周，只要有一天在那一年里都算.已改为中国习惯，1 是Monday，而不是Sunday
 	 */
 	public static int getWeekOfYear(@NotNull final Date date) {
@@ -378,18 +377,16 @@ public class DateUtil {
 
 	/**
 	 * 是否闰年，copy from Jodd Core的TimeUtil
-	 * 
 	 * 参数是公元计数, 如2016
 	 */
 	public static boolean isLeapYear(int y) {
-		boolean result = false;
-
-		if (((y % 4) == 0) && // must be divisible by 4...
+		boolean result = ((y % 4) == 0) && // must be divisible by 4...
 				((y < 1582) || // and either before reform year...
 						((y % 100) != 0) || // or not a century...
-						((y % 400) == 0))) { // or a multiple of 400...
-			result = true; // for leap year.
-		}
+						((y % 400) == 0));
+
+		// or a multiple of 400...
+		// for leap year.
 		return result;
 	}
 
@@ -404,6 +401,11 @@ public class DateUtil {
 
 	/**
 	 * 获取某个月有多少天, 考虑闰年等因数, 移植Jodd Core的TimeUtil
+	 * 月份从1开始到12，表示1月至12月。如果使用{@link Calendar}的月份常量需要注意，{@link Calendar}中以整数0代表1月，11代表12月。
+	 *
+	 * @see Calendar
+	 * @see Calendar#MONTH
+	 * @see Calendar#JANUARY,Calendar#DECEMBER
 	 */
 	public static int getMonthLength(int year, int month) {
 
